@@ -14,7 +14,7 @@ python cli.py apportion \
 	--constituencies=../data/constituencies/constituencies_iceland_2013.csv \
 	--votes=../data/elections/island_2013.csv \
 	--divider=dhondt
-	--methods=as,rs
+	--method=alternating-scaling --method=relative-superiority
 	--show-entropy
 	--output=simple
 ```
