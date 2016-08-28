@@ -4,6 +4,8 @@ import tabulate
 import voting
 import util
 
+from copy import copy
+
 ### Monkey patching CSV output mode into tabulate:
 tabulate.tabulate_formats.append("csv")
 tabulate._table_formats["csv"] = tabulate.TableFormat(lineabove=None, linebelowheader=None, linebetweenrows=None, linebelow=None, headerrow=tabulate.DataRow(begin=u'', sep=u',', end=u''), datarow=tabulate.DataRow(begin=u'', sep=u',', end=u''), padding=0, with_header_hide=None)
@@ -52,9 +54,9 @@ def apportion(divider, adjustment_divider, constituencies, votes, threshold, out
     # 4. Calculate adjustment seats
     v_party_adjustment_seats = voting.adjustment_seat_allocation(v_elim_votes, sum(v_const_seats), v_seatcount, adjustment_divmethod)
 
-    # 5. Conduct alternating scaling
+    # 5. Conduct adjustment method:
     for m in adjustment_method:
-	method = voting.adjustment_methods[m]
+        method = voting.adjustment_methods[m]
         results = method(votes, v_const_seats, v_party_adjustment_seats, m_allocations, adjustment_divmethod, threshold)
 
         header = ["Constituency"]

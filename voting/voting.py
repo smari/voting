@@ -1,5 +1,5 @@
 #coding:utf-8
-from copy import copy
+from copy import copy, deepcopy
 from math import log
 
 def dhondt_gen():
@@ -287,8 +287,9 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats, m_prior_alloc
 
 
 def relative_superiority(m_votes, v_const_seats, v_party_seats, m_prior_allocations, divisor_gen, threshold=None):
-    m_allocations = copy(m_prior_allocations)
-    num_preallocated_seats = sum([sum(x) for x in m_prior_allocations])
+    from tabulate import tabulate # TODO: remove me
+    m_allocations = deepcopy(m_prior_allocations)
+    num_preallocated_seats = sum([sum(x) for x in m_allocations])
     num_total_seats = sum(v_const_seats)
     for n in range(num_total_seats-num_preallocated_seats):
         m_votes = threshold_elimination_constituencies(m_votes, 0.0, v_party_seats, m_allocations)
@@ -309,11 +310,10 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats, m_prior_allocati
             new_votes[nextin] = app_next[0][2]
             firstin.append(nextin)
             # Create a provisional allocation where nextin gets the seat:
-            m_prov_allocations = copy(m_allocations[j])
-            m_prov_allocations[nextin] += 1
-
+            v_prov_allocations = copy(m_allocations[j])
+            v_prov_allocations[nextin] += 1
             # Calculate continuation:
-            app_after = apportion1d(new_votes, v_const_seats[j]+1, m_prov_allocations, divisor_gen)
+            app_after = apportion1d(new_votes, v_const_seats[j]+1, v_prov_allocations, divisor_gen)
 
             # Calculate relative superiority
             try:
@@ -329,9 +329,20 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats, m_prior_allocati
     return m_allocations
 
 
-def relative_inferiority(m_votes, v_const_seats, v_party_seats, m_prior_allocations, divisor_gen):
-    pass
+def relative_inferiority(m_votes, v_const_seats, v_party_seats, m_prior_allocations, divisor_gen, threshold=None):
+    m_allocations = copy(m_prior_allocations)
+    m_max_seats = [[min(Ci, Pj) for Pj in v_party_seats] for Ci in v_const_seats]
+    # Probably not needed:
+    const_filled = [False] * len(v_const_seats)
+    party_filled = [False] * len(v_party_seats)
 
+    # num_allocated =
+    for i in range(10):
+        for i in range(len(v_const_seats)):
+            app = apportion1d(m_votes[i], 10, m_allocations[i], divisor_gen)
+        pass
+
+    return m_allocations
 
 def entropy(votes, allocations, divisor_gen):
     e = 0
@@ -347,10 +358,12 @@ def entropy(votes, allocations, divisor_gen):
 adjustment_methods = {
   "alternating-scaling": alternating_scaling,
   "relative-superiority": relative_superiority,
+  "relative-inferiority": relative_inferiority,
 }
 adjustment_method_names = {
   "alternating-scaling": "Alternating-Scaling Method",
   "relative-superiority": "Relative Superiority Method",
+  "relative-inferiority": "Relative Inferiority Method",
 }
 
 if __name__ == "__main__":
