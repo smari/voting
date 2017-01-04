@@ -41,7 +41,7 @@ python cli.py --help
    * [x] Nordic Sainte-Lague method
  * [x] Constituency seat allocation
  * [x] Threshold elimination (on matrices and vectors)
- * Optimization and heuristic methods
+ * [ ] Optimization and heuristic methods
    * [x] Alternating-Scaling Algorithm (AS)
    * [x] Relative Superiority Algorithm (RS)
    * [ ] Relative Inferiority Algorithm (RI)
@@ -70,6 +70,22 @@ python cli.py --help
  * [ ] Simulation errors
    * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
 
+### Tickets
+_(updated 2017-01-04)_
+
+ * Smári:
+   * [ ] Update documentation
+   * [ ] Complete Icelandic law method
+   * [ ] Complete simulation basis
+   * [ ] Add vote-fuzzing support
+
+ * Þorkell:
+   * [ ] Figure out algorithms for detecting violations of Balinski axioms
+   * [ ] Describe algorithm for Norwegian method
+   * [ ] Review Relative Inferiority method
+
+ * Kurt:
+   * [ ] Describe algorithm for Swedish method
 
 ## Authors
 
