@@ -26,27 +26,50 @@ python cli.py --help
 
 ## Features
 
- * [x] d'Hondt method
- * [x] Sainte-Lague method
- * [x] Nordic Sainte-Lague method
+### Basic functionality
+
+* [x] Read constituency data files
+* [x] Read vote data files
+* [x] Basic click UI
+* [ ] Per ruleset click UI options
+
+### Apportionment methods
+
  * [x] One dimensional greedy apportionment
+   * [x] d'Hondt method
+   * [x] Sainte-Lague method
+   * [x] Nordic Sainte-Lague method
  * [x] Constituency seat allocation
- * [x] Read constituency data files
- * [x] Read vote data files
  * [x] Threshold elimination (on matrices and vectors)
- * [x] Alternating-Scaling Algorithm (AS)
- * [x] Relative Superiority Algorithm (RS)
- * [ ] Relative Inferiority Algorithm (RI)
- * [ ] Icelandic voting law algorithm
- * [ ] Swedish voting law algorithm
- * [ ] Norwegian voting law algorithm
+ * Optimization and heuristic methods
+   * [x] Alternating-Scaling Algorithm (AS)
+   * [x] Relative Superiority Algorithm (RS)
+   * [ ] Relative Inferiority Algorithm (RI)
+   * [ ] Icelandic voting law algorithm
+   * [ ] Swedish voting law algorithm
+   * [ ] Norwegian voting law algorithm
+
+### Simulation
+
+* [ ] Election simulation: run multiple elections with varied inputs
+* [ ] Fuzz votes based on Beta, Normal, and other random distributions
+* [ ] Compare multiple rulesets (e.g. different adjustment seat vs constituency seat counts)
+
+### Evaluation of methods
+
  * [x] Entropy measurement
- * [ ] Comparative error estimation
- * [ ] Election fuzzing
- * [ ] Monotonicty violation detection
- * [x] Basic click UI
- * [ ] Per ruleset click UI options
- * [ ] Compare multiple rulesets
+ * [ ] Comparative error estimation: count number of seat-flips from optimal
+ * [ ] Monotonicity violation detection
+ * [ ] Independence of Irrelevant Alternatives violation detection
+ * [ ] Balinski axiom violation detection
+ * [ ] Method standoff: Rank evaluations (STV/Condorcet) amongst methods after simulation
+
+### Visualization
+
+ * [ ] "Election TV" result animations
+ * [ ] Simulation errors
+   * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
+
 
 ## Authors
 
