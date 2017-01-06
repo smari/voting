@@ -18,6 +18,51 @@ def cli(debug):
     if debug:
         click.echo('Debug mode is on')
 
+
+@cli.command()
+@click.option('--divider', required=True, type=click.Choice(voting.divider_rules.keys()), help='Divider rule to use.')
+@click.option('--adjustment-divider', default=None, type=click.Choice(voting.divider_rules.keys()), help='Divider rule to use for adjustment seats. Leave blank to use same as primary method.')
+@click.option('--constituencies', required=True, type=click.File('r'), help='File with constituency data')
+@click.option('--votes', required=True, type=click.File('r'), help='File with vote data to use as seed')
+@click.option('--voters', required=True, type=click.File('r'), help='File with voter information')
+@click.option('--simulations', default=100, help='How many simulations to run')
+@click.option('--threshold', default=5, help='Threshold (in %%) for adjustment seats')
+@click.option('--betavariancesquared', default=0.005)
+@click.option('--partyweight', default=0.8)
+@click.option('--output', default='simple', type=click.Choice(tabulate.tabulate_formats))
+@click.option('--adjustment-method', '-m', multiple=True, type=click.Choice(voting.adjustment_methods.keys()), required=True)
+def simulate(divider, adjustment_divider, constituencies, votes, voters, simulations, threshold, betavariancesquared, partyweight, output, adjustment_method):
+    """Simulate elections"""
+
+    # 1. Setup:
+    #  - Load data files
+    #  - Select methods
+    threshold *= 0.01
+    const = util.load_constituencies(constituencies)
+    parties, votes = util.load_votes(votes, const)
+
+    divmethod = voting.divider_rules[divider]
+    if not adjustment_divider:
+        adjustment_divmethod = divmethod
+    else:
+        adjustment_divmethod = voting.divider_rules[adjustment_divider]
+
+    for sim in range(simulations):
+        print "\rSimulation %d" % sim,
+        sys.stdout.flush()
+
+        for m in adjustment_method:
+            method = voting.adjustment_methods[m]
+
+            results = method(votes, v_const_seats, v_party_adjustment_seats, m_allocations, adjustment_divmethod, threshold)
+
+    # Output:
+    #  - delta of entropy from optimal
+    #  - delta of seats from optimal
+    #  - smallest number of votes behind a seat
+    #  - largest number of votes behind a seat
+    #
+
 @cli.command()
 @click.option('--divider', required=True, type=click.Choice(voting.divider_rules.keys()), help='Divider rule to use.')
 @click.option('--adjustment-divider', default=None, type=click.Choice(voting.divider_rules.keys()), help='Divider rule to use for adjustment seats. Leave blank to use same as primary method.')
