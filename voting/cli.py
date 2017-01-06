@@ -1,10 +1,11 @@
 import click
 import tabulate
+import sys
 
 import voting
 import util
 
-from copy import copy
+from copy import copy, deepcopy
 
 ### Monkey patching CSV output mode into tabulate:
 tabulate.tabulate_formats.append("csv")
@@ -26,7 +27,8 @@ def cli(debug):
 @click.option('--output', default='simple', type=click.Choice(tabulate.tabulate_formats))
 @click.option('--show-entropy', default=False, is_flag=True)
 @click.option('--adjustment-method', '-m', multiple=True, type=click.Choice(voting.adjustment_methods.keys()), required=True)
-def apportion(divider, adjustment_divider, constituencies, votes, threshold, output, show_entropy, adjustment_method):
+@click.option('--show-constituency-seats', is_flag=True)
+def apportion(divider, adjustment_divider, constituencies, votes, threshold, output, show_entropy, adjustment_method, show_constituency_seats):
     """Do regular apportionment based on votes and constituency data."""
 
     # 1. Setup:
@@ -42,11 +44,16 @@ def apportion(divider, adjustment_divider, constituencies, votes, threshold, out
     else:
         adjustment_divmethod = voting.divider_rules[adjustment_divider]
 
+    # TODO: Could theoretically use separate methods for determining
+    # the number of adjustment seats on the one hand, and allocating the adjustment seats on the other.
+
     # 2. Primary method
     m_allocations, v_seatcount = voting.primary_seat_allocation(votes, const, parties, divmethod)
+    m_primary_allocations = deepcopy(m_allocations)
 
     # 3. Eliminate parties under thresholds from national votes
     v_elim_votes = voting.threshold_elimination_totals(votes, threshold)
+    m_elim_votes = voting.threshold_elimination_constituencies(votes, threshold)
 
     # 4. Find total number of seats in each constituency
     v_const_seats = [s["num_total_seats"] for s in const]
@@ -54,10 +61,18 @@ def apportion(divider, adjustment_divider, constituencies, votes, threshold, out
     # 4. Calculate adjustment seats
     v_party_adjustment_seats = voting.adjustment_seat_allocation(v_elim_votes, sum(v_const_seats), v_seatcount, adjustment_divmethod)
 
-    # 5. Conduct adjustment method:
+    # 5. Optionally, show the constituency seat allocations
+    if show_constituency_seats:
+        print "\n=== Primary allocations ==="
+        header = ["Constituency"]
+        header.extend(parties)
+        data = [[const[c]["name"]]+m_primary_allocations[c] for c in range(len(const))]
+        print tabulate.tabulate(data, header, output)
+
+    # 6. Conduct adjustment method:
     for m in adjustment_method:
         method = voting.adjustment_methods[m]
-        results = method(votes, v_const_seats, v_party_adjustment_seats, m_allocations, adjustment_divmethod, threshold)
+        results = method(m_elim_votes, v_const_seats, v_party_adjustment_seats, m_allocations, adjustment_divmethod, threshold, orig_votes=votes)
 
         header = ["Constituency"]
         header.extend(parties)
