@@ -40,6 +40,7 @@ def load_votes(votefile, consts):
         try:
             assert(row[0] in [x["name"] for x in consts])
         except:
+            print row
             raise Exception("Constituency '%s' not found in constituency file." % row[0])
         v = []
         for x in row[1:]:
