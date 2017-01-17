@@ -5,6 +5,7 @@ This module contains the core voting system logic.
 from copy import copy, deepcopy
 from math import log
 from tabulate import tabulate
+from util import load_votes, load_constituencies
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -33,6 +34,185 @@ divider_rules = {
     "sainte-lague": sainte_lague_gen,
     "swedish": swedish_sainte_lague_gen
 }
+
+
+class Rules(dict):
+    def __init__(self):
+        super(Rules, self).__init__()
+        self.value_rules = {
+            "primary_divider": divider_rules.keys(),
+            "adjustment_divider": divider_rules.keys(),
+            "adjustment_method": adjustment_methods.keys(),
+        }
+        self.range_rules = {
+            "adjustment_threshold": [0.0, 1.0]
+        }
+        self.list_rules = [
+            "constituency_seats", "constituency_adjustment_seats",
+            "constituency_names", "parties"
+        ]
+
+        self["primary_divider"] = "dhondt"
+        self["adjustment_divider"] = "dhondt"
+        self["adjustment_threshold"] = 0.05
+        self["adjustment_method"] = "alternating-scaling"
+        self["constituency_seats"] = []
+        self["constituency_adjustment_seats"] = []
+        self["constituency_names"] = []
+        self["parties"] = []
+        self["debug"] = False
+        self["show_entropy"] = False
+
+    def __setitem__(self, key, value):
+        if key == "constituencies":
+            value = load_constituencies(value)
+            self["constituency_names"] = [x["name"] for x in value]
+            self["constituency_seats"] = [x["num_constituency_seats"]
+                                          for x in value]
+            self["constituency_adjustment_seats"] = [x["num_adjustment_seats"]
+                                                     for x in value]
+
+        if key in self.value_rules and value not in self.value_rules[key]:
+            raise ValueError("Cannot set %s to '%s'. Allowed values: %s" % (
+                             key, value, self.value_rules[key]))
+        if key in self.range_rules and (value < self.range_rules[key][0] or
+                                        value > self.range_rules[key][1]):
+            raise ValueError("Cannot set %s to '%.02f'. Allowed values are \
+between %.02f and %.02f" % (key, value, self.range_rules[key][0],
+                            self.range_rules[key][1]))
+        if key in self.list_rules and not isinstance(value, list):
+            raise ValueError("Cannot set %s to '%s'. Must be a list." % (key,
+                             value))
+
+        super(Rules, self).__setitem__(key, value)
+
+    def get_generator(self, div):
+        method = self[div]
+        if method in divider_rules.keys():
+            return divider_rules[method]
+        else:
+            raise ValueError("%s is not a known divider" % div)
+
+
+class Election:
+    def __init__(self, rules, votes=None):
+        self.m_votes = votes
+        self.rules = rules
+
+    def set_votes(self, votes):
+        # TODO: Verify that votes matrix dimensions are correct
+        self.m_votes = votes
+
+    def load_votes(self, votesfile):
+        # TODO: Verify that votes matrix dimensions are correct
+        parties, votes = load_votes(votesfile)
+        self.m_votes = votes
+        self.v_parties = parties
+
+    def run(self):
+        """Run an election based on current rules and votes."""
+        # How many seats does each party get in each constituency:
+        self.m_allocations = []
+        # Which seats does each party get in each constituency:
+        self.m_seats = []
+        # Determine total seats (const + adjustment) in each constituency:
+        self.v_total_seats = [sum(x) for x in
+                                zip(self.rules["constituency_seats"],
+                                    self.rules["constituency_adjustment_seats"])
+                             ]
+        # Determine total seats in play:
+        self.total_seats = sum(self.v_total_seats)
+
+        self.run_primary_apportionment()
+        self.run_threshold_elimination()
+        self.run_determine_adjustment_seats()
+        self.run_adjustment_apportionment()
+        return self.results
+
+    def run_primary_apportionment(self):
+        """Conduct primary apportionment"""
+        if self.rules["debug"]:
+            print " + Primary apportionment"
+        m_allocations, v_seatcount = self.primary_apportionment(self.m_votes)
+        self.m_allocations = m_allocations
+        self.v_cur_allocations = v_seatcount
+
+    def run_threshold_elimination(self):
+        if self.rules["debug"]:
+            print " + Threshold elimination"
+        threshold = self.rules["adjustment_threshold"]
+        v_elim_votes = threshold_elimination_totals(self.m_votes, threshold)
+        m_elim_votes = threshold_elimination_constituencies(self.m_votes,
+                                                            threshold)
+        self.v_votes_eliminated = v_elim_votes
+        self.m_votes_eliminated = m_elim_votes
+
+    def run_determine_adjustment_seats(self):
+        """
+        Calculate the number of adjusment seats each party gets.
+        """
+        if self.rules["debug"]:
+            print " + Determine adjustment seats"
+        v_votes = self.v_votes_eliminated
+        gen = self.rules.get_generator("adjustment_divider")
+        v_priors = self.v_cur_allocations
+        v_seats, divs = apportion1d(v_votes, self.total_seats, v_priors, gen)
+        self.v_adjustment_seats = v_seats
+        return v_seats
+
+    def run_adjustment_apportionment(self):
+        if self.rules["debug"]:
+            print " + Apportion adjustment seats"
+        method = adjustment_methods[self.rules["adjustment_method"]]
+        gen = self.rules.get_generator("adjustment_divider")
+
+        results = method(self.m_votes_eliminated,
+                         self.v_total_seats,
+                         self.v_adjustment_seats,
+                         self.m_allocations,
+                         gen,
+                         self.rules["adjustment_threshold"],
+                         orig_votes=self.m_votes)
+
+        self.results = results
+
+        # header = ["Constituency"]
+        # header.extend(self.rules["parties"])
+        # print "\n=== %s ===" %
+        #    (adjustment_method_names[self.rules["adjustment_method"]])
+        # data = [[self.rules["constituency_names"][c]]+results[c] for c in
+        #         range(len(self.rules["constituency_names"]))]
+        # print tabulate(data, header, "simple")
+
+        if self.rules["show_entropy"]:
+            ent = entropy(votes, results, divmethod)
+            print "\nEntropy: ", ent
+
+    def primary_apportionment(self, m_votes):
+        """Do primary allocation of seats for all constituencies"""
+        gen = self.rules.get_generator("primary_divider")
+        const = self.rules["constituency_seats"]
+        parties = self.rules["parties"]
+
+        m_allocations = []
+        for i in range(len(const)):
+            num_seats = const[i]
+            rounds, seats = constituency_seat_allocation(m_votes[i], num_seats,
+                                                         gen)
+            v_allocations = [seats.count(p) for p in range(len(parties))]
+            m_allocations.append(v_allocations)
+
+        v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
+
+        return m_allocations, v_seatcount
+
+
+class Simulation:
+    def __init__(self, rules):
+        self.rules = rules
+
+    def simulate(self):
+        pass
 
 
 def primary_seat_allocation(m_votes, const, parties, gen):
@@ -350,9 +530,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
 
         print tabulate(m_proportions)
 
-        print "Allotting %d" % i
-        print alloc
-
     # 2.3.
     #       (Finna skal hæstu landstölu skv. 1. tölul. sem hefur ekki þegar
     #        verið felld niður. Hjá þeim stjórnmálasamtökum, sem eiga þá
@@ -471,6 +648,7 @@ adjustment_methods = {
     "relative-inferiority": relative_inferiority,
     "icelandic-law": icelandic_apportionment,
 }
+
 adjustment_method_names = {
     "alternating-scaling": "Alternating-Scaling Method",
     "relative-superiority": "Relative Superiority Method",
@@ -479,12 +657,4 @@ adjustment_method_names = {
 }
 
 if __name__ == "__main__":
-    m_votes = [[4000, 2000], [3000, 1000]]
-    v_const_seats = [1, 1]
-    v_party_seats = [1, 1]
-    m_prior_allocations = [[0, 0], [0, 0]]
-    divisor_gen = dhondt_gen
-    threshold = 0.0
-    print tabulate(relative_superiority(m_votes, v_const_seats,
-                                        v_party_seats, m_prior_allocations,
-                                        divisor_gen))
+    pass

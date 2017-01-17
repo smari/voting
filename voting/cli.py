@@ -130,5 +130,34 @@ def apportion(divider, adjustment_divider, constituencies, votes, threshold, out
             print "\nEntropy: ", e
 
 
+@cli.command()
+@click.option('--divider', required=True, type=click.Choice(voting.divider_rules.keys()), help='Divider rule to use.')
+@click.option('--adjustment-divider', default=None, type=click.Choice(voting.divider_rules.keys()), help='Divider rule to use for adjustment seats. Leave blank to use same as primary method.')
+@click.option('--constituencies', required=True, type=click.File('r'), help='File with constituency data')
+@click.option('--votes', required=True, type=click.File('r'), help='File with vote data')
+@click.option('--threshold', default=5, help='Threshold (in %%) for adjustment seats')
+@click.option('--output', default='simple', type=click.Choice(tabulate.tabulate_formats))
+@click.option('--show-entropy', default=False, is_flag=True)
+@click.option('--adjustment-method', '-m', type=click.Choice(voting.adjustment_methods.keys()), required=True)
+@click.option('--show-constituency-seats', is_flag=True)
+def apportion_new(votes, **kwargs):
+    """Do regular apportionment based on votes and constituency data."""
+    rules = voting.Rules()
+    kwargs["adjustment_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
+    for arg, val in kwargs.iteritems():
+        rules[arg] = val
+
+    parties, votes = util.load_votes(votes, rules["constituencies"])
+    rules["parties"] = parties
+    election = voting.Election(rules, votes)
+    election.run()
+
+    header = ["Constituency"]
+    header.extend(parties)
+    print "\n=== %s ===" % (voting.adjustment_method_names[rules["adjustment_method"]])
+    data = [[rules["constituencies"][c]["name"]]+election.results[c] for c in range(len(rules["constituencies"]))]
+    print tabulate.tabulate(data, header, rules["output"])
+
+
 if __name__ == '__main__':
     cli()
