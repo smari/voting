@@ -29,20 +29,22 @@ def swedish_sainte_lague_gen():
         yield n
         n += 2
 
-divider_rules = {
+DIVIDER_RULES = {
     "dhondt": dhondt_gen,
     "sainte-lague": sainte_lague_gen,
     "swedish": swedish_sainte_lague_gen
 }
 
-
 class Rules(dict):
+    """A set of rules for an election or a simulation to follow."""
+
     def __init__(self):
         super(Rules, self).__init__()
         self.value_rules = {
-            "primary_divider": divider_rules.keys(),
-            "adjustment_divider": divider_rules.keys(),
-            "adjustment_method": adjustment_methods.keys(),
+            "primary_divider": DIVIDER_RULES.keys(),
+            "adjustment_divider": DIVIDER_RULES.keys(),
+            "adjustment_method": ADJUSTMENT_METHODS.keys(),
+            "simulation_variate": SIMULATION_VARIATES.keys(),
         }
         self.range_rules = {
             "adjustment_threshold": [0.0, 1.0]
@@ -52,6 +54,7 @@ class Rules(dict):
             "constituency_names", "parties"
         ]
 
+        # Election rules
         self["primary_divider"] = "dhondt"
         self["adjustment_divider"] = "dhondt"
         self["adjustment_threshold"] = 0.05
@@ -60,8 +63,15 @@ class Rules(dict):
         self["constituency_adjustment_seats"] = []
         self["constituency_names"] = []
         self["parties"] = []
+
+        # Simulation rules
+        self["simulation_count"] = 100
+        self["simulation_variate"] = "beta"
+
+        # Display rules
         self["debug"] = False
         self["show_entropy"] = False
+        self["output"] = "simple"
 
     def __setitem__(self, key, value):
         if key == "constituencies":
@@ -73,39 +83,46 @@ class Rules(dict):
                                                      for x in value]
 
         if key in self.value_rules and value not in self.value_rules[key]:
-            raise ValueError("Cannot set %s to '%s'. Allowed values: %s" % (
-                             key, value, self.value_rules[key]))
+            raise ValueError("Cannot set %s to '%s'. Allowed values: %s" %
+                             (key, value, self.value_rules[key]))
         if key in self.range_rules and (value < self.range_rules[key][0] or
                                         value > self.range_rules[key][1]):
             raise ValueError("Cannot set %s to '%.02f'. Allowed values are \
 between %.02f and %.02f" % (key, value, self.range_rules[key][0],
                             self.range_rules[key][1]))
         if key in self.list_rules and not isinstance(value, list):
-            raise ValueError("Cannot set %s to '%s'. Must be a list." % (key,
-                             value))
+            raise ValueError("Cannot set %s to '%s'. Must be a list." %
+                             (key, value))
 
         super(Rules, self).__setitem__(key, value)
 
     def get_generator(self, div):
+        """Fetch a generator from divider rules."""
         method = self[div]
-        if method in divider_rules.keys():
-            return divider_rules[method]
+        if method in DIVIDER_RULES.keys():
+            return DIVIDER_RULES[method]
         else:
             raise ValueError("%s is not a known divider" % div)
 
 
 class Election:
+    """A single election."""
     def __init__(self, rules, votes=None):
         self.m_votes = votes
         self.rules = rules
 
     def set_votes(self, votes):
-        # TODO: Verify that votes matrix dimensions are correct
+        assert(len(votes) == len(self.rules["constituencies"]))
+        assert(all([len(votes[x]) == len(self.rules["parties"])
+                    for x in votes]))
         self.m_votes = votes
 
     def load_votes(self, votesfile):
-        # TODO: Verify that votes matrix dimensions are correct
         parties, votes = load_votes(votesfile)
+        self.rules["parties"] = parties
+        assert(len(votes) == len(self.rules["constituencies"]))
+        assert(all([len(votes[x]) == len(self.rules["parties"])
+                    for x in votes]))
         self.m_votes = votes
         self.v_parties = parties
 
@@ -117,8 +134,8 @@ class Election:
         self.m_seats = []
         # Determine total seats (const + adjustment) in each constituency:
         self.v_total_seats = [sum(x) for x in
-                                zip(self.rules["constituency_seats"],
-                                    self.rules["constituency_adjustment_seats"])
+                              zip(self.rules["constituency_seats"],
+                                  self.rules["constituency_adjustment_seats"])
                              ]
         # Determine total seats in play:
         self.total_seats = sum(self.v_total_seats)
@@ -163,7 +180,7 @@ class Election:
     def run_adjustment_apportionment(self):
         if self.rules["debug"]:
             print " + Apportion adjustment seats"
-        method = adjustment_methods[self.rules["adjustment_method"]]
+        method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
         gen = self.rules.get_generator("adjustment_divider")
 
         results = method(self.m_votes_eliminated,
@@ -205,14 +222,6 @@ class Election:
         v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
 
         return m_allocations, v_seatcount
-
-
-class Simulation:
-    def __init__(self, rules):
-        self.rules = rules
-
-    def simulate(self):
-        pass
 
 
 def primary_seat_allocation(m_votes, const, parties, gen):
@@ -307,21 +316,6 @@ def threshold_elimination_totals(votes, threshold):
     cutoff = [totals[i] if percent[i] > threshold else 0 for i in range(len(totals))]
 
     return cutoff
-
-
-def adjustment_seat_allocation(v_votes, num_total_seats, v_prior_allocations, divisor_gen):
-    """
-    Calculate the number of adjusment seats each party gets.
-    Inputs:
-        - v_votes: A vector of national votes each party gets
-        - num_total_seats: Total number of seats to allocate
-        - v_prior_allocations: A vector of prior seat allocations to each party
-        - divisor_gen: A divisor generator, e.g. d'Hondt or Sainte-Lague
-    Outputs: A new vector containing total seat allocations
-    """
-    v_seats, divs = apportion1d(v_votes, num_total_seats, v_prior_allocations, divisor_gen)
-
-    return v_seats
 
 
 def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
@@ -642,7 +636,7 @@ def entropy(votes, allocations, divisor_gen):
     return e
 
 
-adjustment_methods = {
+ADJUSTMENT_METHODS = {
     "alternating-scaling": alternating_scaling,
     "relative-superiority": relative_superiority,
     "relative-inferiority": relative_inferiority,
@@ -655,6 +649,18 @@ adjustment_method_names = {
     "relative-inferiority": "Relative Inferiority Method",
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)"
 }
+
+def simulation_beta_variate(votes):
+    pass
+
+def simulation_bruteforce(votes):
+    pass
+
+SIMULATION_VARIATES = {
+    "beta": simulation_beta_variate,
+    "bruteforce": simulation_bruteforce,
+}
+
 
 if __name__ == "__main__":
     pass
