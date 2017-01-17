@@ -1,3 +1,4 @@
+#coding:utf-8
 import click
 import tabulate
 import sys
@@ -73,8 +74,15 @@ def simulate(divider, adjustment_divider, constituencies, votes, voters, simulat
 @click.option('--show-entropy', default=False, is_flag=True)
 @click.option('--adjustment-method', '-m', multiple=True, type=click.Choice(voting.adjustment_methods.keys()), required=True)
 @click.option('--show-constituency-seats', is_flag=True)
-def apportion(divider, adjustment_divider, constituencies, votes, threshold, output, show_entropy, adjustment_method, show_constituency_seats):
+def apportion_old(divider, adjustment_divider, constituencies, votes, threshold, output, show_entropy, adjustment_method, show_constituency_seats):
     """Do regular apportionment based on votes and constituency data."""
+
+    print "==================== WARNING: DEPRECATED ======================="
+    print " This functionality is currently only included for testing of   "
+    print " compatibility of new code ('apportion') to old code (this).    "
+    print " It should be removed, and code cleaned up, ASAP.               "
+    print "     - Smári (2017-01-17)                                       "
+    print "================================================================"
 
     # 1. Setup:
     #  - Load data files
@@ -140,7 +148,7 @@ def apportion(divider, adjustment_divider, constituencies, votes, threshold, out
 @click.option('--show-entropy', default=False, is_flag=True)
 @click.option('--adjustment-method', '-m', type=click.Choice(voting.adjustment_methods.keys()), required=True)
 @click.option('--show-constituency-seats', is_flag=True)
-def apportion_new(votes, **kwargs):
+def apportion(votes, **kwargs):
     """Do regular apportionment based on votes and constituency data."""
     rules = voting.Rules()
     kwargs["adjustment_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
