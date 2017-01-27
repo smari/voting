@@ -520,10 +520,10 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     v_votes = [sum(x) for x in zip(*m_votes)]
     num_allocated = sum(v_seats)
     num_missing = sum(v_const_seats) - num_allocated
-    print "Party seats: ", v_party_seats
-    print "Summed seats:", v_seats
-    print "Remaining:   ", v_votes
-    print "Missing:     ", num_missing
+    #print "Party seats: ", v_party_seats
+    #print "Summed seats:", v_seats
+    #print "Remaining:   ", v_votes
+    #print "Missing:     ", num_missing
 
     # 2.2. Create list of 2 top seats on each remaining list that almost got in.
     #       (Taka skal saman skrá um þau tvö sæti hvers framboðslista sem næst

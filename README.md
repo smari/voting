@@ -61,17 +61,17 @@ This feature is incomplete.
 
 ### Script mode
 
-Because all the parameters can be confusing and sometimes you just want to be
-able to work with a particular set of settings again and again, there is a
-"script mode" (for lack of a better term) which allows you to specify a set
-of rules which then execute:
+Because all the parameters can be confusing and sometimes you just want
+to be able to work with a particular set of settings again and again,
+there is a "script mode" (for lack of a better term) which allows you to
+specify a set of rules which then execute:
 
 ```
 python cli.py script ../data/rulesets/iceland2013.json
 ```
 
-A script or ruleset is simply a JSON file that specifies what should happen,
-see examples in `data/rulesets/`.
+A script or ruleset is simply a JSON file that specifies what should
+happen, see examples in `data/rulesets/`.
 
 ## Features
 
@@ -94,7 +94,7 @@ see examples in `data/rulesets/`.
    * [x] Alternating-Scaling Algorithm (AS)
    * [x] Relative Superiority Algorithm (RS)
    * [ ] Relative Inferiority Algorithm (RI)
-   * [ ] Icelandic voting law algorithm
+   * [x] Icelandic voting law algorithm
    * [ ] Swedish voting law algorithm
    * [ ] Norwegian voting law algorithm
 
@@ -125,13 +125,13 @@ _(updated 2017-01-27)_
  * Smári:
    * [x] Update documentation
    * [x] Refactor codebase
-   * [ ] Complete Icelandic law method
+   * [x] Complete Icelandic law method
    * [x] Complete simulation basis
    * [ ] Add vote-fuzzing support
 
  * Þorkell:
    * [ ] Figure out algorithms for detecting violations of Balinski axioms
-   * [ ] Describe algorithm for Norwegian method
+   * [x] Describe algorithm for Norwegian method
    * [ ] Review Relative Inferiority method
 
  * Kurt:

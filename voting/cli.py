@@ -89,7 +89,7 @@ def simulate(votes, **kwargs):
 
 @cli.command()
 @click.argument('rules', required=True,
-              type=click.File('rb'))
+                type=click.File('rb'))
 def script(rules, **kwargs):
     """Read from a script file and execute its commands."""
     rs = voting.Rules()
