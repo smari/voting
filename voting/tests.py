@@ -10,14 +10,14 @@ class TestMaxEntropy(unittest.TestCase):
         num_seats = 5
         prior_allocations = [1, 1]
         res = apportion1d(votes, num_seats, prior_allocations, dhondt_gen)
-        self.assertEqual(res, [3, 2])
+        self.assertEqual(res[0], [3, 2])
 
     def test_apportionment_sainte_lague(self):
         votes = [501.0, 400.0]
         num_seats = 5
         prior_allocations = [1, 1]
         res = apportion1d(votes, num_seats, prior_allocations, sainte_lague_gen)
-        self.assertEqual(res, [3, 2])
+        self.assertEqual(res[0], [3, 2])
 
 class TestRules(unittest.TestCase):
     def test_rules(self):

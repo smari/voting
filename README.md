@@ -110,7 +110,8 @@ This feature is incomplete.
 _(updated 2017-01-04)_
 
  * Smári:
-   * [ ] Update documentation
+   * [x] Update documentation
+   * [x] Refactor codebase
    * [ ] Complete Icelandic law method
    * [ ] Complete simulation basis
    * [ ] Add vote-fuzzing support
