@@ -59,6 +59,19 @@ python cli.py apportion \
 
 This feature is incomplete.
 
+### Script mode
+
+Because all the parameters can be confusing and sometimes you just want to be
+able to work with a particular set of settings again and again, there is a
+"script mode" (for lack of a better term) which allows you to specify a set
+of rules which then execute:
+
+```
+python cli.py script ../data/rulesets/iceland2013.json
+```
+
+A script or ruleset is simply a JSON file that specifies what should happen,
+see examples in `data/rulesets/`.
 
 ## Features
 
