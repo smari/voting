@@ -531,12 +531,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     #        þessara sæta skal skrá hlutfall útkomutölu sætisins skv. 1. tölul.
     #        107. gr. af öllum gildum atkvæðum í kjördæminu.)
 
-    m_proportions = []
-    for r in orig_votes:
-        s = sum(r)
-        v = [float(x)/s for x in r]
-        # print "%d: %s : %s" % (s, r, v)
-        m_proportions.append(v)
 
     # 2.7.
     #       (Beita skal ákvæðum 3. tölul. svo oft sem þarf þar til lokið er
@@ -548,15 +542,32 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
         #       (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #        skal jafnframt fella niður allar landstölur þeirra.)
 
-
         diff = [alloc[i]-v_last_alloc[i] for i in range(len(alloc))]
-        print v_last_alloc
-        print alloc
-        print diff
+        # print v_last_alloc
+        # print alloc
+        # print diff
         idx = diff.index(1)
         v_last_alloc = alloc
 
-        print idx
+        # print idx
+
+        m_proportions = []
+        for cons in range(len(m_votes)):
+            cons_votes = orig_votes[cons]
+            s = sum(cons_votes)
+            v = [(float(orig_votes[cons][party])/s)/(m_allocations[cons][party]+1)
+                 for party in range(len(m_votes[0]))]
+            # print "%d: %s : %s" % (s, r, v)
+            m_proportions.append(v)
+
+            # 2.5.
+            #       (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju kjördæmi
+            #        skv. 2. mgr. 8. gr. skulu hlutfallstölur allra lista í því kjördæmi
+            #        felldar niður.)
+            if sum(m_allocations[cons]) == v_const_seats[cons]:
+                # print "Done allocating in constituency %d" % (cons)
+                m_proportions[cons] = [0]*len(v_seats)
+
 
         # 2.3.
         #       (Finna skal hæstu landstölu skv. 1. tölul. sem hefur ekki þegar
@@ -566,7 +577,7 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
         #        skulu síðan báðar felldar niður.)
 
         w = [m_proportions[i][idx] for i in range(len(m_proportions))]
-        print "Proportions for %d: %s" % (idx, w)
+        # print "Proportions for %d: %s" % (idx, w)
         const = [i for i,j in enumerate(w) if j == max(w)]
         if len(const) > 1:
             # 2.4.
@@ -575,21 +586,14 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
             #        þeirra.)
             const = [random.choice(const)]
 
-        print "Giving party %d a seat in constituency %d" % (idx, const[0])
+        # co = ["NV", "NA", "Su", "SV", "RS", "RN"]
+        #fl = u"ABDGHIJKLMRSTVÞ"
+        # print "Giving party %s a seat in constituency %s" % (fl[idx], co[const[0]])
         # v_last_alloc[idx] += 1
         m_allocations[const[0]][idx] += 1
-        m_proportions[const[0]][idx] = 0
+        # m_proportions[const[0]][idx] = 0
 
         # print tabulate(m_proportions)
-
-        # 2.5.
-        #       (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju kjördæmi
-        #        skv. 2. mgr. 8. gr. skulu hlutfallstölur allra lista í því kjördæmi
-        #        felldar niður.)
-        if sum(m_allocations[const[0]]) == v_const_seats[const[0]]:
-            print "Done allocating in constituency %d" % (const[0])
-            m_proportions[const[0]] = [0]*len(v_seats)
-
     return m_allocations
 
 
