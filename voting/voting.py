@@ -2,6 +2,7 @@
 """
 This module contains the core voting system logic.
 """
+import random
 from copy import copy, deepcopy
 from math import log
 from tabulate import tabulate
@@ -110,6 +111,7 @@ class Election:
     def __init__(self, rules, votes=None):
         self.m_votes = votes
         self.rules = rules
+        self.order = []
 
     def set_votes(self, votes):
         assert(len(votes) == len(self.rules["constituencies"]))
@@ -218,6 +220,10 @@ class Election:
                                                          gen)
             v_allocations = [seats.count(p) for p in range(len(parties))]
             m_allocations.append(v_allocations)
+            self.order.append(seats)
+
+        # Useful:
+        # print tabulate([[parties[x] for x in y] for y in self.order])
 
         v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
 
@@ -238,6 +244,7 @@ def primary_seat_allocation(m_votes, const, parties, gen):
     v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
 
     return m_allocations, v_seatcount
+
 
 def constituency_seat_allocation(v_votes, num_seats, gen):
     """Do primary seat allocation for one constituency"""
@@ -511,42 +518,66 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     #        þessara sæta skal skrá hlutfall útkomutölu sætisins skv. 1. tölul.
     #        107. gr. af öllum gildum atkvæðum í kjördæminu.)
 
-    v_last_alloc = deepcopy(v_party_seats)
-    for i in range(num_allocated+1, num_allocated+num_missing+1):
-        alloc, div = apportion1d(v_votes, i, v_seats, divisor_gen)
-
-        m_proportions = []
-        for r in orig_votes:
-            s = sum(r)
-            v = [float(x)/s for x in r]
-            print "%d: %s : %s" % (s, r, v)
-            m_proportions.append(v)
-
-        print tabulate(m_proportions)
-
-    # 2.3.
-    #       (Finna skal hæstu landstölu skv. 1. tölul. sem hefur ekki þegar
-    #        verið felld niður. Hjá þeim stjórnmálasamtökum, sem eiga þá
-    #        landstölu, skal finna hæstu hlutfallstölu lista skv. 2. tölul. og
-    #        úthluta jöfnunarsæti til hans. Landstalan og hlutfallstalan skulu
-    #        síðan báðar felldar niður.)
-
-    # 2.4.
-    #       (Nú eru tvær eða fleiri lands- eða hlutfallstölur jafnháar þegar að
-    #        þeim kemur skv. 3. tölul. og skal þá hluta um röð þeirra.
-
-    # 2.5.
-    #       (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju kjördæmi
-    #        skv. 2. mgr. 8. gr. skulu hlutfallstölur allra lista í því kjördæmi
-    #        felldar niður.)
-
-    # 2.6.
-    #       (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
-    #        skal jafnframt fella niður allar landstölur þeirra.)
+    m_proportions = []
+    for r in orig_votes:
+        s = sum(r)
+        v = [float(x)/s for x in r]
+        # print "%d: %s : %s" % (s, r, v)
+        m_proportions.append(v)
 
     # 2.7.
     #       (Beita skal ákvæðum 3. tölul. svo oft sem þarf þar til lokið er
     #        úthlutun allra jöfnunarsæta, sbr. 2. mgr. 8. gr.)
+    v_last_alloc = deepcopy(v_seats)
+    for i in range(num_allocated+1, num_allocated+num_missing+1):
+        alloc, div = apportion1d(v_votes, i, v_last_alloc, divisor_gen)
+        # 2.6.
+        #       (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
+        #        skal jafnframt fella niður allar landstölur þeirra.)
+
+
+        diff = [alloc[i]-v_last_alloc[i] for i in range(len(alloc))]
+        print v_last_alloc
+        print alloc
+        print diff
+        idx = diff.index(1)
+        v_last_alloc = alloc
+
+        print idx
+
+        # 2.3.
+        #       (Finna skal hæstu landstölu skv. 1. tölul. sem hefur ekki þegar
+        #        verið felld niður. Hjá þeim stjórnmálasamtökum, sem eiga þá
+        #        landstölu, skal finna hæstu hlutfallstölu lista skv. 2. tölul.
+        #        og úthluta jöfnunarsæti til hans. Landstalan og hlutfallstalan
+        #        skulu síðan báðar felldar niður.)
+
+        w = [m_proportions[i][idx] for i in range(len(m_proportions))]
+        print "Proportions for %d: %s" % (idx, w)
+        const = [i for i,j in enumerate(w) if j == max(w)]
+        if len(const) > 1:
+            # 2.4.
+            #       (Nú eru tvær eða fleiri lands- eða hlutfallstölur jafnháar
+            #        þegar að þeim kemur skv. 3. tölul. og skal þá hluta um röð
+            #        þeirra.)
+            const = [random.choice(const)]
+
+        print "Giving party %d a seat in constituency %d" % (idx, const[0])
+        # v_last_alloc[idx] += 1
+        m_allocations[const[0]][idx] += 1
+        m_proportions[const[0]][idx] = 0
+
+        # print tabulate(m_proportions)
+
+        # 2.5.
+        #       (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju kjördæmi
+        #        skv. 2. mgr. 8. gr. skulu hlutfallstölur allra lista í því kjördæmi
+        #        felldar niður.)
+        if sum(m_allocations[const[0]]) == v_const_seats[const[0]]:
+            print "Done allocating in constituency %d" % (const[0])
+            m_proportions[const[0]] = [0]*len(v_seats)
+
+
 
     return m_allocations
 
