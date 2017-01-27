@@ -63,6 +63,10 @@ def load_votes(votefile, consts):
 def pretty_print_election(rules, election):
     header = ["Constituency"]
     header.extend(rules["parties"])
-    data = [[rules["constituencies"][c]["name"]]+election.results[c]
-            for c in range(len(rules["constituencies"]))]
+    if "constituencies" in rules:
+        data = [[rules["constituencies"][c]["name"]]+election.results[c]
+                for c in range(len(rules["constituencies"]))]
+    else:
+        data = [[rules["constituency_names"][c]]+election.results[c]
+                for c in range(len(rules["constituency_names"]))]
     print tabulate.tabulate(data, header, rules["output"])

@@ -3,6 +3,7 @@
 This module contains the core voting system logic.
 """
 import random
+import json
 from copy import copy, deepcopy
 from math import log
 from tabulate import tabulate
@@ -66,6 +67,7 @@ class Rules(dict):
         self["parties"] = []
 
         # Simulation rules
+        self["simulate"] = False
         self["simulation_count"] = 100
         self["simulation_variate"] = "beta"
 
@@ -104,6 +106,16 @@ between %.02f and %.02f" % (key, value, self.range_rules[key][0],
             return DIVIDER_RULES[method]
         else:
             raise ValueError("%s is not a known divider" % div)
+
+    def load_rules(self, fh):
+        if type(fh) in [str, unicode]:
+            fh = open(fh, "rb")
+
+        try:
+            js = json.loads(fh.read())
+            self.update(js)
+        except ValueError, e:
+            print "Error loading rules: %s" % (e)
 
 
 class Election:
@@ -490,8 +502,9 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
                             orig_votes=None, **kwargs):
     """
     Apportion based on Icelandic law nr. 24/2000.
-    This method is incomplete.
     """
+    # FIXME: This method is giving somewhat incorrect results.
+
     m_allocations = deepcopy(m_prior_allocations)
 
     #print tabulate(m_votes_orig)
@@ -576,8 +589,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
         if sum(m_allocations[const[0]]) == v_const_seats[const[0]]:
             print "Done allocating in constituency %d" % (const[0])
             m_proportions[const[0]] = [0]*len(v_seats)
-
-
 
     return m_allocations
 
