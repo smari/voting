@@ -88,10 +88,25 @@ def simulate(votes, **kwargs):
 
 
 @cli.command()
+@click.argument('rules', required=True,
+              type=click.File('rb'))
+def script(rules, **kwargs):
+    """Read from a script file and execute its commands."""
+    rules = voting.Rules()
+    rules.load(rules)
+
+    parties, votes = util.load_votes(rules["votes"], rules["constituencies"])
+    rules["parties"] = parties
+    election = voting.Election(rules, votes)
+    election.run()
+
+    util.pretty_print_election(rules, election)
+
+@cli.command()
 @click.option('--divider', required=True,
               type=click.Choice(voting.DIVIDER_RULES.keys()),
               help='Divider rule to use.')
-@click.option('--adjustment-divider', default=None,
+@click.option('--adjustment-divider', default=None, required=False,
               type=click.Choice(voting.DIVIDER_RULES.keys()),
               help='Divider rule for adjustment seats. Defaults to primary.')
 @click.option('--constituencies', required=True, type=click.File('r'),
@@ -119,13 +134,7 @@ def apportion(votes, **kwargs):
     election = voting.Election(rules, votes)
     election.run()
 
-    header = ["Constituency"]
-    header.extend(parties)
-    print "\n=== %s ===" % (
-        voting.adjustment_method_names[rules["adjustment_method"]])
-    data = [[rules["constituencies"][c]["name"]]+election.results[c]
-            for c in range(len(rules["constituencies"]))]
-    print tabulate.tabulate(data, header, rules["output"])
+    util.pretty_print_election(rules, election)
 
 
 if __name__ == '__main__':
