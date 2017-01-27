@@ -2,6 +2,7 @@
 import random
 import csv
 import sys
+import tabulate
 
 def random_id(length=8):
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
@@ -58,3 +59,10 @@ def load_votes(votefile, consts):
         votes.append(v)
 
     return parties, votes
+
+def pretty_print_election(rules, election):
+    header = ["Constituency"]
+    header.extend(rules["parties"])
+    data = [[rules["constituencies"][c]["name"]]+election.results[c]
+            for c in range(len(rules["constituencies"]))]
+    print tabulate.tabulate(data, header, rules["output"])
