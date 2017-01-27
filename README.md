@@ -107,13 +107,13 @@ This feature is incomplete.
    * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
 
 ### Tickets
-_(updated 2017-01-04)_
+_(updated 2017-01-27)_
 
  * Smári:
    * [x] Update documentation
    * [x] Refactor codebase
    * [ ] Complete Icelandic law method
-   * [ ] Complete simulation basis
+   * [x] Complete simulation basis
    * [ ] Add vote-fuzzing support
 
  * Þorkell:
