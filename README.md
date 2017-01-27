@@ -80,7 +80,7 @@ see examples in `data/rulesets/`.
 * [x] Read constituency data files
 * [x] Read vote data files
 * [x] Basic click UI
-* [ ] Per ruleset click UI options
+* [x] Per ruleset click UI options
 
 ### Apportionment methods
 
