@@ -503,14 +503,8 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     """
     Apportion based on Icelandic law nr. 24/2000.
     """
-    # FIXME: This method is giving somewhat incorrect results.
 
     m_allocations = deepcopy(m_prior_allocations)
-
-    #print tabulate(m_votes_orig)
-    # 1.1 Eliminate parties with less than threshold
-    # m_votes = threshold_elimination_constituencies(m_votes_orig, threshold)
-    #print tabulate(m_votes)
 
     # 2.1
     #       (Deila skal í atkvæðatölur samtakanna með tölu kjördæmissæta þeirra,
@@ -520,10 +514,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     v_votes = [sum(x) for x in zip(*m_votes)]
     num_allocated = sum(v_seats)
     num_missing = sum(v_const_seats) - num_allocated
-    #print "Party seats: ", v_party_seats
-    #print "Summed seats:", v_seats
-    #print "Remaining:   ", v_votes
-    #print "Missing:     ", num_missing
 
     # 2.2. Create list of 2 top seats on each remaining list that almost got in.
     #       (Taka skal saman skrá um þau tvö sæti hvers framboðslista sem næst
@@ -543,13 +533,8 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
         #        skal jafnframt fella niður allar landstölur þeirra.)
 
         diff = [alloc[i]-v_last_alloc[i] for i in range(len(alloc))]
-        # print v_last_alloc
-        # print alloc
-        # print diff
         idx = diff.index(1)
         v_last_alloc = alloc
-
-        # print idx
 
         m_proportions = []
         for cons in range(len(m_votes)):
@@ -591,14 +576,7 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
             #        þeirra.)
             const = [random.choice(const)]
 
-        # co = ["NV", "NA", "Su", "SV", "RS", "RN"]
-        #fl = u"ABDGHIJKLMRSTVÞ"
-        # print "Giving party %s a seat in constituency %s" % (fl[idx], co[const[0]])
-        # v_last_alloc[idx] += 1
         m_allocations[const[0]][idx] += 1
-        # m_proportions[const[0]][idx] = 0
-
-        # print tabulate(m_proportions)
     return m_allocations
 
 
