@@ -555,15 +555,20 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
         for cons in range(len(m_votes)):
             cons_votes = orig_votes[cons]
             s = sum(cons_votes)
-            v = [(float(orig_votes[cons][party])/s)/(m_allocations[cons][party]+1)
-                 for party in range(len(m_votes[0]))]
-            # print "%d: %s : %s" % (s, r, v)
-            m_proportions.append(v)
+            proportions = []
+            for party in range(len(m_votes[0])):
+                d = divisor_gen()
+                for j in range(m_allocations[cons][party]+1):
+                    x = d.next()
+                k = (float(orig_votes[cons][party])/s)/x
+                proportions.append(k)
+
+            m_proportions.append(proportions)
 
             # 2.5.
-            #       (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju kjördæmi
-            #        skv. 2. mgr. 8. gr. skulu hlutfallstölur allra lista í því kjördæmi
-            #        felldar niður.)
+            #       (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju
+            #        kjördæmi skv. 2. mgr. 8. gr. skulu hlutfallstölur allra
+            #        lista í því kjördæmi felldar niður.)
             if sum(m_allocations[cons]) == v_const_seats[cons]:
                 # print "Done allocating in constituency %d" % (cons)
                 m_proportions[cons] = [0]*len(v_seats)
