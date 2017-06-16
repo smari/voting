@@ -92,18 +92,9 @@ def simulate(votes, **kwargs):
                 type=click.File('rb'))
 def script(rules, **kwargs):
     """Read from a script file and execute its commands."""
-    rs = voting.Rules()
-    rs.load_rules(rules)
+    election = voting.run_script(rules)
 
-    assert("votes" in rs)
-
-    if rs["simulate"]:
-        pass # TODO: Implement simulations
-    else:
-        election = voting.Election(rs, rs["votes"])
-        election.run()
-
-    util.pretty_print_election(rs, election)
+    util.pretty_print_election(election.rules, election)
 
 @cli.command()
 @click.option('--divider', required=True,

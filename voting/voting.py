@@ -140,6 +140,12 @@ class Election:
         self.m_votes = votes
         self.v_parties = parties
 
+    def get_results_dict(self):
+        return {
+            "rules": self.rules,
+            "seat_allocations": self.results,
+        }
+
     def run(self):
         """Run an election based on current rules and votes."""
         # How many seats does each party get in each constituency:
@@ -688,6 +694,24 @@ SIMULATION_VARIATES = {
     "beta": simulation_beta_variate,
     "bruteforce": simulation_bruteforce,
 }
+
+
+def run_script(rules):
+    rs = Rules()
+    if type(rules) == dict:
+        rs.update(rules)
+    else:
+        rs.load_rules(rules)
+
+    assert("votes" in rs)
+
+    if rs["simulate"]:
+        pass # TODO: Implement simulations
+    else:
+        election = Election(rs, rs["votes"])
+        election.run()
+
+    return election
 
 
 if __name__ == "__main__":
