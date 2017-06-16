@@ -1,2 +1,9 @@
 *.pyc
 *~
+*.swp
+/bin
+/include
+/lib
+/local
+/share
+/pip-selfcheck.json
