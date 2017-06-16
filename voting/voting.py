@@ -216,7 +216,7 @@ class Election:
         # print tabulate(data, header, "simple")
 
         if self.rules["show_entropy"]:
-            ent = entropy(votes, results, divmethod)
+            ent = entropy(self.m_votes, results, gen)
             print "\nEntropy: ", ent
 
     def primary_apportionment(self, m_votes):
@@ -503,7 +503,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     """
     Apportion based on Icelandic law nr. 24/2000.
     """
-
     m_allocations = deepcopy(m_prior_allocations)
 
     # 2.1
