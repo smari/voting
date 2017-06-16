@@ -9,9 +9,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
-  <script src="/static/js/react/react.js"></script>
-  <script src="/static/js/react/react-dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.31.0/react-bootstrap.min.js"></script>
+  <script>
+    var Alert = ReactBootstrap.Alert;
+  </script>
 
   <script src="/static/js/votingsystem.js"></script>
   <script type="text/babel" src="static/js/ui.js"></script>
@@ -54,7 +58,7 @@
       data: JSON.stringify(election),
       contentType: 'application/json; charset=utf-8',
       success: function(data) {
-        $("body").append("<pre>" + JSON.stringify(data) + "</pre>");
+        // $("body").append("<pre>" + JSON.stringify(data) + "</pre>");
         console.log(data);
       },
       dataType: "json"

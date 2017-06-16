@@ -1,3 +1,4 @@
+var RBS = ReactBootstrap;
 
 var preset_elections = {
     "Icelandic Parliamentary Elections 2003": {
@@ -396,6 +397,7 @@ var VotesResults = React.createClass({
 var VotingSimulator = React.createClass({
     getInitialState: function() {
         return {
+            key: 1,
             constituencies: [],
             parties: [],
             settings: {
@@ -414,64 +416,50 @@ var VotingSimulator = React.createClass({
         "iceland": {"name": "Icelandic method", "func": null},
     },
 
+    handleSelect(key) {
+        this.setState({key});
+    },
+
     render: function() {
         return (
-        <div>
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    <h3 className="panel-title">Votes</h3>
-                </div>
-                <div className="panel-body">
-                    <VotesToolbar
-                        addConstituency={this.addConstituency}
-                        addParty={this.addParty}
-                        votesReset={this.votesReset}
-                        setPreset={this.setPreset}
-                    />
-                    <VotesTable
-                        data={this.state}
-                        removeConstituency={this.removeConstituency}
-                        removeParty={this.removeParty}
-                        setConstituencyName={this.setConstituencyName}
-                        setAdjustmentSeats={this.setAdjustmentSeats}
-                        setPrimarySeats={this.setPrimarySeats}
-                        setPartyName={this.setPartyName}
-                        setPartyVotes={this.setPartyVotes}
-                    />
-                </div>
-            </div>
+        <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
+          <RBS.Tab eventKey={1} title="Votes">
+            <VotesToolbar
+                addConstituency={this.addConstituency}
+                addParty={this.addParty}
+                votesReset={this.votesReset}
+                setPreset={this.setPreset}
+            />
+            <VotesTable
+                data={this.state}
+                removeConstituency={this.removeConstituency}
+                removeParty={this.removeParty}
+                setConstituencyName={this.setConstituencyName}
+                setAdjustmentSeats={this.setAdjustmentSeats}
+                setPrimarySeats={this.setPrimarySeats}
+                setPartyName={this.setPartyName}
+                setPartyVotes={this.setPartyVotes}
+            />
+          </RBS.Tab>
 
-            <div className="panel panel-default">
-              <div className="panel-heading">
-                <h3 className="panel-title">Calculation settings</h3>
-              </div>
-              <div className="panel-body">
+          <RBS.Tab eventKey={2} title="Settings">
+            <VotesSettings
+                setPrimaryTallyMethod={this.setPrimaryTallyMethod}
+                setAdjustmentTallyMethod={this.setAdjustmentTallyMethod}
+                primaryTallyMethods={this.primaryTallyMethods}
+                adjustmentTallyMethods={this.adjustmentTallyMethods}
+                data={this.state}
+            />
+          </RBS.Tab>
 
-                <VotesSettings
-                    setPrimaryTallyMethod={this.setPrimaryTallyMethod}
-                    setAdjustmentTallyMethod={this.setAdjustmentTallyMethod}
-                    primaryTallyMethods={this.primaryTallyMethods}
-                    adjustmentTallyMethods={this.adjustmentTallyMethods}
-                    data={this.state}
-                />
-
-              </div>
-            </div>
-
-            <div className="panel panel-default">
-              <div className="panel-heading">
-                <h3 className="panel-title">Results</h3>
-              </div>
-              <div className="panel-body">
-                  <VotesResults
-                    primaryTallyMethods={this.primaryTallyMethods}
-                    adjustmentTallyMethods={this.adjustmentTallyMethods}
-                    data={this.state}
-                  />
-              </div>
-            </div>
-
-        </div>
+          <RBS.Tab eventKey={3} title="Results">
+            <VotesResults
+              primaryTallyMethods={this.primaryTallyMethods}
+              adjustmentTallyMethods={this.adjustmentTallyMethods}
+              data={this.state}
+            />
+          </RBS.Tab>
+        </RBS.Tabs>
         )
     },
 
