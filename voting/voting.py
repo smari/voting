@@ -26,7 +26,7 @@ def sainte_lague_gen():
 def swedish_sainte_lague_gen():
     """Generate a Swedish/Nordic Sainte-Lague divide sequence: 1.4, 3, 5..."""
     yield 1.4
-    n = 1
+    n = 3
     while True:
         yield n
         n += 2
