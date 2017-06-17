@@ -174,7 +174,9 @@ var VotesSettings = React.createClass({
         var divider_rules = [];
         var adjustment_methods = [];
 
-
+        if (!this.props.data.capabilities_loaded) {
+            return <div>Capabilities not loaded</div>;
+        }
 
         for (var id in this.props.data.capabilities.divider_rules) {
             var method = this.props.data.capabilities.divider_rules[id];
@@ -198,28 +200,34 @@ var VotesSettings = React.createClass({
         }
 
         return (
-            <form>
-                <div className="form-group">
-                    <label htmlFor="divider_rule">Primary Tally Method</label>
-                    <select
-                        className="form-control"
-                        id="divider_rule"
-                        onChange={this.setdivider_rule}
-                        >
-                        {divider_rules}
-                    </select>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="adjustment_method">Adjustment Seats Tally Method</label>
-                    <select
-                        className="form-control"
-                        id="adjustment_method"
-                        onChange={this.setadjustment_method}
-                        >
-                        {adjustment_methods}
-                    </select>
-                </div>
-            </form>
+            <RBS.Grid fluid={true}>
+            <RBS.Row>
+            <RBS.Col xs={8} md={6}>
+                <form>
+                    <div className="form-group">
+                        <label htmlFor="divider_rule">Primary Tally Method</label>
+                        <select
+                            className="form-control"
+                            id="divider_rule"
+                            onChange={this.setdivider_rule}
+                            >
+                            {divider_rules}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="adjustment_method">Adjustment Seats Tally Method</label>
+                        <select
+                            className="form-control"
+                            id="adjustment_method"
+                            onChange={this.setadjustment_method}
+                            >
+                            {adjustment_methods}
+                        </select>
+                    </div>
+                </form>
+            </RBS.Col>
+            </RBS.Row>
+            </RBS.Grid>
         )
     }
 });
@@ -239,8 +247,8 @@ var VotesResults = React.createClass({
         var rules = this.props.data.rules;
         var caps = this.props.data.capabilities;
 
-        if (!this.props.capabilities_loaded) {
-          return <div>Capabilities not loaded</div>;
+        if (!this.props.data.capabilities_loaded) {
+            return <div>Capabilities not loaded</div>;
         }
 
         var tallyMethod = caps.divider_rules[rules.divider_rule];
@@ -317,11 +325,8 @@ var VotingSimulator = React.createClass({
             key: 1,
             constituencies: [],
             parties: [],
-            rules: {
-                "divider_rule": null,
-                "adjustment_method": null,
-            },
-            capabilities: { },
+            rules: {},
+            capabilities: {},
             capabilities_loaded: false
         };
         $.getJSON('/api/capabilities/', {}, this.getCapabilities);
@@ -344,6 +349,10 @@ var VotingSimulator = React.createClass({
     render: function() {
         return (
         <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
+          <RBS.Tab eventKey={2} title="Simulation">
+            Not implemented.
+          </RBS.Tab>
+
           <RBS.Tab eventKey={1} title="Votes">
             <VotesToolbar
                 addConstituency={this.addConstituency}
@@ -363,8 +372,21 @@ var VotingSimulator = React.createClass({
             />
           </RBS.Tab>
 
-          <RBS.Tab eventKey={2} title="Settings">
+          <RBS.Tab eventKey={3} title="Election results">
+            <VotesResults
+              divider_rules={this.state.capabilities.divider_rules}
+              adjustment_methods={this.adjustment_methods}
+              data={this.state}
+            />
+          </RBS.Tab>
+
+          <RBS.Tab eventKey={4} title="Visualization">
+            Not implemented.
+          </RBS.Tab>
+
+          <RBS.Tab eventKey={5} title="Settings">
             <VotesSettings
+                capabilities_loaded={this.state.capabilities_loaded}
                 setdivider_rule={this.setdivider_rule}
                 setadjustment_method={this.setadjustment_method}
                 divider_rules={this.state.capabilities.divider_rules}
@@ -373,13 +395,6 @@ var VotingSimulator = React.createClass({
             />
           </RBS.Tab>
 
-          <RBS.Tab eventKey={3} title="Results">
-            <VotesResults
-              divider_rules={this.state.capabilities.divider_rules}
-              adjustment_methods={this.adjustment_methods}
-              data={this.state}
-            />
-          </RBS.Tab>
         </RBS.Tabs>
         )
     },
