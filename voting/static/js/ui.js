@@ -1,114 +1,11 @@
 var RBS = ReactBootstrap;
 
-var preset_elections = {
-    "Icelandic Parliamentary Elections 2003": {
-        "constituencies": [
-            {
-                "id": genRandomId(),
-                "name": "Norðvestur",
-                "primarySeats": 9,
-                "adjustmentSeats": 1,
-                "votes": [
-                    {"id": 0, "votes": 4057},
-                    {"id": 1, "votes": 5532},
-                    {"id": 2, "votes": 2666},
-                    {"id": 3, "votes": 122},
-                    {"id": 4, "votes": 4346},
-                    {"id": 5, "votes": 0},
-                    {"id": 6, "votes": 1987},
-                ]
-            },
-            {
-                "id": genRandomId(),
-                "name": "Norðaustur",
-                "primarySeats": 9,
-                "adjustmentSeats": 1,
-                "votes": [
-                    {"id": 0, "votes": 7722},
-                    {"id": 1, "votes": 5544},
-                    {"id": 2, "votes": 1329},
-                    {"id": 3, "votes": 136},
-                    {"id": 4, "votes": 5503},
-                    {"id": 5, "votes": 0},
-                    {"id": 6, "votes": 3329},
-                ]
-            },
-            {
-                "id": genRandomId(),
-                "name": "Suður",
-                "primarySeats": 9,
-                "adjustmentSeats": 1,
-                "votes": [
-                    {"id": 0, "votes": 5934},
-                    {"id": 1, "votes": 7307},
-                    {"id": 2, "votes": 2188},
-                    {"id": 3, "votes": 166},
-                    {"id": 4, "votes": 7426},
-                    {"id": 5, "votes": 844},
-                    {"id": 6, "votes": 1167},
-                ]
-            },
-            {
-                "id": genRandomId(),
-                "name": "Suðvestur",
-                "primarySeats": 9,
-                "adjustmentSeats": 2,
-                "votes": [
-                    {"id": 0, "votes": 6387},
-                    {"id": 1, "votes": 16456},
-                    {"id": 2, "votes": 2890},
-                    {"id": 3, "votes": 399},
-                    {"id": 4, "votes": 14029},
-                    {"id": 5, "votes": 0},
-                    {"id": 6, "votes": 2671},
-                ]
-            },
-            {
-                "id": genRandomId(),
-                "name": "Reykjavík suður",
-                "primarySeats": 9,
-                "adjustmentSeats": 2,
-                "votes": [
-                    {"id": 0, "votes": 4185},
-                    {"id": 1, "votes": 14029},
-                    {"id": 2, "votes": 2448},
-                    {"id": 3, "votes": 504},
-                    {"id": 4, "votes": 12286},
-                    {"id": 5, "votes": 0},
-                    {"id": 6, "votes": 3438},
-                ]
-            },
-            {
-                "id": genRandomId(),
-                "name": "Reykjavík norður",
-                "primarySeats": 9,
-                "adjustmentSeats": 2,
-                "votes": [
-                    {"id": 0, "votes": 4199},
-                    {"id": 1, "votes": 12833},
-                    {"id": 2, "votes": 2002},
-                    {"id": 3, "votes": 464},
-                    {"id": 4, "votes": 13110},
-                    {"id": 5, "votes": 0},
-                    {"id": 6, "votes": 3537},
-                ]
-            }
-        ],
-        "parties": [
-            {"id": 0, "name": "B"},
-            {"id": 1, "name": "D"},
-            {"id": 2, "name": "F"},
-            {"id": 3, "name": "N"},
-            {"id": 4, "name": "S"},
-            {"id": 5, "name": "T"},
-            {"id": 6, "name": "U"},
-        ],
-        "settings": {
-            "primaryTallyMethod": "dhondt",
-            "adjustmentTallyMethod": "iceland",
-        }
-    }
-}
+/*
+ * For design outline, see README.
+ *
+ */
+
+var preset_elections = {};
 
 
 var VotesConstituency = React.createClass({
@@ -265,51 +162,72 @@ var VotesTable = React.createClass({
 });
 
 var VotesSettings = React.createClass({
-    setPrimaryTallyMethod: function(e) {
-        this.props.setPrimaryTallyMethod(e.target.value);
+    setdivider_rule: function(e) {
+        this.props.setdivider_rule(e.target.value);
     },
 
-    setAdjustmentTallyMethod: function(e) {
-        this.props.setAdjustmentTallyMethod(e.target.value);
+    setadjustment_method: function(e) {
+        this.props.setadjustment_method(e.target.value);
     },
 
     render: function() {
-        var primaryTallyMethods = [];
-        var adjustmentTallyMethods = [];
+        var divider_rules = [];
+        var adjustment_methods = [];
 
-        for (var id in this.props.primaryTallyMethods) {
-            var method = this.props.primaryTallyMethods[id];
-            primaryTallyMethods.push(<option value={id}>{method.name}</option>);
+        if (!this.props.data.capabilities_loaded) {
+            return <div>Capabilities not loaded</div>;
         }
 
-        for (var id in this.props.adjustmentTallyMethods) {
-            var method = this.props.adjustmentTallyMethods[id]
-            adjustmentTallyMethods.push(<option value={id}>{method.name}</option>);
+        for (var id in this.props.data.capabilities.divider_rules) {
+            var method = this.props.data.capabilities.divider_rules[id];
+            var checked = (id == this.props.data.rules.primary_divider);
+            if (checked) {
+              divider_rules.push(<option selected value={id}>{method}</option>);
+            } else {
+              divider_rules.push(<option value={id}>{method}</option>);
+            }
+        }
+
+        for (var id in this.props.data.capabilities.adjustment_methods) {
+            var method = this.props.data.capabilities.adjustment_methods[id]
+            adjustment_methods.push(<option value={id}>{method}</option>);
+            var checked = (id == this.props.data.rules.adjustment_method);
+            if (checked) {
+              adjustment_methods.push(<option selected value={id}>{method}</option>);
+            } else {
+              adjustment_methods.push(<option value={id}>{method}</option>);
+            }
         }
 
         return (
-            <form>
-                <div className="form-group">
-                    <label htmlFor="primaryTallyMethod">Primary Tally Method</label>
-                    <select
-                        className="form-control"
-                        id="primaryTallyMethod"
-                        onChange={this.setPrimaryTallyMethod}
-                        >
-                        {primaryTallyMethods}
-                    </select>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="adjustmentTallyMethod">Adjustment Seats Tally Method</label>
-                    <select
-                        className="form-control"
-                        id="adjustmentTallyMethod"
-                        onChange={this.setAdjustmentTallyMethod}
-                        >
-                        {adjustmentTallyMethods}
-                    </select>
-                </div>
-            </form>
+            <RBS.Grid fluid={true}>
+            <RBS.Row>
+            <RBS.Col xs={8} md={6}>
+                <form>
+                    <div className="form-group">
+                        <label htmlFor="divider_rule">Primary Tally Method</label>
+                        <select
+                            className="form-control"
+                            id="divider_rule"
+                            onChange={this.setdivider_rule}
+                            >
+                            {divider_rules}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="adjustment_method">Adjustment Seats Tally Method</label>
+                        <select
+                            className="form-control"
+                            id="adjustment_method"
+                            onChange={this.setadjustment_method}
+                            >
+                            {adjustment_methods}
+                        </select>
+                    </div>
+                </form>
+            </RBS.Col>
+            </RBS.Row>
+            </RBS.Grid>
         )
     }
 });
@@ -326,7 +244,14 @@ var VotesResults = React.createClass({
 
     render: function() {
         var res = "";
-        var tallyMethod = this.props.primaryTallyMethods[this.props.data.settings.primaryTallyMethod];
+        var rules = this.props.data.rules;
+        var caps = this.props.data.capabilities;
+
+        if (!this.props.data.capabilities_loaded) {
+            return <div>Capabilities not loaded</div>;
+        }
+
+        var tallyMethod = caps.divider_rules[rules.divider_rule];
         var constituencies = [];
         for (var c in this.props.data.constituencies) {
             var cons = this.props.data.constituencies[c];
@@ -396,24 +321,25 @@ var VotesResults = React.createClass({
 
 var VotingSimulator = React.createClass({
     getInitialState: function() {
-        return {
+        var init = {
             key: 1,
             constituencies: [],
             parties: [],
-            settings: {
-                "primaryTallyMethod": "dhondt",
-                "adjustmentTallyMethod": "iceland",
-            }
+            rules: {},
+            capabilities: {},
+            capabilities_loaded: false
         };
+        $.getJSON('/api/capabilities/', {}, this.getCapabilities);
+        return init;
     },
 
-    primaryTallyMethods: {
-        "dhondt": {"name": "D'Hondt", "func": dhondt},
-        "sainte-lague": {"name": "Sainte-Laguë", "func": sainte_lague},
-        "swedish": {"name": "Swedish Sainte-Laguë", "func": swedish_sainte_lague},
-    },
-    adjustmentTallyMethods: {
-        "iceland": {"name": "Icelandic method", "func": null},
+    getCapabilities(data) {
+      this.setState({
+        capabilities: data.capabilities,
+        rules: data.default_rules,
+        capabilities_loaded: true
+      })
+      console.log("State: ", this.state);
     },
 
     handleSelect(key) {
@@ -423,6 +349,10 @@ var VotingSimulator = React.createClass({
     render: function() {
         return (
         <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
+          <RBS.Tab eventKey={2} title="Simulation">
+            Not implemented.
+          </RBS.Tab>
+
           <RBS.Tab eventKey={1} title="Votes">
             <VotesToolbar
                 addConstituency={this.addConstituency}
@@ -442,23 +372,29 @@ var VotingSimulator = React.createClass({
             />
           </RBS.Tab>
 
-          <RBS.Tab eventKey={2} title="Settings">
+          <RBS.Tab eventKey={3} title="Election results">
+            <VotesResults
+              divider_rules={this.state.capabilities.divider_rules}
+              adjustment_methods={this.adjustment_methods}
+              data={this.state}
+            />
+          </RBS.Tab>
+
+          <RBS.Tab eventKey={4} title="Visualization">
+            Not implemented.
+          </RBS.Tab>
+
+          <RBS.Tab eventKey={5} title="Settings">
             <VotesSettings
-                setPrimaryTallyMethod={this.setPrimaryTallyMethod}
-                setAdjustmentTallyMethod={this.setAdjustmentTallyMethod}
-                primaryTallyMethods={this.primaryTallyMethods}
-                adjustmentTallyMethods={this.adjustmentTallyMethods}
+                capabilities_loaded={this.state.capabilities_loaded}
+                setdivider_rule={this.setdivider_rule}
+                setadjustment_method={this.setadjustment_method}
+                divider_rules={this.state.capabilities.divider_rules}
+                adjustment_methods={this.adjustment_methods}
                 data={this.state}
             />
           </RBS.Tab>
 
-          <RBS.Tab eventKey={3} title="Results">
-            <VotesResults
-              primaryTallyMethods={this.primaryTallyMethods}
-              adjustmentTallyMethods={this.adjustmentTallyMethods}
-              data={this.state}
-            />
-          </RBS.Tab>
         </RBS.Tabs>
         )
     },
@@ -477,16 +413,16 @@ var VotingSimulator = React.createClass({
         this.setState({parties: con});
     },
 
-    setPrimaryTallyMethod: function(method) {
-        var set = jQuery.extend(true, {}, this.state.settings);
-        set.primaryTallyMethod = method;
-        this.setState({settings: set});
+    setdivider_rule: function(method) {
+        var set = jQuery.extend(true, {}, this.state.rules);
+        set.divider_rule = method;
+        this.setState({rules: set});
     },
 
-    setAdjustmentTallyMethod: function(method) {
-        var set = jQuery.extend(true, {}, this.state.settings);
-        set.adjustmentTallyMethod = method;
-        this.setState({settings: set});
+    setadjustment_method: function(method) {
+        var set = jQuery.extend(true, {}, this.state.rules);
+        set.adjustment_method = method;
+        this.setState({rules: set});
     },
 
     setConstituencyName: function(id, name) {
@@ -594,7 +530,7 @@ var VotingSimulator = React.createClass({
         var pr = preset_elections[preset];
         this.setState({constituencies: pr.constituencies});
         this.setState({parties: pr.parties});
-        this.setState({settings: pr.settings});
+        this.setState({rules: pr.rules});
     },
 
 });

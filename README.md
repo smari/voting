@@ -9,7 +9,9 @@ Biproportional allocation on matrices is a common issue that arises when you hav
 More generally this approach could be used to allocate limited resources to factories depending on their relative importance or needs, or to solve a number of other biproportional optimization problems.
 
 
-## Usage
+## Command Line Interface
+
+The basic interaction mode. You feed it some data files, it feeds you some results.
 
 For help, try:
 ```
@@ -73,6 +75,30 @@ python cli.py script ../data/rulesets/iceland2013.json
 A script or ruleset is simply a JSON file that specifies what should
 happen, see examples in `data/rulesets/`.
 
+
+## Web Interface
+
+The web interface can be started by:
+
+```
+python web.py
+```
+
+Then direct a browser to `http://localhost:5000/` and start having fun.
+
+### Design
+
+The web interface involves a Javascript Single Page App (SPA) which acts as a
+visual editor for data that is then passed to the backend for calculations. As
+such, the SPA is the source of truth, and the backend is "dumb", merely reacting
+to the frontend. The backend is made with Flask.
+
+The SPA's data model should be the same as the backend's script-mode input model.
+
+The SPA is built using React and Bootstrap. It contains a bit of JQuery glue
+that should go away eventually.
+
+
 ## Features
 
 ### Basic functionality
@@ -116,6 +142,12 @@ happen, see examples in `data/rulesets/`.
  * [ ] _Monotonicity violation_: A party list losing a seat by receiving an additional vote
  * [ ] _Significant irrelevant alternative_: A new vote having side effects without without affecting the number of seats won by the party list voted for.
 
+### Web interface
+
+ * [x] Simple web server
+ * [x] Javascript SPA
+ * [ ] Configurable host/port/etc
+
 ### Visualization
 
  * [ ] "Election TV" result animations
@@ -123,13 +155,14 @@ happen, see examples in `data/rulesets/`.
    * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
 
 ### Tickets
-_(updated 2017-01-27)_
+_(updated 2017-06-17)_
 
  * Smári:
    * [x] Update documentation
    * [x] Refactor codebase
    * [x] Complete Icelandic law method
    * [x] Complete simulation basis
+   * [ ] Get JS-SPA to feature-complete
 
  * Þorkell:
    * [ ] Figure out algorithms for detecting violations of Balinski axioms
@@ -144,7 +177,10 @@ _(updated 2017-01-27)_
 
 ## Authors
 
-Smári McCarthy, Þorkell Helgason and Kurt Jörnsten
+Smári McCarthy, Þorkell Helgason and Kurt Jörnsten.
+
+Contributions from Pétur Ólafur Aðalgeirsson, Helgi Hrafn Gunnarsson and
+Bjartur Thorlacius.
 
 ## Licence
 
