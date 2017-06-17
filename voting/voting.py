@@ -37,6 +37,12 @@ DIVIDER_RULES = {
     "swedish": swedish_sainte_lague_gen
 }
 
+DIVIDER_RULE_NAMES = {
+    "dhondt": "D'Hondt's method",
+    "sainte-lague": "Sainte-Laguë method",
+    "swedish": "Nordic Sainte-Laguë variant"
+}
+
 class Rules(dict):
     """A set of rules for an election or a simulation to follow."""
 
@@ -60,7 +66,7 @@ class Rules(dict):
         self["primary_divider"] = "dhondt"
         self["adjustment_divider"] = "dhondt"
         self["adjustment_threshold"] = 0.05
-        self["adjustment_method"] = "alternating-scaling"
+        self["adjustment_method"] = "icelandic-law"
         self["constituency_seats"] = []
         self["constituency_adjustment_seats"] = []
         self["constituency_names"] = []
@@ -124,6 +130,7 @@ class Election:
         self.m_votes = votes
         self.rules = rules
         self.order = []
+        self.log = []
 
     def set_votes(self, votes):
         assert(len(votes) == len(self.rules["constituencies"]))
@@ -216,7 +223,7 @@ class Election:
         # header = ["Constituency"]
         # header.extend(self.rules["parties"])
         # print "\n=== %s ===" %
-        #    (adjustment_method_names[self.rules["adjustment_method"]])
+        #    (ADJUSTMENT_METHOD_NAMES[self.rules["adjustment_method"]])
         # data = [[self.rules["constituency_names"][c]]+results[c] for c in
         #         range(len(self.rules["constituency_names"]))]
         # print tabulate(data, header, "simple")
@@ -563,7 +570,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
                 # print "Done allocating in constituency %d" % (cons)
                 m_proportions[cons] = [0]*len(v_seats)
 
-
         # 2.3.
         #       (Finna skal hæstu landstölu skv. 1. tölul. sem hefur ekki þegar
         #        verið felld niður. Hjá þeim stjórnmálasamtökum, sem eiga þá
@@ -677,24 +683,43 @@ ADJUSTMENT_METHODS = {
     "icelandic-law": icelandic_apportionment,
 }
 
-adjustment_method_names = {
+ADJUSTMENT_METHOD_NAMES = {
     "alternating-scaling": "Alternating-Scaling Method",
     "relative-superiority": "Relative Superiority Method",
     "relative-inferiority": "Relative Inferiority Method",
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)"
 }
 
-def simulation_beta_variate(votes):
+class Variate:
+    def __init__(self, election):
+        self.election = election
+
+    def step(index):
+        pass
+
+
+class VariateBeta(Variate):
     pass
 
-def simulation_bruteforce(votes):
+
+class VariateBruteforce(Variate):
     pass
+
 
 SIMULATION_VARIATES = {
-    "beta": simulation_beta_variate,
-    "bruteforce": simulation_bruteforce,
+    "beta": VariateBeta,
+    "bruteforce": VariateBruteforce,
 }
 
+
+def get_capabilities_dict():
+    return {
+        "capabilities": {
+            "divider_rules": DIVIDER_RULE_NAMES,
+            "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
+        },
+        "default_rules": Rules()
+    }
 
 def run_script(rules):
     rs = Rules()

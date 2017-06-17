@@ -1,5 +1,5 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
-from voting import run_script
+from voting import run_script, get_capabilities_dict
 app = Flask('voting')
 
 @app.route('/')
@@ -17,6 +17,10 @@ def handle_api():
         return jsonify({"error": "No script sent"})
     e = run_script(script)
     return jsonify(e.get_results_dict())
+
+@app.route('/api/capabilities/', methods=["GET"])
+def handle_capabilities():
+    return jsonify(get_capabilities_dict())
 
 if __name__ == '__main__':
     app.debug = True
