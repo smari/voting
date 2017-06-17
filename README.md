@@ -100,18 +100,21 @@ happen, see examples in `data/rulesets/`.
 
 ### Simulation
 
-* [ ] Election simulation: run multiple elections with varied inputs
-* [ ] Fuzz votes based on Beta, Normal, and other random distributions
-* [ ] Compare multiple rulesets (e.g. different adjustment seat vs constituency seat counts)
+* [ ] Generate random initial votes
+	* Draw percentages for each party in each district from a beta distribution with historical mean and variance. Then normalize the percentages to add up to 100\%.
+* [ ] Fuzz votes
+	* Add votes, one-by-one, in support of a party list in a district
+		* If a new vote doesn't gain that party list a seat, report any change in results.
+		* Even if a new vote does gain that party list a seat, do report if the result change is greater than just moving a seat in the relevant constituency between parties and moving one seat in the opposite direction in another constituency.
+* [ ] Resolve ties
+* [ ] Compare different methods
 
 ### Evaluation of methods
 
  * [x] Entropy measurement
- * [ ] Comparative error estimation: count number of seat-flips from optimal
- * [ ] Monotonicity violation detection
- * [ ] Independence of Irrelevant Alternatives violation detection
- * [ ] Balinski axiom violation detection
- * [ ] Method standoff: Rank evaluations (STV/Condorcet) amongst methods after simulation
+ * [ ] _Comparative error estimation_: count number of seat-flips from optimal
+ * [ ] _Monotonicity violation_: A party list losing a seat by receiving an additional vote
+ * [ ] _Significant irrelevant alternative_: A new vote having side effects without without affecting the number of seats won by the party list voted for.
 
 ### Visualization
 
@@ -127,7 +130,6 @@ _(updated 2017-01-27)_
    * [x] Refactor codebase
    * [x] Complete Icelandic law method
    * [x] Complete simulation basis
-   * [ ] Add vote-fuzzing support
 
  * Þorkell:
    * [ ] Figure out algorithms for detecting violations of Balinski axioms
@@ -136,6 +138,9 @@ _(updated 2017-01-27)_
 
  * Kurt:
    * [ ] Describe algorithm for Swedish method
+
+ * Bjartur:
+   * [ ] Generate random votes
 
 ## Authors
 
