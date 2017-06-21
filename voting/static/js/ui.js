@@ -166,12 +166,17 @@ var VotesSettings = React.createClass({
         this.props.setdivider_rule(e.target.value);
     },
 
+    setadjustmentdivider_rule: function(e) {
+        this.props.setadjustmentdivider_rule(e.target.value);
+    },
+
     setadjustment_method: function(e) {
         this.props.setadjustment_method(e.target.value);
     },
 
     render: function() {
         var divider_rules = [];
+        var adjustmentdivider_rules = [];
         var adjustment_methods = [];
 
         if (!this.props.data.capabilities_loaded) {
@@ -185,6 +190,16 @@ var VotesSettings = React.createClass({
               divider_rules.push(<option selected value={id}>{method}</option>);
             } else {
               divider_rules.push(<option value={id}>{method}</option>);
+            }
+        }
+
+        for (var id in this.props.data.capabilities.divider_rules) {
+            var method = this.props.data.capabilities.divider_rules[id];
+            var checked = (id == this.props.data.rules.adjustment_divider);
+            if (checked) {
+              adjustmentdivider_rules.push(<option selected value={id}>{method}</option>);
+            } else {
+              adjustmentdivider_rules.push(<option value={id}>{method}</option>);
             }
         }
 
@@ -205,7 +220,7 @@ var VotesSettings = React.createClass({
             <RBS.Col xs={8} md={6}>
                 <form>
                     <div className="form-group">
-                        <label htmlFor="divider_rule">Primary Tally Method</label>
+                        <label htmlFor="divider_rule">Primary divider rule</label>
                         <select
                             className="form-control"
                             id="divider_rule"
@@ -215,7 +230,17 @@ var VotesSettings = React.createClass({
                         </select>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="adjustment_method">Adjustment Seats Tally Method</label>
+                        <label htmlFor="adjustmentdivider_rule">Adjustment divider rule</label>
+                        <select
+                            className="form-control"
+                            id="adjustmentdivider_rule"
+                            onChange={this.setadjustmentdivider_rule}
+                            >
+                            {adjustmentdivider_rules}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="adjustment_method">Adjustment method</label>
                         <select
                             className="form-control"
                             id="adjustment_method"
@@ -388,6 +413,7 @@ var VotingSimulator = React.createClass({
             <VotesSettings
                 capabilities_loaded={this.state.capabilities_loaded}
                 setdivider_rule={this.setdivider_rule}
+                setadjustmentdivider_rule={this.setadjustmentdivider_rule}
                 setadjustment_method={this.setadjustment_method}
                 divider_rules={this.state.capabilities.divider_rules}
                 adjustment_methods={this.adjustment_methods}
@@ -415,7 +441,13 @@ var VotingSimulator = React.createClass({
 
     setdivider_rule: function(method) {
         var set = jQuery.extend(true, {}, this.state.rules);
-        set.divider_rule = method;
+        set.primary_divider = method;
+        this.setState({rules: set});
+    },
+
+    setadjustmentdivider_rule: function(method) {
+        var set = jQuery.extend(true, {}, this.state.rules);
+        set.adjustment_divider = method;
         this.setState({rules: set});
     },
 
