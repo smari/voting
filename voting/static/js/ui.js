@@ -371,6 +371,10 @@ var VotingSimulator = React.createClass({
         this.setState({key});
     },
 
+    debugInfo() {
+        console.log(this.state);
+    },
+
     render: function() {
         return (
         <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
@@ -420,7 +424,9 @@ var VotingSimulator = React.createClass({
                 data={this.state}
             />
           </RBS.Tab>
-
+          <RBS.Button onClick={this.debugInfo}>
+            Dump debug info
+          </RBS.Button>
         </RBS.Tabs>
         )
     },
