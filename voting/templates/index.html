@@ -1,6 +1,7 @@
 
 <html>
 <head>
+  <title>Voting system</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
@@ -19,52 +20,6 @@
 
   <script src="/static/js/votingsystem.js"></script>
   <script type="text/babel" src="static/js/ui.js"></script>
-
-  <script>
-  election = {
-  	"primary_divider": "dhondt",
-  	"adjustment_divider": "dhondt",
-  	"adjustment_threshold": 0.05,
-  	"adjustment_method": "icelandic-law",
-  	"constituency_seats": [7, 9, 9, 11, 9, 9],
-  	"constituency_adjustment_seats": [1, 1, 1, 2, 2, 2],
-  	"constituency_names": [
-  		"Norðvestur",
-  		"Norðaustur",
-  		"Suður",
-  		"Suðvestur",
-  		"Reykjavík suður",
-  		"Reykjavík norður"
-  	],
-  	"parties": ["A","B","D","G","H","I","J","K","L","M","R","S","T","V","Þ"],
-  	"votes": [
-  		[792,6104,4282,208,0,161,774,0,251,326,0,2122,328,1470,537],
-  		[1537,8173,5327,296,0,241,306,0,313,0,0,2505,460,3733,716],
-  		[1202,9265,7596,703,0,786,412,0,431,0,0,2734,904,1582,1269],
-  		[4687,10944,15608,925,0,1838,188,0,1241,0,0,6932,1927,3995,2541],
-  		[3790,5931,9466,575,55,1394,161,222,1025,0,54,5007,1163,4279,2179],
-  		[3576,5759,8187,556,71,1289,181,0,1398,0,64,4996,1073,5493,2407]
-  	],
-  	"simulate": false,
-  	"debug": false,
-  	"show_entropy": false,
-  	"output": "simple"
-  };
-
-  $(function() {
-    $.ajax({
-      url: '/api/',
-      type: "POST",
-      data: JSON.stringify(election),
-      contentType: 'application/json; charset=utf-8',
-      success: function(data) {
-        // $("body").append("<pre>" + JSON.stringify(data) + "</pre>");
-        console.log(data);
-      },
-      dataType: "json"
-    });
-  });
-  </script>
 </head>
 <body>
   <div class="container-fluid">
