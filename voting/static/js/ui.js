@@ -427,6 +427,9 @@ var VotingSimulator = React.createClass({
           <RBS.Button onClick={this.debugInfo}>
             Dump debug info
           </RBS.Button>
+          <RBS.Button onClick={this.calculate}>
+            Calculate
+          </RBS.Button>
         </RBS.Tabs>
         )
     },
@@ -570,6 +573,22 @@ var VotingSimulator = React.createClass({
         this.setState({parties: pr.parties});
         this.setState({rules: pr.rules});
     },
+
+    calculate: function() {
+      var rules = this.state.rules
+      $(function() {
+        $.ajax({
+          url: '/api/',
+          type: "POST",
+          data: JSON.stringify(rules),
+          contentType: 'application/json; charset=utf-8',
+          success: function(data) {
+              console.log(data);
+          },
+          dataType: "json"
+        });
+      });
+    }
 
 });
 

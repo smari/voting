@@ -728,7 +728,9 @@ def run_script(rules):
     else:
         rs.load_rules(rules)
 
-    assert("votes" in rs)
+    print rules
+    if not "votes" in rs:
+        return {"error": "No votes supplied"}
 
     if rs["simulate"]:
         pass # TODO: Implement simulations

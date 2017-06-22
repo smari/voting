@@ -16,6 +16,8 @@ def handle_api():
     if not script or script == {}:
         return jsonify({"error": "No script sent"})
     e = run_script(script)
+    if type(e) == dict:
+        return jsonify(e)
     return jsonify(e.get_results_dict())
 
 @app.route('/api/capabilities/', methods=["GET"])
