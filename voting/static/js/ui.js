@@ -575,7 +575,9 @@ var VotingSimulator = React.createClass({
     },
 
     calculate: function() {
-      var rules = this.state.rules
+      this.state.rules.votes = this.state.votes;
+      this.state.rules.constituencies = this.state.constituencies;
+      var rules = this.state.rules;
       $(function() {
         $.ajax({
           url: '/api/',
