@@ -148,7 +148,7 @@ var VotesTable = React.createClass({
                 <thead>
                 <tr>
                     <th>Constituency</th>
-                    <th>Seats</th>
+                    <th>Constituency seats</th>
                     <th>Adjustment seats</th>
                     {partyNodes}
                 </tr>
