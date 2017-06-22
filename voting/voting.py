@@ -726,7 +726,10 @@ def get_presets():
     from os import listdir
     from os.path import isfile, join
     presetsdir = "../data/presets/"
-    onlyfiles = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
+    try:
+        files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
+    except FileNotFoundError:
+        files = []
     pr = []
     for f in files:
         # TODO: Needs sanity checking!
