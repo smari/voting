@@ -178,6 +178,7 @@ var VotesSettings = React.createClass({
         var divider_rules = [];
         var adjustmentdivider_rules = [];
         var adjustment_methods = [];
+        var adjustment_threshold = 100 * this.props.data.rules.adjustment_threshold;
 
         if (!this.props.data.capabilities_loaded) {
             return <div>Capabilities not loaded</div>;
@@ -213,6 +214,7 @@ var VotesSettings = React.createClass({
             }
         }
 
+
         return (
             <RBS.Grid fluid={true}>
             <RBS.Row>
@@ -224,7 +226,7 @@ var VotesSettings = React.createClass({
                             className="form-control"
                             id="divider_rule"
                             onChange={this.setdivider_rule}
-                            >
+                        >
                             {divider_rules}
                         </select>
                     </div>
@@ -234,7 +236,7 @@ var VotesSettings = React.createClass({
                             className="form-control"
                             id="adjustmentdivider_rule"
                             onChange={this.setadjustmentdivider_rule}
-                            >
+                        >
                             {adjustmentdivider_rules}
                         </select>
                     </div>
@@ -244,9 +246,18 @@ var VotesSettings = React.createClass({
                             className="form-control"
                             id="adjustment_method"
                             onChange={this.setadjustment_method}
-                            >
+                        >
                             {adjustment_methods}
                         </select>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="adjustment_threshold">Adjustment Threshold</label>
+                      <input
+                          className="form-control"
+                          id="adjustment_threshold"
+                          type="range" min="0" max="100" step="1" value={adjustment_threshold}
+                      />
+
                     </div>
                 </form>
             </RBS.Col>
