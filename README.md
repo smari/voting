@@ -146,7 +146,7 @@ that should go away eventually.
 
  * [x] Simple web server
  * [x] Javascript SPA
- * [ ] Configurable host/port/etc
+ * [x] Configurable host/port/etc
 
 ### Visualization
 

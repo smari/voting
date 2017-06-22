@@ -718,8 +718,20 @@ def get_capabilities_dict():
             "divider_rules": DIVIDER_RULE_NAMES,
             "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
         },
-        "default_rules": Rules()
+        "default_rules": Rules(),
+        "presets": get_presets()
     }
+
+def get_presets():
+    from os import listdir
+    from os.path import isfile, join
+    presetsdir = "../data/presets/"
+    onlyfiles = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
+    pr = []
+    for f in files:
+        # TODO: Needs sanity checking!
+        pr.append(open(f).read())
+    return pr
 
 def run_script(rules):
     rs = Rules()

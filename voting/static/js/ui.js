@@ -362,9 +362,9 @@ var VotingSimulator = React.createClass({
       this.setState({
         capabilities: data.capabilities,
         rules: data.default_rules,
+        presets: data.presets,
         capabilities_loaded: true
       })
-      console.log("State: ", this.state);
     },
 
     handleSelect(key) {
