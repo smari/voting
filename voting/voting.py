@@ -120,8 +120,8 @@ between %.02f and %.02f" % (key, value, self.range_rules[key][0],
         try:
             js = json.loads(fh.read())
             self.update(js)
-        except ValueError, e:
-            print "Error loading rules: %s" % (e)
+        except ValueError as e:
+            print("Error loading rules: %s" % (e))
 
 
 class Election:
@@ -176,14 +176,14 @@ class Election:
     def run_primary_apportionment(self):
         """Conduct primary apportionment"""
         if self.rules["debug"]:
-            print " + Primary apportionment"
+            print(" + Primary apportionment")
         m_allocations, v_seatcount = self.primary_apportionment(self.m_votes)
         self.m_allocations = m_allocations
         self.v_cur_allocations = v_seatcount
 
     def run_threshold_elimination(self):
         if self.rules["debug"]:
-            print " + Threshold elimination"
+            print(" + Threshold elimination")
         threshold = self.rules["adjustment_threshold"]
         v_elim_votes = threshold_elimination_totals(self.m_votes, threshold)
         m_elim_votes = threshold_elimination_constituencies(self.m_votes,
@@ -196,7 +196,7 @@ class Election:
         Calculate the number of adjusment seats each party gets.
         """
         if self.rules["debug"]:
-            print " + Determine adjustment seats"
+            print(" + Determine adjustment seats")
         v_votes = self.v_votes_eliminated
         gen = self.rules.get_generator("adjustment_divider")
         v_priors = self.v_cur_allocations
@@ -206,7 +206,7 @@ class Election:
 
     def run_adjustment_apportionment(self):
         if self.rules["debug"]:
-            print " + Apportion adjustment seats"
+            print(" + Apportion adjustment seats")
         method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
         gen = self.rules.get_generator("adjustment_divider")
 
@@ -230,7 +230,7 @@ class Election:
 
         if self.rules["show_entropy"]:
             ent = entropy(self.m_votes, results, gen)
-            print "\nEntropy: ", ent
+            print("\nEntropy: ", ent)
 
     def primary_apportionment(self, m_votes):
         """Do primary allocation of seats for all constituencies"""
@@ -740,7 +740,7 @@ def run_script(rules):
     else:
         rs.load_rules(rules)
 
-    print rules
+    print(rules)
     if not "votes" in rs:
         return {"error": "No votes supplied"}
 

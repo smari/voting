@@ -22,7 +22,7 @@ def load_constituencies(confile):
         try:
             assert(sum([int(x) for x in row[1:3]]) > 0)
         except:
-            print row[1:3]
+            print(row[1:3])
             raise Exception("Error loading constituency file: "
                             "constituency seats and adjustment seats "
                             "must add to a nonzero number.")
@@ -46,7 +46,7 @@ def load_votes(votefile, consts):
         try:
             assert(row[0] in [x["name"] for x in consts])
         except:
-            print row
+            print(row)
             raise Exception("Constituency '%s' not found in constituency file."
                             % row[0])
         v = []
@@ -69,4 +69,4 @@ def pretty_print_election(rules, election):
     else:
         data = [[rules["constituency_names"][c]]+election.results[c]
                 for c in range(len(rules["constituency_names"]))]
-    print tabulate.tabulate(data, header, rules["output"])
+    print(tabulate.tabulate(data, header, rules["output"]))
