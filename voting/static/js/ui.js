@@ -204,8 +204,7 @@ var VotesSettings = React.createClass({
         }
 
         for (var id in this.props.data.capabilities.adjustment_methods) {
-            var method = this.props.data.capabilities.adjustment_methods[id]
-            adjustment_methods.push(<option value={id}>{method}</option>);
+            var method = this.props.data.capabilities.adjustment_methods[id];
             var checked = (id == this.props.data.rules.adjustment_method);
             if (checked) {
               adjustment_methods.push(<option selected value={id}>{method}</option>);
