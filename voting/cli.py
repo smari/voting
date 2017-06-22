@@ -7,6 +7,7 @@ import tabulate
 
 import voting
 import util
+import web
 
 ### Monkey patching CSV output mode into tabulate:
 tabulate.tabulate_formats.append("csv")
@@ -95,6 +96,14 @@ def script(rules, **kwargs):
     election = voting.run_script(rules)
 
     util.pretty_print_election(election.rules, election)
+
+@cli.command()
+@click.option('--host', required=False)
+@click.option('--port', required=False, type=click.INT)
+def www(host="localhost", port=5000, **kwargs):
+    web.app.debug = True
+    web.app.run(debug=True, host=host, port=port)
+
 
 @cli.command()
 @click.option('--divider', required=True,
