@@ -8,6 +8,7 @@ from copy import copy, deepcopy
 from math import log
 from tabulate import tabulate
 from util import load_votes, load_constituencies
+import io
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -114,9 +115,12 @@ between %.02f and %.02f" % (key, value, self.range_rules[key][0],
             raise ValueError("%s is not a known divider" % div)
 
     def load_rules(self, fh):
+        try:
+            UNICODE_EXISTS = bool(type(unicode))
+        except NameError:
+            unicode = lambda s: str(s)
         if type(fh) in [str, unicode]:
-            fh = open(fh, "rb")
-
+            fh = io.open(fh, "rb")
         try:
             js = json.loads(fh.read())
             self.update(js)
@@ -278,7 +282,7 @@ def constituency_seat_allocation(v_votes, num_seats, gen):
     seats = []
     alloc_votes = copy(v_votes)
     gens = [gen() for x in range(len(v_votes))]
-    divisors = [x.next() for x in gens]
+    divisors = [next(x) for x in gens]
 
     for i in range(num_seats):
         maxval = max(alloc_votes)
@@ -291,7 +295,7 @@ def constituency_seat_allocation(v_votes, num_seats, gen):
         }
         seats.append(idx)
         rounds.append(res)
-        divisors[idx] = gens[idx].next()
+        divisors[idx] = next(gens[idx])
         alloc_votes[idx] = v_votes[idx] / divisors[idx]
 
     return rounds, seats
@@ -368,7 +372,7 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
     divisors = []
     for n in range(N):
         for j in range(prior_allocations[n]+1):
-            x = divisor_gens[n].next()
+            x = next(divisor_gens[n])
         divisors.append(x)
 
     allocations = copy(prior_allocations)
@@ -382,7 +386,7 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
         maxvote = max(divided_votes)
         min_used = maxvote
         maxparty = divided_votes.index(maxvote)
-        divisors[maxparty] = divisor_gens[maxparty].next()
+        divisors[maxparty] = next(divisor_gens[maxparty])
         allocations[maxparty] += 1
 
     return allocations, (divisors, divisor_gens, min_used)
@@ -556,7 +560,7 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
             for party in range(len(m_votes[0])):
                 d = divisor_gen()
                 for j in range(m_allocations[cons][party]+1):
-                    x = d.next()
+                    x = next(d)
                 k = (float(orig_votes[cons][party])/s)/x
                 proportions.append(k)
 
@@ -671,7 +675,7 @@ def entropy(votes, allocations, divisor_gen):
         divisor_gens = [divisor_gen() for x in range(len(votes[0]))]
         for j in range(len(votes[0])):
             for k in range(allocations[i][j]):
-                dk = divisor_gens[j].next()
+                dk = next(divisor_gens[j])
                 e += log(votes[i][j]/dk)
     return e
 
@@ -733,7 +737,7 @@ def get_presets():
     pr = []
     for f in files:
         # TODO: Needs sanity checking!
-        pr.append(open(f).read())
+        pr.append(io.open(f).read())
     return pr
 
 def run_script(rules):

@@ -112,9 +112,9 @@ def www(host="localhost", port=5000, **kwargs):
 @click.option('--adjustment-divider', default=None, required=False,
               type=click.Choice(voting.DIVIDER_RULES.keys()),
               help='Divider rule for adjustment seats. Defaults to primary.')
-@click.option('--constituencies', required=True, type=click.File('r'),
+@click.option('--constituencies', required=True, type=click.Path(exists=True),
               help='File with constituency data')
-@click.option('--votes', required=True, type=click.File('r'),
+@click.option('--votes', required=True, type=click.Path(exists=True),
               help='File with vote data')
 @click.option('--threshold', default=5,
               help='Threshold (in %%) for adjustment seats')
@@ -129,8 +129,13 @@ def apportion(votes, **kwargs):
     """Do regular apportionment based on votes and constituency data."""
     rules = voting.Rules()
     kwargs["adjustment_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
-    for arg, val in kwargs.iteritems():
+    try:
+      for arg, val in kwargs.iteritems():
         rules[arg] = val
+    except AttributeError:
+      for arg, val in kwargs.items():
+        rules[arg] = val
+
 
     parties, votes = util.load_votes(votes, rules["constituencies"])
     rules["parties"] = parties
