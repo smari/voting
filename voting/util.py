@@ -37,10 +37,6 @@ def load_votes(votefile, consts):
     csv_reader = unicode_csv_reader(votefile)
     parties = next(csv_reader)[1:]
     votes = []
-    sys.stderr.write("Warning: When loading votes, no attempt is currently "
-                     "made to guarantee that the vote file lists "
-                     "constituencies in the same order as they are declared in "
-                     "the constituency file.\n")
 
     for row in csv_reader:
         try:
