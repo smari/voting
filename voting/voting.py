@@ -732,7 +732,7 @@ def get_presets():
     presetsdir = "../data/presets/"
     try:
         files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
-    except FileNotFoundError:
+    except IOError:
         files = []
     pr = []
     for f in files:
