@@ -1,8 +1,10 @@
 #coding:utf-8
 import random
-import csv
+from backports import csv
 import sys
 import tabulate
+import io
+
 
 def random_id(length=8):
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
@@ -10,13 +12,13 @@ def random_id(length=8):
     return s
 
 
-def unicode_csv_reader(utf8_data, dialect=csv.excel, **kwargs):
-    csv_reader = csv.reader(utf8_data, dialect=dialect, **kwargs)
-    for row in csv_reader:
-        yield [unicode(cell, 'utf-8') for cell in row]
+def read_csv(filename):
+    with io.open(filename, mode="r", newline='', encoding='utf-8') as f:
+        for row in csv.reader(f):
+            yield [cell for cell in row]
 
 def load_constituencies(confile):
-    csv_reader = unicode_csv_reader(confile)
+    csv_reader = read_csv(confile)
     cons = []
     for row in csv_reader:
         try:
@@ -34,13 +36,9 @@ def load_constituencies(confile):
     return cons
 
 def load_votes(votefile, consts):
-    csv_reader = unicode_csv_reader(votefile)
+    csv_reader = read_csv(votefile)
     parties = next(csv_reader)[1:]
     votes = []
-    sys.stderr.write("Warning: When loading votes, no attempt is currently "
-                     "made to guarantee that the vote file lists "
-                     "constituencies in the same order as they are declared in "
-                     "the constituency file.\n")
 
     for row in csv_reader:
         try:

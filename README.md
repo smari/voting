@@ -40,7 +40,7 @@ Example using the 2013 elections in Iceland and d'Hondt method:
 ```
 python cli.py apportion \
 	--constituencies=../data/constituencies/constituencies_iceland_2013.csv \
-	--votes=../data/elections/island_2013.csv \
+	--votes=../data/elections/iceland_landskjorstjorn_2013.csv \
 	--divider=dhondt \
 	--adjustment-method=alternating-scaling \
 	--show-entropy
@@ -50,7 +50,7 @@ You can get HTML, LaTeX, MediaWiki or various other types of table output, swap 
 ```
 python cli.py apportion \
 	--constituencies=../data/constituencies/constituencies_iceland_2013.csv \
-	--votes=../data/elections/island_2013.csv \
+	--votes=../data/elections/iceland_landskjorstjorn_2013.csv \
 	--divider=sainte-lague \
 	  --adjustment-method=alternating-scaling \
 	  --adjustment-method=relative-superiority \

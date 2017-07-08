@@ -1,3 +1,4 @@
-click
-tabulate
-flask
+click==6.7
+tabulate==0.7.7
+Flask==0.12.2
+backports.csv==1.0.5
