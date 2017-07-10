@@ -8,7 +8,7 @@ from copy import copy, deepcopy
 from math import log
 from tabulate import tabulate
 from util import load_votes, load_constituencies
-import io
+from rules import Rules
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -44,11 +44,12 @@ DIVIDER_RULE_NAMES = {
     "swedish": "Nordic Sainte-Laguë variant"
 }
 
-class Rules(dict):
+
+class ElectionRules(dict):
     """A set of rules for an election or a simulation to follow."""
 
     def __init__(self):
-        super(Rules, self).__init__()
+        super(ElectionRules, self).__init__()
         self.value_rules = {
             "primary_divider": DIVIDER_RULES.keys(),
             "adjustment_divider": DIVIDER_RULES.keys(),
@@ -92,19 +93,7 @@ class Rules(dict):
             self["constituency_adjustment_seats"] = [x["num_adjustment_seats"]
                                                      for x in value]
 
-        if key in self.value_rules and value not in self.value_rules[key]:
-            raise ValueError("Cannot set %s to '%s'. Allowed values: %s" %
-                             (key, value, self.value_rules[key]))
-        if key in self.range_rules and (value < self.range_rules[key][0] or
-                                        value > self.range_rules[key][1]):
-            raise ValueError("Cannot set %s to '%.02f'. Allowed values are \
-between %.02f and %.02f" % (key, value, self.range_rules[key][0],
-                            self.range_rules[key][1]))
-        if key in self.list_rules and not isinstance(value, list):
-            raise ValueError("Cannot set %s to '%s'. Must be a list." %
-                             (key, value))
-
-        super(Rules, self).__setitem__(key, value)
+        super(ElectionRules, self).__setitem__(key, value)
 
     def get_generator(self, div):
         """Fetch a generator from divider rules."""
@@ -113,19 +102,6 @@ between %.02f and %.02f" % (key, value, self.range_rules[key][0],
             return DIVIDER_RULES[method]
         else:
             raise ValueError("%s is not a known divider" % div)
-
-    def load_rules(self, fh):
-        try:
-            UNICODE_EXISTS = bool(type(unicode))
-        except NameError:
-            unicode = lambda s: str(s)
-        if type(fh) in [str, unicode]:
-            fh = io.open(fh, "rb")
-        try:
-            js = json.loads(fh.read())
-            self.update(js)
-        except ValueError as e:
-            print("Error loading rules: %s" % (e))
 
 
 class Election:
@@ -668,14 +644,14 @@ def monge(m_votes, v_constituency_seats,
                          m_prior_allocations, divisor_gen, threshold=None,
                          **kwargs):
     """Apportion by Monge algorithm"""
-    
+
     def divided_vote(m_votes, m_prior_allocations, constituency, party, divisor_gen):
         gen = divisor_gen()
         for seat in range(1+sum([v_constituency_allocations[party]
                                 for v_constituency_allocations in m_prior_allocations])):
             divisor = next(gen)
         return float(m_votes[constituency][party])/divisor
-    
+
     m_allocations = deepcopy(m_prior_allocations)
     total_seats = sum(v_constituency_seats)
     allocated_seats = sum([sum(x) for x in m_allocations])
@@ -706,10 +682,10 @@ def monge(m_votes, v_constituency_seats,
                     max_Monge_ratio = min_ratio
                     max_constituency = constituency
                     max_party = party
-        
+
         #allocate seat based on Monge ratio
         m_allocations[max_constituency][max_party] += 1
-    
+
     return m_allocations
 
 def entropy(votes, allocations, divisor_gen):
@@ -772,7 +748,7 @@ def get_capabilities_dict():
             "divider_rules": DIVIDER_RULE_NAMES,
             "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
         },
-        "default_rules": Rules(),
+        "default_rules": ElectionRules(),
         "presets": get_presets()
     }
 
@@ -791,7 +767,7 @@ def get_presets():
     return pr
 
 def run_script(rules):
-    rs = Rules()
+    rs = ElectionRules()
     if type(rules) == dict:
         rs.update(rules)
     else:

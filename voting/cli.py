@@ -127,7 +127,7 @@ def www(host="localhost", port=5000, **kwargs):
 @click.option('--show-constituency-seats', is_flag=True)
 def apportion(votes, **kwargs):
     """Do regular apportionment based on votes and constituency data."""
-    rules = voting.Rules()
+    rules = voting.ElectionRules()
     kwargs["adjustment_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
     try:
       for arg, val in kwargs.iteritems():
