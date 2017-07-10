@@ -1,4 +1,6 @@
 {
+    "action": "election",
+    "election_rules": {
 	"primary_divider": "dhondt",
 	"adjustment_divider": "dhondt",
 	"adjustment_threshold": 0.05,
@@ -26,4 +28,5 @@
 	"debug": false,
 	"show_entropy": false,
 	"output": "simple"
+    }
 }
