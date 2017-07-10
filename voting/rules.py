@@ -1,3 +1,4 @@
+import json
 
 class Rules(dict):
     """A set of rules for an election or a simulation to follow."""

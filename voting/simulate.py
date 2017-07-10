@@ -1,4 +1,14 @@
 from voting import Election, SIMULATION_VARIATES
+from rules import Rules
+
+class SimulationRules(Rules):
+    def __init__(self):
+        super(SimulationRules, self).__init__()
+        # Simulation rules
+        self["simulate"] = False
+        self["simulation_count"] = 100
+        self["simulation_variate"] = "beta"
+
 
 class Simulation:
     """Simulate a set of elections."""

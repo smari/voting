@@ -9,6 +9,7 @@ from math import log
 from tabulate import tabulate
 from util import load_votes, load_constituencies
 from rules import Rules
+from simulate import SimulationRules # TODO: This belongs elsewhere.
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -45,7 +46,7 @@ DIVIDER_RULE_NAMES = {
 }
 
 
-class ElectionRules(dict):
+class ElectionRules(Rules):
     """A set of rules for an election or a simulation to follow."""
 
     def __init__(self):
@@ -73,11 +74,6 @@ class ElectionRules(dict):
         self["constituency_adjustment_seats"] = []
         self["constituency_names"] = []
         self["parties"] = []
-
-        # Simulation rules
-        self["simulate"] = False
-        self["simulation_count"] = 100
-        self["simulation_variate"] = "beta"
 
         # Display rules
         self["debug"] = False
@@ -741,14 +737,16 @@ SIMULATION_VARIATES = {
     "bruteforce": VariateBruteforce,
 }
 
+# TODO: These functions should be elsewhere.
 
 def get_capabilities_dict():
     return {
+        "election_rules": ElectionRules(),
+        "simulation_rules": SimulationRules(),
         "capabilities": {
             "divider_rules": DIVIDER_RULE_NAMES,
             "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
         },
-        "default_rules": ElectionRules(),
         "presets": get_presets()
     }
 
@@ -767,23 +765,29 @@ def get_presets():
     return pr
 
 def run_script(rules):
-    rs = ElectionRules()
-    if type(rules) == dict:
-        rs.update(rules)
-    else:
-        rs.load_rules(rules)
+    if type(rules) != dict:
+        return {"error": "Incorrect script format."}
 
-    print(rules)
-    if not "votes" in rs:
-        return {"error": "No votes supplied"}
+    if rules["action"] not in ["simulation", "election"]:
+        return {"error": "Script action must be election or simulation."}
 
-    if rs["simulate"]:
-        pass # TODO: Implement simulations
-    else:
+    if rules["action"] == "election":
+        rs = ElectionRules()
+        if "election_rules" not in rules:
+            return {"error": "No election rules supplied."}
+
+        rs.update(rules["election_rules"])
+
+        if not "votes" in rs:
+            return {"error": "No votes supplied"}
+
         election = Election(rs, rs["votes"])
         election.run()
 
-    return election
+        return election
+
+    else:
+        return {"error": "Not implemented."}
 
 
 if __name__ == "__main__":
