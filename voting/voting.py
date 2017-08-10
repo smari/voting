@@ -664,7 +664,7 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
 
     return m_allocations
 
-def Monge(m_votes, v_constituency_seats,
+def monge(m_votes, v_constituency_seats,
                          m_prior_allocations, divisor_gen, threshold=None,
                          **kwargs):
     """Apportion by Monge algorithm"""
@@ -713,7 +713,7 @@ def Monge(m_votes, v_constituency_seats,
     m_allocations[max_constituency][max_party] += 1
     
     #do this recursively until no seats are left to allocate
-    return Monge(m_votes, v_constituency_seats, m_allocations, divisor_gen, threshold)
+    return monge(m_votes, v_constituency_seats, m_allocations, divisor_gen, threshold)
 
 def entropy(votes, allocations, divisor_gen):
     """
@@ -735,7 +735,7 @@ ADJUSTMENT_METHODS = {
     "alternating-scaling": alternating_scaling,
     "relative-superiority": relative_superiority,
     "relative-inferiority": relative_inferiority,
-    "monge": Monge,
+    "monge": monge,
     "icelandic-law": icelandic_apportionment,
 }
 
