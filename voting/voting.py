@@ -671,16 +671,15 @@ def monge(m_votes, v_constituency_seats,
     
     def divided_vote(m_votes, m_prior_allocations, constituency, party, divisor_gen):
         gen = divisor_gen()
-        divisor = next(gen)
-        for _constituency in len(m_votes):
-            for prior_seat in range(m_prior_allocations[_constituency][party]:
-                divisor = next(gen)
+        for seat in range(1+sum([v_constituency_allocations[party]
+                                for v_constituency_allocations in m_prior_allocations])):
+            divisor = next(gen)
         return float(m_votes[constituency][party])/divisor
     
     arbitrary_high_number_that_should_never_be_reached = 10 #TODO: find an appropriate number as default minimum
     m_allocations = deepcopy(m_prior_allocations)
     total_seats = sum(v_constituency_seats)
-    allocated_seats = sum([sum(x) for x in m_prior_allocations])
+    allocated_seats = sum([sum(x) for x in m_allocations])
     for seat in range(total_seats - allocated_seats):
         #calculate max_Monge_ratio
         max_Monge_ratio = 0
