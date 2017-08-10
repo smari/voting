@@ -684,16 +684,17 @@ def monge(m_votes, v_constituency_seats,
                 allocated_seats += m_prior_allocations[constituency][party]
         return allocated_seats
     
+    arbitrary_high_number_that_should_never_be_reached = 10 #TODO: find an appropriate number as default minimum
     m_allocations = deepcopy(m_prior_allocations)
     total_seats = sum(v_constituency_seats)
-    while allocated_seats_so_far(m_allocations) < total_seats:
+    allocated_seats = allocated_seats_so_far(m_allocations)
+    for seat in range(total_seats - allocated_seats):
         #calculate max_Monge_ratio
         max_Monge_ratio = 0
-        arbitrary_high_number_that_should_not_ever_be_reached = 10 #TODO: verify that this number is high enough
         for constituency in range(len(m_votes)):
             for party in range(len(m_votes[0])):
                 a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
-                min_ratio = arbitrary_high_number_that_should_not_ever_be_reached
+                min_ratio = arbitrary_high_number_that_should_never_be_reached
                 for other_constituency in range(len(m_votes)):
                     for other_party in range(len(m_votes[0])):
                         d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
