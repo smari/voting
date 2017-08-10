@@ -677,43 +677,42 @@ def monge(m_votes, v_constituency_seats,
                 divisor = next(gen)
         return float(m_votes[constituency][party])/divisor
     
-    #return immediately if no seats are left to allocate
-    total_seats_to_allocate = sum(v_constituency_seats)
-    total_allocated_seats_so_far = 0
-    for constituency in range(len(m_votes)):
-        for party in range(len(m_votes[0])):
-            total_allocated_seats_so_far += m_prior_allocations[constituency][party]
-    if total_allocated_seats_so_far >= total_seats_to_allocate:
-        return m_prior_allocations
+    def allocated_seats_so_far(m_prior_allocations):
+        allocated_seats = 0
+        for constituency in range(len(m_prior_allocations):
+            for party in range(len(m_prior_allocations[0]):
+                allocated_seats += m_prior_allocations[constituency][party]
+        return allocated_seats
     
-    #calculate max_Monge_ratio
-    max_Monge_ratio = 0
-    arbitrary_high_number_that_should_not_ever_be_reached = 10 #TODO: verify that this number is high enough
-    for constituency in range(len(m_votes)):
-        for party in range(len(m_votes[0])):
-            a = divided_vote(m_votes, m_prior_allocations, constituency, party, divisor_gen)
-            min_ratio = arbitrary_high_number_that_should_not_ever_be_reached
-            for other_constituency in range(len(m_votes)):
-                for other_party in range(len(m_votes[0])):
-                    d = divided_vote(m_votes, m_prior_allocations, other_constituency, other_party, divisor_gen)
-                    b = divided_vote(m_votes, m_prior_allocations, constituency, other_party, divisor_gen)
-                    c = divided_vote(m_votes, m_prior_allocations, other_constituency, party, divisor_gen)
-                    ratio = (a*d)/(b*c)
-                    if ratio < min_ratio:
-                        min_ratio = ratio
-                        reference_constituency = other_constituency
-                        reference_party = other_party
-            if min_ratio > max_Monge_ratio:
-                max_Monge_ratio = min_ratio
-                max_constituency = constituency
-                max_party = party
-    
-    #allocate seat based on Monge ratio
     m_allocations = deepcopy(m_prior_allocations)
-    m_allocations[max_constituency][max_party] += 1
+    total_seats = sum(v_constituency_seats)
+    while allocated_seats_so_far(m_allocations) < total_seats:
+        #calculate max_Monge_ratio
+        max_Monge_ratio = 0
+        arbitrary_high_number_that_should_not_ever_be_reached = 10 #TODO: verify that this number is high enough
+        for constituency in range(len(m_votes)):
+            for party in range(len(m_votes[0])):
+                a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
+                min_ratio = arbitrary_high_number_that_should_not_ever_be_reached
+                for other_constituency in range(len(m_votes)):
+                    for other_party in range(len(m_votes[0])):
+                        d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
+                        b = divided_vote(m_votes, m_allocations, constituency, other_party, divisor_gen)
+                        c = divided_vote(m_votes, m_allocations, other_constituency, party, divisor_gen)
+                        ratio = (a*d)/(b*c)
+                        if ratio < min_ratio:
+                            min_ratio = ratio
+                            reference_constituency = other_constituency
+                            reference_party = other_party
+                if min_ratio > max_Monge_ratio:
+                    max_Monge_ratio = min_ratio
+                    max_constituency = constituency
+                    max_party = party
+        
+        #allocate seat based on Monge ratio
+        m_allocations[max_constituency][max_party] += 1
     
-    #do this recursively until no seats are left to allocate
-    return monge(m_votes, v_constituency_seats, m_allocations, divisor_gen, threshold)
+    return m_allocations
 
 def entropy(votes, allocations, divisor_gen):
     """
