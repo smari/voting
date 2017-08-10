@@ -677,17 +677,10 @@ def monge(m_votes, v_constituency_seats,
                 divisor = next(gen)
         return float(m_votes[constituency][party])/divisor
     
-    def allocated_seats_so_far(m_prior_allocations):
-        allocated_seats = 0
-        for constituency in range(len(m_prior_allocations):
-            for party in range(len(m_prior_allocations[0]):
-                allocated_seats += m_prior_allocations[constituency][party]
-        return allocated_seats
-    
     arbitrary_high_number_that_should_never_be_reached = 10 #TODO: find an appropriate number as default minimum
     m_allocations = deepcopy(m_prior_allocations)
     total_seats = sum(v_constituency_seats)
-    allocated_seats = allocated_seats_so_far(m_allocations)
+    allocated_seats = sum([sum(x) for x in m_prior_allocations])
     for seat in range(total_seats - allocated_seats):
         #calculate max_Monge_ratio
         max_Monge_ratio = 0
