@@ -8,7 +8,8 @@ from copy import copy, deepcopy
 from math import log
 from tabulate import tabulate
 from util import load_votes, load_constituencies
-import io
+from rules import Rules
+from simulate import SimulationRules # TODO: This belongs elsewhere.
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -44,11 +45,12 @@ DIVIDER_RULE_NAMES = {
     "swedish": "Nordic Sainte-Laguë variant"
 }
 
-class Rules(dict):
+
+class ElectionRules(Rules):
     """A set of rules for an election or a simulation to follow."""
 
     def __init__(self):
-        super(Rules, self).__init__()
+        super(ElectionRules, self).__init__()
         self.value_rules = {
             "primary_divider": DIVIDER_RULES.keys(),
             "adjustment_divider": DIVIDER_RULES.keys(),
@@ -73,11 +75,6 @@ class Rules(dict):
         self["constituency_names"] = []
         self["parties"] = []
 
-        # Simulation rules
-        self["simulate"] = False
-        self["simulation_count"] = 100
-        self["simulation_variate"] = "beta"
-
         # Display rules
         self["debug"] = False
         self["show_entropy"] = False
@@ -92,19 +89,7 @@ class Rules(dict):
             self["constituency_adjustment_seats"] = [x["num_adjustment_seats"]
                                                      for x in value]
 
-        if key in self.value_rules and value not in self.value_rules[key]:
-            raise ValueError("Cannot set %s to '%s'. Allowed values: %s" %
-                             (key, value, self.value_rules[key]))
-        if key in self.range_rules and (value < self.range_rules[key][0] or
-                                        value > self.range_rules[key][1]):
-            raise ValueError("Cannot set %s to '%.02f'. Allowed values are \
-between %.02f and %.02f" % (key, value, self.range_rules[key][0],
-                            self.range_rules[key][1]))
-        if key in self.list_rules and not isinstance(value, list):
-            raise ValueError("Cannot set %s to '%s'. Must be a list." %
-                             (key, value))
-
-        super(Rules, self).__setitem__(key, value)
+        super(ElectionRules, self).__setitem__(key, value)
 
     def get_generator(self, div):
         """Fetch a generator from divider rules."""
@@ -113,19 +98,6 @@ between %.02f and %.02f" % (key, value, self.range_rules[key][0],
             return DIVIDER_RULES[method]
         else:
             raise ValueError("%s is not a known divider" % div)
-
-    def load_rules(self, fh):
-        try:
-            UNICODE_EXISTS = bool(type(unicode))
-        except NameError:
-            unicode = lambda s: str(s)
-        if type(fh) in [str, unicode]:
-            fh = io.open(fh, "rb")
-        try:
-            js = json.loads(fh.read())
-            self.update(js)
-        except ValueError as e:
-            print("Error loading rules: %s" % (e))
 
 
 class Election:
@@ -668,14 +640,14 @@ def monge(m_votes, v_constituency_seats, v_party_seats,
                          m_prior_allocations, divisor_gen, threshold=None,
                          **kwargs):
     """Apportion by Monge algorithm"""
-    
+
     def divided_vote(m_votes, m_prior_allocations, constituency, party, divisor_gen):
         gen = divisor_gen()
         for seat in range(1+sum([v_constituency_allocations[party]
                                 for v_constituency_allocations in m_prior_allocations])):
             divisor = next(gen)
         return float(m_votes[constituency][party])/divisor
-    
+
     m_allocations = deepcopy(m_prior_allocations)
     allocation_history = []
     total_seats = sum(v_constituency_seats)
@@ -726,7 +698,6 @@ def monge(m_votes, v_constituency_seats, v_party_seats,
                     competing_constituency = reference_constituency
                     competing_party = reference_party
                     max_found = True
-        
         if max_found:
             #allocate seat based on Monge ratio
             m_allocations[max_constituency][max_party] += 1
@@ -790,14 +761,16 @@ SIMULATION_VARIATES = {
     "bruteforce": VariateBruteforce,
 }
 
+# TODO: These functions should be elsewhere.
 
 def get_capabilities_dict():
     return {
+        "election_rules": ElectionRules(),
+        "simulation_rules": SimulationRules(),
         "capabilities": {
             "divider_rules": DIVIDER_RULE_NAMES,
             "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
         },
-        "default_rules": Rules(),
         "presets": get_presets()
     }
 
@@ -807,32 +780,39 @@ def get_presets():
     presetsdir = "../data/presets/"
     try:
         files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
-    except IOError:
+    except Exception, e:
+        print("Presets directory read failure: %s" % (e))
         files = []
     pr = []
     for f in files:
         # TODO: Needs sanity checking!
-        pr.append(io.open(f).read())
+        pr.append(io.open(presetsdir+f).read())
     return pr
 
 def run_script(rules):
-    rs = Rules()
-    if type(rules) == dict:
-        rs.update(rules)
-    else:
-        rs.load_rules(rules)
+    if type(rules) != dict:
+        return {"error": "Incorrect script format."}
 
-    print(rules)
-    if not "votes" in rs:
-        return {"error": "No votes supplied"}
+    if rules["action"] not in ["simulation", "election"]:
+        return {"error": "Script action must be election or simulation."}
 
-    if rs["simulate"]:
-        pass # TODO: Implement simulations
-    else:
+    if rules["action"] == "election":
+        rs = ElectionRules()
+        if "election_rules" not in rules:
+            return {"error": "No election rules supplied."}
+
+        rs.update(rules["election_rules"])
+
+        if not "votes" in rs:
+            return {"error": "No votes supplied"}
+
         election = Election(rs, rs["votes"])
         election.run()
 
-    return election
+        return election
+
+    else:
+        return {"error": "Not implemented."}
 
 
 if __name__ == "__main__":

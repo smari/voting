@@ -46,14 +46,13 @@ python cli.py apportion \
 	--show-entropy
 ```
 
-You can get HTML, LaTeX, MediaWiki or various other types of table output, swap out the divider methods as you please, and list multiple adjustment methods to compare:
+You can get HTML, LaTeX, MediaWiki or various other types of table output and swap out the divider methods as you please:
 ```
 python cli.py apportion \
 	--constituencies=../data/constituencies/constituencies_iceland_2013.csv \
 	--votes=../data/elections/iceland_landskjorstjorn_2013.csv \
 	--divider=sainte-lague \
-	  --adjustment-method=alternating-scaling \
-	  --adjustment-method=relative-superiority \
+    --adjustment-method=monge \
 	--output=html
 ```
 
@@ -117,9 +116,10 @@ that should go away eventually.
  * [x] Constituency seat allocation
  * [x] Threshold elimination (on matrices and vectors)
  * [ ] Optimization and heuristic methods
-   * [x] Alternating-Scaling Algorithm (AS)
-   * [x] Relative Superiority Algorithm (RS)
-   * [ ] Relative Inferiority Algorithm (RI)
+   * [x] Alternating-Scaling algorithm (AS)
+   * [x] Relative Superiority algorithm (RS)
+   * [ ] Relative Inferiority algorithm (RI)
+   * [x] Monge algorithm
    * [x] Icelandic voting law algorithm
    * [ ] Swedish voting law algorithm
    * [ ] Norwegian voting law algorithm
