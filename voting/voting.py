@@ -702,7 +702,9 @@ def monge(m_votes, v_constituency_seats, v_party_seats,
         if max_found:
             #allocate seat based on Monge ratio
             m_allocations[max_constituency][max_party] += 1
-            allocation_history.add([max_constituency, max_party, competing_constituency, competing_party])
+            allocation_history.add([max_constituency, max_party,
+                                    competing_constituency, competing_party,
+                                    max_Monge_ratio])
         else:
             #found no list to allocate seat to, something is wrong
             break
