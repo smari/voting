@@ -682,6 +682,7 @@ def monge(m_votes, v_constituency_seats, v_party_seats,
     for seat_left in range(total_seats - allocated_seats):
         #calculate max_Monge_ratio
         max_Monge_ratio = 0
+        max_found = False
         for constituency in range(len(m_votes)):
             #ignore if constituency has already received its share of seats
             if sum(m_allocations[constituency]) >= v_constituency_seats[constituency]:
@@ -721,9 +722,14 @@ def monge(m_votes, v_constituency_seats, v_party_seats,
                     max_Monge_ratio = min_ratio
                     max_constituency = constituency
                     max_party = party
+                    max_found = True
         
-        #allocate seat based on Monge ratio
-        m_allocations[max_constituency][max_party] += 1
+        if max_found:
+            #allocate seat based on Monge ratio
+            m_allocations[max_constituency][max_party] += 1
+        else:
+            #found no list to allocate seat to, something is wrong
+            break
     
     return m_allocations
 
