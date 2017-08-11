@@ -1,4 +1,5 @@
 {
+    "name": "Icelandic Parliament election 2013",
     "action": "election",
     "election_rules": {
 	"primary_divider": "dhondt",

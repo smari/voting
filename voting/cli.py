@@ -94,8 +94,8 @@ def simulate(votes, **kwargs):
 def script(rules, **kwargs):
     """Read from a script file and execute its commands."""
     election = voting.run_script(rules)
-
     util.pretty_print_election(election.rules, election)
+
 
 @cli.command()
 @click.option('--host', required=False)

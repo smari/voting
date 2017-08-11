@@ -1,4 +1,4 @@
-from voting import Election, SIMULATION_VARIATES
+# from voting import Election, SIMULATION_VARIATES
 from rules import Rules
 
 class SimulationRules(Rules):
@@ -16,7 +16,7 @@ class Simulation:
         self.rules = rules
         self.votes = votes
         self.variates = []
-        self.election = Election(self.rules, votes)
+        self.election = 0 # Election(self.rules, votes)
         for j in self.rules["simulation_variate"]:
             self.variates.append(SIMULATION_VARIATES[j](self.election))
 
@@ -27,7 +27,7 @@ class Simulation:
             for v in self.variates:
                 v.step(i)
 
-            election.run()
+            pass # election.run()
 
     def fetch_results(self):
         pass

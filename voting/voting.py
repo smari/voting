@@ -756,12 +756,13 @@ def get_presets():
     presetsdir = "../data/presets/"
     try:
         files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
-    except IOError:
+    except Exception, e:
+        print("Presets directory read failure: %s" % (e))
         files = []
     pr = []
     for f in files:
         # TODO: Needs sanity checking!
-        pr.append(io.open(f).read())
+        pr.append(io.open(presetsdir+f).read())
     return pr
 
 def run_script(rules):
