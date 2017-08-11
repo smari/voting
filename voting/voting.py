@@ -664,7 +664,7 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
 
     return m_allocations
 
-def monge(m_votes, v_constituency_seats,
+def monge(m_votes, v_constituency_seats, v_party_seats,
                          m_prior_allocations, divisor_gen, threshold=None,
                          **kwargs):
     """Apportion by Monge algorithm"""
@@ -679,19 +679,34 @@ def monge(m_votes, v_constituency_seats,
     m_allocations = deepcopy(m_prior_allocations)
     total_seats = sum(v_constituency_seats)
     allocated_seats = sum([sum(x) for x in m_allocations])
-    for seat in range(total_seats - allocated_seats):
+    for seat_left in range(total_seats - allocated_seats):
         #calculate max_Monge_ratio
         max_Monge_ratio = 0
         for constituency in range(len(m_votes)):
+            #ignore if constituency has already received its share of seats
+            if sum(m_allocations[constituency]) >= v_constituency_seats[constituency]:
+                continue
             for party in range(len(m_votes[0])):
+                #ignore if party has already received its share of seats
+                if sum([v_constituency_allocations[party]
+                        for v_constituency_allocations in m_allocations])
+                        >= v_party_seats[party]:
+                    continue
                 a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
                 min_ratio = 1
                 none_found = True
                 for other_constituency in range(len(m_votes)):
-                    if other_constituency == constituency:
+                    #ignore if same constituency or if constituency has already received its share of seats
+                    if other_constituency == constituency or
+                            sum(m_allocations[other_constituency])
+                            >= v_constituency_seats[other_constituency]:
                         continue
                     for other_party in range(len(m_votes[0])):
-                        if other_party == party:
+                        #ignore if same party or if party has already received its share of seats
+                        if other_party == party or
+                                sum([v_constituency_allocations[other_party]
+                                     for v_constituency_allocations in m_allocations])
+                                >= v_party_seats[other_party]:
                             continue
                         d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
                         b = divided_vote(m_votes, m_allocations, constituency, other_party, divisor_gen)
