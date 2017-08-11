@@ -10,7 +10,7 @@ def serve_index():
 def send_static(path):
     return send_from_directory('static', path)
 
-@app.route('/api/', methods=["POST"])
+@app.route('/api/script/', methods=["POST"])
 def handle_api():
     script = request.get_json(force=True)
     if not script or script == {}:

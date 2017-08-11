@@ -2,35 +2,34 @@ var RBS = ReactBootstrap;
 
 /*
  * For design outline, see README.
- *
  */
 
 var preset_elections = {};
 
-
 var VotesConstituency = React.createClass({
     remove: function() {
-        this.props.removeConstituency(this.props.data.id);
+        this.props.removeConstituency(this.props.constituency.id);
     },
     setName: function(e) {
-        this.props.setConstituencyName(this.props.data.id, e.target.value);
+        this.props.setConstituencyName(this.props.constituency.id, e.target.value);
     },
     setPartyVotes: function(e) {
-        this.props.setPartyVotes(this.props.data.id, e.target.dataset.party, e.target.value)
+        this.props.setPartyVotes(this.props.constituency.id, e.target.dataset.party, e.target.value)
     },
     getPartyVotes: function(party) {
-        for (var vote in this.props.data.votes) {
-            if (this.props.data.votes[vote].id == party) {
-                return this.props.data.votes[vote].votes;
+        console.log("getPartyVotes:", this.props);
+        for (var vote in this.props.constituency.votes) {
+            if (this.props.constituency.votes[vote].id == party) {
+                return this.props.constituency.votes[vote].votes;
             }
         }
         return 0;
     },
     setPrimarySeats: function(e) {
-        this.props.setPrimarySeats(this.props.data.id, e.target.value);
+        this.props.setPrimarySeats(this.props.constituency.id, e.target.value);
     },
     setAdjustmentSeats: function(e) {
-        this.props.setAdjustmentSeats(this.props.data.id, e.target.value);
+        this.props.setAdjustmentSeats(this.props.constituency.id, e.target.value);
     },
     render: function() {
         var self = this;
@@ -75,12 +74,13 @@ var VotesConstituency = React.createClass({
 
 var VotesToolbar = React.createClass({
     render: function() {
-        var presets = [];
-        for (var p in preset_elections) {
-            presets.push(<li><a href="#" data-preset={p} onClick={this.props.setPreset}>{p}</a></li>);
+        var presets = this.props.data.presets;
+        var presets_li = [];
+        for (var p in presets) {
+            presets_li.push(<li><a href="#" data-preset={p} onClick={this.props.setPreset}>{presets[p].name}</a></li>);
         }
 
-        return (
+        return ( // TODO: Switch this to use RBS:
             <div className="btn-toolbar" role="toolbar" aria-label="...">
                 <a className="btn btn-default" onClick={this.props.addConstituency}>Add constituency</a>
                 <a className="btn btn-default" onClick={this.props.addParty}>Add party</a>
@@ -93,7 +93,7 @@ var VotesToolbar = React.createClass({
                     </a>
 
                     <ul className="dropdown-menu" aria-labelledby="dLabel">
-                        {presets}
+                        {presets_li}
                     </ul>
                 </div>
 
@@ -115,7 +115,8 @@ var VotesTable = React.createClass({
         var constituencyNodes = this.props.data.constituencies.map(function(constituency) {
             return (
                 <VotesConstituency
-                    data={constituency}
+                    data={self.props.data}
+                    constituency={constituency}
                     parties={self.props.data.parties}
                     removeConstituency={self.props.removeConstituency}
                     setConstituencyName={self.props.setConstituencyName}
@@ -186,7 +187,7 @@ var VotesSettings = React.createClass({
 
         for (var id in this.props.data.capabilities.divider_rules) {
             var method = this.props.data.capabilities.divider_rules[id];
-            var checked = (id == this.props.data.rules.primary_divider);
+            var checked = (id == this.props.data.election_rules.primary_divider);
             if (checked) {
               divider_rules.push(<option selected value={id}>{method}</option>);
             } else {
@@ -196,7 +197,7 @@ var VotesSettings = React.createClass({
 
         for (var id in this.props.data.capabilities.divider_rules) {
             var method = this.props.data.capabilities.divider_rules[id];
-            var checked = (id == this.props.data.rules.adjustment_divider);
+            var checked = (id == this.props.data.election_rules.adjustment_divider);
             if (checked) {
               adjustmentdivider_rules.push(<option selected value={id}>{method}</option>);
             } else {
@@ -206,11 +207,11 @@ var VotesSettings = React.createClass({
 
         for (var id in this.props.data.capabilities.adjustment_methods) {
             var method = this.props.data.capabilities.adjustment_methods[id];
-            var checked = (id == this.props.data.rules.adjustment_method);
+            var checked = (id == this.props.data.election_rules.adjustment_method);
             if (checked) {
-              adjustment_methods.push(<option selected value={id}>{method}</option>);
+                adjustment_methods.push(<option selected value={id}>{method}</option>);
             } else {
-              adjustment_methods.push(<option value={id}>{method}</option>);
+                adjustment_methods.push(<option value={id}>{method}</option>);
             }
         }
 
@@ -279,7 +280,7 @@ var VotesResults = React.createClass({
 
     render: function() {
         var res = "";
-        var rules = this.props.data.rules;
+        var rules = this.props.data.election_rules;
         var caps = this.props.data.capabilities;
 
         if (!this.props.data.capabilities_loaded) {
@@ -291,7 +292,7 @@ var VotesResults = React.createClass({
         for (var c in this.props.data.constituencies) {
             var cons = this.props.data.constituencies[c];
             var consvotes = [];
-            var rounds = tallyMethod.func(cons.votes, cons.primarySeats);
+            var rounds = []; // tallyMethod.func(cons.votes, cons.primarySeats);
 
             var rv = [];
             rv.push(<th>Seat allocations</th>);
@@ -360,21 +361,27 @@ var VotingSimulator = React.createClass({
             key: 1,
             constituencies: [],
             parties: [],
-            rules: {},
+
+            election_rules: {},
+            simulation_rules: {},
+            presets: [],
             capabilities: {},
-            capabilities_loaded: false
+            capabilities_loaded: false,
+            votes: [],
         };
         $.getJSON('/api/capabilities/', {}, this.getCapabilities);
         return init;
     },
 
     getCapabilities(data) {
-      this.setState({
-        capabilities: data.capabilities,
-        rules: data.default_rules,
-        presets: data.presets,
-        capabilities_loaded: true
-      })
+        console.log("Found presets: ", data.presets);
+        this.setState({
+            capabilities: data.capabilities,
+            election_rules: data.election_rules,
+            simulation_rules: data.simulation_rules,
+            presets: data.presets,
+            capabilities_loaded: true
+        })
     },
 
     handleSelect(key) {
@@ -382,7 +389,7 @@ var VotingSimulator = React.createClass({
     },
 
     debugInfo() {
-        console.log(this.state);
+        console.log("Debug: ", this.state);
     },
 
     render: function() {
@@ -398,6 +405,7 @@ var VotingSimulator = React.createClass({
                 addParty={this.addParty}
                 votesReset={this.votesReset}
                 setPreset={this.setPreset}
+                data={this.state}
             />
             <VotesTable
                 data={this.state}
@@ -459,21 +467,21 @@ var VotingSimulator = React.createClass({
     },
 
     setdivider_rule: function(method) {
-        var set = jQuery.extend(true, {}, this.state.rules);
+        var set = jQuery.extend(true, {}, this.state.election_rules);
         set.primary_divider = method;
-        this.setState({rules: set});
+        this.setState({election_rules: set});
     },
 
     setadjustmentdivider_rule: function(method) {
-        var set = jQuery.extend(true, {}, this.state.rules);
+        var set = jQuery.extend(true, {}, this.state.election_rules);
         set.adjustment_divider = method;
-        this.setState({rules: set});
+        this.setState({election_rules: set});
     },
 
     setadjustment_method: function(method) {
-        var set = jQuery.extend(true, {}, this.state.rules);
+        var set = jQuery.extend(true, {}, this.state.election_rules);
         set.adjustment_method = method;
-        this.setState({rules: set});
+        this.setState({election_rules: set});
     },
 
     setConstituencyName: function(id, name) {
@@ -575,27 +583,27 @@ var VotingSimulator = React.createClass({
 
     setPreset: function(e) {
         var preset = e.target.dataset.preset;
-        if (!preset_elections[preset]) {
+        if (!this.state.presets[preset]) {
             alert('Preset ' + preset + ' does not exist');
         }
-        var pr = preset_elections[preset];
+        var pr = this.state.presets[preset];
         this.setState({constituencies: pr.constituencies});
         this.setState({parties: pr.parties});
-        this.setState({rules: pr.rules});
+        this.setState({election_rules: pr.election_rules});
     },
 
     calculate: function() {
-      this.state.rules.votes = this.state.votes;
-      this.state.rules.constituencies = this.state.constituencies;
-      var rules = this.state.rules;
+      console.log("Calculating:", this.state.election_rules);
+      var rules = this.state.election_rules;
+      rules["action"] = "election";
       $(function() {
         $.ajax({
-          url: '/api/',
+          url: '/api/script/',
           type: "POST",
           data: JSON.stringify(rules),
           contentType: 'application/json; charset=utf-8',
           success: function(data) {
-              console.log(data);
+              console.log("Got response:", data);
           },
           dataType: "json"
         });
