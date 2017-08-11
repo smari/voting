@@ -638,6 +638,7 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
 
 def monge(m_votes, v_constituency_seats, v_party_seats,
                          m_prior_allocations, divisor_gen, threshold=None,
+                         show_history=False,
                          **kwargs):
     """Apportion by Monge algorithm"""
 
@@ -706,7 +707,10 @@ def monge(m_votes, v_constituency_seats, v_party_seats,
             #found no list to allocate seat to, something is wrong
             break
     
-    return m_allocations
+    if show_history:
+        return m_allocations, allocation_history
+    else:
+        return m_allocations
 
 def entropy(votes, allocations, divisor_gen):
     """
