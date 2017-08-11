@@ -676,7 +676,6 @@ def monge(m_votes, v_constituency_seats,
             divisor = next(gen)
         return float(m_votes[constituency][party])/divisor
     
-    arbitrary_high_number_that_should_never_be_reached = 10 #TODO: find an appropriate number as default minimum
     m_allocations = deepcopy(m_prior_allocations)
     total_seats = sum(v_constituency_seats)
     allocated_seats = sum([sum(x) for x in m_allocations])
@@ -686,17 +685,23 @@ def monge(m_votes, v_constituency_seats,
         for constituency in range(len(m_votes)):
             for party in range(len(m_votes[0])):
                 a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
-                min_ratio = arbitrary_high_number_that_should_never_be_reached
+                min_ratio = 1
+                none_found = True
                 for other_constituency in range(len(m_votes)):
+                    if other_constituency == constituency:
+                        continue
                     for other_party in range(len(m_votes[0])):
+                        if other_party == party:
+                            continue
                         d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
                         b = divided_vote(m_votes, m_allocations, constituency, other_party, divisor_gen)
                         c = divided_vote(m_votes, m_allocations, other_constituency, party, divisor_gen)
                         ratio = (a*d)/(b*c)
-                        if ratio < min_ratio:
+                        if none_found or ratio < min_ratio:
                             min_ratio = ratio
                             reference_constituency = other_constituency
                             reference_party = other_party
+                            none_found = False
                 if min_ratio > max_Monge_ratio:
                     max_Monge_ratio = min_ratio
                     max_constituency = constituency
