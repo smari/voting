@@ -686,7 +686,9 @@ def monge(m_votes, v_constituency_seats, v_party_seats,
                         d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
                         b = divided_vote(m_votes, m_allocations, constituency, other_party, divisor_gen)
                         c = divided_vote(m_votes, m_allocations, other_constituency, party, divisor_gen)
-                        ratio = (a*d)/(b*c) if (b*c) > 0 else 999999
+                        if b=0 or c=0:
+                            continue
+                        ratio = (a*d)/(b*c)
                         if none_found or ratio < min_ratio:
                             min_ratio = ratio
                             reference_constituency = other_constituency
