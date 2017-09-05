@@ -756,7 +756,7 @@ def get_presets():
     presetsdir = "../data/presets/"
     try:
         files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
-    except Exception, e:
+    except Exception as e:
         print("Presets directory read failure: %s" % (e))
         files = []
     pr = []
