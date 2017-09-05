@@ -74,11 +74,11 @@ var VotesConstituency = React.createClass({
 
 var VotesToolbar = React.createClass({
     render: function() {
-        var presets = this.props.data.presets;
-        var presets_li = [];
-        for (var p in presets) {
-            presets_li.push(<li><a href="#" data-preset={p} onClick={this.props.setPreset}>{presets[p].name}</a></li>);
-        }
+        const presets = this.props.data.presets.map((item) => (
+            <li>
+                <a href="#" data-preset={item} onClick={this.props.setPreset}>{item.name}</a>
+            </li>
+        ))
 
         return ( // TODO: Switch this to use RBS:
             <div className="btn-toolbar" role="toolbar" aria-label="...">
@@ -93,7 +93,7 @@ var VotesToolbar = React.createClass({
                     </a>
 
                     <ul className="dropdown-menu" aria-labelledby="dLabel">
-                        {presets_li}
+                        {presets}
                     </ul>
                 </div>
 
