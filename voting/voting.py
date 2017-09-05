@@ -10,6 +10,7 @@ from tabulate import tabulate
 from util import load_votes, load_constituencies
 from rules import Rules
 from simulate import SimulationRules # TODO: This belongs elsewhere.
+import io
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
