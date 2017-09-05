@@ -74,11 +74,11 @@ var VotesConstituency = React.createClass({
 
 var VotesToolbar = React.createClass({
     render: function() {
-        const presets = this.props.data.presets.map((item) => (
-            <li>
-                <a href="#" data-preset={item} onClick={this.props.setPreset}>{item.name}</a>
-            </li>
-        ))
+        var presets = this.props.data.presets;
+        var presets_li = [];
+        for (var p in presets) {
+            presets_li.push(<li><a href="#" data-preset={p} onClick={this.props.setPreset}>{presets[p].name}</a></li>);
+        }
 
         return ( // TODO: Switch this to use RBS:
             <div className="btn-toolbar" role="toolbar" aria-label="...">
@@ -93,7 +93,7 @@ var VotesToolbar = React.createClass({
                     </a>
 
                     <ul className="dropdown-menu" aria-labelledby="dLabel">
-                        {presets}
+                        {presets_li}
                     </ul>
                 </div>
 
@@ -101,6 +101,37 @@ var VotesToolbar = React.createClass({
         )
     }
 });
+
+/* TODO: understand what and where constituencies are
+const VotesToolbar = (props) => {
+   
+    const presets = props.data.presets.map((item) => {
+        return (
+            <li>
+                <a href="#" data-preset={item} onClick={props.setPreset.bind(this, item)}>{item.name}</a>
+            </li>
+        )
+    })
+    return ( // TODO: Switch this to use RBS:
+        <div className="btn-toolbar" role="toolbar" aria-label="...">
+            <a className="btn btn-default" onClick={props.addConstituency}>Add constituency</a>
+            <a className="btn btn-default" onClick={props.addParty}>Add party</a>
+            <a className="btn btn-warning" onClick={props.votesReset}>Reset</a>
+
+            <div className="dropdown pull-right">
+                <a className="btn btn-default" id="dLabel" data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    Presets
+                    <span className="caret"></span>
+                </a>
+
+                <ul className="dropdown-menu" aria-labelledby="dLabel">
+                    {presets}
+                </ul>
+            </div>
+        </div>
+    )
+}
+*/
 
 var VotesTable = React.createClass({
     setPartyName: function(e) {
@@ -583,6 +614,7 @@ var VotingSimulator = React.createClass({
     },
 
     setPreset: function(e) {
+        console.log(this.state.presets[preset])
         var preset = e.target.dataset.preset;
         if (!this.state.presets[preset]) {
             alert('Preset ' + preset + ' does not exist');
