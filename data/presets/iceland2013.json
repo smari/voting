@@ -1,7 +1,7 @@
 {
-    "name": "Icelandic Parliament election 2013",
-    "action": "election",
-    "election_rules": {
+  "name": "Icelandic Parliament election 2013",
+  "action": "election",
+  "election_rules": {
 	"primary_divider": "dhondt",
 	"adjustment_divider": "dhondt",
 	"adjustment_threshold": 0.05,

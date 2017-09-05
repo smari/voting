@@ -374,12 +374,13 @@ var VotingSimulator = React.createClass({
     },
 
     getCapabilities(data) {
-        console.log("Found presets: ", data.presets);
+        const presets = JSON.parse(data.presets)
+        console.log("Found presets: ", presets);
         this.setState({
             capabilities: data.capabilities,
             election_rules: data.election_rules,
             simulation_rules: data.simulation_rules,
-            presets: data.presets,
+            presets: [presets],
             capabilities_loaded: true
         })
     },
@@ -594,7 +595,7 @@ var VotingSimulator = React.createClass({
 
     calculate: function() {
       console.log("Calculating:", this.state.election_rules);
-      var rules = this.state.election_rules;
+      var rules = this.state;
       rules["action"] = "election";
       $(function() {
         $.ajax({

@@ -13,6 +13,7 @@ def send_static(path):
 @app.route('/api/script/', methods=["POST"])
 def handle_api():
     script = request.get_json(force=True)
+    print(script)
     if not script or script == {}:
         return jsonify({"error": "No script sent"})
     e = run_script(script)
