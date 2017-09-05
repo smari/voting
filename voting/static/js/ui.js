@@ -6,6 +6,38 @@ var RBS = ReactBootstrap;
 
 var preset_elections = {};
 
+var Client = (function () {
+  const PATH_CAPABILITIES = '/api/capabilities/';
+  
+  function getCapabilities(cb) {
+    return fetch(`${PATH_CAPABILITIES}`, {
+      accept: 'application/json',
+    }).then(checkStatus)
+      .then(parseJSON)
+      .then(cb);
+  }
+
+  function checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    } else {
+      const error = new Error(`HTTP Error ${response.statusText}`);
+      error.status = response.statusText;
+      error.response = response;
+      console.log(error); // eslint-disable-line no-console
+      throw error;
+    }
+  }
+
+  function parseJSON(response) {
+    return response.json();
+  }
+
+  return {
+    getCapabilities: getCapabilities
+  }
+})();
+
 var VotesConstituency = React.createClass({
     remove: function() {
         this.props.removeConstituency(this.props.constituency.id);
@@ -400,20 +432,23 @@ var VotingSimulator = React.createClass({
             capabilities_loaded: false,
             votes: [],
         };
-        $.getJSON('/api/capabilities/', {}, this.getCapabilities);
+        // $.getJSON('/api/capabilities/', {}, this.getCapabilities);
         return init;
     },
 
-    getCapabilities(data) {
-        const presets = JSON.parse(data.presets)
-        console.log("Found presets: ", presets);
-        this.setState({
-            capabilities: data.capabilities,
-            election_rules: data.election_rules,
-            simulation_rules: data.simulation_rules,
-            presets: [presets],
-            capabilities_loaded: true
-        })
+    componentDidMount: function() {
+        Client.getCapabilities( (data) => {
+            console.log(data);            
+            const presets = JSON.parse(data.presets)
+            console.log("Found presets: ", presets);
+            this.setState({
+                capabilities: data.capabilities,
+                election_rules: data.election_rules,
+                simulation_rules: data.simulation_rules,
+                presets: [presets],
+                capabilities_loaded: true
+            })
+        });
     },
 
     handleSelect(key) {
