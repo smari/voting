@@ -361,7 +361,7 @@ var VotingSimulator = React.createClass({
             key: 1,
             constituencies: [],
             parties: [],
-
+            rules: {},
             election_rules: {},
             simulation_rules: {},
             presets: [],
