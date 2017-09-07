@@ -49,7 +49,7 @@ var VotesConstituency = React.createClass({
         this.props.setPartyVotes(this.props.constituency.id, e.target.dataset.party, e.target.value)
     },
     getPartyVotes: function(party) {
-        console.log("getPartyVotes:", this.props);
+        //console.log("getPartyVotes:", this.props);
         for (var vote in this.props.constituency.votes) {
             if (this.props.constituency.votes[vote].id == party) {
                 return this.props.constituency.votes[vote].votes;
@@ -185,7 +185,7 @@ var VotesTable = React.createClass({
             );
         });
         console.log(self.props.data)
-        var partyNodes = this.props.data.parties.map(function(party) {
+        var partyNodes = self.props.parties.map(function(party) {
             return (
                 <th>
                     <input
