@@ -103,10 +103,11 @@ var VotesConstituency = React.createClass({
         );
     }
 });
-
+/*
 var VotesToolbar = React.createClass({
     render: function() {
         var presets = this.props.data.presets;
+        console.log(this.props.data.presets)
         var presets_li = [];
         for (var p in presets) {
             presets_li.push(<li><a href="#" data-preset={p} onClick={this.props.setPreset}>{presets[p].name}</a></li>);
@@ -133,8 +134,8 @@ var VotesToolbar = React.createClass({
         )
     }
 });
+*/
 
-/* TODO: understand what and where constituencies are
 const VotesToolbar = (props) => {
    
     const presets = props.data.presets.map((item) => {
@@ -163,7 +164,6 @@ const VotesToolbar = (props) => {
         </div>
     )
 }
-*/
 
 var VotesTable = React.createClass({
     setPartyName: function(e) {
@@ -174,21 +174,17 @@ var VotesTable = React.createClass({
     },
 
     render: function() {
+        console.log(this.props.data);
         var self = this;
-        var constituencyNodes = this.props.data.constituencies.map(function(constituency) {
+        var constituencyNodes = this.props.data.constituency_names.map(function(constituency) {
             return (
                 <VotesConstituency
                     data={self.props.data}
-                    constituency={constituency}
-                    parties={self.props.data.parties}
-                    removeConstituency={self.props.removeConstituency}
-                    setConstituencyName={self.props.setConstituencyName}
-                    setAdjustmentSeats={self.props.setAdjustmentSeats}
-                    setPrimarySeats={self.props.setPrimarySeats}
-                    setPartyVotes={self.props.setPartyVotes}
-                    />
+                    constituency={constituency}                    
+                    {...self.props}/>
             );
         });
+        console.log(self.props.data)
         var partyNodes = this.props.data.parties.map(function(party) {
             return (
                 <th>
@@ -352,8 +348,8 @@ var VotesResults = React.createClass({
 
         var tallyMethod = caps.divider_rules[rules.divider_rule];
         var constituencies = [];
-        for (var c in this.props.data.constituencies) {
-            var cons = this.props.data.constituencies[c];
+        for (var c in this.props.data.constituency_names) {
+            var cons = this.props.data.constituency_names[c];
             var consvotes = [];
             var rounds = []; // tallyMethod.func(cons.votes, cons.primarySeats);
 
@@ -422,7 +418,7 @@ var VotingSimulator = React.createClass({
     getInitialState: function() {
         var init = {
             key: 1,
-            constituencies: [],
+            constituency_names: [],
             parties: [],
             rules: {},
             election_rules: {},
@@ -445,7 +441,7 @@ var VotingSimulator = React.createClass({
                 capabilities: data.capabilities,
                 election_rules: data.election_rules,
                 simulation_rules: data.simulation_rules,
-                presets: [presets],
+                presets: this.state.presets.concat([presets]),
                 capabilities_loaded: true
             })
         });
@@ -457,6 +453,167 @@ var VotingSimulator = React.createClass({
 
     debugInfo() {
         console.log("Debug: ", this.state);
+    },
+
+    removeConstituency: function(id) {
+        var con = this.state.constituency_names.filter(function( obj ) {
+            return obj.id !== id;
+        });
+        this.setState({constituency_names: con});
+    },
+
+    removeParty: function(id) {
+        var con = this.state.parties.filter(function( obj ) {
+            return obj.id !== id;
+        });
+        this.setState({parties: con});
+    },
+
+    setdivider_rule: function(method) {
+        var set = jQuery.extend(true, {}, this.state.election_rules);
+        set.primary_divider = method;
+        this.setState({election_rules: set});
+    },
+
+    setadjustmentdivider_rule: function(method) {
+        var set = jQuery.extend(true, {}, this.state.election_rules);
+        set.adjustment_divider = method;
+        this.setState({election_rules: set});
+    },
+
+    setadjustment_method: function(method) {
+        var set = jQuery.extend(true, {}, this.state.election_rules);
+        set.adjustment_method = method;
+        this.setState({election_rules: set});
+    },
+
+    setConstituencyName: function(id, name) {
+        var con = this.state.constituency_names.map(function( obj ) {
+            if (obj.id == id) {
+                obj.name = name;
+            }
+            return obj;
+        });
+        this.setState({constituency_names: con});
+    },
+
+    setPrimarySeats: function(id, primarySeats) {
+        var con = this.state.constituency_names.map(function( obj ) {
+            if (obj.id == id) {
+                obj.primarySeats = primarySeats;
+            }
+            return obj;
+        });
+        this.setState({constituency_names: con});
+    },
+
+    setAdjustmentSeats: function(id, adjustmentSeats) {
+        var con = this.state.constituency_names.map(function( obj ) {
+            if (obj.id == id) {
+                obj.adjustmentSeats = adjustmentSeats;
+            }
+            return obj;
+        });
+        this.setState({constituency_names: con});
+    },
+
+    setPartyName: function(id, name) {
+        var con = this.state.parties.map(function( obj ) {
+            if (obj.id == id) {
+                obj.name = name;
+            }
+            return obj;
+        });
+        this.setState({parties: con});
+    },
+
+    addConstituency: function() {
+        var constituencyNames = this.state.constituency_names.slice();
+        var votes = [];
+        for (var p in this.state.parties) {
+            votes.push({"id": this.state.parties[p].id, "votes": 0});
+        }
+        constituencyNames.push({"id": genRandomId(), "name": "New constituency", "votes": votes});
+        this.setState({constituency_names: constituencyNames});
+    },
+
+    addParty: function() {
+        var parties = this.state.parties.slice();
+        var partyId = genRandomId();
+        var party = {"id": partyId, "name": "?"};
+        parties.push(party);
+        this.setState({parties: parties});
+        var con = this.state.constituency_names.map(function(cons) {
+            cons.votes.push({"id": partyId, "votes": 0});
+            return cons;
+        });
+
+        this.setState({constituency_names: con});
+    },
+
+    setPartyVotes: function(constituency, party, votes) {
+        var self = this;
+        var con = this.state.constituency_names.map(function( obj ) {
+            if (obj.id == constituency) {
+                var found = false;
+                for(var i = 0; i < obj.votes.length; i++) {
+                    if (obj.votes[i].id == party) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    obj.votes = obj.votes.map(function(v) {
+                        if (v.id == party) {
+                            v.votes = votes;
+                        }
+                        return v;
+                    });
+                } else {
+                    obj.votes.push({"id": party, "votes": votes});
+                }
+            }
+            return obj;
+        });
+        this.setState({constituency_names: con});
+    },
+
+    votesReset: function() {
+        this.setState({constituency_names: []});
+        this.setState({parties: []});
+    },
+
+    setPreset: function(preset) {
+        console.log(preset)
+        console.log(this.state.presets)
+        if (!this.state.presets.includes(preset)) {
+            alert('Preset ' + preset + ' does not exist');
+        }
+        //var pr = this.state.presets[preset];
+        this.setState({
+            constituency_names: preset.election_rules.constituency_names,
+            parties: preset.election_rules.parties,
+            election_rules: preset.election_rules
+        });
+    },
+
+    calculate: function() {
+      console.log("Calculating:", this.state.election_rules);
+      var rules = this.state;
+      rules["action"] = "election";
+      $(function() {
+        $.ajax({
+          url: '/api/script/',
+          type: "POST",
+          data: JSON.stringify(rules),
+          contentType: 'application/json; charset=utf-8',
+          success: function(data) {
+              console.log("Got response:", data);
+          },
+          dataType: "json"
+        });
+      });
     },
 
     render: function() {
@@ -471,11 +628,12 @@ var VotingSimulator = React.createClass({
                 addConstituency={this.addConstituency}
                 addParty={this.addParty}
                 votesReset={this.votesReset}
-                setPreset={this.setPreset}
+                setPreset={this.setPreset.bind(this)}
                 data={this.state}
             />
             <VotesTable
                 data={this.state}
+                parties={this.state.parties}                
                 removeConstituency={this.removeConstituency}
                 removeParty={this.removeParty}
                 setConstituencyName={this.setConstituencyName}
@@ -517,166 +675,7 @@ var VotingSimulator = React.createClass({
           </RBS.Button>
         </RBS.Tabs>
         )
-    },
-
-    removeConstituency: function(id) {
-        var con = this.state.constituencies.filter(function( obj ) {
-            return obj.id !== id;
-        });
-        this.setState({constituencies: con});
-    },
-
-    removeParty: function(id) {
-        var con = this.state.parties.filter(function( obj ) {
-            return obj.id !== id;
-        });
-        this.setState({parties: con});
-    },
-
-    setdivider_rule: function(method) {
-        var set = jQuery.extend(true, {}, this.state.election_rules);
-        set.primary_divider = method;
-        this.setState({election_rules: set});
-    },
-
-    setadjustmentdivider_rule: function(method) {
-        var set = jQuery.extend(true, {}, this.state.election_rules);
-        set.adjustment_divider = method;
-        this.setState({election_rules: set});
-    },
-
-    setadjustment_method: function(method) {
-        var set = jQuery.extend(true, {}, this.state.election_rules);
-        set.adjustment_method = method;
-        this.setState({election_rules: set});
-    },
-
-    setConstituencyName: function(id, name) {
-        var con = this.state.constituencies.map(function( obj ) {
-            if (obj.id == id) {
-                obj.name = name;
-            }
-            return obj;
-        });
-        this.setState({constituencies: con});
-    },
-
-    setPrimarySeats: function(id, primarySeats) {
-        var con = this.state.constituencies.map(function( obj ) {
-            if (obj.id == id) {
-                obj.primarySeats = primarySeats;
-            }
-            return obj;
-        });
-        this.setState({constituencies: con});
-    },
-
-    setAdjustmentSeats: function(id, adjustmentSeats) {
-        var con = this.state.constituencies.map(function( obj ) {
-            if (obj.id == id) {
-                obj.adjustmentSeats = adjustmentSeats;
-            }
-            return obj;
-        });
-        this.setState({constituencies: con});
-    },
-
-    setPartyName: function(id, name) {
-        var con = this.state.parties.map(function( obj ) {
-            if (obj.id == id) {
-                obj.name = name;
-            }
-            return obj;
-        });
-        this.setState({parties: con});
-    },
-
-    addConstituency: function() {
-        var constituencies = this.state.constituencies.slice();
-        var votes = [];
-        for (var p in this.state.parties) {
-            votes.push({"id": this.state.parties[p].id, "votes": 0});
-        }
-        constituencies.push({"id": genRandomId(), "name": "New constituency", "votes": votes});
-        this.setState({constituencies: constituencies});
-    },
-
-    addParty: function() {
-        var parties = this.state.parties.slice();
-        var partyId = genRandomId();
-        var party = {"id": partyId, "name": "?"};
-        parties.push(party);
-        this.setState({parties: parties});
-        var con = this.state.constituencies.map(function(cons) {
-            cons.votes.push({"id": partyId, "votes": 0});
-            return cons;
-        });
-
-        this.setState({constituencies: con});
-    },
-
-    setPartyVotes: function(constituency, party, votes) {
-        var self = this;
-        var con = this.state.constituencies.map(function( obj ) {
-            if (obj.id == constituency) {
-                var found = false;
-                for(var i = 0; i < obj.votes.length; i++) {
-                    if (obj.votes[i].id == party) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found) {
-                    obj.votes = obj.votes.map(function(v) {
-                        if (v.id == party) {
-                            v.votes = votes;
-                        }
-                        return v;
-                    });
-                } else {
-                    obj.votes.push({"id": party, "votes": votes});
-                }
-            }
-            return obj;
-        });
-        this.setState({constituencies: con});
-    },
-
-    votesReset: function() {
-        this.setState({constituencies: []});
-        this.setState({parties: []});
-    },
-
-    setPreset: function(e) {
-        console.log(this.state.presets[preset])
-        var preset = e.target.dataset.preset;
-        if (!this.state.presets[preset]) {
-            alert('Preset ' + preset + ' does not exist');
-        }
-        var pr = this.state.presets[preset];
-        this.setState({constituencies: pr.constituencies});
-        this.setState({parties: pr.parties});
-        this.setState({election_rules: pr.election_rules});
-    },
-
-    calculate: function() {
-      console.log("Calculating:", this.state.election_rules);
-      var rules = this.state;
-      rules["action"] = "election";
-      $(function() {
-        $.ajax({
-          url: '/api/script/',
-          type: "POST",
-          data: JSON.stringify(rules),
-          contentType: 'application/json; charset=utf-8',
-          success: function(data) {
-              console.log("Got response:", data);
-          },
-          dataType: "json"
-        });
-      });
-    }
+    },    
 
 });
 
