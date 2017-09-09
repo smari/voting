@@ -65,7 +65,7 @@ var VotesConstituency = React.createClass({
     },
     render: function() {
         var self = this;
-        //console.log(this.props.parties)
+        console.log(this.props)
         var partyFields = this.props.parties.map(function(party) {
             return (
                 <td>
@@ -83,19 +83,19 @@ var VotesConstituency = React.createClass({
             <tr>
                 <th>
                     <input
-                        value={this.props.data.name}
+                        value={this.props.constituency.name}
                         onChange={this.setName}/>
                 </th>
                 <td>
                     <input
                         className="vote-field"
-                        value={this.props.data.primarySeats}
+                        value={this.props.constituency.primarySeats}
                         onChange={this.setPrimarySeats}/>
                 </td>
                 <td>
                     <input
                         className="vote-field"
-                        value={this.props.data.adjustmentSeats}
+                        value={this.props.constituency.adjustmentSeats}
                         onChange={this.setAdjustmentSeats}/>
                 </td>
                 {partyFields}
