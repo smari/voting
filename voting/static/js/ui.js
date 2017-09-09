@@ -207,7 +207,7 @@ var VotesSettings = React.createClass({
         var divider_rules = [];
         var adjustmentdivider_rules = [];
         var adjustment_methods = [];
-        var adjustment_threshold = 100 * this.props.data.rules.adjustment_threshold;
+        var adjustment_threshold = 100 * this.props.data.election_rules.adjustment_threshold;
 
         if (!this.props.data.capabilities_loaded) {
             return <div>Capabilities not loaded</div>;
@@ -389,7 +389,6 @@ var VotingSimulator = React.createClass({
             key: 1,
             constituencies: [],
             parties: [],
-            rules: {},
             election_rules: {},
             simulation_rules: {},
             presets: [],
