@@ -556,18 +556,26 @@ var VotingSimulator = React.createClass({
         });
     },
 
+    addPresetParty: function(partyList) {
+        return partyList.map((party) => ({"id": genRandomId(), "name": party}))
+
+    },
+
     setPreset: function(preset) {
         //console.log(preset)
         //console.log(this.state.presets)
         if (!this.state.presets.includes(preset)) {
             alert('Preset ' + preset + ' does not exist');
         }
+
         //var pr = this.state.presets[preset];
+        
         this.setState({
             constituencies: preset.election_rules.constituency_names,
-            parties: preset.election_rules.parties,
+            parties: this.addPresetParty(preset.election_rules.parties),
             election_rules: preset.election_rules
         });
+        
     },
 
     calculate: function() {
