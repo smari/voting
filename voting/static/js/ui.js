@@ -572,7 +572,13 @@ var VotingSimulator = React.createClass({
 
     calculate: function() {
       var rules = this.state;
-      //rules.election_rules['votes'] = [[100]]
+
+      rules.election_rules['votes'] = [[5000, 6000], [7000, 8000]]
+      rules.election_rules['constituencies'] = ['Norður', 'Suður']
+      rules.election_rules['constituency_seats'] = [9, 11]
+      rules.election_rules['constituency_adjustment_seats'] = [1, 1]
+      rules.election_rules['parties'] = ['Píratar', 'Samfó']      
+
       rules["action"] = "election";
       console.log("Calculating:", rules);
       $(function() {
