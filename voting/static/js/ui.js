@@ -307,6 +307,7 @@ var VotesResults = React.createClass({
     },
 
     render: function() {
+        console.log(this.props.data)
         var res = "";
         var rules = this.props.data.election_rules;
         var caps = this.props.data.capabilities;
@@ -556,9 +557,26 @@ var VotingSimulator = React.createClass({
         });
     },
 
-    addPresetParty: function(partyList) {
-        return partyList.map((party) => ({"id": genRandomId(), "name": party}))
 
+    addPresetConstituency: function(data) {
+        let parties = data.parties.map((party) => ({id: genRandomId(), name: party}))
+
+        const constituencies = data.constituency_names.map((con, i) => ({
+            "id": genRandomId(),
+            "name": con,
+            "primarySeats": data.constituency_seats[i].toString(),
+            "adjustmentSeats": data.constituency_adjustment_seats[i].toString(),
+            "votes": data.votes[i].map((vote, n) => ({
+                votes: vote.toString(),
+                id: parties[n].id.toString()
+            }))
+        }))
+        console.log(constituencies)
+        this.setState({
+            constituencies: constituencies,
+            parties: parties,
+            election_rules: data
+        });
     },
 
     setPreset: function(preset) {
@@ -568,14 +586,7 @@ var VotingSimulator = React.createClass({
             alert('Preset ' + preset + ' does not exist');
         }
 
-        //var pr = this.state.presets[preset];
-        
-        this.setState({
-            constituencies: preset.election_rules.constituency_names,
-            parties: this.addPresetParty(preset.election_rules.parties),
-            election_rules: preset.election_rules
-        });
-        
+        this.addPresetConstituency(preset.election_rules)        
     },
 
     calculate: function() {
