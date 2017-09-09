@@ -573,13 +573,21 @@ var VotingSimulator = React.createClass({
     calculate: function() {
       var rules = this.state;
 
-      rules.election_rules['votes'] = [[5000, 6000], [7000, 8000]]
-      rules.election_rules['constituencies'] = ['Norður', 'Suður']
-      rules.election_rules['constituency_seats'] = [9, 11]
-      rules.election_rules['constituency_adjustment_seats'] = [1, 1]
-      rules.election_rules['parties'] = ['Píratar', 'Samfó']      
+      const constituencyNames = this.state.constituencies.map(con => con.name);
+      const votes = this.state.constituencies.map(con => con.votes.map(votes => parseInt(votes.votes)));
+      const adjustmentSeats = this.state.constituencies.map(con => parseInt(con.adjustmentSeats));
+      const primarySeats = this.state.constituencies.map(con => parseInt(con.primarySeats));
+      const parties = this.state.parties.map(p => p.name);
 
+      rules.election_rules['constituency_names'] = constituencyNames
+      rules.election_rules['constituency_adjustment_seats'] = adjustmentSeats
+      rules.election_rules['constituency_seats'] = primarySeats
+      rules.election_rules['votes'] = votes
+      rules.election_rules['parties'] = parties
+
+      console.log(votes)
       rules["action"] = "election";
+
       console.log("Calculating:", rules);
       $(function() {
         $.ajax({
@@ -597,6 +605,7 @@ var VotingSimulator = React.createClass({
 
     render: function() {
         console.log(this.state)
+    
         return (
         <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
           <RBS.Tab eventKey={2} title="Simulation">
