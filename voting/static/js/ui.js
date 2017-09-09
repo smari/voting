@@ -551,8 +551,10 @@ var VotingSimulator = React.createClass({
     },
 
     votesReset: function() {
-        this.setState({constituencies: []});
-        this.setState({parties: []});
+        this.setState({
+            constituencies: [],
+            parties: []
+        });
     },
 
     setPreset: function(preset) {
@@ -571,6 +573,7 @@ var VotingSimulator = React.createClass({
 
     calculate: function() {
       var rules = this.state;
+      //rules.election_rules['votes'] = [[100]]
       rules["action"] = "election";
       console.log("Calculating:", rules);
       $(function() {
