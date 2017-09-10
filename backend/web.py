@@ -4,11 +4,11 @@ app = Flask('voting')
 
 @app.route('/')
 def serve_index():
-    return render_template('index.html')
+    return render_template('../frontend/index.html')
 
 @app.route('/static/<path:path>')
 def send_static(path):
-    return send_from_directory('static', path)
+    return send_from_directory('../frontend/static', path)
 
 @app.route('/api/script/', methods=["POST"])
 def handle_api():
