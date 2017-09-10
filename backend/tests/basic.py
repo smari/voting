@@ -1,7 +1,7 @@
 import unittest
 
 from voting import apportion1d, dhondt_gen, sainte_lague_gen
-from voting import Rules, Election
+from voting import ElectionRules, Election
 
 class TestMaxEntropy(unittest.TestCase):
 
@@ -19,14 +19,10 @@ class TestMaxEntropy(unittest.TestCase):
         res = apportion1d(votes, num_seats, prior_allocations, sainte_lague_gen)
         self.assertEqual(res[0], [3, 2])
 
-class TestRules(unittest.TestCase):
-    def test_rules(self):
-        # TODO: Write test.
-        pass
 
 class TestBasicAllocation(unittest.TestCase):
     def test_election_basic(self):
-        rules = Rules()
+        rules = ElectionRules()
         rules["constituency_seats"] = [1, 2]
         rules["constituency_adjustment_seats"] = [2, 1]
         rules["constituency_names"] = ["I", "II"]
@@ -38,7 +34,7 @@ class TestBasicAllocation(unittest.TestCase):
         self.assertEqual(election.results, [[2, 1], [2, 1]])
 
     def test_election_basic2(self):
-        rules = Rules()
+        rules = ElectionRules()
         rules["constituency_seats"] = [1, 1]
         rules["constituency_adjustment_seats"] = [1, 1]
         rules["constituency_names"] = ["I", "II"]
