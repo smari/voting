@@ -107,7 +107,6 @@ var VotesConstituency = React.createClass({
 });
 
 const VotesToolbar = (props) => {
-   
     const presets = props.data.presets.map((item) => {
         return (
             <li>
@@ -397,6 +396,7 @@ var VotingSimulator = React.createClass({
             capabilities: {},
             capabilities_loaded: false,
             votes: [],
+            errors: []
         };
         // $.getJSON('/api/capabilities/', {}, this.getCapabilities);
         return init;
@@ -410,7 +410,9 @@ var VotingSimulator = React.createClass({
                 election_rules: data.election_rules,
                 simulation_rules: data.simulation_rules,
                 presets: data.presets,
-                capabilities_loaded: true
+                capabilities_loaded: true,
+                //errors: data.presets.map((p) => ('error' in p ? p.error: []))
+                errors: data.presets.filter(p => {if('error' in p) return p.error})
             })
         });
     },
@@ -623,7 +625,12 @@ var VotingSimulator = React.createClass({
 
     render: function() {
         console.log(this.state)
-    
+        const errors = this.state.errors.map((error) => (
+          <Alert bsStyle="danger">
+            <strong>Opps</strong> {error.error}
+          </Alert>
+        ))
+        console.log(errors)
         return (
         <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
           <RBS.Tab eventKey={2} title="Simulation">
@@ -638,6 +645,7 @@ var VotingSimulator = React.createClass({
                 setPreset={this.setPreset.bind(this)}
                 data={this.state}
             />
+            {errors}
             <VotesTable
                 data={this.state}
                 constituencies={this.state.constituencies}

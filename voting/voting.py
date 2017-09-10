@@ -762,11 +762,14 @@ def get_presets():
         files = []
     pr = []
     for f in files:
-        # TODO: Needs sanity checking!
-        with open(presetsdir+f) as json_file:    
-            data = json.load(json_file)
-            # pr.append(io.open(presetsdir+f).read())
-            pr.append(data)
+        try:
+            with open(presetsdir+f) as json_file:    
+                data = json.load(json_file)
+                # pr.append(io.open(presetsdir+f).read())
+        except  json.decoder.JSONDecodeError:
+            data = {'error': 'Problem parsing json, please fix "{}"'.format(
+                presetsdir+f)}
+        pr.append(data)
     return pr
 
 def run_script(rules):
