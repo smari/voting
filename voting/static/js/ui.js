@@ -107,30 +107,24 @@ var VotesConstituency = React.createClass({
 });
 
 const VotesToolbar = (props) => {
-    const presets = props.data.presets.map((item) => {
+    const presets = props.data.presets.map((item, i) => {
         return (
-            <li>
-                <a href="#" data-preset={item} onClick={props.setPreset.bind(this, item)}>{item.name}</a>
-            </li>
+            <RBS.MenuItem eventKey={i} onClick={props.setPreset.bind(this, item)}>{item.name}</RBS.MenuItem>
         )
     })
-    return ( // TODO: Switch this to use RBS:
-        <div className="btn-toolbar" role="toolbar" aria-label="...">
-            <a className="btn btn-default" onClick={props.addConstituency}>Add constituency</a>
-            <a className="btn btn-default" onClick={props.addParty}>Add party</a>
-            <a className="btn btn-warning" onClick={props.votesReset}>Reset</a>
-
-            <div className="dropdown pull-right">
-                <a className="btn btn-default" id="dLabel" data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    Presets
-                    <span className="caret"></span>
-                </a>
-
-                <ul className="dropdown-menu" aria-labelledby="dLabel">
+    return (
+        <RBS.Row>
+            <RBS.Col xs={12}>
+              <RBS.ButtonToolbar>
+                <RBS.Button bsStyle="primary" onClick={props.addConstituency}>Add constituency</RBS.Button>
+                <RBS.Button bsStyle="success" onClick={props.addParty}>Add party</RBS.Button>
+                <RBS.Button bsStyle="info" onClick={props.votesReset}>Reset</RBS.Button>
+                <RBS.DropdownButton title="Presets" id="bg-nested-dropdown">
                     {presets}
-                </ul>
-            </div>
-        </div>
+                </RBS.DropdownButton>
+              </RBS.ButtonToolbar>
+            </RBS.Col>
+        </RBS.Row>
     )
 }
 
@@ -632,71 +626,82 @@ var VotingSimulator = React.createClass({
         ))
         console.log(errors)
         return (
-        <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
-          <RBS.Tab eventKey={2} title="Simulation">
-            Not implemented.
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={1} title="Votes">
-            <VotesToolbar
-                addConstituency={this.addConstituency}
-                addParty={this.addParty}
-                votesReset={this.votesReset}
-                setPreset={this.setPreset.bind(this)}
-                data={this.state}
-            />
-            {errors}
-            <VotesTable
-                data={this.state}
-                constituencies={this.state.constituencies}
-                parties={this.state.parties}
-                removeConstituency={this.removeConstituency}
-                removeParty={this.removeParty}
-                setConstituencyName={this.setConstituencyName}
-                setAdjustmentSeats={this.setAdjustmentSeats}
-                setPrimarySeats={this.setPrimarySeats}
-                setPartyName={this.setPartyName}
-                setPartyVotes={this.setPartyVotes}
-            />
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={3} title="Election results">
-            <VotesResults
-              divider_rules={this.state.capabilities.divider_rules}
-              adjustment_methods={this.adjustment_methods}
-              data={this.state}
-            />
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={4} title="Visualization">
-            Not implemented.
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={5} title="Settings">
-            <VotesSettings
-                capabilities_loaded={this.state.capabilities_loaded}
-                setdivider_rule={this.setdivider_rule}
-                setadjustmentdivider_rule={this.setadjustmentdivider_rule}
-                setadjustment_method={this.setadjustment_method}
-                divider_rules={this.state.capabilities.divider_rules}
-                adjustment_methods={this.adjustment_methods}
-                data={this.state}
-            />
-          </RBS.Tab>
-          <RBS.Button onClick={this.debugInfo}>
-            Dump debug info
-          </RBS.Button>
-          <RBS.Button onClick={this.calculate}>
-            Calculate
-          </RBS.Button>
-        </RBS.Tabs>
+            <RBS.Tab.Container defaultActiveKey={this.state.key}>
+                <RBS.Row className="clearfix">
+                    <RBS.Col sm={12}>
+                        <RBS.Nav bsStyle="tabs"> 
+                            <RBS.NavItem eventKey={1}>Simulation</RBS.NavItem>
+                            <RBS.NavItem eventKey={2}>Votes</RBS.NavItem>
+                            <RBS.NavItem eventKey={3}>Election results</RBS.NavItem>
+                            <RBS.NavItem eventKey={4}>Visualization</RBS.NavItem>
+                            <RBS.NavItem eventKey={5}>Settings</RBS.NavItem>
+                        </RBS.Nav>
+                    </RBS.Col>
+                    <RBS.Col sm={12}>
+                        <RBS.Tab.Content animation>
+                            <RBS.Tab.Pane eventKey={1}>
+                                {'Not implemented'}
+                            </RBS.Tab.Pane>
+                            <RBS.Tab.Pane eventKey={2}>
+                                <VotesToolbar
+                                    addConstituency={this.addConstituency}
+                                    addParty={this.addParty}
+                                    votesReset={this.votesReset}
+                                    setPreset={this.setPreset.bind(this)}
+                                    data={this.state}
+                                />
+                                {errors}
+                                <VotesTable
+                                    data={this.state}
+                                    constituencies={this.state.constituencies}
+                                    parties={this.state.parties}
+                                    removeConstituency={this.removeConstituency}
+                                    removeParty={this.removeParty}
+                                    setConstituencyName={this.setConstituencyName}
+                                    setAdjustmentSeats={this.setAdjustmentSeats}
+                                    setPrimarySeats={this.setPrimarySeats}
+                                    setPartyName={this.setPartyName}
+                                    setPartyVotes={this.setPartyVotes}
+                                />                        
+                            </RBS.Tab.Pane>
+                            <RBS.Tab.Pane eventKey={3}>
+                                <VotesResults
+                                  divider_rules={this.state.capabilities.divider_rules}
+                                  adjustment_methods={this.adjustment_methods}
+                                  data={this.state}
+                                />
+                            </RBS.Tab.Pane>
+                            <RBS.Tab.Pane eventKey={4}>
+                                {'Not implemented'}
+                            </RBS.Tab.Pane> 
+                            <RBS.Tab.Pane eventKey={4}>
+                                <VotesSettings
+                                    capabilities_loaded={this.state.capabilities_loaded}
+                                    setdivider_rule={this.setdivider_rule}
+                                    setadjustmentdivider_rule={this.setadjustmentdivider_rule}
+                                    setadjustment_method={this.setadjustment_method}
+                                    divider_rules={this.state.capabilities.divider_rules}
+                                    adjustment_methods={this.adjustment_methods}
+                                    data={this.state}
+                                />
+                            </RBS.Tab.Pane>
+                        </RBS.Tab.Content>
+                    </RBS.Col>
+                </RBS.Row>
+            </RBS.Tab.Container>
         )
     },    
 
 });
 
 ReactDOM.render(
-    <VotingSimulator />,
+    <RBS.Grid fluid={true}>
+        <RBS.Row>
+            <RBS.Col xs={12}>    
+                <VotingSimulator />
+            </RBS.Col>
+        </RBS.Row>
+    </RBS.Grid>,
     document.getElementById('votes')
 );
 
