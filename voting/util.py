@@ -68,3 +68,20 @@ def pretty_print_election(rules, election):
         data = [[rules["constituency_names"][c]]+election.results[c]
                 for c in range(len(rules["constituency_names"]))]
     print(tabulate.tabulate(data, header, rules["output"]))
+
+
+def entropy(votes, allocations, divisor_gen):
+    """
+    Calculate entropy of the election, taking into account votes and
+     allocations.
+     $\\sum_i \\sum_j \\sum_k \\log{v_{ij}/d_k}$, more or less.
+    """
+    e = 0
+    for i in range(len(votes)):
+        divisor_gens = [divisor_gen() for x in range(len(votes[0]))]
+        for j in range(len(votes[0])):
+            for k in range(allocations[i][j]):
+                dk = next(divisor_gens[j])
+                e += log(votes[i][j]/dk)
+    return e
+
