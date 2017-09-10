@@ -637,8 +637,9 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
 
     return m_allocations
 
-def monge(m_votes, v_constituency_seats,
+def monge(m_votes, v_constituency_seats, v_party_seats,
                          m_prior_allocations, divisor_gen, threshold=None,
+                         show_history=False,
                          **kwargs):
     """Apportion by Monge algorithm"""
 
@@ -650,25 +651,44 @@ def monge(m_votes, v_constituency_seats,
         return float(m_votes[constituency][party])/divisor
 
     m_allocations = deepcopy(m_prior_allocations)
+    allocation_history = []
     total_seats = sum(v_constituency_seats)
     allocated_seats = sum([sum(x) for x in m_allocations])
-    for seat in range(total_seats - allocated_seats):
+    for seat_left in range(total_seats - allocated_seats):
         #calculate max_Monge_ratio
         max_Monge_ratio = 0
+        max_found = False
         for constituency in range(len(m_votes)):
+            #ignore if constituency has already received its share of seats
+            if sum(m_allocations[constituency]) >= v_constituency_seats[constituency]:
+                continue
             for party in range(len(m_votes[0])):
+                #ignore if party has already received its share of seats
+                if sum([v_constituency_allocations[party]
+                        for v_constituency_allocations in m_allocations])
+                        >= v_party_seats[party]:
+                    continue
                 a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
                 min_ratio = 1
                 none_found = True
                 for other_constituency in range(len(m_votes)):
-                    if other_constituency == constituency:
+                    #ignore if same constituency or if constituency has already received its share of seats
+                    if other_constituency == constituency or
+                            sum(m_allocations[other_constituency])
+                            >= v_constituency_seats[other_constituency]:
                         continue
                     for other_party in range(len(m_votes[0])):
-                        if other_party == party:
+                        #ignore if same party or if party has already received its share of seats
+                        if other_party == party or
+                                sum([v_constituency_allocations[other_party]
+                                     for v_constituency_allocations in m_allocations])
+                                >= v_party_seats[other_party]:
                             continue
                         d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
                         b = divided_vote(m_votes, m_allocations, constituency, other_party, divisor_gen)
                         c = divided_vote(m_votes, m_allocations, other_constituency, party, divisor_gen)
+                        if b=0 or c=0:
+                            continue
                         ratio = (a*d)/(b*c)
                         if none_found or ratio < min_ratio:
                             min_ratio = ratio
@@ -679,11 +699,24 @@ def monge(m_votes, v_constituency_seats,
                     max_Monge_ratio = min_ratio
                     max_constituency = constituency
                     max_party = party
-
-        #allocate seat based on Monge ratio
-        m_allocations[max_constituency][max_party] += 1
-
-    return m_allocations
+                    competing_constituency = reference_constituency
+                    competing_party = reference_party
+                    max_found = True
+        if max_found:
+            #allocate seat based on Monge ratio
+            m_allocations[max_constituency][max_party] += 1
+            if show_history:
+                allocation_history.add([max_constituency, max_party,
+                                        competing_constituency, competing_party,
+                                        max_Monge_ratio])
+        else:
+            #found no list to allocate seat to, something is wrong
+            break
+    
+    if show_history:
+        return m_allocations, allocation_history
+    else:
+        return m_allocations
 
 def entropy(votes, allocations, divisor_gen):
     """
