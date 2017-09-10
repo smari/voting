@@ -24,12 +24,3 @@ between %.02f and %.02f" % (key, value, self.range_rules[key][0],
 
         super(Rules, self).__setitem__(key, value)
 
-    def load_rules(self, fh):
-        if type(fh) in [str, unicode]:
-            fh = open(fh, "rb")
-
-        try:
-            js = json.loads(fh.read())
-            self.update(js)
-        except ValueError as e:
-            print("Error loading rules: %s" % (e))
