@@ -143,10 +143,10 @@ def apportion(votes, **kwargs):
     election.run()
 
     if rules['output'] == "simple":
-      click.secho("Warning: When loading votes, no attempt is currently "
-                     "made to guarantee that the vote file lists "
-                     "constituencies in the same order as they are declared in "
-                     "the constituency file.\n\n", fg="red")
+        click.secho("Warning: When loading votes, no attempt is currently "
+                    "made to guarantee that the vote file lists "
+                    "constituencies in the same order as they are declared in "
+                    "the constituency file.\n\n", fg="red")
 
     util.pretty_print_election(rules, election)
 
