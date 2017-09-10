@@ -4,8 +4,7 @@ This module contains the core voting system logic.
 """
 import random
 import json
-from copy import copy, deepcopy
-from math import log
+from copy import copy
 from tabulate import tabulate
 from util import load_votes, load_constituencies, entropy
 from apportion import apportion1d

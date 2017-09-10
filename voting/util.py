@@ -1,6 +1,7 @@
 #coding:utf-8
 import random
 from backports import csv
+from math import log
 import sys
 import tabulate
 import io

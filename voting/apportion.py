@@ -1,3 +1,6 @@
+from copy import copy
+
+
 def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
     """
     Perform a one-dimensional apportionment of seats.
