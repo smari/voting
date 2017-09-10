@@ -209,7 +209,7 @@ class Election:
 
         if self.rules["show_entropy"]:
             ent = entropy(self.m_votes, results, gen)
-            print("\nEntropy: ", ent)
+            print("\nEntropy: %s" % ent)
 
     def primary_apportionment(self, m_votes):
         """Do primary allocation of seats for all constituencies"""
