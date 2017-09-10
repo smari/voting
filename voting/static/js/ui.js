@@ -6,6 +6,39 @@ var RBS = ReactBootstrap;
 
 var preset_elections = {};
 
+var Client = (function () {
+  const PATH_CAPABILITIES = '/api/capabilities/';
+  
+  function getCapabilities(cb) {
+    return fetch(`${PATH_CAPABILITIES}`, {
+      accept: 'application/json',
+    }).then(checkStatus)
+      .then(parseJSON)
+      .then(cb);
+  }
+
+  function checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    } else {
+      const error = new Error(`HTTP Error ${response.statusText}`);
+      error.status = response.statusText;
+      error.response = response;
+      console.log(error);
+      throw error;
+    }
+  }
+
+  function parseJSON(response) {
+    //console.log(response.json())
+    return response.json();
+  }
+
+  return {
+    getCapabilities: getCapabilities
+  }
+})();
+
 var VotesConstituency = React.createClass({
     remove: function() {
         this.props.removeConstituency(this.props.constituency.id);
@@ -17,7 +50,7 @@ var VotesConstituency = React.createClass({
         this.props.setPartyVotes(this.props.constituency.id, e.target.dataset.party, e.target.value)
     },
     getPartyVotes: function(party) {
-        console.log("getPartyVotes:", this.props);
+        //console.log("getPartyVotes:", this.props);
         for (var vote in this.props.constituency.votes) {
             if (this.props.constituency.votes[vote].id == party) {
                 return this.props.constituency.votes[vote].votes;
@@ -33,6 +66,7 @@ var VotesConstituency = React.createClass({
     },
     render: function() {
         var self = this;
+        console.log(this.props)
         var partyFields = this.props.parties.map(function(party) {
             return (
                 <td>
@@ -50,19 +84,19 @@ var VotesConstituency = React.createClass({
             <tr>
                 <th>
                     <input
-                        value={this.props.data.name}
+                        value={this.props.constituency.name}
                         onChange={this.setName}/>
                 </th>
                 <td>
                     <input
                         className="vote-field"
-                        value={this.props.data.primarySeats}
+                        value={this.props.constituency.primarySeats}
                         onChange={this.setPrimarySeats}/>
                 </td>
                 <td>
                     <input
                         className="vote-field"
-                        value={this.props.data.adjustmentSeats}
+                        value={this.props.constituency.adjustmentSeats}
                         onChange={this.setAdjustmentSeats}/>
                 </td>
                 {partyFields}
@@ -72,35 +106,27 @@ var VotesConstituency = React.createClass({
     }
 });
 
-var VotesToolbar = React.createClass({
-    render: function() {
-        var presets = this.props.data.presets;
-        var presets_li = [];
-        for (var p in presets) {
-            presets_li.push(<li><a href="#" data-preset={p} onClick={this.props.setPreset}>{presets[p].name}</a></li>);
-        }
-
-        return ( // TODO: Switch this to use RBS:
-            <div className="btn-toolbar" role="toolbar" aria-label="...">
-                <a className="btn btn-default" onClick={this.props.addConstituency}>Add constituency</a>
-                <a className="btn btn-default" onClick={this.props.addParty}>Add party</a>
-                <a className="btn btn-warning" onClick={this.props.votesReset}>Reset</a>
-
-                <div className="dropdown pull-right">
-                    <a className="btn btn-default" id="dLabel" data-target="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        Presets
-                        <span className="caret"></span>
-                    </a>
-
-                    <ul className="dropdown-menu" aria-labelledby="dLabel">
-                        {presets_li}
-                    </ul>
-                </div>
-
-            </div>
+const VotesToolbar = (props) => {
+    const presets = props.data.presets.map((item, i) => {
+        return (
+            <RBS.MenuItem eventKey={i} onClick={props.setPreset.bind(this, item)}>{item.name}</RBS.MenuItem>
         )
-    }
-});
+    })
+    return (
+        <RBS.Row>
+            <RBS.Col xs={12}>
+              <RBS.ButtonToolbar>
+                <RBS.Button bsStyle="primary" onClick={props.addConstituency}>Add constituency</RBS.Button>
+                <RBS.Button bsStyle="success" onClick={props.addParty}>Add party</RBS.Button>
+                <RBS.Button bsStyle="info" onClick={props.votesReset}>Reset</RBS.Button>
+                <RBS.DropdownButton title="Presets" id="bg-nested-dropdown">
+                    {presets}
+                </RBS.DropdownButton>
+              </RBS.ButtonToolbar>
+            </RBS.Col>
+        </RBS.Row>
+    )
+}
 
 var VotesTable = React.createClass({
     setPartyName: function(e) {
@@ -111,22 +137,18 @@ var VotesTable = React.createClass({
     },
 
     render: function() {
+        //console.log(this.props.data);
         var self = this;
         var constituencyNodes = this.props.data.constituencies.map(function(constituency) {
             return (
                 <VotesConstituency
                     data={self.props.data}
-                    constituency={constituency}
-                    parties={self.props.data.parties}
-                    removeConstituency={self.props.removeConstituency}
-                    setConstituencyName={self.props.setConstituencyName}
-                    setAdjustmentSeats={self.props.setAdjustmentSeats}
-                    setPrimarySeats={self.props.setPrimarySeats}
-                    setPartyVotes={self.props.setPartyVotes}
-                    />
+                    constituency={constituency}                    
+                    {...self.props}/>
             );
         });
-        var partyNodes = this.props.data.parties.map(function(party) {
+        //console.log(self.props.data)
+        var partyNodes = self.props.parties.map(function(party) {
             return (
                 <th>
                     <input
@@ -179,7 +201,7 @@ var VotesSettings = React.createClass({
         var divider_rules = [];
         var adjustmentdivider_rules = [];
         var adjustment_methods = [];
-        var adjustment_threshold = 100 * this.props.data.rules.adjustment_threshold;
+        var adjustment_threshold = 100 * this.props.data.election_rules.adjustment_threshold;
 
         if (!this.props.data.capabilities_loaded) {
             return <div>Capabilities not loaded</div>;
@@ -279,6 +301,7 @@ var VotesResults = React.createClass({
     },
 
     render: function() {
+        console.log(this.props.data)
         var res = "";
         var rules = this.props.data.election_rules;
         var caps = this.props.data.capabilities;
@@ -361,27 +384,31 @@ var VotingSimulator = React.createClass({
             key: 1,
             constituencies: [],
             parties: [],
-
             election_rules: {},
             simulation_rules: {},
             presets: [],
             capabilities: {},
             capabilities_loaded: false,
             votes: [],
+            errors: []
         };
-        $.getJSON('/api/capabilities/', {}, this.getCapabilities);
+        // $.getJSON('/api/capabilities/', {}, this.getCapabilities);
         return init;
     },
 
-    getCapabilities(data) {
-        console.log("Found presets: ", data.presets);
-        this.setState({
-            capabilities: data.capabilities,
-            election_rules: data.election_rules,
-            simulation_rules: data.simulation_rules,
-            presets: data.presets,
-            capabilities_loaded: true
-        })
+    componentDidMount: function() {
+        Client.getCapabilities( (data) => {
+            console.log("Found presets: ", data.presets);
+            this.setState({
+                capabilities: data.capabilities,
+                election_rules: data.election_rules,
+                simulation_rules: data.simulation_rules,
+                presets: data.presets,
+                capabilities_loaded: true,
+                //errors: data.presets.map((p) => ('error' in p ? p.error: []))
+                errors: data.presets.filter(p => {if('error' in p) return p.error})
+            })
+        });
     },
 
     handleSelect(key) {
@@ -390,66 +417,6 @@ var VotingSimulator = React.createClass({
 
     debugInfo() {
         console.log("Debug: ", this.state);
-    },
-
-    render: function() {
-        return (
-        <RBS.Tabs activeKey={this.state.key} onSelect={this.handleSelect} id="tabs">
-          <RBS.Tab eventKey={2} title="Simulation">
-            Not implemented.
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={1} title="Votes">
-            <VotesToolbar
-                addConstituency={this.addConstituency}
-                addParty={this.addParty}
-                votesReset={this.votesReset}
-                setPreset={this.setPreset}
-                data={this.state}
-            />
-            <VotesTable
-                data={this.state}
-                removeConstituency={this.removeConstituency}
-                removeParty={this.removeParty}
-                setConstituencyName={this.setConstituencyName}
-                setAdjustmentSeats={this.setAdjustmentSeats}
-                setPrimarySeats={this.setPrimarySeats}
-                setPartyName={this.setPartyName}
-                setPartyVotes={this.setPartyVotes}
-            />
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={3} title="Election results">
-            <VotesResults
-              divider_rules={this.state.capabilities.divider_rules}
-              adjustment_methods={this.adjustment_methods}
-              data={this.state}
-            />
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={4} title="Visualization">
-            Not implemented.
-          </RBS.Tab>
-
-          <RBS.Tab eventKey={5} title="Settings">
-            <VotesSettings
-                capabilities_loaded={this.state.capabilities_loaded}
-                setdivider_rule={this.setdivider_rule}
-                setadjustmentdivider_rule={this.setadjustmentdivider_rule}
-                setadjustment_method={this.setadjustment_method}
-                divider_rules={this.state.capabilities.divider_rules}
-                adjustment_methods={this.adjustment_methods}
-                data={this.state}
-            />
-          </RBS.Tab>
-          <RBS.Button onClick={this.debugInfo}>
-            Dump debug info
-          </RBS.Button>
-          <RBS.Button onClick={this.calculate}>
-            Calculate
-          </RBS.Button>
-        </RBS.Tabs>
-        )
     },
 
     removeConstituency: function(id) {
@@ -535,17 +502,19 @@ var VotingSimulator = React.createClass({
     },
 
     addParty: function() {
+        
         var parties = this.state.parties.slice();
+        //console.log(parties)
         var partyId = genRandomId();
         var party = {"id": partyId, "name": "?"};
         parties.push(party);
-        this.setState({parties: parties});
+
         var con = this.state.constituencies.map(function(cons) {
             cons.votes.push({"id": partyId, "votes": 0});
             return cons;
         });
 
-        this.setState({constituencies: con});
+        this.setState({constituencies: con, parties: parties});
     },
 
     setPartyVotes: function(constituency, party, votes) {
@@ -577,25 +546,63 @@ var VotingSimulator = React.createClass({
     },
 
     votesReset: function() {
-        this.setState({constituencies: []});
-        this.setState({parties: []});
+        this.setState({
+            constituencies: [],
+            parties: []
+        });
     },
 
-    setPreset: function(e) {
-        var preset = e.target.dataset.preset;
-        if (!this.state.presets[preset]) {
+
+    addPresetConstituency: function(data) {
+        let parties = data.parties.map((party) => ({id: genRandomId(), name: party}))
+
+        const constituencies = data.constituency_names.map((con, i) => ({
+            "id": genRandomId(),
+            "name": con,
+            "primarySeats": data.constituency_seats[i].toString(),
+            "adjustmentSeats": data.constituency_adjustment_seats[i].toString(),
+            "votes": data.votes[i].map((vote, n) => ({
+                votes: vote.toString(),
+                id: parties[n].id.toString()
+            }))
+        }))
+        console.log(constituencies)
+        this.setState({
+            constituencies: constituencies,
+            parties: parties,
+            election_rules: data
+        });
+    },
+
+    setPreset: function(preset) {
+        //console.log(preset)
+        //console.log(this.state.presets)
+        if (!this.state.presets.includes(preset)) {
             alert('Preset ' + preset + ' does not exist');
         }
-        var pr = this.state.presets[preset];
-        this.setState({constituencies: pr.constituencies});
-        this.setState({parties: pr.parties});
-        this.setState({election_rules: pr.election_rules});
+
+        this.addPresetConstituency(preset.election_rules)        
     },
 
     calculate: function() {
-      console.log("Calculating:", this.state.election_rules);
-      var rules = this.state.election_rules;
+      var rules = this.state;
+
+      const constituencyNames = this.state.constituencies.map(con => con.name);
+      const votes = this.state.constituencies.map(con => con.votes.map(votes => parseInt(votes.votes)));
+      const adjustmentSeats = this.state.constituencies.map(con => parseInt(con.adjustmentSeats));
+      const primarySeats = this.state.constituencies.map(con => parseInt(con.primarySeats));
+      const parties = this.state.parties.map(p => p.name);
+
+      rules.election_rules['constituency_names'] = constituencyNames
+      rules.election_rules['constituency_adjustment_seats'] = adjustmentSeats
+      rules.election_rules['constituency_seats'] = primarySeats
+      rules.election_rules['votes'] = votes
+      rules.election_rules['parties'] = parties
+
+      console.log(votes)
       rules["action"] = "election";
+
+      console.log("Calculating:", rules);
       $(function() {
         $.ajax({
           url: '/api/script/',
@@ -608,12 +615,93 @@ var VotingSimulator = React.createClass({
           dataType: "json"
         });
       });
-    }
+    },
+
+    render: function() {
+        console.log(this.state)
+        const errors = this.state.errors.map((error) => (
+          <Alert bsStyle="danger">
+            <strong>Opps</strong> {error.error}
+          </Alert>
+        ))
+        console.log(errors)
+        return (
+            <RBS.Tab.Container defaultActiveKey={this.state.key}>
+                <RBS.Row className="clearfix">
+                    <RBS.Col sm={12}>
+                        <RBS.Nav bsStyle="tabs"> 
+                            <RBS.NavItem eventKey={1}>Simulation</RBS.NavItem>
+                            <RBS.NavItem eventKey={2}>Votes</RBS.NavItem>
+                            <RBS.NavItem eventKey={3}>Election results</RBS.NavItem>
+                            <RBS.NavItem eventKey={4}>Visualization</RBS.NavItem>
+                            <RBS.NavItem eventKey={5}>Settings</RBS.NavItem>
+                        </RBS.Nav>
+                    </RBS.Col>
+                    <RBS.Col sm={12}>
+                        <RBS.Tab.Content animation>
+                            <RBS.Tab.Pane eventKey={1}>
+                                {'Not implemented'}
+                            </RBS.Tab.Pane>
+                            <RBS.Tab.Pane eventKey={2}>
+                                <VotesToolbar
+                                    addConstituency={this.addConstituency}
+                                    addParty={this.addParty}
+                                    votesReset={this.votesReset}
+                                    setPreset={this.setPreset.bind(this)}
+                                    data={this.state}
+                                />
+                                {errors}
+                                <VotesTable
+                                    data={this.state}
+                                    constituencies={this.state.constituencies}
+                                    parties={this.state.parties}
+                                    removeConstituency={this.removeConstituency}
+                                    removeParty={this.removeParty}
+                                    setConstituencyName={this.setConstituencyName}
+                                    setAdjustmentSeats={this.setAdjustmentSeats}
+                                    setPrimarySeats={this.setPrimarySeats}
+                                    setPartyName={this.setPartyName}
+                                    setPartyVotes={this.setPartyVotes}
+                                />                        
+                            </RBS.Tab.Pane>
+                            <RBS.Tab.Pane eventKey={3}>
+                                <VotesResults
+                                  divider_rules={this.state.capabilities.divider_rules}
+                                  adjustment_methods={this.adjustment_methods}
+                                  data={this.state}
+                                />
+                            </RBS.Tab.Pane>
+                            <RBS.Tab.Pane eventKey={4}>
+                                {'Not implemented'}
+                            </RBS.Tab.Pane> 
+                            <RBS.Tab.Pane eventKey={4}>
+                                <VotesSettings
+                                    capabilities_loaded={this.state.capabilities_loaded}
+                                    setdivider_rule={this.setdivider_rule}
+                                    setadjustmentdivider_rule={this.setadjustmentdivider_rule}
+                                    setadjustment_method={this.setadjustment_method}
+                                    divider_rules={this.state.capabilities.divider_rules}
+                                    adjustment_methods={this.adjustment_methods}
+                                    data={this.state}
+                                />
+                            </RBS.Tab.Pane>
+                        </RBS.Tab.Content>
+                    </RBS.Col>
+                </RBS.Row>
+            </RBS.Tab.Container>
+        )
+    },    
 
 });
 
 ReactDOM.render(
-    <VotingSimulator />,
+    <RBS.Grid fluid={true}>
+        <RBS.Row>
+            <RBS.Col xs={12}>    
+                <VotingSimulator />
+            </RBS.Col>
+        </RBS.Row>
+    </RBS.Grid>,
     document.getElementById('votes')
 );
 

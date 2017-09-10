@@ -68,11 +68,11 @@ there is a "script mode" (for lack of a better term) which allows you to
 specify a set of rules which then execute:
 
 ```
-python cli.py script ../data/rulesets/iceland2013.json
+python cli.py script ../data/presets/iceland2013.json
 ```
 
-A script or ruleset is simply a JSON file that specifies what should
-happen, see examples in `data/rulesets/`.
+A script or preset is simply a JSON file that specifies what should
+happen, see examples in `data/presets/`.
 
 
 ## Web Interface
