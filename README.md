@@ -155,25 +155,9 @@ that should go away eventually.
    * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
 
 ### Tickets
-_(updated 2017-06-17)_
 
- * Smári:
-   * [x] Update documentation
-   * [x] Refactor codebase
-   * [x] Complete Icelandic law method
-   * [x] Complete simulation basis
-   * [ ] Get JS-SPA to feature-complete
+See [our issue tracker on Github](https://github.com/smari/voting/issues).
 
- * Þorkell:
-   * [ ] Figure out algorithms for detecting violations of Balinski axioms
-   * [x] Describe algorithm for Norwegian method
-   * [ ] Review Relative Inferiority method
-
- * Kurt:
-   * [ ] Describe algorithm for Swedish method
-
- * Bjartur:
-   * [ ] Generate random votes
 
 ## Authors
 
