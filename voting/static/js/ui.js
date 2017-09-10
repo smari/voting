@@ -686,6 +686,14 @@ var VotingSimulator = React.createClass({
                                 />
                             </RBS.Tab.Pane>
                         </RBS.Tab.Content>
+                        <RBS.Row>
+                            <RBS.Col xs={12}>
+                              <RBS.ButtonToolbar>
+                                <RBS.Button bsStyle="warning" onClick={this.debugInfo}>Debug info</RBS.Button>
+                                <RBS.Button bsStyle="primary" onClick={this.calculate}>Calculate</RBS.Button>
+                              </RBS.ButtonToolbar>
+                            </RBS.Col>
+                        </RBS.Row>                                      
                     </RBS.Col>
                 </RBS.Row>
             </RBS.Tab.Container>
