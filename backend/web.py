@@ -1,14 +1,18 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from voting import run_script, get_capabilities_dict
-app = Flask('voting')
+import os.path
+
+app = Flask('voting',
+            template_folder=os.path.abspath('../frontend/'),
+            static_folder=os.path.abspath('../frontend/static/'))
 
 @app.route('/')
 def serve_index():
-    return render_template('../frontend/index.html')
+    return render_template('index.html')
 
 @app.route('/static/<path:path>')
 def send_static(path):
-    return send_from_directory('../frontend/static', path)
+    return send_from_directory('', path)
 
 @app.route('/api/script/', methods=["POST"])
 def handle_api():
