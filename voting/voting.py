@@ -763,7 +763,10 @@ def get_presets():
     pr = []
     for f in files:
         # TODO: Needs sanity checking!
-        pr.append(io.open(presetsdir+f).read())
+        with open(presetsdir+f) as json_file:    
+            data = json.load(json_file)
+            # pr.append(io.open(presetsdir+f).read())
+            pr.append(data)
     return pr
 
 def run_script(rules):

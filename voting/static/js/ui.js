@@ -24,12 +24,13 @@ var Client = (function () {
       const error = new Error(`HTTP Error ${response.statusText}`);
       error.status = response.statusText;
       error.response = response;
-      console.log(error); // eslint-disable-line no-console
+      console.log(error);
       throw error;
     }
   }
 
   function parseJSON(response) {
+    //console.log(response.json())
     return response.json();
   }
 
@@ -403,14 +404,12 @@ var VotingSimulator = React.createClass({
 
     componentDidMount: function() {
         Client.getCapabilities( (data) => {
-            console.log(data);            
-            const presets = JSON.parse(data.presets)
-            //console.log("Found presets: ", presets);
+            console.log("Found presets: ", data.presets);
             this.setState({
                 capabilities: data.capabilities,
                 election_rules: data.election_rules,
                 simulation_rules: data.simulation_rules,
-                presets: this.state.presets.concat([presets]),
+                presets: data.presets,
                 capabilities_loaded: true
             })
         });
