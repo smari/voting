@@ -626,7 +626,7 @@ var VotingSimulator = React.createClass({
         ))
         console.log(errors)
         return (
-            <RBS.Tab.Container defaultActiveKey={this.state.key}>
+            <RBS.Tab.Container defaultActiveKey={2}>
                 <RBS.Row className="clearfix">
                     <RBS.Col sm={12}>
                         <RBS.Nav bsStyle="tabs"> 
@@ -674,7 +674,7 @@ var VotingSimulator = React.createClass({
                             <RBS.Tab.Pane eventKey={4}>
                                 {'Not implemented'}
                             </RBS.Tab.Pane> 
-                            <RBS.Tab.Pane eventKey={4}>
+                            <RBS.Tab.Pane eventKey={5}>
                                 <VotesSettings
                                     capabilities_loaded={this.state.capabilities_loaded}
                                     setdivider_rule={this.setdivider_rule}
