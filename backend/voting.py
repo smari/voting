@@ -7,7 +7,8 @@ import json
 from copy import copy
 from tabulate import tabulate
 from util import load_votes, load_constituencies, entropy
-from apportion import apportion1d
+from apportion import apportion1d, constituency_seat_allocation, \
+    threshold_elimination_totals, threshold_elimination_constituencies
 from rules import Rules
 from simulate import SimulationRules # TODO: This belongs elsewhere.
 from methods import *
@@ -233,102 +234,6 @@ class Election:
         return m_allocations, v_seatcount
 
 
-def primary_seat_allocation(m_votes, const, parties, gen):
-    """Do primary allocation of seats for all constituencies"""
-    m_allocations = []
-    for i in range(len(const)):
-        s = const[i]["num_constituency_seats"]
-        rounds, seats = constituency_seat_allocation(m_votes[i], s, gen)
-        named_seats = [parties[x] for x in seats]
-        v_allocations = [seats.count(p) for p in range(len(parties))]
-        # print "%-20s: %s" % (const[i]["name"], ", ".join(named_seats))
-        m_allocations.append(v_allocations)
-
-    v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
-
-    return m_allocations, v_seatcount
-
-
-def constituency_seat_allocation(v_votes, num_seats, gen):
-    """Do primary seat allocation for one constituency"""
-    # FIXME: This should use apportion1d() instead
-    rounds = []
-    seats = []
-    alloc_votes = copy(v_votes)
-    gens = [gen() for x in range(len(v_votes))]
-    divisors = [next(x) for x in gens]
-
-    for i in range(num_seats):
-        maxval = max(alloc_votes)
-        idx = alloc_votes.index(maxval)
-        res = {
-            "maxval": maxval,
-            "votes": alloc_votes,
-            "winner": idx,
-            "divisor": divisors[idx]
-        }
-        seats.append(idx)
-        rounds.append(res)
-        divisors[idx] = next(gens[idx])
-        alloc_votes[idx] = v_votes[idx] / divisors[idx]
-
-    return rounds, seats
-
-
-def threshold_elimination_constituencies(votes, threshold, party_seats=None, priors=None):
-    """
-    Eliminate parties that don't reach national threshold.
-    Optionally, eliminate parties that have already gotten all their
-    calculated seats.
-
-    Inputs:
-        - votes: Matrix of votes.
-        - threshold: Real value between 0.0 and 1.0 with the cutoff threshold.
-        - [party_seats]: seats that should be allocated to each party
-        - [priors]: a matrix of prior allocations to each party per constituency
-    Returns: Matrix of votes with eliminated parties zeroed out.
-    """
-    N = len(votes[0])
-    totals = [sum([x[i] for x in votes]) for i in range(N)]
-    country_total = sum(totals)
-    percent = [float(t)/country_total for t in totals]
-    m_votes = []
-
-    for c in votes:
-        cons = []
-        for i in range(N):
-            if percent[i] > threshold:
-                v = c[i]
-            else:
-                v = 0
-            cons.append(v)
-        m_votes.append(cons)
-
-    if not (priors and party_seats):
-        return m_votes
-
-    for j in range(N):
-        if party_seats[j] == sum([m[j] for m in priors]):
-            for i in range(len(votes)):
-                m_votes[i][j] = 0
-
-    return m_votes
-
-def threshold_elimination_totals(votes, threshold):
-    """
-    Eliminate parties that do not reach the threshold proportion of
-    national votes. Replaces such parties with zeroes.
-    """
-    N = len(votes[0])
-    totals = [sum([x[i] for x in votes]) for i in range(N)]
-    country_total = sum(totals)
-    percent = [float(t)/country_total for t in totals]
-    cutoff = [totals[i] if percent[i] > threshold else 0 for i in range(len(totals))]
-
-    return cutoff
-
-
-
 ADJUSTMENT_METHODS = {
     "alternating-scaling": alternating_scaling,
     "relative-superiority": relative_superiority,
@@ -391,7 +296,7 @@ def get_presets():
     pr = []
     for f in files:
         try:
-            with open(presetsdir+f) as json_file:    
+            with open(presetsdir+f) as json_file:
                 data = json.load(json_file)
                 # pr.append(io.open(presetsdir+f).read())
         except  json.decoder.JSONDecodeError:
