@@ -2,3 +2,5 @@
 omit =
     # omit anything in a .local directory anywhere
     */.local/*
+    tests/*
+    test.py
