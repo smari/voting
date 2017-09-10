@@ -111,6 +111,9 @@ class Election:
         self.order = []
         self.log = []
 
+    def entropy(self):
+        return entropy(self.m_votes, self.results, self.gen)
+
     def set_votes(self, votes):
         assert(len(votes) == len(self.rules["constituencies"]))
         assert(all([len(votes[x]) == len(self.rules["parties"])
@@ -198,6 +201,7 @@ class Election:
                          orig_votes=self.m_votes)
 
         self.results = results
+        self.gen = gen
 
         # header = ["Constituency"]
         # header.extend(self.rules["parties"])
@@ -208,8 +212,7 @@ class Election:
         # print tabulate(data, header, "simple")
 
         if self.rules["show_entropy"]:
-            ent = entropy(self.m_votes, results, gen)
-            print("\nEntropy: %s" % ent)
+            print("\nEntropy: %s" % self.entropy())
 
     def primary_apportionment(self, m_votes):
         """Do primary allocation of seats for all constituencies"""
