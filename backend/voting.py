@@ -58,7 +58,6 @@ class ElectionRules(Rules):
             "primary_divider": DIVIDER_RULES.keys(),
             "adjustment_divider": DIVIDER_RULES.keys(),
             "adjustment_method": ADJUSTMENT_METHODS.keys(),
-            "simulation_variate": SIMULATION_VARIATES.keys(),
         }
         self.range_rules = {
             "adjustment_threshold": [0.0, 1.0]
@@ -106,25 +105,20 @@ class ElectionRules(Rules):
 class Election:
     """A single election."""
     def __init__(self, rules, votes=None):
-        self.m_votes = votes
         self.rules = rules
+        #self.m_votes = votes
+        self.set_votes(votes)
         self.order = []
         self.log = []
 
-    def set_votes(self, votes):
-        assert(len(votes) == len(self.rules["constituencies"]))
-        assert(all([len(votes[x]) == len(self.rules["parties"])
-                    for x in votes]))
-        self.m_votes = votes
+    def entropy(self):
+        return entropy(self.m_votes, self.results, self.gen)
 
-    def load_votes(self, votesfile):
-        parties, votes = load_votes(votesfile)
-        self.rules["parties"] = parties
-        assert(len(votes) == len(self.rules["constituencies"]))
-        assert(all([len(votes[x]) == len(self.rules["parties"])
+    def set_votes(self, votes):
+        assert(len(votes) == len(self.rules["constituency_names"]))
+        assert(all([len(x) == len(self.rules["parties"])
                     for x in votes]))
         self.m_votes = votes
-        self.v_parties = parties
 
     def get_results_dict(self):
         return {
@@ -198,6 +192,7 @@ class Election:
                          orig_votes=self.m_votes)
 
         self.results = results
+        self.gen = gen
 
         # header = ["Constituency"]
         # header.extend(self.rules["parties"])
@@ -208,8 +203,7 @@ class Election:
         # print tabulate(data, header, "simple")
 
         if self.rules["show_entropy"]:
-            ent = entropy(self.m_votes, results, gen)
-            print("\nEntropy: ", ent)
+            print("\nEntropy: %s" % self.entropy())
 
     def primary_apportionment(self, m_votes):
         """Do primary allocation of seats for all constituencies"""
@@ -250,26 +244,7 @@ ADJUSTMENT_METHOD_NAMES = {
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)"
 }
 
-class Variate:
-    def __init__(self, election):
-        self.election = election
 
-    def step(index):
-        pass
-
-
-class VariateBeta(Variate):
-    pass
-
-
-class VariateBruteforce(Variate):
-    pass
-
-
-SIMULATION_VARIATES = {
-    "beta": VariateBeta,
-    "bruteforce": VariateBruteforce,
-}
 
 # TODO: These functions should be elsewhere.
 

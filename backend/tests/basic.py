@@ -2,6 +2,7 @@ import unittest
 
 from voting import apportion1d, dhondt_gen, sainte_lague_gen
 from voting import ElectionRules, Election
+from rules import Rules
 
 class TestMaxEntropy(unittest.TestCase):
 
@@ -18,6 +19,69 @@ class TestMaxEntropy(unittest.TestCase):
         prior_allocations = [1, 1]
         res = apportion1d(votes, num_seats, prior_allocations, sainte_lague_gen)
         self.assertEqual(res[0], [3, 2])
+
+    def test_max_entropy_calculation(self):
+        rules = ElectionRules()
+        rules["debug"] = True
+        rules["show_entropy"] = True
+        rules["parties"] = ["A", "B"]
+        rules["adjustment_method"] = "alternating-scaling"
+        rules["constituency_names"] = ["I", "II"]
+        rules["constituency_seats"] = [2, 3]
+        rules["constituency_adjustment_seats"] = [1, 2]
+        votes = [[500, 400],[300, 200]]
+        election = Election(rules, votes)
+        election.run()
+        self.assertEqual(round(election.entropy(), 2), 42.95)
+
+    def test_get_results(self):
+        rules = ElectionRules()
+        rules["parties"] = ["A", "B"]
+        rules["adjustment_method"] = "alternating-scaling"
+        rules["constituency_names"] = ["I", "II"]
+        rules["constituency_seats"] = [2, 3]
+        rules["constituency_adjustment_seats"] = [1, 2]
+        votes = [[500, 400],[300, 200]]
+        election = Election(rules, votes)
+        election.run()
+        res = election.get_results_dict()
+        self.assertEqual(res["rules"], rules)
+        self.assertEqual(res["seat_allocations"], [[2, 1], [3, 2]])
+
+
+class TestRules(unittest.TestCase):
+    def test_fail_assign_with_value_rule(self):
+        r = Rules()
+        r.value_rules["a"] = [1]
+        with self.assertRaises(ValueError):
+            r["a"] = 2
+
+    def test_succeed_assign_with_value_rule(self):
+        r = Rules()
+        r.value_rules["a"] = [1]
+        r["a"] = 1
+
+    def test_fail_assign_with_range_rule(self):
+        r = Rules()
+        r.range_rules["a"] = [1,3]
+        with self.assertRaises(ValueError):
+            r["a"] = 4
+
+    def test_succeed_assign_with_range_rule(self):
+        r = Rules()
+        r.range_rules["a"] = [1,3]
+        r["a"] = 2
+
+    def test_fail_assign_with_list_rule(self):
+        r = Rules()
+        r.list_rules.append("a")
+        with self.assertRaises(ValueError):
+            r["a"] = 4
+
+    def test_succeed_assign_with_list_rule(self):
+        r = Rules()
+        r.list_rules.append("a")
+        r["a"] = ["yay"]
 
 
 class TestBasicAllocation(unittest.TestCase):
@@ -48,5 +112,3 @@ class TestBasicAllocation(unittest.TestCase):
         self.assertEqual(election.results, [[1, 1, 0], [1, 0, 1]])
 
 
-if __name__ == '__main__':
-    unittest.main()

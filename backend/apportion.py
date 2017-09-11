@@ -39,22 +39,6 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
     return allocations, (divisors, divisor_gens, min_used)
 
 
-def primary_seat_allocation(m_votes, const, parties, gen):
-    """Do primary allocation of seats for all constituencies"""
-    m_allocations = []
-    for i in range(len(const)):
-        s = const[i]["num_constituency_seats"]
-        rounds, seats = constituency_seat_allocation(m_votes[i], s, gen)
-        named_seats = [parties[x] for x in seats]
-        v_allocations = [seats.count(p) for p in range(len(parties))]
-        # print "%-20s: %s" % (const[i]["name"], ", ".join(named_seats))
-        m_allocations.append(v_allocations)
-
-    v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
-
-    return m_allocations, v_seatcount
-
-
 def constituency_seat_allocation(v_votes, num_seats, gen):
     """Do primary seat allocation for one constituency"""
     # FIXME: This should use apportion1d() instead
