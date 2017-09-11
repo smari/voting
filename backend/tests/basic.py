@@ -22,6 +22,8 @@ class TestMaxEntropy(unittest.TestCase):
 
     def test_max_entropy_calculation(self):
         rules = ElectionRules()
+        rules["debug"] = True
+        rules["show_entropy"] = True
         rules["parties"] = ["A", "B"]
         rules["adjustment_method"] = "alternating-scaling"
         rules["constituency_names"] = ["I", "II"]
@@ -31,6 +33,20 @@ class TestMaxEntropy(unittest.TestCase):
         election = Election(rules, votes)
         election.run()
         self.assertEqual(round(election.entropy(), 2), 42.95)
+
+    def test_get_results(self):
+        rules = ElectionRules()
+        rules["parties"] = ["A", "B"]
+        rules["adjustment_method"] = "alternating-scaling"
+        rules["constituency_names"] = ["I", "II"]
+        rules["constituency_seats"] = [2, 3]
+        rules["constituency_adjustment_seats"] = [1, 2]
+        votes = [[500, 400],[300, 200]]
+        election = Election(rules, votes)
+        election.run()
+        res = election.get_results_dict()
+        self.assertEqual(res["rules"], rules)
+        self.assertEqual(res["seat_allocations"], [[2, 1], [3, 2]])
 
 
 class TestRules(unittest.TestCase):
@@ -96,5 +112,3 @@ class TestBasicAllocation(unittest.TestCase):
         self.assertEqual(election.results, [[1, 1, 0], [1, 0, 1]])
 
 
-if __name__ == '__main__':
-    unittest.main()
