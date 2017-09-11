@@ -14,6 +14,8 @@ import {
   Button
 } from 'reactstrap';
 
+import uuid from 'uuid'
+
 class App extends Component {
   constructor(props) {
     super(props);
