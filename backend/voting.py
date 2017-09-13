@@ -278,9 +278,8 @@ def get_presets():
     pr = []
     for f in files:        
         try:
-            with open(presetsdir+f) as json_file:                
+            with open(presetsdir+f) as json_file:
                 data = json.load(json_file)
-                # pr.append(io.open(presetsdir+f).read())
         except  json.decoder.JSONDecodeError:
             data = {'error': 'Problem parsing json, please fix "{}"'.format(
                 presetsdir+f)}

@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
-const PATH_CAPABILITIES = '/api/capabilities/';
+const HOST = process.env.VOTESIM_HOST || 'http://localhost:5000';
+const PATH_CAPABILITIES = `${HOST}${'/api/capabilities/'}`;
 
 function getCapabilities(cb) {
   return fetch(`${PATH_CAPABILITIES}`, {
