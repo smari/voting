@@ -1,10 +1,13 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
+from flask_cors import CORS
 from voting import run_script, get_capabilities_dict
 import os.path
 
 app = Flask('voting',
             template_folder=os.path.abspath('../frontend/'),
             static_folder=os.path.abspath('../frontend/static/'))
+
+CORS(app)
 
 @app.route('/')
 def serve_index():
