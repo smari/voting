@@ -12,7 +12,7 @@ import {
 
 import { NavLink as RRNavLink } from 'react-router-dom';
 
-import {Route} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import Settings from './Settings';
 
 
@@ -23,7 +23,9 @@ const Navigation = (props) => (
     <Collapse isOpen={props.isOpen} navbar>
       <Nav className="ml-auto" navbar>
         <NavItem>
-          <NavLink to="/settings" component={Settings} activeClassName="active" tag={RRNavLink}>Settings</NavLink> 
+          <Link to="/settings">
+            <NavLink to="/settings" activeClassName="active">Settings</NavLink> 
+          </Link>
         </NavItem>      
         <NavItem>
           <NavLink href="https://github.com/smari/voting">Github</NavLink>

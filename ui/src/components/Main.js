@@ -9,6 +9,7 @@ import {
 
 import Client from '../client'
 import Navigation from './Navigation'
+import Settings from './Settings'
 
 import {
   BrowserRouter as Router,
@@ -69,6 +70,7 @@ class Main extends Component {
                     Let´s get it on
                   </Button>
                 </p>
+                <Route path={'/settings'} component={Settings} />
               </Col>
             </Row>
           </Container>
