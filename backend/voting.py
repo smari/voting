@@ -14,6 +14,12 @@ from simulate import SimulationRules # TODO: This belongs elsewhere.
 from methods import *
 import io
 
+from methods.alternating_scaling import *
+from methods.icelandic_law import *
+from methods.monge import *
+from methods.relative_inferiority import *
+from methods.relative_superiority import *
+
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
     n = 1
@@ -263,15 +269,16 @@ def get_presets():
     from os import listdir
     from os.path import isfile, join
     presetsdir = "../data/presets/"
-    try:
-        files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))]
+    try:        
+        files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
+                 and f.endswith('.json')]
     except Exception as e:
         print("Presets directory read failure: %s" % (e))
         files = []
     pr = []
-    for f in files:
+    for f in files:        
         try:
-            with open(presetsdir+f) as json_file:
+            with open(presetsdir+f) as json_file:                
                 data = json.load(json_file)
                 # pr.append(io.open(presetsdir+f).read())
         except  json.decoder.JSONDecodeError:
