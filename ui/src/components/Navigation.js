@@ -22,10 +22,8 @@ const Navigation = (props) => (
     <NavbarBrand href="/">Votesim</NavbarBrand>
     <Collapse isOpen={props.isOpen} navbar>
       <Nav className="ml-auto" navbar>
-        <NavItem>
-          <Link to="/settings">
-            <NavLink to="/settings" activeClassName="active">Settings</NavLink> 
-          </Link>
+        <NavItem>        
+            <NavLink tag={Link} to="/settings">Settings</NavLink> 
         </NavItem>      
         <NavItem>
           <NavLink href="https://github.com/smari/voting">Github</NavLink>
