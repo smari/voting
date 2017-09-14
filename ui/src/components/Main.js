@@ -10,6 +10,7 @@ import {
 import Client from '../client'
 import Navigation from './Navigation'
 import Settings from './Settings'
+import Home from './Home'
 
 import {
   BrowserRouter as Router,
@@ -56,34 +57,20 @@ class Main extends Component {
       <div>
         <Navigation props={this.state} />
         <Jumbotron>
-          <Container>
-            <Row>
-              <Col>
-                <h1>Welcome to Votesim</h1>
-                <p>
-                  <Button
-                    tag="a"
-                    color="success"
-                    size="large"
-                    href="https://github.com/smari/voting"
-                    target="_blank"
-                  >
-                    Let´s get it on
-                  </Button>
-                </p>
-                <Route path='/settings' render={(props) => (
-                  <Settings
-                    capabilitiesLoaded={this.state.capabilities_loaded}
-                    setDividerRule={this.setdivider_rule}
-                    setAdjustmentDividerRule={this.setadjustmentdivider_rule}
-                    setAdjustmentMethod={this.setadjustment_method}
-                    capabilities={this.state.capabilities}
-                    adjustmentMethods={this.adjustment_methods}
-                    data={this.state}
-                    {...props} />
-                )} />
-              </Col>
-            </Row>
+          <Container>          
+            <Route exact path='/' component={Home} />              
+            <Route path='/settings' render={(props) => (
+              <Settings
+                capabilitiesLoaded={this.state.capabilities_loaded}
+                setDividerRule={this.setdivider_rule}
+                setAdjustmentDividerRule={this.setadjustmentdivider_rule}
+                setAdjustmentMethod={this.setadjustment_method}
+                capabilities={this.state.capabilities}
+                adjustmentMethods={this.adjustment_methods}
+                data={this.state}
+                {...props} />
+            )} />
+
           </Container>
         </Jumbotron>
       </div>

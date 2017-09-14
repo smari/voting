@@ -10,7 +10,7 @@ const Settings = (props) => {
   const setAdjustmentMethod = e => (props.setAdjustmentMethod(e.target.value))
   //const adjustmentThreshold = 100 * props.data.election_rules.adjustment_threshold;
 
-  if (!props.data.capabilitiesLoaded) {
+  if (!props.capabilitiesLoaded) {
       return <div>Capabilities not loaded</div>;
   }  
   return (
