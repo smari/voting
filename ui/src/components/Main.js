@@ -51,6 +51,7 @@ class Main extends Component {
       });
   }
   render() {
+    console.log(this.state)
     return (
       <div>
         <Navigation props={this.state} />
@@ -70,7 +71,17 @@ class Main extends Component {
                     Let´s get it on
                   </Button>
                 </p>
-                <Route path={'/settings'} component={Settings} />
+                <Route path='/settings' render={(props) => (
+                  <Settings
+                    capabilitiesLoaded={this.state.capabilities_loaded}
+                    setDividerRule={this.setdivider_rule}
+                    setAdjustmentDividerRule={this.setadjustmentdivider_rule}
+                    setAdjustmentMethod={this.setadjustment_method}
+                    capabilities={this.state.capabilities}
+                    adjustmentMethods={this.adjustment_methods}
+                    data={this.state}
+                    {...props} />
+                )} />
               </Col>
             </Row>
           </Container>
