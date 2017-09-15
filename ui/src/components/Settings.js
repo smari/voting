@@ -10,18 +10,29 @@ import {
 } from 'reactstrap';
 
 const Settings = (props) => {
-
+  if (Object.keys(props.electionRules).length === 0) {
+    console.log('empty props')
+    return <p>Loading capabilities</p>
+  }  
   //const adjustmentThreshold = 100 * props.data.election_rules.adjustment_threshold;
-  const adjustmentMethods = Object.keys(props.adjustmentMethods).map(k => {
+  const primaryDividerRule = Object.keys(props.dividerRules).map((k, i) => {
+    const selected = ((k === props.electionRules.primary_divider) ? 'selected' : '')
     return (
-      <option>{props.adjustmentMethods[k]}</option>
+      <option key={i} selected={true} value={k}>{props.dividerRules[k]}</option>
     )
   })
-  const dividerRules = Object.keys(props.dividerRules).map(k => {
+  const adjustmentDividerRule = Object.keys(props.dividerRules).map((k, i) => {
+    const selected = ((k === props.electionRules.adjustment_divider) ? 'selected' : '')
     return (
-      <option>{props.dividerRules[k]}</option>
+      <option key={i} selected value={k}>{props.dividerRules[k]}</option>
     )
-  })  
+  })
+  const adjustmentMethods = Object.keys(props.adjustmentMethods).map((k, i) => {
+    const selected = ((k === props.electionRules.adjustment_method) ? 'selected' : '')
+    return (
+      <option key={i} selected value={k}>{props.adjustmentMethods[k]}</option>
+    )
+  })
   return (
     <Row>
       <Col>
@@ -30,13 +41,19 @@ const Settings = (props) => {
         <FormGroup>
           <Label for="exampleSelect">Adjustment methods</Label>
           <Input type="select" name="select" id="exampleSelect">
-            {adjustmentMethods}
+            {primaryDividerRule}
           </Input>
         </FormGroup>
         <FormGroup>
-          <Label for="exampleSelect">Divider rules</Label>
+          <Label for="exampleSelect">Primary divider rule</Label>
           <Input type="select" name="select" id="exampleSelect">
-            {dividerRules}
+            {adjustmentDividerRule}
+          </Input>
+        </FormGroup>
+        <FormGroup>
+          <Label for="exampleSelect">Adjustment method</Label>
+          <Input type="select" name="select" id="exampleSelect">
+            {adjustmentMethods}
           </Input>
         </FormGroup>
         </Form>

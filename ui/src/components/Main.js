@@ -68,6 +68,7 @@ class Main extends Component {
             <Route exact path='/' component={Home} />              
             <Route path='/settings' render={(props) => (
               <Settings
+                electionRules={this.state.electionRules}
                 adjustmentMethods={this.state.adjustmentMethods}
                 dividerRules={this.state.dividerRules}
                 {...props} />
