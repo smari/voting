@@ -11,8 +11,7 @@ import {
 
 const Settings = (props) => {
   if (Object.keys(props.electionRules).length === 0) {
-    console.log('empty props')
-    return <p>Loading capabilities</p>
+    return <p>Retrieving settings ...</p>
   }  
   //const adjustmentThreshold = 100 * props.data.election_rules.adjustment_threshold;
   const primaryDividerRule = Object.keys(props.dividerRules).map((k, i) => {
@@ -53,6 +52,11 @@ const Settings = (props) => {
             {adjustmentMethods}
           </Input>
         </FormGroup>
+        <FormGroup>
+          <Label for="exampleSelect">Adjustment threshold</Label>
+          <Input onChange={(e) => props.setAdjustmentThreshold(e)} type="range" min="0" max="1" step="0.01" value={props.electionRules.adjustment_threshold} />
+          {Math.round(props.electionRules.adjustment_threshold * 100)}%
+        </FormGroup>        
         </Form>
       </Col>
     </Row>
