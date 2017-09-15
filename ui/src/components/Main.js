@@ -27,7 +27,15 @@ class Main extends Component {
 
     this.toggle = this.toggle.bind(this);
     this.state = {
-      isOpen: false
+      isOpen: false,
+      constituencies: [],
+      parties: [],
+      electionRules: {},
+      simulationRules: {},
+      presets: [],
+      adjustmentMethods: {},
+      dividerRules: {},
+      votes: []
     };
   }
   
@@ -41,12 +49,11 @@ class Main extends Component {
       Client.getCapabilities( (data) => {
           console.log("Found presets: ", data.presets);
           this.setState({
-              capabilities: data.capabilities,
-              election_rules: data.election_rules,
-              simulation_rules: data.simulation_rules,
+              adjustmentMethods: data.capabilities.adjustment_methods,
+              dividerRules: data.capabilities.divider_rules,
+              electionRules: data.election_rules,
+              simulationRules: data.simulation_rules,
               presets: data.presets,
-              capabilities_loaded: true,
-              //errors: data.presets.map((p) => ('error' in p ? p.error: []))
               errors: data.presets.filter(p => {if('error' in p) return p.error})
           })
       });
@@ -61,13 +68,8 @@ class Main extends Component {
             <Route exact path='/' component={Home} />              
             <Route path='/settings' render={(props) => (
               <Settings
-                capabilitiesLoaded={this.state.capabilities_loaded}
-                setDividerRule={this.setdivider_rule}
-                setAdjustmentDividerRule={this.setadjustmentdivider_rule}
-                setAdjustmentMethod={this.setadjustment_method}
-                capabilities={this.state.capabilities}
-                adjustmentMethods={this.adjustment_methods}
-                data={this.state}
+                adjustmentMethods={this.state.adjustmentMethods}
+                dividerRules={this.state.dividerRules}
                 {...props} />
             )} />
 
