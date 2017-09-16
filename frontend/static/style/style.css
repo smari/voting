@@ -1,3 +1,7 @@
 .vote-field {
     width: 70px;
 }
+
+.badge-success {
+  background-color: #398439;
+}

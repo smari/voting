@@ -196,12 +196,14 @@ var VotesSettings = React.createClass({
     setadjustment_method: function(e) {
         this.props.setadjustment_method(e.target.value);
     },
-
+    setadjustment_threshold: function(e) {
+        this.props.setadjustment_threshold(parseFloat(e.target.value));
+    },
     render: function() {
         var divider_rules = [];
         var adjustmentdivider_rules = [];
         var adjustment_methods = [];
-        var adjustment_threshold = 100 * this.props.data.election_rules.adjustment_threshold;
+        
 
         if (!this.props.data.capabilities_loaded) {
             return <div>Capabilities not loaded</div>;
@@ -236,7 +238,6 @@ var VotesSettings = React.createClass({
                 adjustment_methods.push(<option value={id}>{method}</option>);
             }
         }
-
 
         return (
             <RBS.Grid fluid={true}>
@@ -275,11 +276,16 @@ var VotesSettings = React.createClass({
                     </div>
                     <div className="form-group">
                       <label htmlFor="adjustment_threshold">Adjustment Threshold</label>
+                      <span> <RBS.Badge className="badge-success">{Math.round(this.props.data.election_rules.adjustment_threshold * 100)}%</RBS.Badge></span>                      
                       <input
                           className="form-control"
                           id="adjustment_threshold"
-                          type="range" min="0" max="100" step="1" value={adjustment_threshold}
-                      />
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={this.props.data.election_rules.adjustment_threshold}
+                          onChange={this.setadjustment_threshold}/>
 
                     </div>
                 </form>
@@ -449,6 +455,13 @@ var VotingSimulator = React.createClass({
         var set = jQuery.extend(true, {}, this.state.election_rules);
         set.adjustment_method = method;
         this.setState({election_rules: set});
+    },
+
+    setadjustment_threshold: function(val) {
+      const rules = this.state.election_rules
+      rules.adjustment_threshold = val
+      this.setState({election_rules: rules})
+
     },
 
     setConstituencyName: function(id, name) {
@@ -680,6 +693,7 @@ var VotingSimulator = React.createClass({
                                     setdivider_rule={this.setdivider_rule}
                                     setadjustmentdivider_rule={this.setadjustmentdivider_rule}
                                     setadjustment_method={this.setadjustment_method}
+                                    setadjustment_threshold={this.setadjustment_threshold.bind(this)}
                                     divider_rules={this.state.capabilities.divider_rules}
                                     adjustment_methods={this.adjustment_methods}
                                     data={this.state}
