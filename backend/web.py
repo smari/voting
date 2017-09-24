@@ -32,6 +32,11 @@ def calculate():
             data['constituency_names'].append(c['identifier'])
             data['constituency_seats'].append(c['seats'])
             data['constituency_adjustment_seats'].append(c['equalizerseats'])
+            pv = {pv['letter']:pv for pv in v['response']['results']['list']}
+
+            votes = [pv[p]['votes'] if p in pv else 0 for p in data['parties']]
+            data['votes'].append(votes)
+            
 
 
     """
