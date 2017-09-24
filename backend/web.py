@@ -1,7 +1,7 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
 from voting import run_script, get_capabilities_dict
-from util import get_parties
+from util import get_parties, ruv_transform
 import os.path
 
 app = Flask('voting',
@@ -30,8 +30,7 @@ def calculate():
         'show_entropy': False,
         'simulate': False,
         'debug': False,
-        'output': 'simple',
-        'action': ''
+        'output': 'simple'
     }
 
     payload = request.get_json(force=True)
@@ -46,16 +45,34 @@ def calculate():
         data['constituency_names'].append(c['identifier'])
         data['constituency_seats'].append(c['seats'])
         data['constituency_adjustment_seats'].append(c['equalizerseats'])
-        pv = {pv['letter']:pv for pv in v['response']['results']['list']}
+        parties = {pv['letter']:pv for pv in v['response']['results']['list']}
 
-        votes = [pv[p]['votes'] if p in pv else 0 for p in data['parties']]
+        votes = [parties[p]['votes'] if p in parties else 0 for p in data['parties']]
         data['votes'].append(votes)
 
     e = run_script({'election_rules': data, 'action': 'election'})
-    if type(e) == dict:
-        return jsonify(e)  
-    return jsonify(e.get_results_dict())
 
+    if type(e) == dict:        
+        return jsonify(e)  
+    ruv_data = e.get_results_dict()
+
+    for i, c in enumerate(ruv_data['rules']['constituency_names']):
+        for r, v in enumerate(payload['data'][c]['response']['results']['list']):
+            print('Kjördæmi: {} - Flokkur: {} - Sæti: {}'.format(
+                c,
+                v['text'],
+                v['seats']+v['equalizerseats']))
+            print('Kjördæmi: {} - Flokkur: {} - Sæti: {}'.format(
+                c,
+                v['text'],
+                ruv_data['seat_allocations'][i][r]))
+            print('#####################################################################')
+            #print(ruv_data['rules']['votes'][i][r])
+    #payload['data'][c]['response']['results']['list'][r]['seats'] = ruv_data['seat_allocations'][i][r]
+    #return jsonify(e.get_results_dict())    
+    return jsonify(payload['data'])
+
+    #return jsonify(ruv_data)
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('', path)

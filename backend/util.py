@@ -6,6 +6,8 @@ import sys
 import tabulate
 import io
 
+def ruv_transform(results):
+    pass
 def get_parties(election):
     parties = sorted(list(set([p['letter'] for k, e in election.items() for p in e['response']['results']['list']])))
     return parties
