@@ -16,41 +16,45 @@ def serve_index():
 
 @app.route('/api/ruv/calculate', methods=["POST"])
 def calculate():
-    if request.method == 'POST':
-        data = {
-            'constituency_names': [],
-            'constituency_seats': [],
-            'constituency_adjustment_seats': [],
-            'parties': [],
-            'votes': [],
-            'adjustment_divider': 'dhondt',
-            'adjustment_method': 'icelandic-law',
-            'adjustment_threshold': 0.05,
-        }
 
-        payload = request.get_json(force=True)
-        data['parties'] = get_parties(payload['data'])
-        for k, v in payload['data'].items():
-            c = v['response']['constituency']
-            data['constituency_names'].append(c['identifier'])
-            data['constituency_seats'].append(c['seats'])
-            data['constituency_adjustment_seats'].append(c['equalizerseats'])
-            pv = {pv['letter']:pv for pv in v['response']['results']['list']}
+    data = {
+        'constituency_names': [],
+        'constituency_seats': [],
+        'constituency_adjustment_seats': [],
+        'parties': [],
+        'votes': [],
+        'adjustment_divider': 'dhondt',
+        'adjustment_method': 'icelandic-law',
+        'adjustment_threshold': 0.05,
+        'primary_divider': 'dhondt',
+        'show_entropy': False,
+        'simulate': False,
+        'debug': False,
+        'output': 'simple',
+        'action': ''
+    }
 
-            votes = [pv[p]['votes'] if p in pv else 0 for p in data['parties']]
-            data['votes'].append(votes)
-            
+    payload = request.get_json(force=True)
 
+    if not payload or payload == {}:
+        return jsonify({"error": "No data sent"})
 
-    """
-    script = request.get_json(force=True)
-    if not script or script == {}:
-        return jsonify({"error": "No script sent"})
-    e = run_script(script)
+    data['adjustment_threshold'] = payload['threshold']
+    data['parties'] = get_parties(payload['data'])
+    for k, v in payload['data'].items():
+        c = v['response']['constituency']
+        data['constituency_names'].append(c['identifier'])
+        data['constituency_seats'].append(c['seats'])
+        data['constituency_adjustment_seats'].append(c['equalizerseats'])
+        pv = {pv['letter']:pv for pv in v['response']['results']['list']}
+
+        votes = [pv[p]['votes'] if p in pv else 0 for p in data['parties']]
+        data['votes'].append(votes)
+
+    e = run_script({'election_rules': data, 'action': 'election'})
     if type(e) == dict:
-        return jsonify(e)
-    """
-    return jsonify(data)
+        return jsonify(e)  
+    return jsonify(e.get_results_dict())
 
 @app.route('/static/<path:path>')
 def send_static(path):
