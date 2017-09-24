@@ -6,6 +6,9 @@ import sys
 import tabulate
 import io
 
+def get_parties(election):
+    parties = sorted(list(set([p['letter'] for k, e in election.items() for p in e['response']['results']['list']])))
+    return parties
 
 def random_id(length=8):
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
@@ -86,3 +89,5 @@ def entropy(votes, allocations, divisor_gen):
                 e += log(votes[i][j]/dk)
     return e
 
+if __name__ == "__main__":
+    pass
