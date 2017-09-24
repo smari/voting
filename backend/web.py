@@ -22,12 +22,15 @@ def calculate():
             'constituency_seats': [],
             'constituency_adjustment_seats': [],
             'parties': [],
-            'votes': []
+            'votes': [],
+            'adjustment_divider': 'dhondt',
+            'adjustment_method': 'icelandic-law',
+            'adjustment_threshold': 0.05,
         }
 
         payload = request.get_json(force=True)
-        data['parties'] = get_parties(payload)
-        for k, v in payload.items():
+        data['parties'] = get_parties(payload['data'])
+        for k, v in payload['data'].items():
             c = v['response']['constituency']
             data['constituency_names'].append(c['identifier'])
             data['constituency_seats'].append(c['seats'])
