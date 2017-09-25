@@ -1,0 +1,33 @@
+{
+  "name": "Könnun: Félagsvísindastofnun 21. sept, 2017",
+  "action": "election",
+  "election_rules": {
+  "primary_divider": "dhondt",
+  "adjustment_divider": "dhondt",
+  "adjustment_threshold": 0.05,
+  "adjustment_method": "icelandic-law",
+  "constituency_seats": [7, 9, 9, 11, 9, 9],
+  "constituency_adjustment_seats": [1, 1, 1, 2, 2, 2],
+  "constituency_names": [
+    "Norðvestur",
+    "Norðaustur",
+    "Suður",
+    "Suðvestur",
+    "Reykjavík suður",
+    "Reykjavík norður"
+  ],
+  "parties": ["A","B","C","D","F","P","S","V"],
+  "votes": [
+    [80,70,30,230,5,100,80,300],
+    [80,70,30,230,5,100,80,300],
+    [80,70,30,230,5,100,80,300],
+    [80,70,30,230,5,100,80,300],
+    [80,70,30,230,5,100,80,300],
+    [80,70,30,230,5,100,80,300]
+  ],
+  "simulate": false,
+  "debug": false,
+  "show_entropy": false,
+  "output": "simple"
+    }
+}
