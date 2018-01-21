@@ -8,7 +8,7 @@ var preset_elections = {};
 
 var Client = (function () {
   const PATH_CAPABILITIES = '/api/capabilities/';
-  
+
   function getCapabilities(cb) {
     return fetch(`${PATH_CAPABILITIES}`, {
       accept: 'application/json',
@@ -143,7 +143,7 @@ var VotesTable = React.createClass({
             return (
                 <VotesConstituency
                     data={self.props.data}
-                    constituency={constituency}                    
+                    constituency={constituency}
                     {...self.props}/>
             );
         });
@@ -203,7 +203,7 @@ var VotesSettings = React.createClass({
         var divider_rules = [];
         var adjustmentdivider_rules = [];
         var adjustment_methods = [];
-        
+
 
         if (!this.props.data.capabilities_loaded) {
             return <div>Capabilities not loaded</div>;
@@ -276,7 +276,7 @@ var VotesSettings = React.createClass({
                     </div>
                     <div className="form-group">
                       <label htmlFor="adjustment_threshold">Adjustment Threshold</label>
-                      <span> <RBS.Badge className="badge-success">{Math.round(this.props.data.election_rules.adjustment_threshold * 100)}%</RBS.Badge></span>                      
+                      <span> <RBS.Badge className="badge-success">{Math.round(this.props.data.election_rules.adjustment_threshold * 100)}%</RBS.Badge></span>
                       <input
                           className="form-control"
                           id="adjustment_threshold"
@@ -396,7 +396,8 @@ var VotingSimulator = React.createClass({
             capabilities: {},
             capabilities_loaded: false,
             votes: [],
-            errors: []
+            errors: [],
+            results: {}
         };
         // $.getJSON('/api/capabilities/', {}, this.getCapabilities);
         return init;
@@ -515,7 +516,7 @@ var VotingSimulator = React.createClass({
     },
 
     addParty: function() {
-        
+
         var parties = this.state.parties.slice();
         //console.log(parties)
         var partyId = genRandomId();
@@ -594,7 +595,7 @@ var VotingSimulator = React.createClass({
             alert('Preset ' + preset + ' does not exist');
         }
 
-        this.addPresetConstituency(preset.election_rules)        
+        this.addPresetConstituency(preset.election_rules)
     },
 
     calculate: function() {
@@ -614,6 +615,7 @@ var VotingSimulator = React.createClass({
 
       console.log(votes)
       rules["action"] = "election";
+      var that = this
 
       console.log("Calculating:", rules);
       $(function() {
@@ -624,6 +626,7 @@ var VotingSimulator = React.createClass({
           contentType: 'application/json; charset=utf-8',
           success: function(data) {
               console.log("Got response:", data);
+              that.setState({results: data})
           },
           dataType: "json"
         });
@@ -642,7 +645,7 @@ var VotingSimulator = React.createClass({
             <RBS.Tab.Container defaultActiveKey={2}>
                 <RBS.Row className="clearfix">
                     <RBS.Col sm={12}>
-                        <RBS.Nav bsStyle="tabs"> 
+                        <RBS.Nav bsStyle="tabs">
                             <RBS.NavItem eventKey={1}>Simulation</RBS.NavItem>
                             <RBS.NavItem eventKey={2}>Votes</RBS.NavItem>
                             <RBS.NavItem eventKey={3}>Election results</RBS.NavItem>
@@ -675,7 +678,7 @@ var VotingSimulator = React.createClass({
                                     setPrimarySeats={this.setPrimarySeats}
                                     setPartyName={this.setPartyName}
                                     setPartyVotes={this.setPartyVotes}
-                                />                        
+                                />
                             </RBS.Tab.Pane>
                             <RBS.Tab.Pane eventKey={3}>
                                 <VotesResults
@@ -686,7 +689,7 @@ var VotingSimulator = React.createClass({
                             </RBS.Tab.Pane>
                             <RBS.Tab.Pane eventKey={4}>
                                 {'Not implemented'}
-                            </RBS.Tab.Pane> 
+                            </RBS.Tab.Pane>
                             <RBS.Tab.Pane eventKey={5}>
                                 <VotesSettings
                                     capabilities_loaded={this.state.capabilities_loaded}
@@ -707,19 +710,19 @@ var VotingSimulator = React.createClass({
                                 <RBS.Button bsStyle="primary" onClick={this.calculate}>Calculate</RBS.Button>
                               </RBS.ButtonToolbar>
                             </RBS.Col>
-                        </RBS.Row>                                      
+                        </RBS.Row>
                     </RBS.Col>
                 </RBS.Row>
             </RBS.Tab.Container>
         )
-    },    
+    },
 
 });
 
 ReactDOM.render(
     <RBS.Grid fluid={true}>
         <RBS.Row>
-            <RBS.Col xs={12}>    
+            <RBS.Col xs={12}>
                 <VotingSimulator />
             </RBS.Col>
         </RBS.Row>
