@@ -326,7 +326,6 @@ var VotesResults = React.createClass({
 
             var rv = [];
             var sa = [];
-            rv.push(<th>Seat allocations</th>);
 
             for (var cand in this.props.data.parties) {
                 rv.push(<th>{this.props.data.parties[cand]['name']}</th>);
