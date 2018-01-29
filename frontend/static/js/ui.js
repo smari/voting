@@ -24,13 +24,13 @@ var Client = (function () {
       const error = new Error(`HTTP Error ${response.statusText}`);
       error.status = response.statusText;
       error.response = response;
-      console.log(error);
+      //console.log(error);
       throw error;
     }
   }
 
   function parseJSON(response) {
-    //console.log(response.json())
+    ////console.log(response.json())
     return response.json();
   }
 
@@ -50,7 +50,7 @@ var VotesConstituency = React.createClass({
         this.props.setPartyVotes(this.props.constituency.id, e.target.dataset.party, e.target.value)
     },
     getPartyVotes: function(party) {
-        //console.log("getPartyVotes:", this.props);
+        ////console.log("getPartyVotes:", this.props);
         for (var vote in this.props.constituency.votes) {
             if (this.props.constituency.votes[vote].id == party) {
                 return this.props.constituency.votes[vote].votes;
@@ -66,7 +66,7 @@ var VotesConstituency = React.createClass({
     },
     render: function() {
         var self = this;
-        console.log(this.props)
+        ////console.log(this.props)
         var partyFields = this.props.parties.map(function(party) {
             return (
                 <td>
@@ -137,7 +137,7 @@ var VotesTable = React.createClass({
     },
 
     render: function() {
-        //console.log(this.props.data);
+        ////console.log(this.props.data);
         var self = this;
         var constituencyNodes = this.props.data.constituencies.map(function(constituency) {
             return (
@@ -147,7 +147,7 @@ var VotesTable = React.createClass({
                     {...self.props}/>
             );
         });
-        //console.log(self.props.data)
+        ////console.log(self.props.data)
         var partyNodes = self.props.parties.map(function(party) {
             return (
                 <th>
@@ -307,10 +307,10 @@ var VotesResults = React.createClass({
     },
 
     render: function() {
-        console.log(this.props.data)
         var res = "";
         var rules = this.props.data.election_rules;
         var caps = this.props.data.capabilities;
+        var seats = this.props.data.results.seat_allocations
 
         if (!this.props.data.capabilities_loaded) {
             return <div>Capabilities not loaded</div>;
@@ -318,19 +318,26 @@ var VotesResults = React.createClass({
 
         var tallyMethod = caps.divider_rules[rules.divider_rule];
         var constituencies = [];
+
         for (var c in this.props.data.constituencies) {
             var cons = this.props.data.constituencies[c];
             var consvotes = [];
             var rounds = []; // tallyMethod.func(cons.votes, cons.primarySeats);
 
             var rv = [];
+            var sa = [];
             rv.push(<th>Seat allocations</th>);
+
             for (var cand in this.props.data.parties) {
-                var c = this.props.data.parties[cand];
-                rv.push(<th>{c.name}</th>);
+                rv.push(<th>{this.props.data.parties[cand]['name']}</th>);
+                if (seats !== undefined) {
+                  sa.push(<td>{seats[c][cand]}</td>)
+                }
             }
+            //console.log(sa)
             rv.push(<th>Winner</th>);
             consvotes.push(<thead><tr>{rv}</tr></thead>);
+            consvotes.push(<tr>{sa}</tr>)
             var rb = [];
             for (var round in rounds) {
                 var rv = [];
@@ -376,7 +383,7 @@ var VotesResults = React.createClass({
         }
 
         return (
-            <div>
+            <div> 
                 {constituencies}
                 <pre>{res}</pre>
             </div>
@@ -405,7 +412,7 @@ var VotingSimulator = React.createClass({
 
     componentDidMount: function() {
         Client.getCapabilities( (data) => {
-            console.log("Found presets: ", data.presets);
+            //console.log("Found presets: ", data.presets);
             this.setState({
                 capabilities: data.capabilities,
                 election_rules: data.election_rules,
@@ -423,7 +430,7 @@ var VotingSimulator = React.createClass({
     },
 
     debugInfo() {
-        console.log("Debug: ", this.state);
+        //console.log("Debug: ", this.state);
     },
 
     removeConstituency: function(id) {
@@ -518,7 +525,7 @@ var VotingSimulator = React.createClass({
     addParty: function() {
 
         var parties = this.state.parties.slice();
-        //console.log(parties)
+        ////console.log(parties)
         var partyId = genRandomId();
         var party = {"id": partyId, "name": "?"};
         parties.push(party);
@@ -580,7 +587,7 @@ var VotingSimulator = React.createClass({
                 id: parties[n].id.toString()
             }))
         }))
-        console.log(constituencies)
+        //console.log(constituencies)
         this.setState({
             constituencies: constituencies,
             parties: parties,
@@ -589,8 +596,8 @@ var VotingSimulator = React.createClass({
     },
 
     setPreset: function(preset) {
-        //console.log(preset)
-        //console.log(this.state.presets)
+        ////console.log(preset)
+        ////console.log(this.state.presets)
         if (!this.state.presets.includes(preset)) {
             alert('Preset ' + preset + ' does not exist');
         }
@@ -613,11 +620,11 @@ var VotingSimulator = React.createClass({
       rules.election_rules['votes'] = votes
       rules.election_rules['parties'] = parties
 
-      console.log(votes)
+      //console.log(votes)
       rules["action"] = "election";
       var that = this
 
-      console.log("Calculating:", rules);
+      //console.log("Calculating:", rules);
       $(function() {
         $.ajax({
           url: '/api/script/',
@@ -634,13 +641,13 @@ var VotingSimulator = React.createClass({
     },
 
     render: function() {
-        console.log(this.state)
+        //console.log(this.state)
         const errors = this.state.errors.map((error) => (
           <Alert bsStyle="danger">
             <strong>Opps</strong> {error.error}
           </Alert>
         ))
-        console.log(errors)
+        //console.log(errors)
         return (
             <RBS.Tab.Container defaultActiveKey={2}>
                 <RBS.Row className="clearfix">
