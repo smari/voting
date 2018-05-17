@@ -1,6 +1,8 @@
 # from voting import Election, SIMULATION_VARIATES
 from rules import Rules
 
+
+
 class SimulationRules(Rules):
     def __init__(self):
         super(SimulationRules, self).__init__()

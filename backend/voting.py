@@ -34,8 +34,8 @@ def sainte_lague_gen():
         yield n
         n += 2
 
-def swedish_sainte_lague_gen():
-    """Generate a Swedish/Nordic Sainte-Lague divide sequence: 1.4, 3, 5..."""
+def nordic_sainte_lague_gen():
+    """Generate a Nordic Sainte-Lague divide sequence: 1.4, 3, 5..."""
     yield 1.4
     n = 3
     while True:
@@ -45,13 +45,13 @@ def swedish_sainte_lague_gen():
 DIVIDER_RULES = {
     "dhondt": dhondt_gen,
     "sainte-lague": sainte_lague_gen,
-    "swedish": swedish_sainte_lague_gen
+    "nordic": nordic_sainte_lague_gen
 }
 
 DIVIDER_RULE_NAMES = {
     "dhondt": "D'Hondt's method",
     "sainte-lague": "Sainte-Laguë method",
-    "swedish": "Nordic Sainte-Laguë variant"
+    "nordic": "Nordic Sainte-Laguë variant"
 }
 
 
