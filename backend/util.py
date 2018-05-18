@@ -39,23 +39,22 @@ def load_constituencies(confile):
 def load_votes(votefile, consts):
     csv_reader = read_csv(votefile)
     parties = next(csv_reader)[1:]
-    votes = []
+    votes = [[] for i in range(len(consts))]
+    c_names = [x["name"] for x in consts]
 
     for row in csv_reader:
         try:
-            assert(row[0] in [x["name"] for x in consts])
+            v = votes[c_names.index(row[0])]
         except:
             print(row)
             raise Exception("Constituency '%s' not found in constituency file."
                             % row[0])
-        v = []
         for x in row[1:]:
             try:
                 r = float(x)
             except:
                 r = 0
             v.append(r)
-        votes.append(v)
 
     return parties, votes
 
