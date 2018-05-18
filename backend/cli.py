@@ -6,6 +6,7 @@ import click
 import tabulate
 
 import voting
+import simulate as sim
 import util
 import web
 
@@ -89,6 +90,26 @@ def simulate(votes, **kwargs):
 
 
 @cli.command()
+@click.option('--votes', required=True, type=click.Path(exists=True),
+              help='File with vote data')
+@click.option('--consts', required=True, type=click.Path(exists=True),
+              help='File with constituency data')
+@click.option('--rho', required=True, type=click.FLOAT, default=0.1)
+@click.option('--n', type=click.INT, default=10000)
+def betatest(votes, consts, n, rho, **kwargs):
+    constituencies = util.load_constituencies(consts)
+    parties, votes = util.load_votes(votes, constituencies)
+    #m = sim.beta_distribution(votes, rho)
+    #print(tabulate.tabulate(votes))
+    #print(sum([c for i in votes for c in i]))
+    #print(tabulate.tabulate(m))
+    #print(sum([c for i in m for c in i ]))
+    print(sim.testsim(votes, n, rho))
+
+
+
+
+@cli.command()
 @click.argument('rules', required=True,
                 type=click.File('rb'))
 def script(rules, **kwargs):
@@ -142,11 +163,13 @@ def apportion(votes, **kwargs):
     election = voting.Election(rules, votes)
     election.run()
 
+    """
     if rules['output'] == "simple":
         click.secho("Warning: When loading votes, no attempt is currently "
                     "made to guarantee that the vote file lists "
                     "constituencies in the same order as they are declared in "
                     "the constituency file.\n\n", fg="red")
+    """
 
     util.pretty_print_election(rules, election)
 
