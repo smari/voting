@@ -6,6 +6,7 @@ import click
 import tabulate
 
 import voting
+import simulate as sim
 import util
 import web
 
@@ -86,6 +87,26 @@ def simulate(votes, **kwargs):
     #  - smallest number of votes behind a seat
     #  - largest number of votes behind a seat
     #
+
+
+@cli.command()
+@click.option('--votes', required=True, type=click.Path(exists=True),
+              help='File with vote data')
+@click.option('--consts', required=True, type=click.Path(exists=True),
+              help='File with constituency data')
+@click.option('--rho', required=True, type=click.FLOAT, default=0.1)
+@click.option('--n', type=click.INT, default=10000)
+def betatest(votes, consts, n, rho, **kwargs):
+    constituencies = util.load_constituencies(consts)
+    parties, votes = util.load_votes(votes, constituencies)
+    #m = sim.beta_distribution(votes, rho)
+    #print(tabulate.tabulate(votes))
+    #print(sum([c for i in votes for c in i]))
+    #print(tabulate.tabulate(m))
+    #print(sum([c for i in m for c in i ]))
+    print(sim.testsim(votes, n, rho))
+
+
 
 
 @cli.command()
