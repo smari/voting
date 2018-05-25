@@ -94,19 +94,41 @@ def simulate(votes, **kwargs):
               help='File with vote data')
 @click.option('--consts', required=True, type=click.Path(exists=True),
               help='File with constituency data')
-@click.option('--rho', required=True, type=click.FLOAT, default=0.1)
 @click.option('--n', type=click.INT, default=10000)
-def betatest(votes, consts, n, rho, **kwargs):
+@click.option('--var_param', required=True, type=click.FLOAT, default=0.1)
+
+def betatest(votes, consts, n, var_param, **kwargs):
     constituencies = util.load_constituencies(consts)
-    parties, votes = util.load_votes(votes, constituencies)
+    _, votes = util.load_votes(votes, constituencies)
     #m = sim.beta_distribution(votes, rho)
     #print(tabulate.tabulate(votes))
     #print(sum([c for i in votes for c in i]))
     #print(tabulate.tabulate(m))
     #print(sum([c for i in m for c in i ]))
-    print(sim.testsim(votes, n, rho))
+    print(sim.testsim(votes, n, var_param))
 
 
+
+@cli.command()
+@click.option('--votes', required=True, type=click.Path(exists=True),
+              help='File with vote data')
+@click.option('--consts', required=True, type=click.Path(exists=True),
+              help='File with constituency data')
+@click.option('--n', type=click.INT, default=10000)
+@click.option('--method', type=click.Choice(sim.GENERATING_METHODS.keys()),
+              default="beta")
+@click.option('--var_param', required=True, type=click.FLOAT, default=0.1)
+def genvotes(votes, consts, n, method, var_param, **kwargs):
+    rules = voting.ElectionRules()
+    rules["constituencies"] = consts
+    parties, votes = util.load_votes(votes, rules["constituencies"])
+    rules["parties"] = parties
+    election = voting.Election(rules, votes)
+    s_rules = sim.SimulationRules()
+    s_rules["simulation_count"] = n
+    s_rules["simulation_variate"] = method
+    simulation = sim.Simulation(s_rules, election, var_param)
+    simulation.simulate()
 
 
 @cli.command()
