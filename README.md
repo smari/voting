@@ -58,7 +58,23 @@ python cli.py apportion \
 
 ### Simulation
 
-This feature is incomplete.
+Simulation is done through the `simulate` command. For help with that command, do:
+```
+python cli.py simulate --help
+```
+The `simulate` command takes several flags, including:
+
+ * *constituencies*: path to a CSV file describing constituencies.
+ * *votes*: path to a CSV file containing votes to use as reference for the simulation.
+ * *num-sim*: number of simulations to run.
+ * *method*: a supported method to generate votes.
+ 
+ Example using the 2013 elections in Iceland:
+```
+python cli.py simulate \
+	--constituencies=../data/constituencies/constituencies_iceland_2013.csv \
+	--votes=../data/elections/iceland_landskjorstjorn_2013.csv
+```
 
 ### Script mode
 
@@ -127,7 +143,7 @@ The SPA is currently being refactored using [create-react-app](https://github.co
 
 ### Simulation
 
-* [ ] Generate random initial votes
+* [x] Generate random initial votes
 	* Draw percentages for each party in each district from a beta distribution with historical mean and variance. Then normalize the percentages to add up to 100\%.
 * [ ] Fuzz votes
 	* Add votes, one-by-one, in support of a party list in a district
