@@ -28,32 +28,68 @@ def cli(debug):
 
 
 @cli.command()
-@click.option('--divider', required=True,
-              type=click.Choice(voting.DIVIDER_RULES.keys()),
-              help='Divider rule to use.')
-@click.option('--adjustment-divider', default=None,
-              type=click.Choice(voting.DIVIDER_RULES.keys()),
-              help='Divider rule for adjustment seats. Defaults to primary.')
-@click.option('--constituencies', required=True, type=click.File('r'),
-              help='File with constituency data')
-@click.option('--votes', required=True, type=click.File('r'),
+@click.option('--votes', required=True, type=click.Path(exists=True),
               help='File with vote data to use as seed')
-@click.option('--voters', required=True, type=click.File('r'),
-              help='File with votes information')
-@click.option('--simulations', default=100, help='How many simulations to run')
-@click.option('--threshold', default=5,
-              help='Threshold (in %%) for adjustment seats')
-@click.option('--betavariancesquared', default=0.005)
-@click.option('--partyweight', default=0.8)
-@click.option('--output', default='simple',
-              type=click.Choice(tabulate.tabulate_formats))
-@click.option('--adjustment-method', '-m', multiple=True,
-              type=click.Choice(voting.ADJUSTMENT_METHODS.keys()),
-              required=True)
-def simulate(votes, **kwargs):
+@click.option('--constituencies', required=True, type=click.Path(exists=True),
+              help='File with constituency data')
+@click.option('--num_sim', type=click.INT, default=10000,
+              help='Number of simulations to run')
+@click.option('--method', type=click.Choice(sim.GENERATING_METHODS.keys()),
+              default="beta", help='Method to generate votes')
+@click.option('--var_param', type=click.FLOAT, default=0.1)
+def simulate(votes, constituencies, num_sim, method, var_param, **kwargs):
     """Simulate elections"""
 
-    pass
+    rules = voting.ElectionRules()
+    rules["constituencies"] = constituencies
+    parties, votes = util.load_votes(votes, rules["constituencies"])
+    rules["parties"] = parties
+    election = voting.Election(rules, votes)
+    s_rules = sim.SimulationRules()
+    s_rules["simulation_count"] = num_sim
+    s_rules["simulation_variate"] = method
+    simulation = sim.Simulation(s_rules, election, var_param)
+
+    e_rules = []
+    e_rules.append(voting.ElectionRules())
+    e_rules[0]["constituency_seats"] = rules["constituency_seats"]
+    e_rules[0]["constituency_adjustment_seats"] = rules["constituency_adjustment_seats"]
+    e_rules[0]["constituency_names"] = rules["constituency_names"]
+    e_rules[0]["parties"] = parties
+    e_rules[0]["primary_divider"] = "dhondt"
+    e_rules[0]["adjustment_divider"] = "dhondt"
+    e_rules[0]["adjustment_threshold"] = 0.05
+    e_rules[0]["adjustment_method"] = "icelandic-law"
+    e_rules.append(voting.ElectionRules())
+    e_rules[1]["constituency_seats"] = rules["constituency_seats"]
+    e_rules[1]["constituency_adjustment_seats"] = rules["constituency_adjustment_seats"]
+    e_rules[1]["constituency_names"] = rules["constituency_names"]
+    e_rules[1]["parties"] = parties
+    e_rules[1]["primary_divider"] = "sainte-lague"
+    e_rules[1]["adjustment_divider"] = "sainte-lague"
+    e_rules[1]["adjustment_threshold"] = 0.05
+    e_rules[1]["adjustment_method"] = "icelandic-law"
+    e_rules.append(voting.ElectionRules())
+    e_rules[2]["constituency_seats"] = rules["constituency_seats"]
+    e_rules[2]["constituency_adjustment_seats"] = rules["constituency_adjustment_seats"]
+    e_rules[2]["constituency_names"] = rules["constituency_names"]
+    e_rules[2]["parties"] = parties
+    e_rules[2]["primary_divider"] = "dhondt"
+    e_rules[2]["adjustment_divider"] = "dhondt"
+    e_rules[2]["adjustment_threshold"] = 0.05
+    e_rules[2]["adjustment_method"] = "relative-superiority"
+    e_rules.append(voting.ElectionRules())
+    e_rules[3]["constituency_seats"] = rules["constituency_seats"]
+    e_rules[3]["constituency_adjustment_seats"] = rules["constituency_adjustment_seats"]
+    e_rules[3]["constituency_names"] = rules["constituency_names"]
+    e_rules[3]["parties"] = parties
+    e_rules[3]["primary_divider"] = "sainte-lague"
+    e_rules[3]["adjustment_divider"] = "sainte-lague"
+    e_rules[3]["adjustment_threshold"] = 0.05
+    e_rules[3]["adjustment_method"] = "relative-superiority"
+
+    simulation.simulate(e_rules)
+
     # divider, adjustment_divider, constituencies, votes, voters,
     # simulations, threshold, betavariancesquared, partyweight, output,
     # adjustment_method
@@ -91,34 +127,15 @@ def simulate(votes, **kwargs):
 
 @cli.command()
 @click.option('--votes', required=True, type=click.Path(exists=True),
-              help='File with vote data')
+              help='File with vote data to use as seed')
 @click.option('--consts', required=True, type=click.Path(exists=True),
               help='File with constituency data')
-@click.option('--n', type=click.INT, default=10000)
-@click.option('--var_param', required=True, type=click.FLOAT, default=0.1)
-
-def betatest(votes, consts, n, var_param, **kwargs):
-    constituencies = util.load_constituencies(consts)
-    _, votes = util.load_votes(votes, constituencies)
-    #m = sim.beta_distribution(votes, rho)
-    #print(tabulate.tabulate(votes))
-    #print(sum([c for i in votes for c in i]))
-    #print(tabulate.tabulate(m))
-    #print(sum([c for i in m for c in i ]))
-    print(sim.testsim(votes, n, var_param))
-
-
-
-@cli.command()
-@click.option('--votes', required=True, type=click.Path(exists=True),
-              help='File with vote data')
-@click.option('--consts', required=True, type=click.Path(exists=True),
-              help='File with constituency data')
-@click.option('--n', type=click.INT, default=10000)
+@click.option('--n', type=click.INT, default=10000,
+              help='Number of simulations')
 @click.option('--method', type=click.Choice(sim.GENERATING_METHODS.keys()),
-              default="beta")
+              default="beta", help='Method to generate votes')
 @click.option('--var_param', required=True, type=click.FLOAT, default=0.1)
-def genvotes(votes, consts, n, method, var_param, **kwargs):
+def genvotes(votes, consts, n, method, var_param, output, **kwargs):
     rules = voting.ElectionRules()
     rules["constituencies"] = consts
     parties, votes = util.load_votes(votes, rules["constituencies"])
@@ -128,7 +145,7 @@ def genvotes(votes, consts, n, method, var_param, **kwargs):
     s_rules["simulation_count"] = n
     s_rules["simulation_variate"] = method
     simulation = sim.Simulation(s_rules, election, var_param)
-    simulation.simulate()
+    simulation.simulate([])
 
 
 @cli.command()
@@ -184,14 +201,6 @@ def apportion(votes, **kwargs):
     rules["parties"] = parties
     election = voting.Election(rules, votes)
     election.run()
-
-    """
-    if rules['output'] == "simple":
-        click.secho("Warning: When loading votes, no attempt is currently "
-                    "made to guarantee that the vote file lists "
-                    "constituencies in the same order as they are declared in "
-                    "the constituency file.\n\n", fg="red")
-    """
 
     util.pretty_print_election(rules, election)
 

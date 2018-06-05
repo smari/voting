@@ -5,6 +5,8 @@ from math import log
 import sys
 import tabulate
 import io
+import xlsxwriter
+import openpyxl
 
 
 def random_id(length=8):
@@ -18,10 +20,20 @@ def read_csv(filename):
         for row in csv.reader(f):
             yield [cell for cell in row]
 
+def read_xlsx(filename):
+    book = openpyxl.load_workbook(filename)
+    sheet = book.active
+    m_votes = []
+    for row in sheet.rows:
+        yield [cell.value for cell in row]
+
 def load_constituencies(confile):
-    csv_reader = read_csv(confile)
+    if confile.endswith("csv"):
+        reader = read_csv(confile)
+    else:
+        reader = read_xlsx(confile)
     cons = []
-    for row in csv_reader:
+    for row in reader:
         try:
             assert(sum([int(x) for x in row[1:3]]) > 0)
         except:
@@ -37,12 +49,15 @@ def load_constituencies(confile):
     return cons
 
 def load_votes(votefile, consts):
-    csv_reader = read_csv(votefile)
-    parties = next(csv_reader)[1:]
+    if votefile.endswith("csv"):
+        reader = read_csv(votefile)
+    else:
+        reader = read_xlsx(votefile)
+    parties = next(reader)[1:]
     votes = [[] for i in range(len(consts))]
     c_names = [x["name"] for x in consts]
 
-    for row in csv_reader:
+    for row in reader:
         try:
             v = votes[c_names.index(row[0])]
         except:
@@ -85,3 +100,19 @@ def entropy(votes, allocations, divisor_gen):
                 e += log(votes[i][j]/dk)
     return e
 
+
+def write_to_xlsx(election):
+    const_names = election.rules["constituency_names"]
+    parties = election.rules["parties"]
+    votes = election.m_votes
+    workbook = xlsxwriter.Workbook('hello.xlsx')
+    worksheet = workbook.add_worksheet()
+    worksheet.write('A1', 'Constituency')
+    for i in range(len(parties)):
+      worksheet.write(0, i+1, parties[i])
+    for i in range(1, len(votes)+1):
+      worksheet.write(i, 0, const_names[i-1])
+      for j in range(1, len(votes[i-1])+1):
+        worksheet.write(i, j, votes[i-1][j-1])
+  
+    workbook.close()
