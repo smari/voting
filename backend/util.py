@@ -101,11 +101,11 @@ def entropy(votes, allocations, divisor_gen):
     return e
 
 
-def write_to_xlsx(election):
+def write_to_xlsx(election, filename):
     const_names = election.rules["constituency_names"]
     parties = election.rules["parties"]
     votes = election.m_votes
-    workbook = xlsxwriter.Workbook('hello.xlsx')
+    workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
     worksheet.write('A1', 'Constituency')
     for i in range(len(parties)):

@@ -19,6 +19,7 @@ from methods.icelandic_law import *
 from methods.monge import *
 from methods.relative_inferiority import *
 from methods.relative_superiority import *
+from methods.norwegian_law import *
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -189,13 +190,23 @@ class Election:
         method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
         gen = self.rules.get_generator("adjustment_divider")
 
-        results = method(self.m_votes_eliminated,
-                         self.v_total_seats,
-                         self.v_adjustment_seats,
-                         self.m_allocations,
-                         gen,
-                         self.rules["adjustment_threshold"],
-                         orig_votes=self.m_votes)
+        if self.rules["adjustment_method"] == "relative-inferiority":
+            results = method(self.m_votes_eliminated,
+                self.v_total_seats,
+                self.v_adjustment_seats,
+                self.m_allocations,
+                gen,
+                self.last,
+                self.rules["adjustment_threshold"],
+                orig_votes=self.m_votes)
+        else:
+            results = method(self.m_votes_eliminated,
+                self.v_total_seats,
+                self.v_adjustment_seats,
+                self.m_allocations,
+                gen,
+                self.rules["adjustment_threshold"],
+                orig_votes=self.m_votes)
 
         self.results = results
         self.gen = gen
@@ -218,6 +229,7 @@ class Election:
         parties = self.rules["parties"]
 
         m_allocations = []
+        self.last = []
         for i in range(len(const)):
             num_seats = const[i]
             rounds, seats = constituency_seat_allocation(m_votes[i], num_seats,
@@ -225,6 +237,7 @@ class Election:
             v_allocations = [seats.count(p) for p in range(len(parties))]
             m_allocations.append(v_allocations)
             self.order.append(seats)
+            self.last.append(rounds[-1]["votes"][rounds[-1]["winner"]])
 
         # Useful:
         # print tabulate([[parties[x] for x in y] for y in self.order])
@@ -240,6 +253,7 @@ ADJUSTMENT_METHODS = {
     "relative-inferiority": relative_inferiority,
     "monge": monge,
     "icelandic-law": icelandic_apportionment,
+    "norwegian-law": norwegian_apportionment
 }
 
 ADJUSTMENT_METHOD_NAMES = {
