@@ -28,8 +28,8 @@ python cli.py apportion --help
 ```
 The `apportion` command takes several flags, including:
 
- * *constituencies*: path to a CSV file describing constituencies.
- * *votes*: path to a CSV file containing votes.
+ * *constituencies*: path to a CSV or XLSX file describing constituencies.
+ * *votes*: path to a CSV or XLSX file containing votes.
  * *divider*: the name of a supported divider method.
  * *adjustment-divider*: a supported divider method to use for adjustment seats; defaults to the same as the selected divider method.
  * *adjustment-method*: a supported adjustment method to use for resolving adjustment seat apportionment. Use multiple times to compare outputs.
@@ -64,16 +64,18 @@ python cli.py simulate --help
 ```
 The `simulate` command takes several flags, including:
 
- * *constituencies*: path to a CSV file describing constituencies.
- * *votes*: path to a CSV file containing votes to use as reference for the simulation.
- * *num-sim*: number of simulations to run.
- * *method*: a supported method to generate votes.
+ * *constituencies*: path to a CSV or XLSX file describing constituencies.
+ * *votes*: path to a CSV or XLSX file containing votes to use as reference for the simulation.
+ * *test_method*: the method to be tested.
+ * *num_sim*: number of simulations to run.
+ * *gen_method*: a supported method to generate votes.
  
  Example using the 2013 elections in Iceland:
 ```
 python cli.py simulate \
 	--constituencies=../data/constituencies/constituencies_iceland_2013.csv \
-	--votes=../data/elections/iceland_landskjorstjorn_2013.csv
+	--votes=../data/elections/iceland_landskjorstjorn_2013.csv \
+	--test_method=ice_law_dhondt
 ```
 
 ### Script mode
@@ -135,11 +137,11 @@ The SPA is currently being refactored using [create-react-app](https://github.co
  * [ ] Optimization and heuristic methods
    * [x] Alternating-Scaling algorithm (AS)
    * [x] Relative Superiority algorithm (RS)
-   * [ ] Relative Inferiority algorithm (RI)
+   * [x] Relative Inferiority algorithm (RI)
    * [x] Monge algorithm
    * [x] Icelandic voting law algorithm
    * [ ] Swedish voting law algorithm
-   * [ ] Norwegian voting law algorithm
+   * [x] Norwegian voting law algorithm
 
 ### Simulation
 
