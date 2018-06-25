@@ -1,4 +1,5 @@
 from apportion import apportion1d
+from copy import deepcopy
 
 
 def alternating_scaling(m_votes, v_const_seats, v_party_seats,
@@ -16,6 +17,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         - divisor_gen: A generator function generating divisors, e.g. d'Hondt
         - threshold: A cutoff threshold for participation.
     """
+    m_allocations = deepcopy(m_prior_allocations)
 
     def const_step(v_votes, const_id, v_const_multipliers, v_party_multipliers):
         num_total_seats = v_const_seats[const_id]
@@ -24,7 +26,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         v_scaled_votes = [a/(b*cm) if b*cm != 0 else 0
                           for a, b in zip(v_votes, v_party_multipliers)]
 
-        v_priors = m_prior_allocations[const_id]
+        v_priors = m_allocations[const_id]
 
         _, div = apportion1d(v_scaled_votes, num_total_seats,
                                  v_priors, divisor_gen)
@@ -53,8 +55,8 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         v_scaled_votes = [a/(b*pm) if b != 0 else None
                           for a, b in zip(v_votes, v_const_multipliers)]
 
-        v_priors = [m_prior_allocations[x][party_id]
-                    for x in range(len(m_prior_allocations))]
+        v_priors = [m_allocations[x][party_id]
+                    for x in range(len(m_allocations))]
 
         _, div = apportion1d(v_scaled_votes, num_total_seats, v_priors,
                                  divisor_gen)
@@ -115,7 +117,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         cm = const_multipliers[c]
         v_scaled_votes = [a/(b*cm) if b != 0 else None
                           for a, b in zip(m_votes[c], party_multipliers)]
-        v_priors = m_prior_allocations[c]
+        v_priors = m_allocations[c]
         alloc, _ = apportion1d(v_scaled_votes, num_total_seats,
                                  v_priors, divisor_gen)
         results.append(alloc)

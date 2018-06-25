@@ -20,6 +20,8 @@ from methods.monge import *
 from methods.relative_inferiority import *
 from methods.relative_superiority import *
 from methods.norwegian_law import *
+from methods.norwegian_icelandic import *
+from methods.opt_entropy import opt_entropy
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -113,10 +115,7 @@ class Election:
     """A single election."""
     def __init__(self, rules, votes=None):
         self.rules = rules
-        #self.m_votes = votes
         self.set_votes(votes)
-        self.order = []
-        self.log = []
 
     def entropy(self):
         return entropy(self.m_votes, self.results, self.gen)
@@ -138,7 +137,7 @@ class Election:
         # How many seats does each party get in each constituency:
         self.m_allocations = []
         # Which seats does each party get in each constituency:
-        self.m_seats = []
+        self.order = []
         # Determine total seats (const + adjustment) in each constituency:
         self.v_total_seats = [sum(x) for x in
                               zip(self.rules["constituency_seats"],
@@ -180,7 +179,7 @@ class Election:
         v_votes = self.v_votes_eliminated
         gen = self.rules.get_generator("adjustment_divider")
         v_priors = self.v_cur_allocations
-        v_seats, divs = apportion1d(v_votes, self.total_seats, v_priors, gen)
+        v_seats, _ = apportion1d(v_votes, self.total_seats, v_priors, gen)
         self.v_adjustment_seats = v_seats
         return v_seats
 
@@ -232,12 +231,12 @@ class Election:
         self.last = []
         for i in range(len(const)):
             num_seats = const[i]
-            rounds, seats = constituency_seat_allocation(m_votes[i], num_seats,
+            seats, min_used = constituency_seat_allocation(m_votes[i], num_seats,
                                                          gen)
             v_allocations = [seats.count(p) for p in range(len(parties))]
             m_allocations.append(v_allocations)
             self.order.append(seats)
-            self.last.append(rounds[-1]["votes"][rounds[-1]["winner"]])
+            self.last.append(min_used)
 
         # Useful:
         # print tabulate([[parties[x] for x in y] for y in self.order])
@@ -253,7 +252,9 @@ ADJUSTMENT_METHODS = {
     "relative-inferiority": relative_inferiority,
     "monge": monge,
     "icelandic-law": icelandic_apportionment,
-    "norwegian-law": norwegian_apportionment
+    "norwegian-law": norwegian_apportionment,
+    "norwegian-icelandic": norw_ice_apportionment,
+    "opt-entropy": opt_entropy
 }
 
 ADJUSTMENT_METHOD_NAMES = {
@@ -301,6 +302,9 @@ def get_presets():
     return pr
 
 def run_script(rules):
+    with open(rules, "r") as read_file:
+        rules = json.load(read_file)
+        
     if type(rules) != dict:
         return {"error": "Incorrect script format."}
 
@@ -324,6 +328,7 @@ def run_script(rules):
 
     else:
         return {"error": "Not implemented."}
+
 
 if __name__ == "__main__":
     pass

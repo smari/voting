@@ -11,7 +11,7 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats,
     num_allocated = sum([sum(x) for x in m_allocations])
     num_total_seats = sum(v_const_seats)
     for n in range(num_total_seats-num_allocated):
-        m_votes = threshold_elimination_constituencies(m_votes, 0.0, 
+        m_votes = threshold_elimination_constituencies(m_votes, 0.0,
                     v_party_seats, m_allocations)
         superiority = []
         first_in = []
@@ -44,7 +44,7 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats,
             try:
                 rs = float(div_next[2])/div_after[2]
             except ZeroDivisionError:
-                rs = 0
+                rs = 1000000
             superiority.append(rs)
 
         greatest = max(superiority)

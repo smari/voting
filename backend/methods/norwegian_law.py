@@ -11,7 +11,7 @@ def norwegian_apportionment(m_votes, v_const_seats, v_party_seats,
 	num_allocated = sum([sum(c) for c in m_allocations])
 	total_seats = sum(v_const_seats)
 
-	v_c_seats = [sum(m_allocations[i]) for i in range(len(v_const_seats))]
+	v_c_seats = [sum(c) for c in m_allocations]
 
 	for n in range(total_seats-num_allocated):
 		m_seat_props = []
@@ -29,7 +29,7 @@ def norwegian_apportionment(m_votes, v_const_seats, v_party_seats,
 
 			if sum(m_allocations[const]) == v_const_seats[const]:
 				m_seat_props[const] = [0]*len(m_votes[const])
-				maximums[const] = 0
+				maximums[const] = max(m_seat_props[const])
 
 		maximum = max(maximums)
 		c = maximums.index(maximum)

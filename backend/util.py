@@ -73,15 +73,109 @@ def load_votes(votefile, consts):
 
     return parties, votes
 
+def print_steps_election(rules, election):
+    print("Votes")
+    header = ["Constituency"]
+    header.extend(rules["parties"])
+    header.append("Total")
+    if "constituencies" in rules:
+        data = [[rules["constituencies"][c]["name"]]+election.m_votes[c]
+                +[sum(election.m_votes[c])]
+                for c in range(len(rules["constituencies"]))]
+    else:
+        data = [[rules["constituency_names"][c]]+election.m_votes[c]
+                +[sum(election.m_votes[c])]
+                for c in range(len(rules["constituency_names"]))]
+    totals = [sum([data[c][p] for c in range(len(data))]) 
+                for p in range(1,len(data[0]))]
+    data.append(["Total"]+totals)
+    print(tabulate.tabulate(data, header, rules["output"]))
+    print()
+    print("Vote shares")
+    shares = [["{:.1%}".format(data[c][p]/data[c][-1]) for p in range(1,len(data[c]))] for c in range(len(data))]
+    if "constituencies" in rules:
+        data = [[rules["constituencies"][c]["name"]]+shares[c]
+                for c in range(len(rules["constituencies"]))]
+    else:
+        data = [[rules["constituency_names"][c]]+shares[c]
+                for c in range(len(rules["constituency_names"]))]
+    print(tabulate.tabulate(data, header, rules["output"]))
+    print()
+    print("Constituency seats")
+    if "constituencies" in rules:
+        data = [[rules["constituencies"][c]["name"]]+election.m_allocations[c]
+                +[sum(election.m_allocations[c])]
+                for c in range(len(rules["constituencies"]))]
+    else:
+        data = [[rules["constituency_names"][c]]+election.m_allocations[c]
+                +[sum(election.m_allocations[c])]
+                for c in range(len(rules["constituency_names"]))]
+    totals = [sum([data[c][p] for c in range(len(data))]) 
+                for p in range(1,len(data[0]))]
+    data.append(["Total"]+totals)
+    print(tabulate.tabulate(data, header, rules["output"]))
+    print()
+    print("Threshold: ", "{:.1%}".format(rules["adjustment_threshold"]))
+    v_votes = [sum([c[p] for c in election.m_votes]) for p in range(len(election.m_votes[0]))]
+    v_votes.append(sum(v_votes))
+    data = [["Total votes"]+v_votes]
+    v_elim_votes = []
+    for v in election.v_votes_eliminated:
+        if v > 0:
+            v_elim_votes.append(v)
+        else:
+            v_elim_votes.append(None)
+    v_elim_votes.append(sum(election.v_votes_eliminated))
+    data.append(["Votes above threshold"]+v_elim_votes)
+    v_elim_shares = []
+    for v in v_elim_votes:
+        if v is not None:
+            v_elim_shares.append("{:.1%}".format(v/v_elim_votes[-1]))
+        else:
+            v_elim_shares.append(None)
+    data.append(["Vote shares above threshold"]+v_elim_shares)
+    v_const_seats = []
+    for a in election.v_cur_allocations:
+        if a > 0:
+            v_const_seats.append(a)
+        else:
+            v_const_seats.append(None)
+    v_const_seats.append(sum(election.v_cur_allocations))
+    data.append(["Constituency seats"]+v_const_seats)
+    print(tabulate.tabulate(data, header, rules["output"]))
+    print()
+    print("Adjustment seats")
+    adj_seats = [[election.results[i][j]-election.m_allocations[i][j] for j in range(len(election.results[i]))] for i in range(len(election.results))]
+    if "constituencies" in rules:
+        data = [[rules["constituencies"][c]["name"]]+adj_seats[c]
+                +[sum(adj_seats[c])]
+                for c in range(len(rules["constituencies"]))]
+    else:
+        data = [[rules["constituency_names"][c]]+adj_seats[c]
+                +[sum(adj_seats[c])]
+                for c in range(len(rules["constituency_names"]))]
+    totals = [sum([data[c][p] for c in range(len(data))]) 
+                for p in range(1,len(data[0]))]
+    data.append(["Total"]+totals)
+    print(tabulate.tabulate(data, header, rules["output"]))
+    print()
+    print("Total seats")
+
 def pretty_print_election(rules, election):
     header = ["Constituency"]
     header.extend(rules["parties"])
+    header.append("Total")
     if "constituencies" in rules:
         data = [[rules["constituencies"][c]["name"]]+election.results[c]
+                +[sum(election.results[c])]
                 for c in range(len(rules["constituencies"]))]
     else:
         data = [[rules["constituency_names"][c]]+election.results[c]
+                +[sum(election.results[c])]
                 for c in range(len(rules["constituency_names"]))]
+    totals = [sum([data[c][p] for c in range(len(data))]) 
+                for p in range(1,len(data[0]))]
+    data.append(["Total"]+totals)
     print(tabulate.tabulate(data, header, rules["output"]))
 
 

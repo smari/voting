@@ -13,7 +13,7 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
     num_allocated = sum([sum(x) for x in m_allocations])
     num_total_seats = sum(v_const_seats)
     for n in range(num_total_seats-num_allocated):
-        m_votes = threshold_elimination_constituencies(m_votes, 0.0, 
+        m_votes = threshold_elimination_constituencies(m_votes, 0.0,
                     v_party_seats, m_allocations)
         inferiority = []
         first_in = []
@@ -37,10 +37,10 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
 
             # Calculate relative inferiority
             try:
-                rs = float(last[j])/div[2]
+                ri = float(last[j])/div[2]
             except ZeroDivisionError:
-                rs = 10000000
-            inferiority.append(rs)
+                ri = 0
+            inferiority.append(ri)
 
         least = min(inferiority)
         idx = inferiority.index(least)
