@@ -1,4 +1,5 @@
 from apportion import apportion1d
+from copy import deepcopy
 
 
 def alternating_scaling(m_votes, v_const_seats, v_party_seats,
@@ -7,7 +8,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
     # Implementation of the Alternating-Scaling algorithm.
 
     Inputs:
-        - m_votes_orig: A matrix of votes (rows: constituencies, columns:
+        - m_votes: A matrix of votes (rows: constituencies, columns:
           parties)
         - v_const_seats: A vector of constituency seats
         - v_party_seats: A vector of seats allocated to parties
@@ -16,6 +17,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         - divisor_gen: A generator function generating divisors, e.g. d'Hondt
         - threshold: A cutoff threshold for participation.
     """
+    m_allocations = deepcopy(m_prior_allocations)
 
     def const_step(v_votes, const_id, v_const_multipliers, v_party_multipliers):
         num_total_seats = v_const_seats[const_id]
@@ -24,9 +26,9 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         v_scaled_votes = [a/(b*cm) if b*cm != 0 else 0
                           for a, b in zip(v_votes, v_party_multipliers)]
 
-        v_priors = m_prior_allocations[const_id]
+        v_priors = m_allocations[const_id]
 
-        alloc, div = apportion1d(v_scaled_votes, num_total_seats,
+        _, div = apportion1d(v_scaled_votes, num_total_seats,
                                  v_priors, divisor_gen)
 
         # See IV.3.9 in paper:
@@ -44,7 +46,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         #print " - Max: ", maxval
         #print " - New const multiplier: ", const_multiplier
         #print " - Allocations: ", alloc
-        return alloc, const_multiplier
+        return const_multiplier
 
     def party_step(v_votes, party_id, v_const_multipliers, v_party_multipliers):
         num_total_seats = v_party_seats[party_id]
@@ -53,10 +55,10 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         v_scaled_votes = [a/(b*pm) if b != 0 else None
                           for a, b in zip(v_votes, v_const_multipliers)]
 
-        v_priors = [m_prior_allocations[x][party_id]
-                    for x in range(len(m_prior_allocations))]
+        v_priors = [m_allocations[x][party_id]
+                    for x in range(len(m_allocations))]
 
-        alloc, div = apportion1d(v_scaled_votes, num_total_seats, v_priors,
+        _, div = apportion1d(v_scaled_votes, num_total_seats, v_priors,
                                  divisor_gen)
 
         minval = div[2]
@@ -73,7 +75,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         #print " - New const multiplier: ", party_multiplier
         #print " - Allocations: ", alloc
 
-        return alloc, party_multiplier
+        return party_multiplier
 
     num_constituencies = len(m_votes)
     num_parties = len(m_votes[0])
@@ -89,7 +91,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
             #Constituency step:
             muls = []
             for c in range(num_constituencies):
-                alloc, mul = const_step(m_votes[c], c, const_multipliers,
+                mul = const_step(m_votes[c], c, const_multipliers,
                                         party_multipliers)
                 const_multipliers[c] *= mul
                 muls.append(mul)
@@ -99,7 +101,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
             muls = []
             for p in range(num_parties):
                 vp = [v[p] for v in m_votes]
-                alloc, mul = party_step(vp, p, const_multipliers, party_multipliers)
+                mul = party_step(vp, p, const_multipliers, party_multipliers)
                 party_multipliers[p] *= mul
                 muls.append(mul)
             party_done = all([round(x, 5) == 1.0 or x == 500000 for x in muls])
@@ -115,8 +117,8 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         cm = const_multipliers[c]
         v_scaled_votes = [a/(b*cm) if b != 0 else None
                           for a, b in zip(m_votes[c], party_multipliers)]
-        v_priors = m_prior_allocations[c]
-        alloc, div = apportion1d(v_scaled_votes, num_total_seats,
+        v_priors = m_allocations[c]
+        alloc, _ = apportion1d(v_scaled_votes, num_total_seats,
                                  v_priors, divisor_gen)
         results.append(alloc)
 

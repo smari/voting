@@ -1,7 +1,7 @@
 from copy import copy
 
 
-def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
+def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen, invalid=[]):
     """
     Perform a one-dimensional apportionment of seats.
     Inputs:
@@ -9,6 +9,8 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
         - num_total_seats: Total number of seats to allocate.
         - prior_allocations: Prior allocations to each party.
         - divisor_gen: A divisor generator function, e.g. Sainte-Lague.
+        - invalid: A list of parties that cannot be allocated more seats.
+            (Added for Icelandic law adjustment seat apportionment.)
     Outputs:
         - allocations vector
         - a tuple containing current divisors, divisor generators, and the
@@ -24,9 +26,9 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
 
     allocations = copy(prior_allocations)
 
-    num_preallocated_seats = sum(prior_allocations)
+    num_allocated = sum(prior_allocations)
     min_used = 1000000
-    for j in range(num_total_seats-num_preallocated_seats):
+    while num_allocated < num_total_seats:
         divided_votes = [float(v_votes[i])/divisors[i]
                          if v_votes[i] is not None else None
                          for i in range(N)]
@@ -34,7 +36,9 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
         min_used = maxvote
         maxparty = divided_votes.index(maxvote)
         divisors[maxparty] = next(divisor_gens[maxparty])
-        allocations[maxparty] += 1
+        if maxparty not in invalid:
+            allocations[maxparty] += 1
+            num_allocated += 1
 
     return allocations, (divisors, divisor_gens, min_used)
 
@@ -42,7 +46,8 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen):
 def constituency_seat_allocation(v_votes, num_seats, gen):
     """Do primary seat allocation for one constituency"""
     # FIXME: This should use apportion1d() instead
-    rounds = []
+    #rounds = []
+    min_used = 0
     seats = []
     alloc_votes = copy(v_votes)
     gens = [gen() for x in range(len(v_votes))]
@@ -51,19 +56,19 @@ def constituency_seat_allocation(v_votes, num_seats, gen):
     for i in range(num_seats):
         maxval = max(alloc_votes)
         idx = alloc_votes.index(maxval)
-        res = {
-            "maxval": maxval,
-            "votes": alloc_votes,
-            "winner": idx,
-            "divisor": divisors[idx]
-        }
+        #res = {
+        #    "maxval": maxval,
+        #    "votes": alloc_votes,
+        #    "winner": idx,
+        #    "divisor": divisors[idx]
+        #}
         seats.append(idx)
-        rounds.append(res)
+        #rounds.append(res)
+        min_used = maxval
         divisors[idx] = next(gens[idx])
         alloc_votes[idx] = v_votes[idx] / divisors[idx]
 
-    return rounds, seats
-
+    return seats, min_used
 
 def threshold_elimination_constituencies(votes, threshold, party_seats=None, priors=None):
     """
