@@ -17,7 +17,7 @@ def random_id(length=8):
 
 def read_csv(filename):
     with io.open(filename, mode="r", newline='', encoding='utf-8') as f:
-        for row in csv.reader(f):
+        for row in csv.reader(f, skipinitialspace=True):
             yield [cell for cell in row]
 
 def read_xlsx(filename):
@@ -35,8 +35,8 @@ def load_constituencies(confile):
     cons = []
     for row in reader:
         try:
-            assert(sum([int(x) for x in row[1:3]]) > 0)
-        except:
+            assert(sum([int(x.strip()) for x in row[1:3]]) >= 0)
+        except Exception as e:
             print(row[1:3])
             raise Exception("Error loading constituency file: "
                             "constituency seats and adjustment seats "
