@@ -69,7 +69,7 @@ The `simulate` command takes several flags, including:
  * *test_method*: the method to be tested.
  * *num_sim*: number of simulations to run.
  * *gen_method*: a supported method to generate votes.
- 
+
  Example using the 2013 elections in Iceland:
 ```
 python cli.py simulate \
@@ -125,6 +125,8 @@ The SPA is currently being refactored using [create-react-app](https://github.co
 * [x] Read vote data files
 * [x] Basic click UI
 * [x] Per ruleset click UI options
+* [x] Simulation click UI options
+* [x] Web server
 
 ### Apportionment methods
 
@@ -161,17 +163,36 @@ The SPA is currently being refactored using [create-react-app](https://github.co
  * [ ] _Monotonicity violation_: A party list losing a seat by receiving an additional vote
  * [ ] _Significant irrelevant alternative_: A new vote having side effects without without affecting the number of seats won by the party list voted for.
 
+### Output formats
+
+- [x] Simple text result table (Total seats) output
+- [x] HTML, LaTeX, CSV, result table (Total seats) output
+- [x] Excel file detailed result output
+  - [x] Votes
+  - [x] Vote shares
+  - [x] Constituency seats
+  - [x] Adjustment seats
+  - [x] Total seats
+  - [ ] Evaluation metrics
+
 ### Web interface
 
  * [x] Simple web server
- * [x] Javascript SPA
+ * [ ] Javascript SPA
+    * [x] Configurable running of single elections
+    * [ ] Configurable running of simulations
+    * [ ] Display results
+       * [x] Votes
+       * [ ] Vote shares
+       * [ ] Constituency seats
+       * [ ] Adjustment seats
+       * [x] Total seats
+       * [ ] Evaluation metrics
+    * [ ] Visualizations
+       * [ ] "Election TV" result animations
+      * [ ] Simulation errors
+      * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
  * [x] Configurable host/port/etc
-
-### Visualization
-
- * [ ] "Election TV" result animations
- * [ ] Simulation errors
-   * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
 
 ### Tickets
 
@@ -190,4 +211,4 @@ Bjartur Thorlacius.
 Released under the terms of the Affero GNU General Public License version 3.
 
 
- [1]: https://hal.archives-ouvertes.fr/hal-00686748/document
+[1]: https://hal.archives-ouvertes.fr/hal-00686748/document
