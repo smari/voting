@@ -7,6 +7,9 @@ import tabulate
 import io
 import xlsxwriter
 import openpyxl
+from copy import deepcopy, copy
+
+from methods import icelandic_law
 
 
 def random_id(length=8):
@@ -144,6 +147,13 @@ def print_steps_election(rules, election):
     data.append(["Constituency seats"]+v_const_seats)
     print(tabulate.tabulate(data, header, rules["output"]))
     print()
+    """
+    print("Adjustment seat apportionment")
+    method = ADJUSTMENT_METHODS[rules["adjustment_method"]]
+    h, data = method.print_seats(rules, election)
+    print(tabulate.tabulate(data, h, rules["output"]))
+    print()
+    """
     print("Adjustment seats")
     adj_seats = [[election.results[i][j]-election.m_allocations[i][j] for j in range(len(election.results[i]))] for i in range(len(election.results))]
     if "constituencies" in rules:
@@ -210,3 +220,137 @@ def write_to_xlsx(election, filename):
         worksheet.write(i, j, votes[i-1][j-1])
   
     workbook.close()
+
+def election_to_xlsx(election, filename):
+    const_names = copy(election.rules["constituency_names"]) + ["Total"]
+    parties = copy(election.rules["parties"]) + ["Total"]
+    votes = deepcopy(election.m_votes) + [[]]
+    const_seats = deepcopy(election.m_allocations) + [[]]
+    total_seats = deepcopy(election.results) + [[]]
+    for i in range(len(votes)-1):
+        votes[i].append(sum(votes[i]))
+        const_seats[i].append(sum(const_seats[i]))
+        total_seats[i].append(sum(total_seats[i]))
+    for j in range(len(votes[0])):
+        p_votes = [c[j] for c in votes[:-1]]
+        votes[-1].append(sum(p_votes))
+        p_const_seats = [c[j] for c in const_seats[:-1]]
+        const_seats[-1].append(sum(p_const_seats))
+        p_total_seats = [c[j] for c in total_seats[:-1]]
+        total_seats[-1].append(sum(p_total_seats))
+    adj_seats = [[total_seats[i][j]-const_seats[i][j] for j in range(len(total_seats[i]))] for i in range(len(total_seats))]
+    workbook = xlsxwriter.Workbook(filename)
+    worksheet = workbook.add_worksheet()
+    worksheet.write('C5', 'Votes')
+    worksheet.write('B6', 'Constituency')
+    for i in range(len(parties)):
+        worksheet.write(5, i+2, parties[i])
+    r = 5
+    for i in range(len(votes)):
+        r += 1
+        worksheet.write(r, 1, const_names[i])
+        for j in range(len(votes[i])):
+            worksheet.write(r, j+2, votes[i][j])
+    r += 2
+    worksheet.write(r, 2, 'Vote shares')
+    r += 1
+    worksheet.write(r, 1, 'Constituency')
+    for i in range(len(parties)):
+        worksheet.write(r, i+2, parties[i])
+    for i in range(len(votes)):
+        r += 1
+        worksheet.write(r, 1, const_names[i])
+        for j in range(len(votes[i])):
+            share = "{:.1%}".format(votes[i][j]/sum(votes[i][:-1]))
+            worksheet.write(r, j+2, share)
+    r += 2
+    worksheet.write(r, 2, 'Constituency seats')
+    r += 1
+    worksheet.write(r, 1, 'Constituency')
+    for i in range(len(parties)):
+        worksheet.write(r, i+2, parties[i])
+    for i in range(len(const_seats)):
+        r += 1
+        worksheet.write(r, 1, const_names[i])
+        for j in range(len(const_seats[i])):
+            if const_seats[i][j] != 0:
+                worksheet.write(r, j+2, const_seats[i][j])
+    r += 2
+    worksheet.write(r, 2, 'Adjustment seat apportionment')
+    worksheet.write(r, 7, 'Threshold:')
+    worksheet.write(r, 8, "{:.1%}".format(election.rules["adjustment_threshold"]))
+    r += 1
+    v_votes = copy(election.v_votes)
+    v_votes.append(sum(v_votes))
+    v_elim_votes = copy(election.v_votes_eliminated)
+    v_elim_votes.append(sum(v_elim_votes))
+    worksheet.write(r, 1, 'Party')
+    for i in range(len(parties)):
+        worksheet.write(r, i+2, parties[i])
+    r += 1
+    worksheet.write(r, 1, 'Total votes')
+    for i in range(len(v_votes)):
+        worksheet.write(r, i+2, v_votes[i])
+    r += 1
+    worksheet.write(r, 1, 'Votes above threshold')
+    for i in range(len(v_elim_votes)):
+        if v_elim_votes[i] != 0:
+            worksheet.write(r, i+2, v_elim_votes[i])
+    r += 1
+    worksheet.write(r, 1, 'Vote shares above threshold')
+    for i in range(len(v_elim_votes)):
+        if v_elim_votes[i] != 0:
+            share = "{:.1%}".format(v_elim_votes[i]/sum(v_elim_votes[:-1]))
+            worksheet.write(r, i+2, share)
+    r += 1
+    v_elim_seats = []
+    for i in range(len(v_elim_votes)-1):
+        if v_elim_votes[i] != 0:
+            v_elim_seats.append(election.v_cur_allocations[i])
+        else:
+            v_elim_seats.append(0)
+    v_elim_seats.append(sum(v_elim_seats))
+    worksheet.write(r, 1, 'Constituency seats')
+    for i in range(len(v_elim_seats)):
+        if v_elim_seats[i] != 0:
+            worksheet.write(r, i+2, v_elim_seats[i])
+    r += 2
+    worksheet.write(r, 2, 'Adjustment seats')
+    r += 1
+    worksheet.write(r, 1, 'Constituency')
+    for i in range(len(parties)):
+        worksheet.write(r, i+2, parties[i])
+    for i in range(len(adj_seats)):
+        r += 1
+        worksheet.write(r, 1, const_names[i])
+        for j in range(len(adj_seats[i])):
+            if adj_seats[i][j] != 0:
+                worksheet.write(r, j+2, adj_seats[i][j])
+    r += 2
+    worksheet.write(r, 2, 'Total seats')
+    r += 1
+    worksheet.write(r, 1, 'Constituency')
+    for i in range(len(parties)):
+        worksheet.write(r, i+2, parties[i])
+    for i in range(len(total_seats)):
+        r += 1
+        worksheet.write(r, 1, const_names[i])
+        for j in range(len(total_seats[i])):
+            if total_seats[i][j] != 0:
+                worksheet.write(r, j+2, total_seats[i][j])
+    r += 2
+    worksheet.write(r, 1, 'Entropy:')
+    worksheet.write(r, 2, election.entropy())
+
+    workbook.close()
+
+ADJUSTMENT_METHODS = {
+    #"alternating-scaling": alternating_scaling,
+    #"relative-superiority": relative_superiority,
+    #"relative-inferiority": relative_inferiority,
+    #"monge": monge,
+    "icelandic-law": icelandic_law,
+    #"norwegian-law": norwegian_law,
+    #"norwegian-icelandic": norwegian_icelandic,
+    #"opt-entropy": opt_entropy
+}
