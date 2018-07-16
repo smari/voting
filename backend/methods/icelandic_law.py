@@ -20,7 +20,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     num_allocated = sum(v_seats)
     total_seats = sum(v_const_seats)
 
-
     # 2.2. Create list of 2 top seats on each remaining list that almost got in.
     #       (Taka skal saman skrá um þau tvö sæti hvers framboðslista sem næst
     #        komust því að fá úthlutun í kjördæmi skv. 107. gr. Við hvert
@@ -33,8 +32,9 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     #        úthlutun allra jöfnunarsæta, sbr. 2. mgr. 8. gr.)
     invalid = []
     v_last_alloc = deepcopy(v_seats)
+    seats_info = []
     while num_allocated < total_seats:
-        alloc, _ = apportion1d(v_votes, num_allocated+1, v_last_alloc, divisor_gen, invalid)
+        alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc, divisor_gen, invalid)
         # 2.6.
         #       (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #        skal jafnframt fella niður allar landstölur þeirra.)
@@ -85,6 +85,20 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
             m_allocations[const[0]][idx] += 1
             num_allocated += 1
             v_last_alloc = alloc
+            seats_info.append((const[0], d[2], idx,
+                                m_proportions[const[0]][idx]))
         else: 
             invalid.append(idx)
-    return m_allocations
+    return m_allocations, seats_info
+
+
+def print_seats(rules, adj_seats_info):
+    header = ["Adjustment seat number", "Constituency", "Country number",
+                "Party", "List share"]
+    data = []
+    for i in range(len(adj_seats_info)):
+        data.append([i+1, rules["constituencies"][adj_seats_info[i][0]]["name"],
+                    adj_seats_info[i][1], rules["parties"][adj_seats_info[i][2]],
+                    "{:.3%}".format(adj_seats_info[i][3])])
+
+    return header, data

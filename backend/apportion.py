@@ -42,11 +42,10 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen, invali
 
     return allocations, (divisors, divisor_gens, min_used)
 
-
+"""
 def constituency_seat_allocation(v_votes, num_seats, gen):
-    """Do primary seat allocation for one constituency"""
+    Do primary seat allocation for one constituency
     # FIXME: This should use apportion1d() instead
-    #rounds = []
     min_used = 0
     seats = []
     alloc_votes = copy(v_votes)
@@ -56,19 +55,13 @@ def constituency_seat_allocation(v_votes, num_seats, gen):
     for i in range(num_seats):
         maxval = max(alloc_votes)
         idx = alloc_votes.index(maxval)
-        #res = {
-        #    "maxval": maxval,
-        #    "votes": alloc_votes,
-        #    "winner": idx,
-        #    "divisor": divisors[idx]
-        #}
         seats.append(idx)
-        #rounds.append(res)
         min_used = maxval
         divisors[idx] = next(gens[idx])
         alloc_votes[idx] = v_votes[idx] / divisors[idx]
 
     return seats, min_used
+"""
 
 def threshold_elimination_constituencies(votes, threshold, party_seats=None, priors=None):
     """

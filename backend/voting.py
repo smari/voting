@@ -7,13 +7,14 @@ import json
 from copy import copy
 from tabulate import tabulate
 from util import load_votes, load_constituencies, entropy
-from apportion import apportion1d, constituency_seat_allocation, \
-    threshold_elimination_totals, threshold_elimination_constituencies
+from apportion import apportion1d, threshold_elimination_totals, \
+    threshold_elimination_constituencies
 from rules import Rules
-from simulate import SimulationRules # TODO: This belongs elsewhere.
+from simulate import SimulationRules, run_script_simulation # TODO: This belongs elsewhere.
 from methods import *
 import io
 
+from methods.var_alt_scal import *
 from methods.alternating_scaling import *
 from methods.icelandic_law import *
 from methods.monge import *
@@ -125,6 +126,8 @@ class Election:
         assert(all([len(x) == len(self.rules["parties"])
                     for x in votes]))
         self.m_votes = votes
+        self.v_votes = [sum([votes[i][j] for i in range(len(votes))])
+                        for j in range(len(votes[0]))]
 
     def get_results_dict(self):
         return {
@@ -134,8 +137,8 @@ class Election:
 
     def run(self):
         """Run an election based on current rules and votes."""
-        # How many seats does each party get in each constituency:
-        self.m_allocations = []
+        # How many constituency seats does each party get in each constituency:
+        self.const_seats_alloc = []
         # Which seats does each party get in each constituency:
         self.order = []
         # Determine total seats (const + adjustment) in each constituency:
@@ -157,7 +160,7 @@ class Election:
         if self.rules["debug"]:
             print(" + Primary apportionment")
         m_allocations, v_seatcount = self.primary_apportionment(self.m_votes)
-        self.m_allocations = m_allocations
+        self.const_seats_alloc = m_allocations
         self.v_cur_allocations = v_seatcount
 
     def run_threshold_elimination(self):
@@ -193,16 +196,26 @@ class Election:
             results = method(self.m_votes_eliminated,
                 self.v_total_seats,
                 self.v_adjustment_seats,
-                self.m_allocations,
+                self.const_seats_alloc,
                 gen,
                 self.last,
                 self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes)
         else:
-            results = method(self.m_votes_eliminated,
+            try:
+                results, asi = method(self.m_votes_eliminated,
+                    self.v_total_seats,
+                    self.v_adjustment_seats,
+                    self.const_seats_alloc,
+                    gen,
+                    self.rules["adjustment_threshold"],
+                    orig_votes=self.m_votes)
+                self.adj_seats_info = asi
+            except ValueError:
+                results = method(self.m_votes_eliminated,
                 self.v_total_seats,
                 self.v_adjustment_seats,
-                self.m_allocations,
+                self.const_seats_alloc,
                 gen,
                 self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes)
@@ -231,12 +244,12 @@ class Election:
         self.last = []
         for i in range(len(const)):
             num_seats = const[i]
-            seats, min_used = constituency_seat_allocation(m_votes[i], num_seats,
-                                                         gen)
-            v_allocations = [seats.count(p) for p in range(len(parties))]
-            m_allocations.append(v_allocations)
-            self.order.append(seats)
-            self.last.append(min_used)
+            alloc, div = apportion1d(m_votes[i], num_seats, [0]*len(parties),
+                                        gen)
+            # v_allocations = [seats.count(p) for p in range(len(parties))]
+            m_allocations.append(alloc)
+            # self.order.append(seats)
+            self.last.append(div[2])
 
         # Useful:
         # print tabulate([[parties[x] for x in y] for y in self.order])
@@ -247,6 +260,7 @@ class Election:
 
 
 ADJUSTMENT_METHODS = {
+    "var-alt-scal": var_alt_scal,
     "alternating-scaling": alternating_scaling,
     "relative-superiority": relative_superiority,
     "relative-inferiority": relative_inferiority,
@@ -312,23 +326,26 @@ def run_script(rules):
         return {"error": "Script action must be election or simulation."}
 
     if rules["action"] == "election":
-        rs = ElectionRules()
-        if "election_rules" not in rules:
-            return {"error": "No election rules supplied."}
-
-        rs.update(rules["election_rules"])
-
-        if not "votes" in rs:
-            return {"error": "No votes supplied"}
-
-        election = Election(rs, rs["votes"])
-        election.run()
-
-        return election
+        return run_script_election(rules)
 
     else:
-        return {"error": "Not implemented."}
+        return run_script_simulation(rules)
 
+
+def run_script_election(rules):
+    rs = ElectionRules()
+    if "election_rules" not in rules:
+        return {"error": "No election rules supplied."}
+
+    rs.update(rules["election_rules"])
+
+    if not "votes" in rs:
+        return {"error": "No votes supplied"}
+
+    election = Election(rs, rs["votes"])
+    election.run()
+
+    return election
 
 if __name__ == "__main__":
     pass

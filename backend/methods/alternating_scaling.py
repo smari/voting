@@ -10,7 +10,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
     Inputs:
         - m_votes: A matrix of votes (rows: constituencies, columns:
           parties)
-        - v_const_seats: A vector of constituency seats
+        - v_const_seats: A vector of total seats in each constituency
         - v_party_seats: A vector of seats allocated to parties
         - m_prior_allocations: A matrix of where parties have previously gotten
           seats
@@ -52,7 +52,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
         num_total_seats = v_party_seats[party_id]
         pm = party_multiplier = v_party_multipliers[party_id]
         #
-        v_scaled_votes = [a/(b*pm) if b != 0 else None
+        v_scaled_votes = [a/(b*pm) if b != 0 else 0
                           for a, b in zip(v_votes, v_const_multipliers)]
 
         v_priors = [m_allocations[x][party_id]
@@ -115,7 +115,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
     for c in range(num_constituencies):
         num_total_seats = v_const_seats[c]
         cm = const_multipliers[c]
-        v_scaled_votes = [a/(b*cm) if b != 0 else None
+        v_scaled_votes = [a/(b*cm) if b*cm != 0 else None
                           for a, b in zip(m_votes[c], party_multipliers)]
         v_priors = m_allocations[c]
         alloc, _ = apportion1d(v_scaled_votes, num_total_seats,
