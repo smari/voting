@@ -1,8 +1,8 @@
 # from voting import Election, SIMULATION_VARIATES
 from rules import Rules
 from math import sqrt
-from random import betavariate
-from copy import copy
+from random import betavariate, uniform
+from copy import copy, deepcopy
 
 import voting
 import io
@@ -29,7 +29,6 @@ def beta_distribution(m_ref_votes, var_param):
     for i in range(len(m_ref_votes)):
         s = 0
         m_votes.append([])
-        m_shares.append([])
         for j in range(len(m_ref_votes[i])):
             mean_beta_distr = m_ref_votes[i][j]/ref_totals[i]
             if mean_beta_distr > 0:
@@ -38,8 +37,9 @@ def beta_distribution(m_ref_votes, var_param):
                 share = betavariate(alpha, beta)
             else:
                 share = 0
-            m_shares[i].append(share)
             m_votes[i].append(int(share*ref_totals[i]))
+        shares = [v/sum(m_votes[i]) for v in m_votes[i]]
+        m_shares.append(shares)
 
     return m_votes, m_shares
 
@@ -75,6 +75,54 @@ def dev(results, ref):
             d += abs(results[i][j] - ref[i][j])
     return d
 
+def add_totals(m):
+    nm = deepcopy(m)
+    for i in range(len(m)):
+        nm[i].append(sum(m[i]))
+    totals = [sum([nm[i][j] for i in range(len(nm))]) for j in range(len(nm[0]))]
+    nm.append(totals)
+    return nm
+
+def votes_to_change(election):
+    ref_results = election.results
+    ref_votes = election.m_votes
+    votes_to_change = []
+    votes = deepcopy(ref_votes)
+    for c in range(len(ref_results)):
+        votes_to_change.append([])
+        for p in range(len(ref_results[c])):
+            if ref_votes[c][p] == 0:
+                votes_to_change[c].append(None)
+                continue
+            a = 0
+            b = int(0.1*votes[c][p])
+            d = 0
+            while d == 0:
+                votes[c][p] = ref_votes[c][p]+b
+                election = voting.Election(election.rules, votes)
+                results = election.run()
+                d = dev(results, ref_results)
+                if d == 0:
+                    a = copy(b)
+                    b = int(sqrt(2)*b)
+            m = b-a
+            x = 0
+            while m > 1:
+                x = int(m*sqrt(0.5) + a)
+                votes[c][p] = ref_votes[c][p]+x
+                election = voting.Election(election.rules, votes)
+                results = election.run()
+                d = dev(results, ref_results)
+                if d == 0:
+                    a = copy(x)
+                else:
+                    b = copy(x)
+                m = b-a
+            votes_to_change[c].append(b)
+            votes[c][p] = ref_votes[c][p]
+
+    return votes_to_change
+
 
 class SimulationRules(Rules):
     def __init__(self):
@@ -82,19 +130,18 @@ class SimulationRules(Rules):
         # Simulation rules
         self["simulate"] = False
         self["simulation_count"] = 10000
-        self["simulation_variate"] = "beta"
+        self["gen_method"] = "beta"
 
 
 class Simulation:
     """Simulate a set of elections."""
-    def __init__(self, rules, election, var_param):
+    def __init__(self, rules, election, var_param=0.1):
         self.rules = rules
-        self.ref_votes = election.m_votes
-        self.ref_shares = [[v/sum(c) for v in c] for c in self.ref_votes]
-        self.variate = self.rules["simulation_variate"]
+        self.ref_votes = add_totals(election.m_votes)
+        self.ref_shares = [[v/c[-1] for v in c] for c in self.ref_votes]
+        self.variate = self.rules["gen_method"]
         self.election = election
         self.var_param = var_param
-        self.results = []
 
     def gen_votes(self):
         """
@@ -102,151 +149,294 @@ class Simulation:
         method.
         """
         self.simul_votes = []
+        self.sq_simul_votes = []
         self.simul_shares = []
+        self.sq_simul_shares = []
+        for i in range(len(self.ref_votes)):
+            self.simul_votes.append([0]*len(self.ref_votes[0]))
+            self.sq_simul_votes.append([0]*len(self.ref_votes[0]))
+            self.simul_shares.append([0]*len(self.ref_votes[0]))
+            self.sq_simul_shares.append([0]*len(self.ref_votes[0]))
         gen = GENERATING_METHODS[self.variate]
         while True:
-            votes, shares = next(gen(self.ref_votes, self.var_param))
-            self.simul_votes.append(votes)
-            self.simul_shares.append(shares)
+            votes, shares = next(gen(self.election.m_votes, self.var_param))
+            for i in range(len(votes)):
+                for j in range(len(votes[i])):
+                    self.simul_votes[i][j] += votes[i][j]
+                    self.sq_simul_votes[i][j] += votes[i][j]**2
+                    self.simul_shares[i][j] += shares[i][j]
+                    self.sq_simul_shares[i][j] += shares[i][j]**2
+                self.simul_votes[i][-1] += sum(votes[i])
+                self.sq_simul_votes[i][-1] += sum(votes[i])**2
+                self.simul_shares[i][-1] += sum(shares[i])
+                self.sq_simul_shares[i][-1] += sum(shares[i])**2
+            total_votes = [sum([c[p] for c in votes]) for p in range(len(votes[0]))]
+            total_votes.append(sum(total_votes))
+            total_shares = [t/total_votes[-1] for t in total_votes]
+            for i in range(len(total_votes)):
+                self.simul_votes[-1][i] += total_votes[i]
+                self.sq_simul_votes[-1][i] += total_votes[i]**2
+                self.simul_shares[-1][i] += total_shares[i]
+                self.sq_simul_shares[-1][i] += total_shares[i]**2
             yield votes, shares
 
     def test_generated(self):
         """Analysis of generated votes."""
+        n = self.rules["simulation_count"]
+        self.avg_simul_votes = [[v/n for v in c] for c in self.simul_votes]
+        self.avg_simul_shares = [[s/n for s in c] for c in self.simul_shares]
+        avg_simul_votes = []
         avg_simul_shares = []
+        var_simul_votes = []
         var_simul_shares = []
         var_beta_distr = []
 
-        for i in range(len(self.simul_shares[0])):
-            avg_simul_shares.append([])
+        for i in range(len(self.ref_votes)):
+            var_simul_votes.append([])
             var_simul_shares.append([])
             var_beta_distr.append([])
-            for j in range(len(self.simul_shares[0][i])):
-                shares_ij = [self.simul_shares[k][i][j] 
-                            for k in range(self.rules["simulation_count"])]
-                average = avg(shares_ij)
-                variance = var(shares_ij, average)
-                avg_simul_shares[i].append(average)
-                var_simul_shares[i].append(variance)
+            for j in range(len(self.ref_votes[i])):
+                variance_votes = (self.sq_simul_votes[i][j]
+                                    -self.simul_votes[i][j]**2/n) / (n-1)
+                variance_shares = (self.sq_simul_shares[i][j]
+                                    -self.simul_shares[i][j]**2/n) / (n-1)
+                var_simul_votes[i].append(variance_votes)
+                var_simul_shares[i].append(variance_shares)
 
                 var_beta_distr[i].append(self.var_param
                                         *self.ref_shares[i][j]
                                         *(self.ref_shares[i][j]-1))
 
-
-        self.avg_simul_shares = avg_simul_shares
+        self.var_simul_votes = var_simul_votes
         self.var_simul_shares = var_simul_shares
-        self.error_avg_simul_shares = error(avg_simul_shares, self.ref_shares)
+        self.error_avg_simul_shares = error(self.avg_simul_shares,
+                                            self.ref_shares)
         self.error_var_simul_shares = error(var_simul_shares, var_beta_distr)
 
 
-    def method_analysis(self, ref_rules):
+    def method_analysis(self, ref_rules, votes, results, entropy):
         """Various tests to determine the quality of the given method."""
-        n = self.rules["simulation_count"]
         opt_rules = ref_rules["opt"]
+        law_rules = ref_rules["law"]
         ind_const_rules = ref_rules["ind_const"]
         one_country_rules = ref_rules["one_country"]
         tot_eq_one_country_rules = ref_rules["tot_eq_one_country"]
-        self.entropy_ratio = []
-        self.dev_opt = []
-        self.dev_ind_const = []
-        self.dev_one_country = []
-        self.dev_tot_eq_one_country = []
-        for i in range(n):
-            votes = self.simul_votes[i]
-            results = self.results[i]
-            entropy = self.entropy[i]
-            opt_election = voting.Election(opt_rules, votes)
-            opt_results = opt_election.run()
-            opt_entropy = opt_election.entropy()
-            entropy_ratio = entropy/opt_entropy
-            self.entropy_ratio.append(entropy_ratio)
-            dev_opt = dev(results, opt_results)
-            self.dev_opt.append(dev_opt)
-            ind_const_election = voting.Election(ind_const_rules, votes)
-            ind_const_results = ind_const_election.run()
-            dev_ind_const = dev(results, ind_const_results)
-            self.dev_ind_const.append(dev_ind_const)
-            v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
-            one_country_election = voting.Election(one_country_rules, v_votes)
-            one_country_results = one_country_election.run()
-            v_results = [[sum([c[p] for c in results]) for p in range(len(results[0]))]]
-            dev_one_country = dev(v_results, one_country_results)
-            self.dev_one_country.append(dev_one_country)
-            tot_eq_one_country_election = voting.Election(tot_eq_one_country_rules, v_votes)
-            tot_eq_one_country_results = tot_eq_one_country_election.run()
-            dev_tot_eq_one_country = dev(v_results, tot_eq_one_country_results)
-            self.dev_tot_eq_one_country.append(dev_tot_eq_one_country)
+        opt_election = voting.Election(opt_rules, votes)
+        opt_results = opt_election.run()
+        opt_entropy = opt_election.entropy()
+        entropy_ratio = entropy/opt_entropy
+        self.entropy_ratio += entropy_ratio
+        self.sq_entropy_ratio += entropy_ratio**2
+        dev_opt = dev(results, opt_results)
+        self.dev_opt += dev_opt
+        self.sq_dev_opt += dev_opt**2
+        law_election = voting.Election(law_rules, votes)
+        law_results = law_election.run()
+        dev_law = dev(results, law_results)
+        self.dev_law += dev_law
+        self.sq_dev_law += dev_law**2
+        ind_const_election = voting.Election(ind_const_rules, votes)
+        ind_const_results = ind_const_election.run()
+        dev_ind_const = dev(results, ind_const_results)
+        self.dev_ind_const += dev_ind_const
+        self.sq_dev_ind_const += dev_ind_const**2
+        v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
+        one_country_election = voting.Election(one_country_rules, v_votes)
+        one_country_results = one_country_election.run()
+        v_results = [[sum([c[p] for c in results]) for p in range(len(results[0]))]]
+        dev_one_country = dev(v_results, one_country_results)
+        self.dev_one_country += dev_one_country
+        self.sq_dev_one_country += dev_one_country**2
+        tot_eq_one_country_election = voting.Election(tot_eq_one_country_rules, v_votes)
+        tot_eq_one_country_results = tot_eq_one_country_election.run()
+        dev_tot_eq_one_country = dev(v_results, tot_eq_one_country_results)
+        self.dev_tot_eq_one_country += dev_tot_eq_one_country
+        self.sq_dev_tot_eq_one_country += dev_tot_eq_one_country**2
 
-        self.avg_entropy = avg(self.entropy)
-        self.avg_entropy_ratio = avg(self.entropy_ratio)
-        self.avg_dev_opt = avg(self.dev_opt)
-        self.avg_dev_ind_const = avg(self.dev_ind_const)
-        self.avg_dev_one_country = avg(self.dev_one_country)
-        self.avg_dev_tot_eq_one_country = avg(self.dev_tot_eq_one_country)
-        print("Average entropy:")
-        print(self.avg_entropy)
-        print("Average entropy ratio:")
-        print(self.avg_entropy_ratio)
-        print("Average dev_opt:")
-        print(self.avg_dev_opt)
-        print("Average dev_ind_const:")
-        print(self.avg_dev_ind_const)
-        print("Average dev_one_country:")
-        print(self.avg_dev_one_country)
-        print("Average dev_tot_eq_one_country:")
-        print(self.avg_dev_tot_eq_one_country)
+        bi_seat_shares = deepcopy(votes)
+        const_mult = [1]*len(bi_seat_shares)
+        party_mult = [1]*len(bi_seat_shares[0])
+        seats_party_opt = [sum([c[p] for c in opt_results]) 
+                            for p in range(len(opt_results[0]))]
+        error = 1
+        while round(error, 5) != 0.0:
+            const_mult = [self.seats_total_const[c]/sum(bi_seat_shares[c])
+                            for c in range(len(self.seats_total_const))]
+            s = [sum([c[p] for c in bi_seat_shares]) for p in range(len(bi_seat_shares[0]))]
+            party_mult = [seats_party_opt[p]/s[p] if s[p] != 0 else 1
+                            for p in range(len(seats_party_opt))]
+            for c in range(len(bi_seat_shares)):
+                for p in range(len(bi_seat_shares[c])):
+                    r = uniform(0.0, 1.0)
+                    bi_seat_shares[c][p] *= 1 - r + r*const_mult[c]*party_mult[p]
+            error = sum([abs(1-cm) for cm in const_mult]) + sum([abs(1-pm) for pm in party_mult])
 
-    def simulate(self, e_rules, test_method):
-        """Simulate many elections."""
+        try:
+            assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]
+                        for p in range(len(seats_party_opt))]))
+        except AssertionError:
+            pass
+        try:
+            assert(all([sum(bi_seat_shares[c]) == self.seats_total_const[c]
+                        for c in range(len(self.seats_total_const))]))
+        except AssertionError:
+            pass
+
+        total_seats = sum([sum(c) for c in results])
+        lh = sum([sum([abs(bi_seat_shares[c][p]-results[c][p])
+                    for p in range(len(results[c]))])
+                    for c in range(len(results))]) / (2*total_seats)
+        self.lh += lh
+        self.sq_lh += lh**2
+        scale = 1
+        stl = sum([sum([(bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
+                    if bi_seat_shares[c][p] != 0 else 0
+                    for p in range(len(results[c]))])
+                    for c in range(len(results))]) * scale
+        self.stl += stl
+        self.sq_stl += stl**2
+        dh = min([bi_seat_shares[c][p]/results[c][p]
+                    if results[c][p] != 0 else 0
+                    for p in range(len(results[c]))
+                    for c in range(len(results))])
+        self.dh += dh
+        self.sq_dh += dh**2
+
+    def analysis(self):
         n = self.rules["simulation_count"]
+        self.avg_const_seats = [[s/n for s in c] for c in self.const_seats]
+        self.var_const_seats = []
+        self.avg_adj_seats = [[s/n for s in c] for c in self.adj_seats]
+        self.var_adj_seats = []
+        self.avg_total_seats = [[s/n for s in c] for c in self.total_seats]
+        self.var_total_seats = []
+        self.avg_seat_shares = [[s/n for s in c] for c in self.seat_shares]
+        self.var_seat_shares = []
+        for i in range(len(self.ref_votes)):
+            self.var_const_seats.append([])
+            self.var_adj_seats.append([])
+            self.var_total_seats.append([])
+            self.var_seat_shares.append([])
+            for j in range(len(self.ref_votes[i])):
+                variance = (self.sq_const_seats[i][j] - self.const_seats[i][j]**2/n) / (n-1)
+                self.var_const_seats[i].append(variance)
+                variance = (self.sq_adj_seats[i][j] - self.adj_seats[i][j]**2/n) / (n-1)
+                self.var_adj_seats[i].append(variance)
+                variance = (self.sq_total_seats[i][j] - self.total_seats[i][j]**2/n) / (n-1)
+                self.var_total_seats[i].append(variance)
+                variance = abs(self.sq_seat_shares[i][j] - self.seat_shares[i][j]**2/n) / (n-1)
+                self.var_seat_shares[i].append(variance)
+
+        self.avg_entropy = self.entropy/n
+        self.var_entropy = (self.sq_entropy - self.entropy**2/n) / (n-1)
+        self.avg_entropy_ratio = self.entropy_ratio/n
+        self.var_entropy_ratio = (self.sq_entropy_ratio - self.entropy_ratio**2/n) / (n-1)
+        self.avg_dev_opt = self.dev_opt/n
+        self.var_dev_opt = (self.sq_dev_opt - self.dev_opt**2/n) / (n-1)
+        self.avg_dev_law = self.dev_law/n
+        self.var_dev_law = (self.sq_dev_law - self.dev_law**2/n) / (n-1)
+        self.avg_dev_ind_const = self.dev_ind_const/n
+        self.var_dev_ind_const = (self.sq_dev_ind_const - self.dev_ind_const**2/n) / (n-1)
+        self.avg_dev_one_country = self.dev_one_country/n
+        self.var_dev_one_country = (self.sq_dev_one_country - self.dev_one_country**2/n) / (n-1)
+        self.avg_dev_tot_eq_one_country = self.dev_tot_eq_one_country/n
+        self.var_dev_tot_eq_one_country = (self.sq_dev_tot_eq_one_country - self.dev_tot_eq_one_country**2/n) / (n-1)
+        self.avg_lh = self.lh/n
+        self.var_lh = (self.sq_lh - self.lh**2/n) / (n-1)
+        self.avg_stl = self.stl/n
+        self.var_stl = (self.sq_stl - self.stl**2/n) / (n-1)
+        self.avg_dh = self.dh/n
+        self.var_dh = (self.sq_dh - self.dh**2/n) / (n-1)
+        print("Average entropy:", self.avg_entropy)
+        print("Average entropy ratio:", self.avg_entropy_ratio)
+        print("Average dev_opt:", self.avg_dev_opt)
+        print("Average dev_law:", self.avg_dev_law)
+        print("Average dev_ind_const:", self.avg_dev_ind_const)
+        print("Average dev_one_country:", self.avg_dev_one_country)
+        print("Average dev_tot_eq_one_country:", self.avg_dev_tot_eq_one_country)
+
+    def simulate(self):
+        """Simulate many elections."""
         gen = self.gen_votes()
-        self.entropy = []
-        for i in range(n):
+        e_rules = self.election.rules
+        e_rules, ref_rules = sim_election_rules(e_rules,
+                                                self.rules["test_method"])
+        r = self.election.run()
+        self.const_seats, self.sq_const_seats = [], []
+        self.adj_seats, self.sq_adj_seats = [], []
+        self.total_seats, self.sq_total_seats = [], []
+        self.seat_shares, self.sq_seat_shares = [], []
+        for i in range(len(self.ref_votes)):
+            self.const_seats.append([0]*(len(self.ref_votes[i])))
+            self.sq_const_seats.append([0]*(len(self.ref_votes[i])))
+            self.adj_seats.append([0]*(len(self.ref_votes[i])))
+            self.sq_adj_seats.append([0]*(len(self.ref_votes[i])))
+            self.total_seats.append([0]*(len(self.ref_votes[i])))
+            self.sq_total_seats.append([0]*(len(self.ref_votes[i])))
+            self.seat_shares.append([0]*(len(self.ref_votes[i])))
+            self.sq_seat_shares.append([0]*(len(self.ref_votes[i])))
+        self.entropy, self.sq_entropy = 0, 0
+        self.entropy_ratio, self.sq_entropy_ratio = 0, 0
+        self.dev_opt, self.sq_dev_opt = 0, 0
+        self.dev_law, self.sq_dev_law = 0, 0
+        self.dev_ind_const, self.sq_dev_ind_const = 0, 0
+        self.dev_one_country, self.sq_dev_one_country = 0, 0
+        self.dev_tot_eq_one_country, self.sq_dev_tot_eq_one_country = 0, 0
+        self.lh, self.sq_lh = 0, 0
+        self.stl, self.sq_stl = 0, 0
+        self.dh, self.sq_dh = 0, 0
+        self.seats_total_const = copy(self.election.v_total_seats)
+        for i in range(self.rules["simulation_count"]):
             votes, shares = next(gen)
             election = voting.Election(e_rules, votes)
             results = election.run()
+            const_seats_alloc = add_totals(election.const_seats_alloc)
+            total_seats_alloc = add_totals(results)
+            for c in range(len(self.total_seats)):
+                for p in range(len(self.total_seats[c])):
+                    self.const_seats[c][p] += const_seats_alloc[c][p]
+                    self.sq_const_seats[c][p] += const_seats_alloc[c][p]**2
+                    adj = total_seats_alloc[c][p]-const_seats_alloc[c][p]
+                    self.adj_seats[c][p] += adj
+                    self.sq_adj_seats[c][p] += adj**2
+                    self.total_seats[c][p] += total_seats_alloc[c][p]
+                    self.sq_total_seats[c][p] += total_seats_alloc[c][p]**2
+                    sh = total_seats_alloc[c][p]/total_seats_alloc[c][-1]
+                    self.seat_shares[c][p] += sh
+                    self.sq_seat_shares[c][p] += sh**2
             entropy = election.entropy()
-            self.entropy.append(entropy)
-            self.results.append(results)
+            self.entropy += entropy
+            self.sq_entropy += entropy**2
+            self.method_analysis(ref_rules, votes, results, entropy)
+        self.analysis()
+        self.test_generated()
 
-        e_rules, ref_rules = sim_election_rules(e_rules, test_method)
-        self.method_analysis(ref_rules)
+        self.votes_to_change = votes_to_change(self.election)
 
-
-
-    def fetch_results(self):
-        pass
-
-   # def simulate(self, election_rules):
-        """Simulate many elections."""
-"""
-        n = self.rules["simulation_count"]
-        gen = self.gen_votes()
-        for i in range(n):
-            votes, shares = next(gen)
-            self.results.append([])
-            for j in range(len(election_rules)):
-              election = voting.Election(election_rules[j], votes)
-              results = election.run()
-              self.results[i].append(results)
-"""
 
 def sim_election_rules(rs, test_method):
     config = configparser.ConfigParser()
-    config.read("methods.ini")
+    config.read("../data/presets/methods.ini")
 
     opt_rs = voting.ElectionRules()
+    law_rs = voting.ElectionRules()
     ind_const_rs = voting.ElectionRules()
     one_country_rs = voting.ElectionRules()
     tot_eq_one_country_rs = voting.ElectionRules()
 
-    if rules in config:
+    if test_method in config:
         rs.update(config[test_method])
     else:
-        raise ValueError("%s is not a known apportionment method" % rules)
+        raise ValueError("%s is not a known apportionment method" % test_method)
     rs["adjustment_threshold"] = float(rs["adjustment_threshold"])
     opt_rs.update(rs)
     opt_rs["adjustment_method"] = "alternating-scaling"
+    law_rs.update(config["ice_law_dhondt"])
+    law_rs["adjustment_threshold"] = float(law_rs["adjustment_threshold"])
+    law_rs["constituency_seats"] = rs["constituency_seats"]
+    law_rs["constituency_adjustment_seats"] = rs["constituency_adjustment_seats"]
+    law_rs["constituency_names"] = rs["constituency_names"]
+    law_rs["parties"] = rs["parties"]
     ind_const_rs.update(rs)
     ind_const_rs["constituency_seats"] = copy(rs["constituency_seats"])
     ind_const_rs["constituency_adjustment_seats"] = []
@@ -263,50 +453,26 @@ def sim_election_rules(rs, test_method):
                         + one_country_rs["constituency_adjustment_seats"][0]]
 
     ref = {"opt": opt_rs,
+            "law": law_rs,
             "ind_const": ind_const_rs,
             "one_country": one_country_rs, 
             "tot_eq_one_country": tot_eq_one_country_rs}
 
     return rs, ref
 
-"""
-def sim_election_rules(rs, rules):
-    
-    Get rules for apportionment method to test and construct reference rules
-    for analysis of the method.
-    
-    with open(rules, "r") as read_file:
-        rules = json.load(read_file)
-    if type(rules) != dict:
-        return {"error": "Incorrect rule format."}
+def run_script_simulation(rules):
+    srs = SimulationRules()
+    srs.update(rules["simulation_rules"])
 
-    opt_rs = voting.ElectionRules()
-    ind_const_rs = voting.ElectionRules()
-    one_country_rs = voting.ElectionRules()
-    tot_eq_one_country_rs = voting.ElectionRules()
-
+    rs = voting.ElectionRules()
     rs.update(rules["election_rules"])
-    opt_rs.update(rs)
-    opt_rs["adjustment_method"] = "alternating-scaling"
-    ind_const_rs.update(rs)
-    ind_const_rs["constituency_seats"] = copy(rs["constituency_seats"])
-    ind_const_rs["constituency_adjustment_seats"] = []
-    for i in range(len(rs["constituency_seats"])):
-        ind_const_rs["constituency_seats"][i] += rs["constituency_adjustment_seats"][i]
-        ind_const_rs["constituency_adjustment_seats"].append(0)
-    one_country_rs.update(rs)
-    one_country_rs["constituency_seats"] = [sum(rs["constituency_seats"])]
-    one_country_rs["constituency_adjustment_seats"] = [sum(rs["constituency_adjustment_seats"])]
-    one_country_rs["constituency_names"] = ["All"]
-    tot_eq_one_country_rs.update(one_country_rs)
-    tot_eq_one_country_rs["constituency_seats"] = [0]
-    tot_eq_one_country_rs["constituency_adjustment_seats"] = [one_country_rs["constituency_seats"][0]
-                        + one_country_rs["constituency_adjustment_seats"][0]]
 
-    ref = {"opt": opt_rs,
-            "ind_const": ind_const_rs,
-            "one_country": one_country_rs, 
-            "tot_eq_one_country": tot_eq_one_country_rs}
+    if not "ref_votes" in rules:
+        return {"error": "No reference votes supplied."}
 
-    return rs, ref
-"""
+    election = voting.Election(rs, rules["ref_votes"])
+
+    sim = Simulation(srs, election)
+    sim.simulate()
+
+    return sim
