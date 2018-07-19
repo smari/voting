@@ -3,7 +3,18 @@ from flask_cors import CORS
 from voting import run_script, get_capabilities_dict
 import os.path
 
-app = Flask('voting',
+class CustomFlask(Flask):
+    jinja_options = Flask.jinja_options.copy()
+    jinja_options.update(dict(
+        block_start_string='<%',
+        block_end_string='%>',
+        variable_start_string='%%',
+        variable_end_string='%%',
+        comment_start_string='<#',
+        comment_end_string='#>',
+    ))
+
+app = CustomFlask('voting',
             template_folder=os.path.abspath('../vue-frontend/'),
             static_folder=os.path.abspath('../vue-frontend/static/'))
 
@@ -15,7 +26,7 @@ def serve_index():
 
 @app.route('/static/<path:path>')
 def send_static(path):
-    return send_from_directory('', path)
+    return send_from_directory('static/', path)
 
 @app.route('/api/script/', methods=["POST"])
 def handle_api():
