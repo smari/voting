@@ -22,18 +22,14 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats,
                 first_in.append(0)
                 continue
 
+            # Find the party next in line in the constituency:
             next_alloc_num = sum(m_allocations[j]) + 1
             alloc_next, div_next = apportion1d(m_votes[j], next_alloc_num,
                                    m_allocations[j], divisor_gen)
             diff = [alloc_next[i]-m_allocations[j][i] 
                     for i in range(len(m_votes[j]))]
             next_in = diff.index(1)
-            #new_votes = copy(m_votes[j])
-            #new_votes[next_in] = alloc_next[2] #???????
             first_in.append(next_in)
-            # Create a provisional allocation where next_in gets the seat:
-            #v_prov_allocations = copy(m_allocations[j])
-            #v_prov_allocations[next_in] += 1
             # Calculate continuation:
             _, div_after = apportion1d(m_votes[j],
                                         v_const_seats[j]+1,
@@ -44,9 +40,12 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats,
             try:
                 rs = float(div_next[2])/div_after[2]
             except ZeroDivisionError:
+                # If the next party is last possible, it must get the seat
                 rs = 1000000
             superiority.append(rs)
 
+        # Allocate seat in constituency where the calculated
+        #  relative superiority is highest:
         greatest = max(superiority)
         idx = superiority.index(greatest)
         m_allocations[idx][first_in[idx]] += 1

@@ -9,8 +9,10 @@ import xlsxwriter
 import openpyxl
 from copy import deepcopy, copy
 
-from methods import icelandic_law, norwegian_law
-
+from methods import var_alt_scal, alternating_scaling, icelandic_law
+from methods import monge, relative_inferiority, relative_superiority
+from methods import norwegian_law, norwegian_icelandic
+from methods import opt_entropy, kristinn_lund
 
 def random_id(length=8):
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
@@ -101,9 +103,8 @@ def print_steps_election(election):
     print(tabulate.tabulate(data, header, rules["output"]))
     print()
     print("Constituency seats")
-    m_alloc = [[s if s > 0 else None for s in c] for c in election.m_allocations]
-    data = [[const_names[c]]+election.m_allocations[c]
-            +[sum(election.m_allocations[c])]
+    data = [[const_names[c]]+election.const_seats_alloc[c]
+            +[sum(election.const_seats_alloc[c])]
             for c in range(len(const_names))]
     totals = [sum([data[c][p] for c in range(len(data))]) 
                 for p in range(1,len(data[0]))]
@@ -458,6 +459,7 @@ def print_simulation(simulation):
     data = [[const_names[c]]+v[c] for c in range(len(const_names)-1)]
     print(tabulate.tabulate(data, h[:-1], rules["output"]))
 
+
 def simulation_to_xlsx(simulation, filename):
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
@@ -705,12 +707,13 @@ def simulation_to_xlsx(simulation, filename):
     workbook.close()
 
 ADJUSTMENT_METHODS = {
-    #"alternating-scaling": alternating_scaling,
-    #"relative-superiority": relative_superiority,
-    #"relative-inferiority": relative_inferiority,
-    #"monge": monge,
+    "alternating-scaling": alternating_scaling,
+    "relative-superiority": relative_superiority,
+    "relative-inferiority": relative_inferiority,
+    "monge": monge,
     "icelandic-law": icelandic_law,
     "norwegian-law": norwegian_law,
-    #"norwegian-icelandic": norwegian_icelandic,
-    #"opt-entropy": opt_entropy
+    "norwegian-icelandic": norwegian_icelandic,
+    "opt-entropy": opt_entropy,
+    "lund": kristinn_lund
 }

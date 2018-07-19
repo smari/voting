@@ -23,6 +23,7 @@ from methods.relative_superiority import *
 from methods.norwegian_law import *
 from methods.norwegian_icelandic import *
 from methods.opt_entropy import opt_entropy
+from methods.kristinn_lund import *
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -244,12 +245,15 @@ class Election:
         self.last = []
         for i in range(len(const)):
             num_seats = const[i]
-            alloc, div = apportion1d(m_votes[i], num_seats, [0]*len(parties),
-                                        gen)
+            if num_seats != 0:
+                alloc, div = apportion1d(m_votes[i], num_seats, [0]*len(parties), gen)
+                self.last.append(div[2])
+            else:
+                alloc = [0]*len(parties)
+                self.last.append(0)
             # v_allocations = [seats.count(p) for p in range(len(parties))]
             m_allocations.append(alloc)
             # self.order.append(seats)
-            self.last.append(div[2])
 
         # Useful:
         # print tabulate([[parties[x] for x in y] for y in self.order])
@@ -268,7 +272,8 @@ ADJUSTMENT_METHODS = {
     "icelandic-law": icelandic_apportionment,
     "norwegian-law": norwegian_apportionment,
     "norwegian-icelandic": norw_ice_apportionment,
-    "opt-entropy": opt_entropy
+    "opt-entropy": opt_entropy,
+    "lund": kristinn_lund
 }
 
 ADJUSTMENT_METHOD_NAMES = {
