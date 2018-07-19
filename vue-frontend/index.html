@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <title>Voting</title>
+
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+  </head>
+  <body>
+
+    <div id="app">
+      <b-navbar toggleable="md" type="dark" variant="info">
+
+        <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+
+        <b-navbar-brand href="#">Voting</b-navbar-brand>
+
+        <b-collapse is-nav id="nav_collapse">
+
+          <b-navbar-nav>
+            <b-nav-item href="#">Single Election</b-nav-item>
+            <b-nav-item href="#">Simulation</b-nav-item>
+          </b-navbar-nav>
+
+        </b-collapse>
+      </b-navbar>
+
+      <b-container fluid>
+
+        <b-form-group horizontal
+                      :label-cols="4"
+                      description="Let us know your name."
+                      label="Enter your name"
+        >
+           <b-form-input v-model.trim="name"></b-form-input>
+        </b-form-group>
+
+        <b-alert variant="success" :show="showAlert">
+          Hello {{ name }}
+        </b-alert>
+      </b-container>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>
