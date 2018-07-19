@@ -6,6 +6,8 @@ import random
 def norwegian_apportionment(m_votes, v_const_seats, v_party_seats,
                             m_prior_allocations, divisor_gen, threshold=None,
                             orig_votes=None, **kwargs):
+	"""Apportion based on Norwegian law."""
+	
 	m_allocations = deepcopy(m_prior_allocations)
 
 	num_allocated = sum([sum(c) for c in m_allocations])

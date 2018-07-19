@@ -20,7 +20,6 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     num_allocated = sum(v_seats)
     total_seats = sum(v_const_seats)
 
-
     # 2.2. Create list of 2 top seats on each remaining list that almost got in.
     #       (Taka skal saman skrá um þau tvö sæti hvers framboðslista sem næst
     #        komust því að fá úthlutun í kjördæmi skv. 107. gr. Við hvert
@@ -33,8 +32,9 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
     #        úthlutun allra jöfnunarsæta, sbr. 2. mgr. 8. gr.)
     invalid = []
     v_last_alloc = deepcopy(v_seats)
+    seats_info = []
     while num_allocated < total_seats:
-        alloc, _ = apportion1d(v_votes, num_allocated+1, v_last_alloc, divisor_gen, invalid)
+        alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc, divisor_gen, invalid)
         # 2.6.
         #       (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #        skal jafnframt fella niður allar landstölur þeirra.)
@@ -42,27 +42,22 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
         diff = [alloc[j]-v_last_alloc[j] for j in range(len(alloc))]
         idx = diff.index(1)
 
-        m_proportions = []
+        v_proportions = []
         for const in range(len(m_votes)):
             const_votes = orig_votes[const]
             s = sum(const_votes)
-            proportions = []
-            for party in range(len(m_votes[0])):
-                div = divisor_gen()
-                for j in range(m_allocations[const][party]+1):
-                    x = next(div)
-                k = (float(orig_votes[const][party])/s)/x
-                proportions.append(k)
-
-            m_proportions.append(proportions)
+            div = divisor_gen()
+            for i in range(m_allocations[const][idx]+1):
+                x = next(div)
+            p = (float(const_votes[idx])/s)/x
+            v_proportions.append(p)
 
             # 2.5.
             #       (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju
             #        kjördæmi skv. 2. mgr. 8. gr. skulu hlutfallstölur allra
             #        lista í því kjördæmi felldar niður.)
             if sum(m_allocations[const]) == v_const_seats[const]:
-                # print "Done allocating in constituency %d" % (const)
-                m_proportions[const] = [0]*len(v_seats)
+                v_proportions[const] = 0
 
         # 2.3.
         #       (Finna skal hæstu landstölu skv. 1. tölul. sem hefur ekki þegar
@@ -71,10 +66,8 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
         #        og úthluta jöfnunarsæti til hans. Landstalan og hlutfallstalan
         #        skulu síðan báðar felldar niður.)
 
-        w = [m_proportions[x][idx] for x in range(len(m_proportions))]
-        # print "Proportions for %d: %s" % (idx, w)
-        if max(w) != 0:
-            const = [j for j,k in enumerate(w) if k == max(w)]
+        if max(v_proportions) != 0:
+            const = [j for j,k in enumerate(v_proportions) if k == max(v_proportions)]
             if len(const) > 1:
                 # 2.4.
                 #       (Nú eru tvær eða fleiri lands- eða hlutfallstölur jafnháar
@@ -85,6 +78,21 @@ def icelandic_apportionment(m_votes, v_const_seats, v_party_seats,
             m_allocations[const[0]][idx] += 1
             num_allocated += 1
             v_last_alloc = alloc
+            seats_info.append((const[0], d[2], idx,
+                                v_proportions[const[0]]))
         else: 
             invalid.append(idx)
-    return m_allocations
+    return m_allocations, seats_info
+
+
+def print_seats(rules, adj_seats_info):
+    # Return data to print breakdown of adjustment seat apportionment
+    header = ["Adjustment seat number", "Constituency", "Country number",
+                "Party", "List share"]
+    data = []
+    for i in range(len(adj_seats_info)):
+        data.append([i+1, rules["constituencies"][adj_seats_info[i][0]]["name"],
+                    adj_seats_info[i][1], rules["parties"][adj_seats_info[i][2]],
+                    "{:.3%}".format(adj_seats_info[i][3])])
+
+    return header, data
