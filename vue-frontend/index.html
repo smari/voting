@@ -8,6 +8,7 @@
 
     <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
     <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+    <link type="text/css" rel="stylesheet" href="/static/css/app.css"/>
 
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
@@ -28,17 +29,9 @@
       </b-navbar>
 
       <b-container fluid>
-        <b-form-group horizontal
-                      :label-cols="4"
-                      description="Let us know your name."
-                      label="Enter your name"
-        >
-           <b-form-input v-model.trim="name"></b-form-input>
-        </b-form-group>
 
-        <b-alert variant="success" :show="showAlert">
-          Hello {{ name }}
-        </b-alert>
+        <voting-votematrix>
+        </voting-votematrix>
       </b-container>
     </div>
 
