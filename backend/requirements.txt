@@ -11,3 +11,4 @@ Werkzeug==0.12.2
 xlsxwriter
 openpyxl
 configparser
+numpy
