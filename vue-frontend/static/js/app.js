@@ -61,16 +61,35 @@ Vue.component('voting-votematrix', {
 })
 
 
-var app = new Vue({
-  el: "#app",
+const Election = { template: `
+<div>
+  <h1>Election</h1>
 
-  data: {
-    name: ''
-  },
+  <h2>Votes</h2>
+  <voting-votematrix>
+  </voting-votematrix>
+</div>
+`
+}
 
-  computed: {
-    showAlert() {
-      return this.name.length > 4 ? true : false;
-    }
-  }
-})
+const Simulate = { template: `
+<div>
+  <h1>Simulate elections</h1>
+
+  <h2>Reference votes</h2>
+  <p>Reference votes are the votes that will be used as a reference for the statistical distribution in the simulation.</p>
+
+  <voting-votematrix>
+  </voting-votematrix>
+</div>
+`
+}
+
+const routes = [
+  { path: '/election', component: Election },
+  { path: '/simulate', component: Simulate }
+]
+
+const router = new VueRouter({ routes })
+
+var app = new Vue({ router, el: "#app" })

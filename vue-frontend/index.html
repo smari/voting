@@ -11,6 +11,7 @@
     <link type="text/css" rel="stylesheet" href="/static/css/app.css"/>
 
     <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
     <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
   </head>
@@ -22,16 +23,14 @@
         <b-navbar-brand href="#">Voting</b-navbar-brand>
         <b-collapse is-nav id="nav_collapse">
           <b-navbar-nav>
-            <b-nav-item href="#">Single Election</b-nav-item>
-            <b-nav-item href="#">Simulation</b-nav-item>
+            <b-nav-item href="#/election">Single Election</b-nav-item>
+            <b-nav-item href="#/simulate">Simulate</b-nav-item>
           </b-navbar-nav>
         </b-collapse>
       </b-navbar>
 
       <b-container fluid>
-
-        <voting-votematrix>
-        </voting-votematrix>
+        <router-view></router-view>
       </b-container>
     </div>
 
