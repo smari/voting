@@ -1,5 +1,5 @@
 import numpy as np 
-from scipy.optimize import minimize, LinearConstraint
+# from scipy.optimize import minimize, LinearConstraint
 
 from copy import copy, deepcopy
 from math import log
