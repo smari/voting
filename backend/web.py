@@ -4,8 +4,8 @@ from voting import run_script, get_capabilities_dict
 import os.path
 
 app = Flask('voting',
-            template_folder=os.path.abspath('../frontend/'),
-            static_folder=os.path.abspath('../frontend/static/'))
+            template_folder=os.path.abspath('../vue-frontend/'),
+            static_folder=os.path.abspath('../vue-frontend/static/'))
 
 CORS(app)
 
