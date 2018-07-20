@@ -1,5 +1,7 @@
 
-
+h2 {
+  margin-top: 1em;
+}
 
 .votematrix tr:nth-child(even) {
     background-color: #f2f2f2;
@@ -18,7 +20,6 @@
   border-left: 0px;
   text-align: center;
 }
-
 
 .constname input {
   border:         0;
@@ -39,4 +40,72 @@
 .partyvotes input:hover, .partyname input:hover, .constname input:hover,
 .partyvotes input:focus, .partyname input:focus, .constname input:focus {
   background:     #ddd;
+}
+
+.resultmatrix tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.resultmatrix th {
+  font-weight:    700;
+}
+
+.resultmatrix td, .resultmatrix th {
+  border:         1px solid #ccc;
+}
+
+.resultmatrix th.topleft {
+  border-top: 0px;
+  border-left: 0px;
+  text-align: center;
+}
+
+.constname {
+  border:         0;
+  outline:        0;
+  padding:        8px;
+  background:     none;
+}
+
+.partyseats, .partyname {
+  width:          70px;
+  border:         0;
+  outline:        0;
+  padding:        8px;
+  text-align:     right;
+  background:     none;
+}
+
+.simulationdata tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.simulationdata th {
+  font-weight:    700;
+}
+
+.simulationdata td, .simulationdata th {
+  border:         1px solid #ccc;
+}
+
+.simulationdata th.topleft {
+  border-top: 0px;
+  border-left: 0px;
+  text-align: center;
+}
+
+.measurename {
+  border:         0;
+  outline:        0;
+  padding:        8px;
+  background:     none;
+}
+
+.methodnumbers, .methodname {
+  width:          70px;
+  border:         0;
+  outline:        0;
+  padding:        8px;
+  text-align:     right;
+  background:     none;
 }
