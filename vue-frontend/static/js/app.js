@@ -1,8 +1,3 @@
-Vue.component('voting-votematrix-constituency', {
-
-})
-
-
 Vue.component('voting-votematrix', {
   data: function () {
     return {
