@@ -28,6 +28,17 @@ def serve_index():
 def send_static(path):
     return send_from_directory('static/', path)
 
+@app.route('/api/election/', methods=["POST"])
+def handle_election():
+    script = request.get_json(force=True)
+    if not script or script == {}:
+        return jsonify({"error": "No script sent"})
+    e = run_script(script)
+    if type(e) == dict:
+        return jsonify(e)
+    return jsonify(e.get_results_dict())
+
+
 @app.route('/api/script/', methods=["POST"])
 def handle_api():
     script = request.get_json(force=True)
@@ -41,6 +52,11 @@ def handle_api():
 @app.route('/api/capabilities/', methods=["GET"])
 def handle_capabilities():
     return jsonify(get_capabilities_dict())
+
+@app.route('/api/presets/', methods=["GET"])
+def get_presets():
+    return jsonify(get_presets_dict())
+
 
 if __name__ == '__main__':
     app.debug = True
