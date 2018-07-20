@@ -125,6 +125,74 @@ Vue.component('voting-electionsettings', {
 `
 })
 
+Vue.component('voting-resultmatrix', {
+  data: function () {
+    return {
+      constituencies: ["Norðvestur", "Norðaustur", "Suður", "Suðvestur", "Reykjavík Suður", "Reykjavík Norður"],
+      parties: ["B", "C", "D", "F", "M", "S", "P", "V"],
+      seats: [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],],
+    }
+  },
+  methods:{
+    
+  },
+  template:
+    `
+<table class="resultmatrix"> 
+  <tr class="parties">
+    <th class="small-12 medium-1 topleft">
+      
+    </th>
+    <th v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
+      {{ parties[partyidx] }}
+    </th>
+  </tr>
+  <tr v-for="(constituency, conidx) in constituencies">
+    <th class="small-12 medium-1 column constname">8
+        {{ constituencies[conidx] }}
+    </th>
+    <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyseats">
+        {{ seats[conidx][partyidx] }}
+    </td>
+  </tr>
+</table>
+`
+})
+
+Vue.component('voting-simulationdata', {
+  data: function () {
+    return {
+      measures: ["Entropy", "Entropy Ratio", "Dev Opt", "Dev Law", "Dev Ind Const", "Dev One Country", "Dev Tot Eq", "LH", "StL", "dHmin", "dHsum"],
+      methods: ["Alternating Scaling", "Icelandic Law", "Relative superiority"],
+      numbers: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    }
+  },
+  methods:{
+    
+  },
+  template:
+    `
+<table class="simulationdata">
+  <tr class="methods">
+    <th class="small-12 medium-1 topleft">
+      
+    </th>
+    <th v-for="(method, methodidx) in methods" class="small-12 medium-1 column methodname">
+      {{ methods[methodidx] }}
+    </th>
+  </tr>
+  <tr v-for="(measure, measureidx) in measures">
+    <th class="small-12 medium-1 column measurename">
+        {{ measures[measureidx] }}
+    </th>
+    <td v-for="(method, methodidx) in methods" class="small-12 medium-2 column methodnumbers">
+        {{ numbers[measureidx][methodidx] }}
+    </td>
+  </tr>
+</table>
+`
+})
+
 
 
 const Election = {
@@ -161,6 +229,11 @@ const Election = {
   <voting-votematrix @voting-recalculate="recalculate">
   </voting-votematrix>
 
+
+  <h2>Results</h2>
+  <voting-resultmatrix>
+  </voting-resultmatrix>
+
   <h2>Settings</h2>
   <voting-electionsettings server="server">
   </voting-electionsettings>
@@ -177,6 +250,10 @@ const Simulate = { template: `
 
   <voting-votematrix>
   </voting-votematrix>
+
+  <h2>Quality measures</h2>
+  <voting-simulationdata>
+  </voting-simulationdata>
 </div>
 `
 }

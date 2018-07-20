@@ -295,12 +295,17 @@ class Simulation:
                     for c in range(len(results))]) * scale
         self.stl += stl
         self.sq_stl += stl**2
-        dh = min([bi_seat_shares[c][p]/results[c][p]
+        dh_min = min([bi_seat_shares[c][p]/results[c][p]
                     if results[c][p] != 0 else 0
                     for p in range(len(results[c]))
                     for c in range(len(results))])
-        self.dh += dh
-        self.sq_dh += dh**2
+        self.dh_min += dh_min
+        self.sq_dh_min += dh_min**2
+        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
+                        for p in range(len(results[c]))
+                        for c in range(len(results))])
+        self.dh_sum += dh_sum
+        self.sq_dh_sum += dh_sum**2
 
     def analysis(self):
         n = self.rules["simulation_count"]
@@ -345,8 +350,10 @@ class Simulation:
         self.var_lh = (self.sq_lh - self.lh**2/n) / (n-1)
         self.avg_stl = self.stl/n
         self.var_stl = (self.sq_stl - self.stl**2/n) / (n-1)
-        self.avg_dh = self.dh/n
-        self.var_dh = (self.sq_dh - self.dh**2/n) / (n-1)
+        self.avg_dh_min = self.dh_min/n
+        self.var_dh_min = (self.sq_dh_min - self.dh_min**2/n) / (n-1)
+        self.avg_dh_sum = self.dh_sum/n
+        self.var_dh_sum = (self.sq_dh_sum - self.dh_sum**2/n) / (n-1)
         print("Average entropy:", self.avg_entropy)
         print("Average entropy ratio:", self.avg_entropy_ratio)
         print("Average dev_opt:", self.avg_dev_opt)
@@ -384,7 +391,8 @@ class Simulation:
         self.dev_tot_eq_one_country, self.sq_dev_tot_eq_one_country = 0, 0
         self.lh, self.sq_lh = 0, 0
         self.stl, self.sq_stl = 0, 0
-        self.dh, self.sq_dh = 0, 0
+        self.dh_min, self.sq_dh_min = 0, 0
+        self.dh_sum, self.sq_dh_sum = 0, 0
         self.seats_total_const = copy(self.election.v_total_seats)
         for i in range(self.rules["simulation_count"]):
             votes, shares = next(gen)
