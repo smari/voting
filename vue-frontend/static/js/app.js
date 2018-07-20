@@ -8,7 +8,17 @@ Vue.component('voting-votematrix', {
       votes: [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],],
     }
   },
-  methods:{
+  watch: {
+    // TODO: Also trigger recalculation on changes to other data.
+    'votes': {
+      handler: function (val, oldVal) {
+        console.log('Sending voting-recalculate');
+        this.$emit('voting-recalculate', val);
+      },
+      deep: true
+    }
+  },
+  methods: {
     deleteParty: function(index) {
       this.parties.splice(index, 1);
       for (con in this.votes) {
@@ -67,17 +77,93 @@ Vue.component('voting-votematrix', {
     </td>
   </tr>
 </table>
+</b-container>
 `
 })
 
 
-const Election = { template: `
+Vue.component('voting-electionsettings', {
+  data: function () {
+    return {
+      rules: { capabilities: {}, election_rules: {}, presets: {}},
+    }
+  },
+  created: function() {
+    console.log("Getting capabilities.");
+    this.$http.get('/api/capabilities').then(response => {
+      this.rules = response.body;
+    }, response => {
+      this.serverError = true;
+    });
+  },
+  methods: {
+  },
+  template:
+    `
+<b-container>
+  <b-form>
+    <b-row>
+      <b-col>
+        <b-form-group label="Primary apportionment divider" description="Which divider rule should be used to allocate constituency seats?">
+          <b-form-select v-model="rules.election_rules.primary_divider" :options="rules.capabilities.divider_rules" class="mb-3"/>
+        </b-form-group>
+        <b-form-group label="Adjustment apportionment divider" description="Which divider rule should be used to allocate adjustment seats?">
+          <b-form-select v-model="rules.election_rules.adjustment_divider" :options="rules.capabilities.divider_rules" class="mb-3"/>
+        </b-form-group>
+      </b-col>
+      <b-col>
+        <b-form-group label="Adjustment method" description="Which method should be used to allocate adjustment seats?">
+          <b-form-select v-model="rules.election_rules.adjustment_method" :options="rules.capabilities.adjustment_methods" class="mb-3"/>
+        </b-form-group>
+        <b-form-group label="Adjustment threshold" description="What threshold are parties required to reach to qualify for adjustment seats?">
+          <b-form-input type="number" v-model="rules.election_rules.adjustment_threshold"/>
+        </b-form-group>
+      </b-col>
+    </b-row>
+  </b-form>
+</b-container>
+`
+})
+
+
+
+const Election = {
+  data: function() {
+    return {
+      server: {
+        waitingForData: false,
+        error: false,
+      },
+      results: {},
+    }
+  },
+  methods: {
+    recalculate: function(votes) {
+      this.server.waitingForData = true;
+      this.$http.post('/api/election/', { votes })
+        .then(function(data, status, request) {
+          console.log("Got results: ", data, status);
+          this.results = data;
+          this.server.waitingForData = false;
+        }).catch(function(data, status, request) {
+          this.server.error = true;
+          this.server.waitingForData = false;
+        });
+    }
+  },
+  template: `
 <div>
   <h1>Election</h1>
+  <b-alert :show="server.waitingForData">Loading...</b-alert>
+  <b-alert :show="server.error" dismissible @dismissed="server.error=false" variant="danger">Server error. Try again in a few seconds...</b-alert>
 
   <h2>Votes</h2>
-  <voting-votematrix>
+  <voting-votematrix @voting-recalculate="recalculate">
   </voting-votematrix>
+
+  <h2>Settings</h2>
+  <voting-electionsettings server="server">
+  </voting-electionsettings>
 </div>
 `
 }
