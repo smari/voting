@@ -1,5 +1,10 @@
 
 
+.votematrix {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
 
 .votematrix tr:nth-child(even) {
     background-color: #f2f2f2;
