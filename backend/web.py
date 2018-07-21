@@ -1,6 +1,7 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
 from voting import run_script, get_capabilities_dict
+import voting
 import os.path
 
 class CustomFlask(Flask):
@@ -30,13 +31,30 @@ def send_static(path):
 
 @app.route('/api/election/', methods=["POST"])
 def handle_election():
-    script = request.get_json(force=True)
-    if not script or script == {}:
-        return jsonify({"error": "No script sent"})
-    e = run_script(script)
-    if type(e) == dict:
-        return jsonify(e)
-    return jsonify(e.get_results_dict())
+    data = request.get_json(force=True)
+
+    rules = voting.ElectionRules()
+
+    for k, v in data["rules"].iteritems():
+        rules[k] = v
+
+    rules["constituency_names"] = data["constituency_names"]
+    rules["parties"] = data["parties"]
+    rules["constituency_seats"] = data["constituency_seats"]
+    rules["constituency_adjustment_seats"] = data["constituency_adjustment_seats"]
+
+    if not all([data[x] for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]]):
+        return jsonify({"error": "missing data"})
+
+    print("----- Rules -----")
+    rules.pretty_print()
+
+    election = voting.Election(rules, data["votes"])
+    try:
+        election.run()
+    except ZeroDivisionError, e:
+        return jsonify({"error": "Need to have more votes."})
+    return jsonify(election.get_results_dict())
 
 
 @app.route('/api/script/', methods=["POST"])
