@@ -1,6 +1,7 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
-from voting import run_script, get_capabilities_dict
+from voting import run_script, get_capabilities_dict, get_presets_dict
+import voting
 import os.path
 
 class CustomFlask(Flask):
@@ -28,6 +29,39 @@ def serve_index():
 def send_static(path):
     return send_from_directory('static/', path)
 
+@app.route('/api/election/', methods=["POST"])
+def handle_election():
+    data = request.get_json(force=True)
+
+    rules = voting.ElectionRules()
+
+    for k, v in data["rules"].iteritems():
+        rules[k] = v
+
+    for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
+        if x in data and data[x]:
+            rules[x] = data[x]
+        else:
+            return jsonify({"error": "Missing data ('%s')" % x})
+
+    if not "votes" in data:
+        return jsonify({"error": "Votes missing."})
+
+    for const in data["votes"]:
+        for party in const:
+            if type(party) != int:
+                return jsonify({"error": "Votes must be numbers."})
+
+    try:
+        election = voting.Election(rules, data["votes"])
+        election.run()
+    except ZeroDivisionError, e:
+        return jsonify({"error": "Need to have more votes."})
+    except AssertionError, e:
+        return jsonify({"error": "The data is malformed."})
+    return jsonify(election.get_results_dict())
+
+
 @app.route('/api/script/', methods=["POST"])
 def handle_api():
     script = request.get_json(force=True)
@@ -41,6 +75,11 @@ def handle_api():
 @app.route('/api/capabilities/', methods=["GET"])
 def handle_capabilities():
     return jsonify(get_capabilities_dict())
+
+@app.route('/api/presets/', methods=["GET"])
+def get_presets():
+    return jsonify(get_presets_dict())
+
 
 if __name__ == '__main__':
     app.debug = True

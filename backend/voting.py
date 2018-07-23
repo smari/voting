@@ -296,21 +296,20 @@ def get_capabilities_dict():
             "divider_rules": DIVIDER_RULE_NAMES,
             "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
         },
-        "presets": get_presets()
     }
 
-def get_presets():
+def get_presets_dict():
     from os import listdir
     from os.path import isfile, join
     presetsdir = "../data/presets/"
-    try:        
+    try:
         files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
                  and f.endswith('.json')]
     except Exception as e:
         print("Presets directory read failure: %s" % (e))
         files = []
     pr = []
-    for f in files:        
+    for f in files:
         try:
             with open(presetsdir+f) as json_file:
                 data = json.load(json_file)
@@ -323,7 +322,7 @@ def get_presets():
 def run_script(rules):
     with open(rules, "r") as read_file:
         rules = json.load(read_file)
-        
+
     if type(rules) != dict:
         return {"error": "Incorrect script format."}
 
