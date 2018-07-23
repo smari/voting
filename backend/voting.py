@@ -298,7 +298,7 @@ def get_capabilities_dict():
         },
     }
 
-def get_presets():
+def get_presets_dict():
     from os import listdir
     from os.path import isfile, join
     presetsdir = "../data/presets/"
