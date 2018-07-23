@@ -78,7 +78,7 @@ Vue.component('voting-resultmatrix', {
     </th>
   </tr>
   <tr v-for="(constituency, conidx) in constituencies">
-    <th class="small-12 medium-1 column constname">8
+    <th class="small-12 medium-1 column constname">
         {{ constituencies[conidx] }}
     </th>
     <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyseats">
@@ -87,6 +87,27 @@ Vue.component('voting-resultmatrix', {
   </tr>
 </table>
 `
+})
+
+Vue.component('voting-resultpiechart', {
+  extends: VueChartJs.Bar,
+  data () {
+    return {
+      datacollection: {
+        labels: ['January', 'February'],
+        datasets: [
+          {
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: [40, 20]
+          }
+        ]
+      }
+    }
+  },
+  mounted () {
+    this.renderChart(this.datacollection, {responsive: true, maintainAspectRatio: false})
+  }
 })
 
 Vue.component('voting-simulationdata', {
@@ -135,6 +156,9 @@ const Election = { template: `
   <h2>Results</h2>
   <voting-resultmatrix>
   </voting-resultmatrix>
+
+  <voting-resultpiechart>
+  </voting-resultpiechart>
 </div>
 `
 }
