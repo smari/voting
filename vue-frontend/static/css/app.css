@@ -7,6 +7,8 @@ h2 {
   display: block;
   overflow-x: auto;
   white-space: nowrap;
+  min-width: 300px;
+  min-height: 300px;
 }
 
 .votematrix tr:nth-child(even) {
