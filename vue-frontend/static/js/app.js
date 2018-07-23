@@ -1,11 +1,11 @@
 Vue.component('voting-votematrix', {
   data: function () {
     return {
-      constituencies: ["Norðvestur", "Norðaustur", "Suður", "Suðvestur", "Reykjavík Suður", "Reykjavík Norður"],
-      constituency_seats: [8, 8, 9, 11, 9, 9],
-      constituency_adjustment_seats: [1, 1, 1, 2, 2, 2],
-      parties: ["B", "C", "D", "F", "M", "S", "P", "V"],
-      votes: [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],],
+      constituencies: ["I", "II"],
+      constituency_seats: [10, 10],
+      constituency_adjustment_seats: [2, 3],
+      parties: ["A", "B"],
+      votes: [[1500, 2000], [2500, 1700]],
       presets: {}
     }
   },
