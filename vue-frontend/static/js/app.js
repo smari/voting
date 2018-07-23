@@ -6,9 +6,15 @@ Vue.component('voting-votematrix', {
       constituency_adjustment_seats: [1, 1, 1, 2, 2, 2],
       parties: ["B", "C", "D", "F", "M", "S", "P", "V"],
       votes: [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],],
+      presets: {}
     }
   },
   created: function() {
+    this.$http.get('/api/presets').then(response => {
+      this.presets = response.body;
+    }, response => {
+      this.$emit('server-error', response.body);
+    });
     this.$emit('update-constituencies', this.constituencies, false);
     this.$emit('update-parties', this.parties, false);
     this.$emit('update-votes', this.votes, false);
@@ -72,45 +78,74 @@ Vue.component('voting-votematrix', {
       this.votes.push(Array(this.parties.length).fill(0));
       this.constituency_seats.push(1);
       this.constituency_adjustment_seats.push(1);
+    },
+    clearVotes: function() {
+      let v = [];
+      for (con in this.votes) {
+        v = Array(this.votes[con].length).fill(0);
+        this.$set(this.votes, con, v);
+      }
+    },
+    clearAll: function() {
+      this.constituencies = [];
+      this.constituency_seats = [];
+      this.constituency_adjustment_seats = [];
+      this.parties = [];
+      this.votes = [];
+    },
+    setPreset: function(idx) {
+      let el = this.presets[idx].election_rules;
+      this.constituencies = el.constituency_names;
+      this.parties = el.parties;
+      this.constituency_seats = el.constituency_seats;
+      this.constituency_adjustment_seats = el.constituency_adjustment_seats;
+      this.votes = el.votes;
     }
   },
   template:
     `
 <b-container fluid class="votematrix-container">
-<table class="votematrix">
-  <tr class="parties">
-    <th class="small-12 medium-1 topleft">
-      <b-button size="sm" variant="outline-secondary" @click="addConstituency()">Add constituency</b-button>
-      <b-button size="sm" variant="outline-secondary" @click="addParty()">Add party</b-button>
-    </th>
-    <th>
-      <abbr title="Constituency seats"># Cons.</abbr>
-    </th>
-    <th>
-      <abbr title="Adjustment seats"># Adj.</abbr>
-    </th>
-    <th v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
-      <b-button size="sm" variant="link" @click="deleteParty(partyidx)">×</b-button>
-      <input type="text" v-model="parties[partyidx]">
-    </th>
-  </tr>
-  <tr v-for="(constituency, conidx) in constituencies">
-    <th class="small-12 medium-1 column constname">
-        <b-button size="sm" variant="link" @click="deleteConstituency(conidx)">×</b-button>
-        <input type="text" v-model="constituencies[conidx]"></input>
-    </th>
-    <td class="small-12 medium-2 column partyvotes">
-      <input type="text" v-model.number="constituency_seats[conidx]"></input>
-    </td>
-    <td class="small-12 medium-2 column partyvotes">
-      <input type="text" v-model.number="constituency_adjustment_seats[conidx]"></input>
-    </td>
-    <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyvotes">
-        <input type="text" v-model.number="votes[conidx][partyidx]">
-        </input>
-    </td>
-  </tr>
-</table>
+  <table class="votematrix">
+    <tr class="parties">
+      <th class="small-12 medium-1 topleft">
+        <b-dropdown id="ddown1" text="Actions" size="sm" variant="outline-secondary">
+          <b-dropdown-item @click="addConstituency()">Add constituency</b-dropdown-item>
+          <b-dropdown-item @click="addParty()">Add party</b-dropdown-item>
+          <b-dropdown-item @click="clearVotes()">Clear votes</b-dropdown-item>
+          <b-dropdown-item @click="clearAll()">Reset everything</b-dropdown-item>
+        </b-dropdown>
+        <b-dropdown id="ddown1" text="Presets" size="sm" variant="outline-secondary">
+          <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
+        </b-dropdown>
+      </th>
+      <th>
+        <abbr title="Constituency seats"># Cons.</abbr>
+      </th>
+      <th>
+        <abbr title="Adjustment seats"># Adj.</abbr>
+      </th>
+      <th v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
+        <b-button size="sm" variant="link" @click="deleteParty(partyidx)">×</b-button>
+        <input type="text" v-model="parties[partyidx]">
+      </th>
+    </tr>
+    <tr v-for="(constituency, conidx) in constituencies">
+      <th class="small-12 medium-1 column constname">
+          <b-button size="sm" variant="link" @click="deleteConstituency(conidx)">×</b-button>
+          <input type="text" v-model="constituencies[conidx]"></input>
+      </th>
+      <td class="small-12 medium-2 column partyvotes">
+        <input type="text" v-model.number="constituency_seats[conidx]"></input>
+      </td>
+      <td class="small-12 medium-2 column partyvotes">
+        <input type="text" v-model.number="constituency_adjustment_seats[conidx]"></input>
+      </td>
+      <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyvotes">
+          <input type="text" v-model.number="votes[conidx][partyidx]">
+          </input>
+      </td>
+    </tr>
+  </table>
 </b-container>
 `
 })
@@ -171,36 +206,36 @@ Vue.component('voting-electionsettings', {
 })
 
 Vue.component('voting-resultmatrix', {
+  props: ["constituencies", "parties", "seats"],
   data: function () {
     return {
-      constituencies: ["Norðvestur", "Norðaustur", "Suður", "Suðvestur", "Reykjavík Suður", "Reykjavík Norður"],
-      parties: ["B", "C", "D", "F", "M", "S", "P", "V"],
-      seats: [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],],
+      m_constituencies: ["Norðvestur", "Norðaustur", "Suður", "Suðvestur", "Reykjavík Suður", "Reykjavík Norður"],
+      m_parties: ["B", "C", "D", "F", "M", "S", "P", "V"],
+      m_seats: [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0],],
     }
-  },
-  methods:{
-
   },
   template:
     `
-<table class="resultmatrix">
-  <tr class="parties">
-    <th class="small-12 medium-1 topleft">
+<b-container>
+  <table class="resultmatrix" v-if="seats.length > 0">
+    <tr class="parties">
+      <th class="small-12 medium-1 topleft">
 
-    </th>
-    <th v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
-      {{ parties[partyidx] }}
-    </th>
-  </tr>
-  <tr v-for="(constituency, conidx) in constituencies">
-    <th class="small-12 medium-1 column constname">8
-        {{ constituencies[conidx] }}
-    </th>
-    <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyseats">
-        {{ seats[conidx][partyidx] }}
-    </td>
-  </tr>
-</table>
+      </th>
+      <th v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
+        {{ parties[partyidx] }}
+      </th>
+    </tr>
+    <tr v-for="(constituency, conidx) in constituencies">
+      <th class="small-12 medium-1 column constname">
+          {{ constituencies[conidx] }}
+      </th>
+      <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyseats">
+          {{ seats[conidx][partyidx] }}
+      </td>
+    </tr>
+  </table>
+</b-container>
 `
 })
 
@@ -256,21 +291,19 @@ const Election = {
         adjustment_method: "",
       },
       votes: [],
-      results: {},
+      results: { seat_allocations: [], parties: [], constituencies: []},
     }
   },
   methods: {
     updateRules: function(rules, recalc) {
       this.rules = rules;
       if (recalc === true || recalc === undefined) {
-        console.log("Recalc from updateRules");
         this.recalculate();
       }
     },
     updateVotes: function(votes, recalc) {
       this.votes = votes;
       if (recalc === true || recalc === undefined) {
-        console.log("Recalc from updateVotes");
         this.recalculate();
       }
     },
@@ -278,32 +311,30 @@ const Election = {
       this.constituency_seats = seats;
       if (recalc === true || recalc === undefined) {
         this.recalculate();
-        console.log("Recalc from updateConsSeats");
       }
     },
     updateAdjustmentSeats: function(seats, recalc) {
       this.constituency_adjustment_seats = seats;
       if (recalc === true || recalc === undefined) {
         this.recalculate();
-        console.log("Recalc from updateRules");
       }
     },
     updateConstituencies: function(cons, recalc) {
       this.constituency_names = cons;
       if (recalc === true || recalc === undefined) {
         this.recalculate();
-        console.log("Recalc from updateConstituencies");
       }
     },
     updateParties: function(parties, recalc) {
       this.parties = parties;
       if (recalc === true || recalc === undefined) {
         this.recalculate();
-        console.log("Recalc from updateParties");
       }
     },
+    serverError: function(error) {
+      this.server.errormsg = error;
+    },
     recalculate: function() {
-      console.log(this.rules);
       this.server.waitingForData = true;
       this.$http.post('/api/election/',
         {
@@ -313,16 +344,19 @@ const Election = {
           constituency_names: this.constituency_names,
           constituency_seats: this.constituency_seats,
           constituency_adjustment_seats: this.constituency_adjustment_seats
-        })
-        .then(function(data, status, request) {
-          console.log("Got results: ", data, status);
-          if (data.error) {
-            this.server.errormsg = data.error;
+        }).then(response => {
+          if (response.body.error) {
+            this.server.errormsg = response.body.error;
+            this.server.waitingForData = false;
           } else {
-            this.results = data;
+            this.server.errormsg = '';
+            this.server.error = false;
+            this.results["constituencies"] = response.body.rules.constituency_names;
+            this.results["parties"] = response.body.rules.parties;
+            this.results["seat_allocations"] = response.body.seat_allocations;
             this.server.waitingForData = false;
           }
-        }).catch(function(data, status, request) {
+        }, response => {
           this.server.error = true;
           this.server.waitingForData = false;
         });
@@ -336,11 +370,11 @@ const Election = {
   <b-alert :show="server.errormsg != ''" dismissible @dismissed="server.errormsg=''" variant="danger">Server error. {{server.errormsg}}</b-alert>
 
   <h2>Votes</h2>
-  <voting-votematrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @recalculate="recalculate">
+  <voting-votematrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @recalculate="recalculate" @server-error="serverError">
   </voting-votematrix>
 
   <h2>Results</h2>
-  <voting-resultmatrix>
+  <voting-resultmatrix :constituencies="results.constituencies" :parties="results.parties" :seats="results.seat_allocations">
   </voting-resultmatrix>
 
   <h2>Settings</h2>
