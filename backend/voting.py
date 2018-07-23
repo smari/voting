@@ -94,7 +94,7 @@ class ElectionRules(Rules):
         self["output"] = "simple"
 
     def __setitem__(self, key, value):
-        if key == "constituencies":
+        if key == "constituencies" and type(value) == "string":
             value = load_constituencies(value)
             self["constituency_names"] = [x["name"] for x in value]
             self["constituency_seats"] = [x["num_constituency_seats"]
