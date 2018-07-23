@@ -1,6 +1,6 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
-from voting import run_script, get_capabilities_dict
+from voting import run_script, get_capabilities_dict, get_presets_dict
 import voting
 import os.path
 
@@ -38,22 +38,27 @@ def handle_election():
     for k, v in data["rules"].iteritems():
         rules[k] = v
 
-    rules["constituency_names"] = data["constituency_names"]
-    rules["parties"] = data["parties"]
-    rules["constituency_seats"] = data["constituency_seats"]
-    rules["constituency_adjustment_seats"] = data["constituency_adjustment_seats"]
+    for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
+        if x in data and data[x]:
+            rules[x] = data[x]
+        else:
+            return jsonify({"error": "Missing data ('%s')" % x})
 
-    if not all([data[x] for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]]):
-        return jsonify({"error": "missing data"})
+    if not "votes" in data:
+        return jsonify({"error": "Votes missing."})
 
-    print("----- Rules -----")
-    rules.pretty_print()
+    for const in data["votes"]:
+        for party in const:
+            if type(party) != int:
+                return jsonify({"error": "Votes must be numbers."})
 
-    election = voting.Election(rules, data["votes"])
     try:
+        election = voting.Election(rules, data["votes"])
         election.run()
     except ZeroDivisionError, e:
         return jsonify({"error": "Need to have more votes."})
+    except AssertionError, e:
+        return jsonify({"error": "The data is malformed."})
     return jsonify(election.get_results_dict())
 
 
