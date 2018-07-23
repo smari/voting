@@ -6,35 +6,13 @@
 
     <title>Voting</title>
 
-    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
-    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
     <link type="text/css" rel="stylesheet" href="/static/css/app.css"/>
-
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
-    <script src="https://unpkg.com/vue-resource/dist/vue-resource.js"></script>
-    <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
   </head>
   <body>
 
     <div id="app">
-      <b-navbar toggleable="md" type="dark" variant="info">
-        <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-        <b-navbar-brand href="#">Voting</b-navbar-brand>
-        <b-collapse is-nav id="nav_collapse">
-          <b-navbar-nav>
-            <b-nav-item href="#/election">Single Election</b-nav-item>
-            <b-nav-item href="#/simulate">Simulate</b-nav-item>
-          </b-navbar-nav>
-        </b-collapse>
-      </b-navbar>
-
-      <b-container fluid>
-        <router-view></router-view>
-      </b-container>
     </div>
 
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/bundle.js"></script>
   </body>
 </html>

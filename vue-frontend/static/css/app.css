@@ -23,10 +23,12 @@ h2 {
   border:         1px solid #ccc;
 }
 
-.votematrix th.topleft {
-  border-top: 0px;
-  border-left: 0px;
+th.topleft {
+  border-top: 0px !important;
+  border-left: 0px !important;
+  border-bottom: 0px !important;
   text-align: center;
+  background-color: #fff;
 }
 
 .constname input {
@@ -62,12 +64,6 @@ h2 {
   border:         1px solid #ccc;
 }
 
-.resultmatrix th.topleft {
-  border-top: 0px;
-  border-left: 0px;
-  text-align: center;
-}
-
 .constname {
   border:         0;
   outline:        0;
@@ -94,12 +90,6 @@ h2 {
 
 .simulationdata td, .simulationdata th {
   border:         1px solid #ccc;
-}
-
-.simulationdata th.topleft {
-  border-top: 0px;
-  border-left: 0px;
-  text-align: center;
 }
 
 .measurename {

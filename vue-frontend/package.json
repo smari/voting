@@ -1,0 +1,23 @@
+{
+  "name": "voting",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.dev.js"
+  },
+  "author": "",
+  "license": "AGPL",
+  "devDependencies": {
+    "css-loader": "^1.0.0",
+    "style-loader": "^0.21.0",
+    "vue-loader": "^15.2.6",
+    "vue-style-loader": "^4.1.1",
+    "vue-template-compiler": "^2.5.16"
+  },
+  "dependencies": {
+    "chart.js": "^2.7.2",
+    "vue-chartjs": "^3.3.2",
+    "vue-resource": "^1.5.1"
+  }
+}
