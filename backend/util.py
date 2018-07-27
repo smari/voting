@@ -91,7 +91,7 @@ def print_steps_election(election):
     data = [[const_names[c]]+election.m_votes[c]
             +[sum(election.m_votes[c])]
             for c in range(len(const_names))]
-    v_votes = [sum([data[c][p] for c in range(len(data))]) 
+    v_votes = [sum([data[c][p] for c in range(len(data))])
                 for p in range(1,len(data[0]))]
     data.append(["Total"]+v_votes)
     data = [[d if d != 0 else None for d in c] for c in data]
@@ -106,7 +106,7 @@ def print_steps_election(election):
     data = [[const_names[c]]+election.const_seats_alloc[c]
             +[sum(election.const_seats_alloc[c])]
             for c in range(len(const_names))]
-    totals = [sum([data[c][p] for c in range(len(data))]) 
+    totals = [sum([data[c][p] for c in range(len(data))])
                 for p in range(1,len(data[0]))]
     data.append(["Total"]+totals)
     data = [[d if d != 0 else None for d in c] for c in data]
@@ -140,7 +140,7 @@ def print_steps_election(election):
     data = [[const_names[c]]+adj_seats[c]
             +[sum(adj_seats[c])]
             for c in range(len(const_names))]
-    totals = [sum([data[c][p] for c in range(len(data))]) 
+    totals = [sum([data[c][p] for c in range(len(data))])
                 for p in range(1,len(data[0]))]
     data.append(["Total"]+totals)
     data = [[d if d != 0 else None for d in c] for c in data]
@@ -159,7 +159,7 @@ def pretty_print_election(election):
         const_names = rules["constituency_names"]
     data = [[const_names[c]]+election.results[c]+[sum(election.results[c])]
             for c in range(len(const_names))]
-    totals = [sum([data[c][p] for c in range(len(data))]) 
+    totals = [sum([data[c][p] for c in range(len(data))])
                 for p in range(1,len(data[0]))]
     data.append(["Total"]+totals)
     data = [[d if d != 0 else None for d in c] for c in data]
@@ -195,7 +195,7 @@ def write_to_xlsx(election, filename):
       worksheet.write(i, 0, const_names[i-1])
       for j in range(1, len(votes[i-1])+1):
         worksheet.write(i, j, votes[i-1][j-1])
-  
+
     workbook.close()
 
 def election_to_xlsx(election, filename):
@@ -702,7 +702,7 @@ def simulation_to_xlsx(simulation, filename):
     for shares in sdev_seat_shares:
         worksheet.write_row(r, c+1, shares, cell_format)
         r += 1
-    
+
 
     workbook.close()
 

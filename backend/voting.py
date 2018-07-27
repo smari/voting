@@ -94,7 +94,7 @@ class ElectionRules(Rules):
         self["output"] = "simple"
 
     def __setitem__(self, key, value):
-        if key == "constituencies" and type(value) == "string":
+        if key == "constituencies" and type(value) in [str, unicode]:
             value = load_constituencies(value)
             self["constituency_names"] = [x["name"] for x in value]
             self["constituency_seats"] = [x["num_constituency_seats"]
@@ -193,33 +193,16 @@ class Election:
         method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
         gen = self.rules.get_generator("adjustment_divider")
 
-        if self.rules["adjustment_method"] == "relative-inferiority":
-            results = method(self.m_votes_eliminated,
-                self.v_total_seats,
-                self.v_adjustment_seats,
-                self.const_seats_alloc,
-                gen,
-                self.last,
-                self.rules["adjustment_threshold"],
-                orig_votes=self.m_votes)
-        else:
-            try:
-                results, asi = method(self.m_votes_eliminated,
-                    self.v_total_seats,
-                    self.v_adjustment_seats,
-                    self.const_seats_alloc,
-                    gen,
-                    self.rules["adjustment_threshold"],
-                    orig_votes=self.m_votes)
-                self.adj_seats_info = asi
-            except ValueError:
-                results = method(self.m_votes_eliminated,
-                self.v_total_seats,
-                self.v_adjustment_seats,
-                self.const_seats_alloc,
-                gen,
-                self.rules["adjustment_threshold"],
-                orig_votes=self.m_votes)
+        results, asi = method(self.m_votes_eliminated,
+            self.v_total_seats,
+            self.v_adjustment_seats,
+            self.const_seats_alloc,
+            gen,
+            self.rules["adjustment_threshold"],
+            orig_votes=self.m_votes,
+            last=self.last)
+
+        self.adj_seats_info = asi
 
         self.results = results
         self.gen = gen
@@ -320,8 +303,9 @@ def get_presets_dict():
     return pr
 
 def run_script(rules):
-    with open(rules, "r") as read_file:
-        rules = json.load(read_file)
+    if type(rules) in ["str", "unicode"]:
+        with open(rules, "r") as read_file:
+            rules = json.load(read_file)
 
     if type(rules) != dict:
         return {"error": "Incorrect script format."}

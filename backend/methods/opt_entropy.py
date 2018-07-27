@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 # from scipy.optimize import minimize, LinearConstraint
 
 from copy import copy, deepcopy
@@ -51,4 +51,4 @@ def opt_entropy(m_votes, v_const_seats, v_party_seats,
 	for i in range(c):
 		results.append(v_results[i*p:(i+1)*p])
 
-	return results
+	return results, None

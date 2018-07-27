@@ -49,4 +49,4 @@ def monge(m_votes, v_const_seats, v_party_seats,
         #allocate seat based on Monge ratio
         m_allocations[max_constituency][max_party] += 1
 
-    return m_allocations
+    return m_allocations, None

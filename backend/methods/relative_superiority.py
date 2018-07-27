@@ -26,7 +26,7 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats,
             next_alloc_num = sum(m_allocations[j]) + 1
             alloc_next, div_next = apportion1d(m_votes[j], next_alloc_num,
                                    m_allocations[j], divisor_gen)
-            diff = [alloc_next[i]-m_allocations[j][i] 
+            diff = [alloc_next[i]-m_allocations[j][i]
                     for i in range(len(m_votes[j]))]
             next_in = diff.index(1)
             first_in.append(next_in)
@@ -50,4 +50,4 @@ def relative_superiority(m_votes, v_const_seats, v_party_seats,
         idx = superiority.index(greatest)
         m_allocations[idx][first_in[idx]] += 1
 
-    return m_allocations
+    return m_allocations, None
