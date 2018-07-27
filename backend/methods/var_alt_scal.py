@@ -92,7 +92,7 @@ def var_alt_scal(m_votes, v_const_seats, v_party_seats,
                     for j in range(len(party_allocs))])
         if done:
             break
-            
+
     # Finally, use party_multipliers and const_multipliers to arrive at
     #  final apportionment:
     results = []
@@ -106,4 +106,4 @@ def var_alt_scal(m_votes, v_const_seats, v_party_seats,
                                  v_priors, divisor_gen)
         results.append(alloc)
 
-    return results
+    return results, None

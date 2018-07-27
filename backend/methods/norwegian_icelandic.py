@@ -36,4 +36,4 @@ def norw_ice_apportionment(m_votes, v_const_seats, v_party_seats,
 		m_allocations[c][p] += 1
 
 
-	return m_allocations
+	return m_allocations, None

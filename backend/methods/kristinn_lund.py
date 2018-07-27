@@ -25,7 +25,7 @@ def kristinn_lund(m_votes, v_const_seats, v_party_seats, m_prior_allocations,
 	#  too many seats to parties that have too few seats, prioritized by
 	#  "sensitivity", until all parties have the correct number of seats
 	#  or no more swaps can be made:
-	
+
 	done = False
 	while not done:
 		v_adj_seats = [sum([c[p] for c in m_adj_seats])
@@ -61,4 +61,5 @@ def kristinn_lund(m_votes, v_const_seats, v_party_seats, m_prior_allocations,
 						for p in range(len(m_adj_seats[c]))]
 						for c in range(len(m_adj_seats))]
 
-	return m_allocations
+
+	return m_allocations, None

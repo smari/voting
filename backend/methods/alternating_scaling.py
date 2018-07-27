@@ -51,7 +51,7 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
     def party_step(v_votes, party_id, v_const_multipliers, v_party_multipliers):
         num_total_seats = v_party_seats[party_id]
         pm = party_multiplier = v_party_multipliers[party_id]
-        
+
         v_scaled_votes = [a/(b*pm) if b != 0 else 0
                           for a, b in zip(v_votes, v_const_multipliers)]
 
@@ -122,4 +122,4 @@ def alternating_scaling(m_votes, v_const_seats, v_party_seats,
                                  v_priors, divisor_gen)
         results.append(alloc)
 
-    return results
+    return results, None

@@ -18,7 +18,7 @@ class SimulationTest(TestCase):
 
     def test_generate_votes_average(self):
         s_rules = simulate.SimulationRules()
-        s_rules["simulation_count"] = 10000
+        s_rules["simulation_count"] = 100
         e_rules = voting.ElectionRules()
         e_rules["constituency_names"] = ["I", "II", "III"]
         e_rules["parties"] = ["A", "B"]
@@ -49,7 +49,7 @@ class SimulationTest(TestCase):
         r_avg_error = simulate.error(r_avg, 0.5)
         r_var_error = simulate.error(r_var, 1/12.0)
 
-       self.assertLessEqual(r_avg_error, 0.01)
+        self.assertLessEqual(r_avg_error, 0.01)
 
 
         # Verify that µ=0.5±2%

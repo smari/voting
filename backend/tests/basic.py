@@ -45,6 +45,7 @@ class TestMaxEntropy(unittest.TestCase):
         election = Election(rules, votes)
         election.run()
         res = election.get_results_dict()
+        print(res)
         self.assertEqual(res["rules"], rules)
         self.assertEqual(res["seat_allocations"], [[2, 1], [3, 2]])
 

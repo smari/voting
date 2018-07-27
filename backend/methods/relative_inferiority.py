@@ -3,9 +3,12 @@ from copy import deepcopy, copy
 from apportion import apportion1d, threshold_elimination_constituencies
 
 def relative_inferiority(m_votes, v_const_seats, v_party_seats,
-                         m_prior_allocations, divisor_gen, last, threshold=None,
+                         m_prior_allocations, divisor_gen, threshold=None,
                          **kwargs):
     """Apportion by Þorkell Helgason's Relative Inferiority method."""
+
+    assert("last" in kwargs)
+    last = kwargs["last"]
 
     m_allocations = deepcopy(m_prior_allocations)
     num_allocated = sum([sum(x) for x in m_allocations])
@@ -28,7 +31,7 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
             next_alloc_num = sum(m_allocations[j]) + 1
             alloc_next, div = apportion1d(m_votes[j], next_alloc_num,
                                    m_allocations[j], divisor_gen)
-            diff = [alloc_next[i]-m_allocations[j][i] 
+            diff = [alloc_next[i]-m_allocations[j][i]
                     for i in range(len(m_votes[j]))]
             next_in = diff.index(1)
             first_in.append(next_in)
@@ -45,4 +48,4 @@ def relative_inferiority(m_votes, v_const_seats, v_party_seats,
         m_allocations[idx][first_in[idx]] += 1
         last[idx] = next_used[idx]
 
-    return m_allocations
+    return m_allocations, None
