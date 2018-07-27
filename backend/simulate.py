@@ -7,7 +7,6 @@ from copy import copy, deepcopy
 import voting
 import io
 import json
-import configparser
 
 
 def avg(v):
@@ -49,6 +48,10 @@ def beta_gen(m_ref_votes, var_param):
 
 GENERATING_METHODS = {
     "beta": beta_gen
+}
+
+GENERATING_METHOD_NAMES = {
+    "beta": "Beta distribution"
 }
 
 def error(avg, ref):
@@ -129,7 +132,7 @@ class SimulationRules(Rules):
         super(SimulationRules, self).__init__()
         # Simulation rules
         self["simulate"] = False
-        self["simulation_count"] = 10000
+        self["simulation_count"] = 2
         self["gen_method"] = "beta"
 
 
@@ -301,7 +304,7 @@ class Simulation:
                     for c in range(len(results))])
         self.dh_min += dh_min
         self.sq_dh_min += dh_min**2
-        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
+        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 0
                         for p in range(len(results[c]))
                         for c in range(len(results))])
         self.dh_sum += dh_sum
@@ -366,8 +369,7 @@ class Simulation:
         """Simulate many elections."""
         gen = self.gen_votes()
         e_rules = self.election.rules
-        e_rules, ref_rules = sim_election_rules(e_rules,
-                                                self.rules["test_method"])
+        ref_rules = sim_ref_rules(e_rules)
         r = self.election.run()
         self.const_seats, self.sq_const_seats = [], []
         self.adj_seats, self.sq_adj_seats = [], []
@@ -422,9 +424,17 @@ class Simulation:
         self.votes_to_change = votes_to_change(self.election)
 
 
-def sim_election_rules(rs, test_method):
-    config = configparser.ConfigParser()
-    config.read("../data/presets/methods.ini")
+    def get_results_dict(self):
+        return {
+            "methods": [self.election.rules["adjustment_method"]],
+            "measures": ["entropy", "entropy_ratio", "dev_opt", "dev_law", "dev_ind_const", "dev_one_country", "dev_tot_eq_one_country",
+                "lh", "stl", "dh_min", "dh_sum"],
+            "numbers": [self.avg_entropy, self.avg_entropy_ratio, self.avg_dev_opt, self.avg_dev_law, self.avg_dev_ind_const,
+                self.avg_dev_one_country, self.avg_dev_tot_eq_one_country, self.avg_lh, self.avg_stl, self.avg_dh_min, self.avg_dh_sum]
+        }
+
+
+def sim_ref_rules(rs):
 
     opt_rs = voting.ElectionRules()
     law_rs = voting.ElectionRules()
@@ -432,15 +442,12 @@ def sim_election_rules(rs, test_method):
     one_country_rs = voting.ElectionRules()
     tot_eq_one_country_rs = voting.ElectionRules()
 
-    if test_method in config:
-        rs.update(config[test_method])
-    else:
-        raise ValueError("%s is not a known apportionment method" % test_method)
-    rs["adjustment_threshold"] = float(rs["adjustment_threshold"])
     opt_rs.update(rs)
     opt_rs["adjustment_method"] = "alternating-scaling"
-    law_rs.update(config["ice_law_dhondt"])
-    law_rs["adjustment_threshold"] = float(law_rs["adjustment_threshold"])
+    law_rs["adjustment_method"] = "icelandic-law"
+    law_rs["primary_divider"] = "dhondt"
+    law_rs["adjustment_divider"] = "dhondt"
+    law_rs["adjustment_threshold"] = 0.05
     law_rs["constituency_seats"] = rs["constituency_seats"]
     law_rs["constituency_adjustment_seats"] = rs["constituency_adjustment_seats"]
     law_rs["constituency_names"] = rs["constituency_names"]
@@ -466,7 +473,7 @@ def sim_election_rules(rs, test_method):
             "one_country": one_country_rs, 
             "tot_eq_one_country": tot_eq_one_country_rs}
 
-    return rs, ref
+    return ref
 
 def run_script_simulation(rules):
     srs = SimulationRules()

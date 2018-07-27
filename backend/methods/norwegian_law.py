@@ -25,7 +25,7 @@ def norwegian_apportionment(m_votes, v_const_seats, v_party_seats,
 				div = divisor_gen()
 				for k in range(m_allocations[const][party]+1):
 					x = next(div)
-				a = (float(orig_votes[const][party])/s)*v_c_seats[const]/x
+				a = (float(orig_votes[const][party])/s)*(v_const_seats[const]-1)/x
 				m_seat_props[const].append(a)
 			maximums.append(max(m_seat_props[const]))
 

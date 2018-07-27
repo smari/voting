@@ -2,15 +2,13 @@
 """
 This module contains the core voting system logic.
 """
-import random
 import json
-from copy import copy
 from tabulate import tabulate
 from util import load_votes, load_constituencies, entropy
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
 from rules import Rules
-from simulate import SimulationRules, run_script_simulation # TODO: This belongs elsewhere.
+from simulate import SimulationRules, run_script_simulation, GENERATING_METHOD_NAMES # TODO: This belongs elsewhere.
 from methods import *
 import io
 
@@ -61,7 +59,7 @@ DIVIDER_RULE_NAMES = {
 
 
 class ElectionRules(Rules):
-    """A set of rules for an election or a simulation to follow."""
+    """A set of rules for an election to follow."""
 
     def __init__(self):
         super(ElectionRules, self).__init__()
@@ -94,7 +92,7 @@ class ElectionRules(Rules):
         self["output"] = "simple"
 
     def __setitem__(self, key, value):
-        if key == "constituencies" and type(value) == "string":
+        if key == "constituencies":
             value = load_constituencies(value)
             self["constituency_names"] = [x["name"] for x in value]
             self["constituency_seats"] = [x["num_constituency_seats"]
@@ -120,6 +118,8 @@ class Election:
         self.set_votes(votes)
 
     def entropy(self):
+        print(self.m_votes)
+        print(self.results)
         return entropy(self.m_votes, self.results, self.gen)
 
     def set_votes(self, votes):
@@ -224,14 +224,6 @@ class Election:
         self.results = results
         self.gen = gen
 
-        # header = ["Constituency"]
-        # header.extend(self.rules["parties"])
-        # print "\n=== %s ===" %
-        #    (ADJUSTMENT_METHOD_NAMES[self.rules["adjustment_method"]])
-        # data = [[self.rules["constituency_names"][c]]+results[c] for c in
-        #         range(len(self.rules["constituency_names"]))]
-        # print tabulate(data, header, "simple")
-
         if self.rules["show_entropy"]:
             print("\nEntropy: %s" % self.entropy())
 
@@ -281,7 +273,10 @@ ADJUSTMENT_METHOD_NAMES = {
     "relative-superiority": "Relative Superiority Method",
     "relative-inferiority": "Relative Inferiority Method",
     "monge": "Monge algorithm",
-    "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)"
+    "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
+    "norwegian-law": "Norwegian law",
+    "norwegian-icelandic": "Norwegian-Icelandic variant",
+    "lund": "Kristinn Lund's Method"
 }
 
 
@@ -295,6 +290,7 @@ def get_capabilities_dict():
         "capabilities": {
             "divider_rules": DIVIDER_RULE_NAMES,
             "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
+            "generating_methods": GENERATING_METHOD_NAMES
         },
     }
 

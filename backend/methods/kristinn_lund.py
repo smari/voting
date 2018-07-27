@@ -1,5 +1,4 @@
 from apportion import apportion1d
-from copy import deepcopy
 import heapq
 
 def kristinn_lund(m_votes, v_const_seats, v_party_seats, m_prior_allocations,
@@ -14,13 +13,14 @@ def kristinn_lund(m_votes, v_const_seats, v_party_seats, m_prior_allocations,
 	# Allocate adjustment seats as if they were constituency seats
 	m_adj_seats = []
 	for c in range(len(m_prior_allocations)):
-		alloc, div = apportion1d(m_votes[c], v_const_seats[c],
+		votes = [m_votes[c][p] if correct_adj_seats[p] > 0 else 0
+					for p in range(len(m_votes[c]))]
+		alloc, div = apportion1d(votes, v_const_seats[c],
 						m_prior_allocations[c], divisor_gen)
 		adj_seats = [alloc[p]-m_prior_allocations[c][p]
 						for p in range(len(alloc))]
 		m_adj_seats.append(adj_seats)
 
-	
 	# Transfer adjustment seats within constituencies from parties that have
 	#  too many seats to parties that have too few seats, prioritized by
 	#  "sensitivity", until all parties have the correct number of seats
@@ -62,4 +62,3 @@ def kristinn_lund(m_votes, v_const_seats, v_party_seats, m_prior_allocations,
 						for c in range(len(m_adj_seats))]
 
 	return m_allocations
-	

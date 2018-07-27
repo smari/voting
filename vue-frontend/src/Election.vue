@@ -9,6 +9,10 @@
   <VoteMatrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @recalculate="recalculate" @server-error="serverError">
   </VoteMatrix>
 
+  <h2>Settings</h2>
+  <ElectionSettings server="server" @update-rules="updateRules">
+  </ElectionSettings>
+
   <h2>Results</h2>
   <b-container>
     <b-row>
@@ -21,9 +25,6 @@
     </b-row>
   </b-container>
 
-  <h2>Settings</h2>
-  <ElectionSettings server="server" @update-rules="updateRules">
-  </ElectionSettings>
 </div>
 </template>
 

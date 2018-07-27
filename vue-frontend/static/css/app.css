@@ -64,6 +64,10 @@ th.topleft {
   border:         1px solid #ccc;
 }
 
+.resultmatrix {
+  margin-bottom: 1em;
+}
+
 .constname {
   border:         0;
   outline:        0;
@@ -90,6 +94,10 @@ th.topleft {
 
 .simulationdata td, .simulationdata th {
   border:         1px solid #ccc;
+}
+
+.simulationdata {
+  margin-bottom: 1em;
 }
 
 .measurename {

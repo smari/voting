@@ -2,6 +2,7 @@ from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
 from voting import run_script, get_capabilities_dict, get_presets_dict
 import voting
+import simulate as sim
 import os.path
 
 class CustomFlask(Flask):
@@ -35,7 +36,7 @@ def handle_election():
 
     rules = voting.ElectionRules()
 
-    for k, v in data["rules"].iteritems():
+    for k, v in data["rules"].items():
         rules[k] = v
 
     for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
@@ -55,11 +56,49 @@ def handle_election():
     try:
         election = voting.Election(rules, data["votes"])
         election.run()
-    except ZeroDivisionError, e:
+    except ZeroDivisionError:
         return jsonify({"error": "Need to have more votes."})
-    except AssertionError, e:
+    except AssertionError:
         return jsonify({"error": "The data is malformed."})
     return jsonify(election.get_results_dict())
+
+@app.route('/api/simulate/', methods=["POST"])
+def handle_simulation():
+    data = request.get_json(force=True)
+
+    election_rules = voting.ElectionRules()
+
+    for k, v in data["election_rules"].items():
+        election_rules[k] = v
+
+    for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
+        if x in data and data[x]:
+            election_rules[x] = data[x]
+        else:
+            return jsonify({"error": "Missing data ('%s')" % x})
+
+    if not "ref_votes" in data:
+        return jsonify({"error": "Votes missing."})
+
+    for const in data["ref_votes"]:
+        for party in const:
+            if type(party) != int:
+                return jsonify({"error": "Votes must be numbers."})
+
+    simulation_rules = sim.SimulationRules()
+
+    for k, v in data["simulation_rules"].items():
+        simulation_rules[k] = v
+
+    try:
+        election = voting.Election(election_rules, data["ref_votes"])
+        simulation = sim.Simulation(simulation_rules, election)
+        simulation.simulate()
+    except ZeroDivisionError:
+        return jsonify({"error": "Need to have more votes."})
+    #except AssertionError:
+    #    return jsonify({"error": "The data is malformed."})
+    return jsonify(simulation.get_results_dict())
 
 
 @app.route('/api/script/', methods=["POST"])
