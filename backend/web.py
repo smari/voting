@@ -1,9 +1,11 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
+import threading
+import random
+import os.path
 from voting import run_script, get_capabilities_dict, get_presets_dict
 import voting
 import simulate as sim
-import os.path
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -62,10 +64,57 @@ def handle_election():
         return jsonify({"error": "The data is malformed."})
     return jsonify(election.get_results_dict())
 
-@app.route('/api/simulate/', methods=["POST"])
-def handle_simulation():
-    data = request.get_json(force=True)
 
+SIMULATIONS = {}
+SIMULATION_IDX = 0
+
+def run_simulation(sid):
+    SIMULATIONS[sid][1].done = False
+    print("Starting thread %x" % sid)
+    SIMULATIONS[sid][0].simulate()
+    print("Ending thread %x" % sid)
+    SIMULATIONS[sid][1].done = True
+
+
+@app.route('/api/simulate/', methods=['POST'])
+def start_simulation():
+    SIMULATION_IDX += 1
+    h = sha256()
+    h.update(SIMULATION_IDX + ":" + random.randint(1, 100000000))
+    sid = h.hexdigest()
+    thread = threading.Thread(target=run_simulation, args=(sid))
+
+    success, simulation = set_up_simulation()
+    if not success:
+        return jsonify({"started": False, "error": simulation})
+
+    SIMULATIONS[sid] = [simulation, thread]
+
+    thread.start()
+    return jsonify({"started": True, "sid": sid})
+
+
+@app.route('/api/simulate/check/', methods=['GET'])
+def check_simulation():
+    data = request.get_json(force=True)
+    if "sid" not in data:
+        return jsonify({"error": "Please supply a SID."})
+    if data["sid"] not in SIMULATIONS:
+        return jsonify({"error": "Please supply a valid SID."})
+    simulation, thread = SIMULATIONS[data["sid"]]
+    if thread.done:
+        del(SIMULATIONS[data["sid"]])
+
+    return jsonify({
+            "done": thread.done,
+            "iter": simulation.iterations,
+            "target": sim.rules["simulation_count"],
+            "results": sim.get_results_dict()
+        })
+
+
+def set_up_simulation():
+    data = request.get_json(force=True)
     election_rules = voting.ElectionRules()
 
     for k, v in data["election_rules"].items():
@@ -75,15 +124,15 @@ def handle_simulation():
         if x in data and data[x]:
             election_rules[x] = data[x]
         else:
-            return jsonify({"error": "Missing data ('%s')" % x})
+            return False, "Missing data ('%s')" % x
 
     if not "ref_votes" in data:
-        return jsonify({"error": "Votes missing."})
+        return False, "Votes missing."
 
     for const in data["ref_votes"]:
         for party in const:
             if type(party) != int:
-                return jsonify({"error": "Votes must be numbers."})
+                return False, "Votes must be numbers."
 
     simulation_rules = sim.SimulationRules()
 
@@ -93,12 +142,10 @@ def handle_simulation():
     try:
         election = voting.Election(election_rules, data["ref_votes"])
         simulation = sim.Simulation(simulation_rules, election)
-        simulation.simulate()
     except ZeroDivisionError:
-        return jsonify({"error": "Need to have more votes."})
-    #except AssertionError:
-    #    return jsonify({"error": "The data is malformed."})
-    return jsonify(simulation.get_results_dict())
+        return False, "Need to have more votes."
+
+    return True, simulation
 
 
 @app.route('/api/script/', methods=["POST"])
