@@ -132,7 +132,7 @@ class SimulationRules(Rules):
         super(SimulationRules, self).__init__()
         # Simulation rules
         self["simulate"] = False
-        self["simulation_count"] = 2
+        self["simulation_count"] = 10000
         self["gen_method"] = "beta"
 
 
@@ -357,13 +357,6 @@ class Simulation:
         self.var_dh_min = (self.sq_dh_min - self.dh_min**2/n) / (n-1)
         self.avg_dh_sum = self.dh_sum/n
         self.var_dh_sum = (self.sq_dh_sum - self.dh_sum**2/n) / (n-1)
-        print("Average entropy:", self.avg_entropy)
-        print("Average entropy ratio:", self.avg_entropy_ratio)
-        print("Average dev_opt:", self.avg_dev_opt)
-        print("Average dev_law:", self.avg_dev_law)
-        print("Average dev_ind_const:", self.avg_dev_ind_const)
-        print("Average dev_one_country:", self.avg_dev_one_country)
-        print("Average dev_tot_eq_one_country:", self.avg_dev_tot_eq_one_country)
 
     def simulate(self):
         """Simulate many elections."""
@@ -429,8 +422,8 @@ class Simulation:
             "methods": [self.election.rules["adjustment_method"]],
             "measures": ["entropy", "entropy_ratio", "dev_opt", "dev_law", "dev_ind_const", "dev_one_country", "dev_tot_eq_one_country",
                 "lh", "stl", "dh_min", "dh_sum"],
-            "numbers": [self.avg_entropy, self.avg_entropy_ratio, self.avg_dev_opt, self.avg_dev_law, self.avg_dev_ind_const,
-                self.avg_dev_one_country, self.avg_dev_tot_eq_one_country, self.avg_lh, self.avg_stl, self.avg_dh_min, self.avg_dh_sum]
+            "numbers": [round(n,2) for n in [self.avg_entropy, self.avg_entropy_ratio, self.avg_dev_opt, self.avg_dev_law, self.avg_dev_ind_const,
+                self.avg_dev_one_country, self.avg_dev_tot_eq_one_country, self.avg_lh, self.avg_stl, self.avg_dh_min, self.avg_dh_sum]]
         }
 
 
