@@ -239,6 +239,27 @@ Vue.component('voting-resultmatrix', {
 `
 })
 
+Vue.component('voting-resultpiechart', {
+  extends: VueChartJs.Bar,
+  data () {
+    return {
+      datacollection: {
+        labels: ['January', 'February'],
+        datasets: [
+          {
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: [40, 20]
+          }
+        ]
+      }
+    }
+  },
+  mounted () {
+    this.renderChart(this.datacollection, {responsive: true, maintainAspectRatio: false})
+  }
+})
+
 Vue.component('voting-simulationdata', {
   data: function () {
     return {

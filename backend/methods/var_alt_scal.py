@@ -23,7 +23,7 @@ def var_alt_scal(m_votes, v_const_seats, v_party_seats,
         num_total_seats = v_const_seats[const_id]
         cm = const_multiplier = v_const_multipliers[const_id]
         # See IV.3.5 in paper:
-        v_scaled_votes = [a/(b*pm) if b*pm != 0 else 0
+        v_scaled_votes = [a/(b*cm) if b*cm != 0 else 0
                           for a, b in zip(v_votes, v_party_multipliers)]
 
         v_priors = m_allocations[const_id]
@@ -41,8 +41,8 @@ def var_alt_scal(m_votes, v_const_seats, v_party_seats,
     def party_step(v_votes, party_id, v_const_multipliers, v_party_multipliers):
         num_total_seats = v_party_seats[party_id]
         pm = party_multiplier = v_party_multipliers[party_id]
-
-        v_scaled_votes = [a/(b*cm) if b != 0 else 0
+        
+        v_scaled_votes = [a/(b*pm) if b != 0 else 0
                           for a, b in zip(v_votes, v_const_multipliers)]
 
         v_priors = [m_allocations[x][party_id]
@@ -99,7 +99,7 @@ def var_alt_scal(m_votes, v_const_seats, v_party_seats,
     for c in range(num_constituencies):
         num_total_seats = v_const_seats[c]
         cm = const_multipliers[c]
-        v_scaled_votes = [a/(b*pm) if b*pm != 0 else 0
+        v_scaled_votes = [a/(b*cm) if b*cm != 0 else 0
                           for a, b in zip(m_votes[c], party_multipliers)]
         v_priors = m_allocations[c]
         alloc, _ = apportion1d(v_scaled_votes, num_total_seats,

@@ -15,7 +15,7 @@
             <b-form-select v-model="rules.election_rules.adjustment_method" :options="rules.capabilities.adjustment_methods" class="mb-3"/>
           </b-form-group>
           <b-form-group label="Adjustment threshold" description="What threshold are parties required to reach to qualify for adjustment seats?">
-            <b-form-input type="number" v-model="rules.election_rules.adjustment_threshold"/>
+            <b-form-input type="number" v-model.number="rules.election_rules.adjustment_threshold"/>
           </b-form-group>
         </b-col>
       </b-row>

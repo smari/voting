@@ -1,8 +1,9 @@
 <template>
+  <b-container>
+  <b-alert :show="measures.length==0">No quality measures found.</b-alert>
   <table class="simulationdata">
     <tr class="methods">
       <th class="small-12 medium-1 topleft">
-
       </th>
       <th v-for="(method, methodidx) in methods" class="small-12 medium-1 column methodname">
         {{ methods[methodidx] }}
@@ -13,19 +14,14 @@
           {{ measures[measureidx] }}
       </th>
       <td v-for="(method, methodidx) in methods" class="small-12 medium-2 column methodnumbers">
-          {{ numbers[measureidx][methodidx] }}
+          {{ numbers[measureidx] }}
       </td>
     </tr>
   </table>
+</b-container>
 </template>
 <script>
 export default {
-  data: function () {
-    return {
-      measures: ["Entropy", "Entropy Ratio", "Dev Opt", "Dev Law", "Dev Ind Const", "Dev One Country", "Dev Tot Eq", "LH", "StL", "dHmin", "dHsum"],
-      methods: ["Alternating Scaling", "Icelandic Law", "Relative superiority"],
-      numbers: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    }
-  },
+  props: ["measures", "methods", "numbers"]
 }
 </script>

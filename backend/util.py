@@ -2,18 +2,20 @@
 import random
 from backports import csv
 from math import log, sqrt
-import sys
+import sys #??????
 import tabulate
 import io
 import xlsxwriter
 import openpyxl
 from copy import deepcopy, copy
+import configparser
 
 from methods import var_alt_scal, alternating_scaling, icelandic_law
 from methods import monge, relative_inferiority, relative_superiority
 from methods import norwegian_law, norwegian_icelandic
 from methods import opt_entropy, kristinn_lund
 
+#??????
 def random_id(length=8):
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
     s = "".join(random.sample(chars, length))
@@ -40,7 +42,7 @@ def load_constituencies(confile):
     cons = []
     for row in reader:
         try:
-            assert(sum([int(x.strip()) for x in row[1:3]]) >= 0)
+            assert(sum([int(x) for x in row[1:3]]) >= 0)
         except Exception as e:
             print(row[1:3])
             raise Exception("Error loading constituency file: "
@@ -172,6 +174,11 @@ def entropy(votes, allocations, divisor_gen):
      allocations.
      $\\sum_i \\sum_j \\sum_k \\log{v_{ij}/d_k}$, more or less.
     """
+    assert(type(votes) == list)
+    assert(all(type(v) == list for v in votes))
+    assert(type(allocations) == list)
+    assert(all(type(a) == list for a in allocations))
+
     e = 0
     for i in range(len(votes)):
         divisor_gens = [divisor_gen() for x in range(len(votes[0]))]
@@ -329,6 +336,18 @@ def election_to_xlsx(election, filename):
     worksheet.write(r, 2, election.entropy(), cell_format)
 
     workbook.close()
+
+def sim_election_rules(rs, test_method):
+    config = configparser.ConfigParser()
+    config.read("../data/presets/methods.ini")
+
+    if test_method in config:
+        rs.update(config[test_method])
+    else:
+        raise ValueError("%s is not a known apportionment method" % test_method)
+    rs["adjustment_threshold"] = float(rs["adjustment_threshold"])
+
+    return rs
 
 def print_simulation(simulation):
     election = simulation.election
@@ -715,5 +734,6 @@ ADJUSTMENT_METHODS = {
     "norwegian-law": norwegian_law,
     "norwegian-icelandic": norwegian_icelandic,
     "opt-entropy": opt_entropy,
-    "lund": kristinn_lund
+    "lund": kristinn_lund,
+    "var-alt-scal": var_alt_scal
 }

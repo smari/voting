@@ -57,6 +57,8 @@ def simulate(votes, constituencies, **kwargs):
         s_rules[arg] = val
 
 
+    e_rules = util.sim_election_rules(e_rules, s_rules["test_method"])
+
     simulation = sim.Simulation(s_rules, election)
 
     simulation.simulate()
@@ -149,7 +151,6 @@ def apportion(votes, **kwargs):
     except AttributeError:
       for arg, val in kwargs.items():
         rules[arg] = val
-
 
     parties, votes = util.load_votes(votes, rules["constituencies"])
     rules["parties"] = parties
