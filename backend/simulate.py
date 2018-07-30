@@ -24,7 +24,7 @@ def beta_distribution(m_ref_votes, var_param):
     m_votes = []
     m_shares = []
     ref_totals = [sum(c) for c in m_ref_votes]
-    
+
     for i in range(len(m_ref_votes)):
         s = 0
         m_votes.append([])
@@ -145,6 +145,7 @@ class Simulation:
         self.variate = self.rules["gen_method"]
         self.election = election
         self.var_param = var_param
+        self.iteration = 0
 
     def gen_votes(self):
         """
@@ -259,7 +260,7 @@ class Simulation:
         bi_seat_shares = deepcopy(votes)
         const_mult = [1]*len(bi_seat_shares)
         party_mult = [1]*len(bi_seat_shares[0])
-        seats_party_opt = [sum([c[p] for c in opt_results]) 
+        seats_party_opt = [sum([c[p] for c in opt_results])
                             for p in range(len(opt_results[0]))]
         error = 1
         while round(error, 5) != 0.0:
@@ -390,6 +391,7 @@ class Simulation:
         self.dh_sum, self.sq_dh_sum = 0, 0
         self.seats_total_const = copy(self.election.v_total_seats)
         for i in range(self.rules["simulation_count"]):
+            self.iteration = i
             votes, shares = next(gen)
             election = voting.Election(e_rules, votes)
             results = election.run()
@@ -463,7 +465,7 @@ def sim_ref_rules(rs):
     ref = {"opt": opt_rs,
             "law": law_rs,
             "ind_const": ind_const_rs,
-            "one_country": one_country_rs, 
+            "one_country": one_country_rs,
             "tot_eq_one_country": tot_eq_one_country_rs}
 
     return ref
