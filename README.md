@@ -203,8 +203,8 @@ The SPA is currently being refactored using [create-react-app](https://github.co
        * [x] Evaluation metrics
     * [ ] Visualizations
        * [ ] "Election TV" result animations
-      * [ ] Simulation errors
-      * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
+       * [ ] Simulation errors
+       * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
  * [x] Configurable host/port/etc
 
 ### Tickets
@@ -214,10 +214,12 @@ See [our issue tracker on Github](https://github.com/smari/voting/issues).
 
 ## Authors
 
-Smári McCarthy, Þorkell Helgason and Kurt Jörnsten.
-
-Contributions from Pétur Ólafur Aðalgeirsson, Helgi Hrafn Gunnarsson and
-Bjartur Thorlacius.
+ * Smári McCarthy
+ * Þorkell Helgason
+ * Martha Guðrún Bjarnadóttir
+ * Pétur Ólafur Aðalgeirsson
+ * Helgi Hrafn Gunnarsson
+ * Bjartur Thorlacius.
 
 ## Licence
 
