@@ -14,7 +14,9 @@
     <SimulationSettings @update-rules="updateSimulationRules">
     </SimulationSettings>
 
-    <b-button @click="recalculate">Simulate</b-button>
+    <b-button :show="simulation_done" @click="recalculate">Simulate</b-button>
+    <b-button :show="!simulation_done" @click="stop_simulation">Stop simulation</b-button>
+    <b-progress :show="!simulation_done" :value="current_iteration" :max="simulation_rules.simulation_count" show-progress animated></b-progress>
 
     <h2>Quality measures</h2>
     <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data">
@@ -59,6 +61,9 @@ export default {
         simulation_count: 0,
         gen_method: "",
       },
+      simulation_done: true,
+      current_iteration: 0,
+      inflight: 0,
       ref_votes: [],
       results: { measures: [], methods: [], data: []},
     }
@@ -88,7 +93,58 @@ export default {
     serverError: function(error) {
       this.server.errormsg = error;
     },
+    stop_simulation: function() {
+      this.$http.post('/api/simulate/stop/',
+        {
+          sid: this.sid
+        }).then(response => {
+          if (response.body.error) {
+            this.server.errormsg = response.body.error;
+            this.server.waitingForData = false;
+          } else {
+            this.server.errormsg = '';
+            this.server.error = false;
+            this.simulation_done = response.body.done;
+            this.current_iteration = response.body.iter;
+            this.results = response.body.results;
+            this.server.waitingForData = false;
+            if (this.simulation_done) {
+              window.clearInterval(this.checktimer);
+            }
+          }
+        }, response => {
+          this.server.error = true;
+          this.server.waitingForData = false;
+        });
+    },
+    checkstatus: function() {
+      this.inflight++;
+      this.$http.post('/api/simulate/check/',
+        {
+          sid: this.sid
+        }).then(response => {
+          this.inflight--;
+          if (response.body.error) {
+            this.server.errormsg = response.body.error;
+            this.server.waitingForData = false;
+          } else {
+            this.server.errormsg = '';
+            this.server.error = false;
+            this.simulation_done = response.body.done;
+            this.current_iteration = response.body.iter;
+            this.results = response.body.results;
+            this.server.waitingForData = false;
+            if (this.simulation_done) {
+              window.clearInterval(this.checktimer);
+            }
+          }
+        }, response => {
+          this.server.error = true;
+          this.server.waitingForData = false;
+        });
+    },
     recalculate: function() {
+      this.current_iteration = 0;
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
         {
@@ -106,10 +162,10 @@ export default {
           } else {
             this.server.errormsg = '';
             this.server.error = false;
-            this.results["measures"] = response.body.measures;
-            this.results["methods"] = response.body.methods;
-            this.results["data"] = response.body.data;
+            this.sid = response.body.sid;
+            this.simulation_done = !response.body.started;
             this.server.waitingForData = false;
+            this.checktimer = window.setInterval(this.checkstatus, 300);
           }
         }, response => {
           this.server.error = true;

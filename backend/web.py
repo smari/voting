@@ -66,25 +66,29 @@ def handle_election():
     return jsonify(election.get_results_dict())
 
 
+SIMULATIONS = {}
+SIMULATION_IDX = 0
+
 def run_simulation(sid):
+    global SIMULATIONS
     SIMULATIONS[sid][1].done = False
-    print("Starting thread %x" % sid)
+    print("Starting thread %s" % sid)
     SIMULATIONS[sid][0].simulate()
-    print("Ending thread %x" % sid)
+    print("Ending thread %s" % sid)
     SIMULATIONS[sid][1].done = True
 
 
 @app.route('/api/simulate/', methods=['POST'])
 def start_simulation():
-    try:
-        SIMULATION_IDX += 1
-    except UnboundLocalError:
-        SIMULATIONS = {}
-        SIMULATION_IDX = 0
+    global SIMULATIONS
+    global SIMULATION_IDX
+
+    SIMULATION_IDX += 1
+
     h = sha256()
-    h.update(SIMULATION_IDX + ":" + random.randint(1, 100000000))
+    h.update(str(SIMULATION_IDX) + ":" + str(random.randint(1, 100000000)))
     sid = h.hexdigest()
-    thread = threading.Thread(target=run_simulation, args=(sid))
+    thread = threading.Thread(target=run_simulation, args=(sid,))
 
     success, simulation = set_up_simulation()
     if not success:
@@ -96,7 +100,7 @@ def start_simulation():
     return jsonify({"started": True, "sid": sid})
 
 
-@app.route('/api/simulate/check/', methods=['GET'])
+@app.route('/api/simulate/check/', methods=['GET', 'POST'])
 def check_simulation():
     data = request.get_json(force=True)
     if "sid" not in data:
@@ -109,9 +113,28 @@ def check_simulation():
 
     return jsonify({
             "done": thread.done,
-            "iter": simulation.iterations,
-            "target": sim.rules["simulation_count"],
-            "results": sim.get_results_dict()
+            "iter": simulation.iteration,
+            "target": simulation.sim_rules["simulation_count"],
+            "results": simulation.get_results_dict()
+        })
+
+@app.route('/api/simulate/stop/', methods=['GET', 'POST'])
+def stop_simulation():
+    data = request.get_json(force=True)
+    if "sid" not in data:
+        return jsonify({"error": "Please supply a SID."})
+    if data["sid"] not in SIMULATIONS:
+        return jsonify({"error": "Please supply a valid SID."})
+    simulation, thread = SIMULATIONS[data["sid"]]
+    thread.join()
+    if thread.done:
+        del(SIMULATIONS[data["sid"]])
+
+    return jsonify({
+            "done": thread.done,
+            "iter": simulation.iteration,
+            "target": simulation.sim_rules["simulation_count"],
+            "results": simulation.get_results_dict()
         })
 
 

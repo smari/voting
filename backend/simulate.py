@@ -174,7 +174,7 @@ class Simulation:
                 self.sq_simul_shares[i][-1] += sum(shares[i])**2
             total_votes = [sum([c[p] for c in votes]) for p in range(len(votes[0]))]
             total_votes.append(sum(total_votes))
-            total_shares = [t/total_votes[-1] for t in total_votes]
+            total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0 for t in total_votes]
             for i in range(len(total_votes)):
                 self.simul_votes[-1][i] += total_votes[i]
                 self.sq_simul_votes[-1][i] += total_votes[i]**2
@@ -451,6 +451,7 @@ class Simulation:
 
 
     def get_results_dict(self):
+        self.analysis()
         return {
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": ["Entropy", "Entropy Ratio", "Seat Deviation from Optimal", "Seat Deviation from Icelandic Law",
