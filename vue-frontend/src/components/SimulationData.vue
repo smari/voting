@@ -13,7 +13,7 @@
           {{ measures[measureidx] }}
       </th>
       <td v-for="(method, methodidx) in methods" class="small-12 medium-2 column methoddata">
-          {{ data[measureidx] }}
+          {{ data[measureidx][methodidx] }}
       </td>
     </tr>
   </table>
