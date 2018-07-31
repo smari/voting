@@ -46,7 +46,6 @@ def simulate(votes, constituencies, **kwargs):
     e_rules["constituencies"] = constituencies
     parties, votes = util.load_votes(votes, e_rules["constituencies"])
     e_rules["parties"] = parties
-    election = voting.Election(e_rules, votes)
     s_rules = sim.SimulationRules()
 
     try:
@@ -59,7 +58,7 @@ def simulate(votes, constituencies, **kwargs):
 
     e_rules = util.sim_election_rules(e_rules, s_rules["test_method"])
 
-    simulation = sim.Simulation(s_rules, election)
+    simulation = sim.Simulation(s_rules, [e_rules], votes)
 
     simulation.simulate()
 
