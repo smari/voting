@@ -29,7 +29,7 @@ def beta_distribution(m_ref_votes, var_param):
         s = 0
         m_votes.append([])
         for j in range(len(m_ref_votes[i])):
-            mean_beta_distr = m_ref_votes[i][j]/ref_totals[i]
+            mean_beta_distr = m_ref_votes[i][j]/float(ref_totals[i])
             if mean_beta_distr > 0:
                 var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
                 alpha, beta = beta_params(mean_beta_distr, var_param)
@@ -37,7 +37,7 @@ def beta_distribution(m_ref_votes, var_param):
             else:
                 share = 0
             m_votes[i].append(int(share*ref_totals[i]))
-        shares = [v/sum(m_votes[i]) for v in m_votes[i]]
+        shares = [v/float(sum(m_votes[i])) for v in m_votes[i]]
         m_shares.append(shares)
 
     return m_votes, m_shares
@@ -165,7 +165,8 @@ class Simulation:
         gen = GENERATING_METHODS[self.variate]
         while True:
             rv = [v[:-1] for v in self.ref_votes[:-1]]
-            votes, shares = next(gen(rv, self.var_param))
+            variategenerator = gen(rv, self.var_param)
+            votes, shares = variategenerator.next()
             for i in range(len(votes)):
                 for j in range(len(votes[i])):
                     self.simul_votes[i][j] += votes[i][j]
@@ -178,7 +179,7 @@ class Simulation:
                 self.sq_simul_shares[i][-1] += sum(shares[i])**2
             total_votes = [sum([c[p] for c in votes]) for p in range(len(votes[0]))]
             total_votes.append(sum(total_votes))
-            total_shares = [t/total_votes[-1] for t in total_votes]
+            total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0 for t in total_votes]
             for i in range(len(total_votes)):
                 self.simul_votes[-1][i] += total_votes[i]
                 self.sq_simul_votes[-1][i] += total_votes[i]**2
@@ -455,6 +456,7 @@ class Simulation:
 
 
     def get_results_dict(self):
+        self.analysis()
         return {
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": ["Entropy", "Entropy Ratio", "Seat Deviation from Optimal", "Seat Deviation from Icelandic Law",
