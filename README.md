@@ -137,13 +137,18 @@ The SPA is currently being refactored using [create-react-app](https://github.co
  * [x] Constituency seat allocation
  * [x] Threshold elimination (on matrices and vectors)
  * [ ] Optimization and heuristic methods
+   * [ ] Linear programming
+   * [x] Greedy Alternating-Scaling algorithm (AS)
    * [x] Alternating-Scaling algorithm (AS)
    * [x] Relative Superiority algorithm (RS)
-   * [x] Relative Inferiority algorithm (RI)
+   * [ ] Relative Inferiority algorithm (RI)
+   * [x] Nearest neighbor algorithm
    * [x] Monge algorithm
    * [x] Icelandic voting law algorithm
    * [ ] Swedish voting law algorithm
    * [x] Norwegian voting law algorithm
+   * [x] Norwegian voting law algorithm adjusted for Icelandic conditions
+   * [x] Kristinn Lund method
 
 ### Simulation
 
@@ -153,13 +158,21 @@ The SPA is currently being refactored using [create-react-app](https://github.co
 	* Add votes, one-by-one, in support of a party list in a district
 		* If a new vote doesn't gain that party list a seat, report any change in results.
 		* Even if a new vote does gain that party list a seat, do report if the result change is greater than just moving a seat in the relevant constituency between parties and moving one seat in the opposite direction in another constituency.
-* [ ] Resolve ties
-* [ ] Compare different methods
+* [x] Compare different apportionment methods
 
 ### Evaluation of methods
 
- * [x] Entropy measurement
- * [ ] _Comparative error estimation_: count number of seat-flips from optimal
+ * [x] Apportionment entropy
+ * [x] Entropy relative to optimal entropy
+ * [x] Seat deviation from optimal solution
+ * [x] Seat deviation from Icelandic law
+ * [x] Seat deviation from independent constituencies
+ * [x] Seat deviation from single constituency country
+ * [x] Seat deviation from all seats apportioned with adjustment method
+ * [x] Loosemore-Hanby index
+ * [x] Sainte-Lague minsum index
+ * [x] d'Hondt maxmin index
+ * [x] d'Hondt minsum index
  * [ ] _Monotonicity violation_: A party list losing a seat by receiving an additional vote
  * [ ] _Significant irrelevant alternative_: A new vote having side effects without without affecting the number of seats won by the party list voted for.
 
@@ -180,18 +193,18 @@ The SPA is currently being refactored using [create-react-app](https://github.co
  * [x] Simple web server
  * [ ] Javascript SPA
     * [x] Configurable running of single elections
-    * [ ] Configurable running of simulations
+    * [x] Configurable running of simulations
     * [ ] Display results
        * [x] Votes
        * [ ] Vote shares
        * [ ] Constituency seats
        * [ ] Adjustment seats
        * [x] Total seats
-       * [ ] Evaluation metrics
+       * [x] Evaluation metrics
     * [ ] Visualizations
        * [ ] "Election TV" result animations
-      * [ ] Simulation errors
-      * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
+       * [ ] Simulation errors
+       * [ ] 3D bar chart of cumulative violations in the constituency/party matrix
  * [x] Configurable host/port/etc
 
 ### Tickets
@@ -201,10 +214,12 @@ See [our issue tracker on Github](https://github.com/smari/voting/issues).
 
 ## Authors
 
-Smári McCarthy, Þorkell Helgason and Kurt Jörnsten.
-
-Contributions from Pétur Ólafur Aðalgeirsson, Helgi Hrafn Gunnarsson and
-Bjartur Thorlacius.
+ * Smári McCarthy
+ * Þorkell Helgason
+ * Martha Guðrún Bjarnadóttir
+ * Pétur Ólafur Aðalgeirsson
+ * Helgi Hrafn Gunnarsson
+ * Bjartur Thorlacius.
 
 ## Licence
 
