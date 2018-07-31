@@ -166,7 +166,7 @@ class Simulation:
         while True:
             rv = [v[:-1] for v in self.ref_votes[:-1]]
             variategenerator = gen(rv, self.var_param)
-            votes, shares = variategenerator.next()
+            votes, shares = next(variategenerator)
             for i in range(len(votes)):
                 for j in range(len(votes[i])):
                     self.simul_votes[i][j] += votes[i][j]
