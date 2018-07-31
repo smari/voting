@@ -29,7 +29,7 @@ def beta_distribution(m_ref_votes, var_param):
         s = 0
         m_votes.append([])
         for j in range(len(m_ref_votes[i])):
-            mean_beta_distr = m_ref_votes[i][j]/ref_totals[i]
+            mean_beta_distr = m_ref_votes[i][j]/float(ref_totals[i])
             if mean_beta_distr > 0:
                 var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
                 alpha, beta = beta_params(mean_beta_distr, var_param)
@@ -37,17 +37,13 @@ def beta_distribution(m_ref_votes, var_param):
             else:
                 share = 0
             m_votes[i].append(int(share*ref_totals[i]))
-        shares = [v/sum(m_votes[i]) for v in m_votes[i]]
+        shares = [v/float(sum(m_votes[i])) for v in m_votes[i]]
         m_shares.append(shares)
 
     return m_votes, m_shares
 
-def beta_gen(m_ref_votes, var_param):
-    while True:
-        yield beta_distribution(m_ref_votes, var_param)
-
 GENERATING_METHODS = {
-    "beta": beta_gen
+    "beta": beta_distribution
 }
 
 GENERATING_METHOD_NAMES = {
@@ -165,7 +161,7 @@ class Simulation:
         gen = GENERATING_METHODS[self.variate]
         while True:
             rv = [v[:-1] for v in self.ref_votes[:-1]]
-            votes, shares = next(gen(rv, self.var_param))
+            votes, shares = gen(rv, self.var_param)
             for i in range(len(votes)):
                 for j in range(len(votes[i])):
                     self.simul_votes[i][j] += votes[i][j]
@@ -315,7 +311,7 @@ class Simulation:
         self.sq_dh_sum[idx] += dh_sum**2
 
     def analysis(self):
-        n = self.sim_rules["simulation_count"]
+        n = self.iteration
         self.avg_const_seats, self.var_const_seats = [], []
         self.avg_adj_seats, self.var_adj_seats = [], []
         self.avg_total_seats, self.var_total_seats = [], []
