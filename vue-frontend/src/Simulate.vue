@@ -4,7 +4,7 @@
 
     <h2>Reference votes</h2>
     <p>Reference votes are the votes that will be used as a reference for the statistical distribution in the simulation.</p>
-    <VoteMatrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @recalculate="recalculate" @server-error="serverError">
+    <VoteMatrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @server-error="serverError">
     </VoteMatrix>
 
     <h2>Settings</h2>
@@ -14,8 +14,10 @@
     <SimulationSettings @update-rules="updateSimulationRules">
     </SimulationSettings>
 
+    <b-button @click="recalculate">Simulate</b-button>
+
     <h2>Quality measures</h2>
-    <SimulationData :measures="results.measures" :methods="results.methods" :numbers="results.numbers">
+    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data">
     </SimulationData>
 
   </div>
@@ -58,51 +60,30 @@ export default {
         gen_method: "",
       },
       ref_votes: [],
-      results: { measures: [], methods: [], numbers: []},
+      results: { measures: [], methods: [], data: []},
     }
   },
   methods: {
     updateElectionRules: function(rules, recalc) {
       this.election_rules = rules;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     updateSimulationRules: function(rules, recalc) {
       this.simulation_rules = rules;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     updateVotes: function(votes, recalc) {
       this.ref_votes = votes;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     updateConstituencySeats: function(seats, recalc) {
       this.constituency_seats = seats;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     updateAdjustmentSeats: function(seats, recalc) {
       this.constituency_adjustment_seats = seats;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     updateConstituencies: function(cons, recalc) {
       this.constituency_names = cons;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     updateParties: function(parties, recalc) {
       this.parties = parties;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     serverError: function(error) {
       this.server.errormsg = error;
@@ -127,7 +108,7 @@ export default {
             this.server.error = false;
             this.results["measures"] = response.body.measures;
             this.results["methods"] = response.body.methods;
-            this.results["numbers"] = response.body.numbers;
+            this.results["data"] = response.body.data;
             this.server.waitingForData = false;
           }
         }, response => {

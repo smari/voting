@@ -6,6 +6,7 @@ import os.path
 from voting import run_script, get_capabilities_dict, get_presets_dict
 import voting
 import simulate as sim
+from hashlib import sha256
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -65,9 +66,6 @@ def handle_election():
     return jsonify(election.get_results_dict())
 
 
-SIMULATIONS = {}
-SIMULATION_IDX = 0
-
 def run_simulation(sid):
     SIMULATIONS[sid][1].done = False
     print("Starting thread %x" % sid)
@@ -78,7 +76,11 @@ def run_simulation(sid):
 
 @app.route('/api/simulate/', methods=['POST'])
 def start_simulation():
-    SIMULATION_IDX += 1
+    try:
+        SIMULATION_IDX += 1
+    except UnboundLocalError:
+        SIMULATIONS = {}
+        SIMULATION_IDX = 0
     h = sha256()
     h.update(SIMULATION_IDX + ":" + random.randint(1, 100000000))
     sid = h.hexdigest()
@@ -140,8 +142,7 @@ def set_up_simulation():
         simulation_rules[k] = v
 
     try:
-        election = voting.Election(election_rules, data["ref_votes"])
-        simulation = sim.Simulation(simulation_rules, election)
+        simulation = sim.Simulation(simulation_rules, [election_rules], data["ref_votes"])
     except ZeroDivisionError:
         return False, "Need to have more votes."
 

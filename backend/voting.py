@@ -16,7 +16,7 @@ from methods.var_alt_scal import *
 from methods.alternating_scaling import *
 from methods.icelandic_law import *
 from methods.monge import *
-from methods.relative_inferiority import *
+from methods.nearest_neighbor import *
 from methods.relative_superiority import *
 from methods.norwegian_law import *
 from methods.norwegian_icelandic import *
@@ -92,7 +92,7 @@ class ElectionRules(Rules):
         self["output"] = "simple"
 
     def __setitem__(self, key, value):
-        if key == "constituencies" and type(value) in [str, unicode]:
+        if key == "constituencies":
             value = load_constituencies(value)
             self["constituency_names"] = [x["name"] for x in value]
             self["constituency_seats"] = [x["num_constituency_seats"]
@@ -118,8 +118,6 @@ class Election:
         self.set_votes(votes)
 
     def entropy(self):
-        print(self.m_votes)
-        print(self.results)
         return entropy(self.m_votes, self.results, self.gen)
 
     def set_votes(self, votes):
@@ -242,7 +240,7 @@ ADJUSTMENT_METHODS = {
     "var-alt-scal": var_alt_scal,
     "alternating-scaling": alternating_scaling,
     "relative-superiority": relative_superiority,
-    "relative-inferiority": relative_inferiority,
+    "nearest-neighbor": nearest_neighbor,
     "monge": monge,
     "icelandic-law": icelandic_apportionment,
     "norwegian-law": norwegian_apportionment,
@@ -254,7 +252,7 @@ ADJUSTMENT_METHODS = {
 ADJUSTMENT_METHOD_NAMES = {
     "alternating-scaling": "Alternating-Scaling Method",
     "relative-superiority": "Relative Superiority Method",
-    "relative-inferiority": "Relative Inferiority Method",
+    "nearest-neighbor": "Nearest Neighbor Method",
     "monge": "Monge algorithm",
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
     "norwegian-law": "Norwegian law",
