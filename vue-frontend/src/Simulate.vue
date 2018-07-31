@@ -145,6 +145,8 @@ export default {
     },
     recalculate: function() {
       this.current_iteration = 0;
+      this.results = { measures: [], methods: [], data: []}
+      this.sid = "";
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
         {
