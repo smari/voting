@@ -7,6 +7,7 @@ from copy import copy, deepcopy
 import voting
 import io
 import json
+from datetime import datetime, timedelta
 
 
 def avg(v):
@@ -143,6 +144,8 @@ class Simulation:
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
+        self.terminate = False
+        self.iteration_time = timedelta(0)
 
     def gen_votes(self):
         """
@@ -422,7 +425,10 @@ class Simulation:
             self.ref_results.append(add_totals(results))
             self.ref_const_seats.append(add_totals(election.const_seats_alloc))
         for i in range(self.sim_rules["simulation_count"]):
+            round_start = datetime.now()
             self.iteration = i
+            if self.terminate:
+                break
             votes, shares = next(gen)
             for r in range(len(self.e_rules)):
                 election = voting.Election(self.e_rules[r], votes)
@@ -445,6 +451,8 @@ class Simulation:
                 self.entropy[r] += entropy
                 self.sq_entropy[r] += entropy**2
                 self.method_analysis(r, votes, results, entropy)
+            round_end = datetime.now()
+            self.iteration_time = round_end - round_start
         self.analysis()
         self.test_generated()
 
