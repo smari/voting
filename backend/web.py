@@ -114,7 +114,8 @@ def check_simulation():
 
     return jsonify({
             "done": thread.done,
-            "iter": simulation.iteration,
+            "iteration": simulation.iteration,
+            "iteration_time": simulation.iteration_time.seconds + (simulation.iteration_time.microseconds/1000000.0),
             "target": simulation.sim_rules["simulation_count"],
             "results": simulation.get_results_dict()
         })
@@ -127,13 +128,15 @@ def stop_simulation():
     if data["sid"] not in SIMULATIONS:
         return jsonify({"error": "Please supply a valid SID."})
     simulation, thread = SIMULATIONS[data["sid"]]
+
+    simulation.terminate = True
     thread.join()
     if thread.done:
         del(SIMULATIONS[data["sid"]])
 
     return jsonify({
             "done": thread.done,
-            "iter": simulation.iteration,
+            "iteration": simulation.iteration,
             "target": simulation.sim_rules["simulation_count"],
             "results": simulation.get_results_dict()
         })
