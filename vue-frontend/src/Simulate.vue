@@ -17,7 +17,7 @@
     <b-button @click="recalculate">Simulate</b-button>
 
     <h2>Quality measures</h2>
-    <SimulationData :measures="results.measures" :methods="results.methods" :numbers="results.numbers">
+    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data">
     </SimulationData>
 
   </div>
@@ -60,7 +60,7 @@ export default {
         gen_method: "",
       },
       ref_votes: [],
-      results: { measures: [], methods: [], numbers: []},
+      results: { measures: [], methods: [], data: []},
     }
   },
   methods: {
@@ -108,7 +108,7 @@ export default {
             this.server.error = false;
             this.results["measures"] = response.body.measures;
             this.results["methods"] = response.body.methods;
-            this.results["numbers"] = response.body.numbers;
+            this.results["data"] = response.body.data;
             this.server.waitingForData = false;
           }
         }, response => {
