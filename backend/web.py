@@ -86,7 +86,8 @@ def start_simulation():
     SIMULATION_IDX += 1
 
     h = sha256()
-    h.update(str(SIMULATION_IDX) + ":" + str(random.randint(1, 100000000)))
+    sidbytes = (str(SIMULATION_IDX) + ":" + str(random.randint(1, 100000000))).encode('utf-8')
+    h.update(sidbytes)
     sid = h.hexdigest()
     thread = threading.Thread(target=run_simulation, args=(sid,))
 

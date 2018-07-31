@@ -162,6 +162,7 @@ class Simulation:
         while True:
             rv = [v[:-1] for v in self.ref_votes[:-1]]
             votes, shares = gen(rv, self.var_param)
+
             for i in range(len(votes)):
                 for j in range(len(votes[i])):
                     self.simul_votes[i][j] += votes[i][j]
