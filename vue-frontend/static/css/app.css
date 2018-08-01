@@ -108,11 +108,11 @@ th.topleft {
   background:     none;
 }
 
-.methodnumbers, .methodname {
+.methoddata, .methodname {
   width:          150px;
   border:         0;
   outline:        0;
   padding:        8px;
-  text-align:     right;
+  text-align:     center;
   background:     none;
 }
