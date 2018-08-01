@@ -484,7 +484,8 @@ def sim_ref_rules(rs):
     opt_rs["adjustment_method"] = "alternating-scaling"
     law_rs["adjustment_method"] = "icelandic-law"
     law_rs["primary_divider"] = "dhondt"
-    law_rs["adjustment_divider"] = "dhondt"
+    law_rs["adj_determine_divider"] = "dhondt"
+    law_rs["adj_alloc_divider"] = "dhondt"
     law_rs["adjustment_threshold"] = 0.05
     law_rs["constituency_seats"] = rs["constituency_seats"]
     law_rs["constituency_adjustment_seats"] = rs["constituency_adjustment_seats"]
