@@ -33,7 +33,86 @@ class AdjustmentMethodsTestMeta(type):
 class AdjustmentMethodsTest(TestCase):
     __metaclass__ = AdjustmentMethodsTestMeta
 
+class TestAdjustmentMethods(TestCase):
+    def setUp(self):
+        self.rules = voting.ElectionRules()
+        votes_file = "../data/elections/iceland_landskjorstjorn_2013.xlsx"
+        const_file = "../data/constituencies/constituencies_iceland_2013.csv"
+        self.rules["constituencies"] = const_file
+        parties, votes = util.load_votes(votes_file, self.rules["constituencies"])
+        self.rules["parties"] = parties
+        self.votes = votes
 
+    def test_alternating_scaling(self):
+        self.rules["adjustment_method"] = "alternating-scaling"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_var_alt_scal(self):
+        self.rules["adjustment_method"] = "var-alt-scal"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_icelandic_law(self):
+        self.rules["adjustment_method"] = "icelandic-law"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_switching(self):
+        self.rules["adjustment_method"] = "lund"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_nearest_neighbor(self):
+        self.rules["adjustment_method"] = "nearest-neighbor"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [2,3,4,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,4,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_norwegian_icelandic(self):
+        self.rules["adjustment_method"] = "norwegian-icelandic"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [0,4,3,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [2,3,4,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_relative_superiority(self):
+        self.rules["adjustment_method"] = "relative-superiority"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
 
 class DividerRulesTestMeta(type):
     def __new__(cls, name, bases, attrs):
