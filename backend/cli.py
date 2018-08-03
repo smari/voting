@@ -67,40 +67,6 @@ def simulate(votes, constituencies, **kwargs):
     if s_rules["to_xlsx"]:
         util.simulation_to_xlsx(simulation, s_rules["to_xlsx"])
 
-    # divider, adjustment_divider, constituencies, votes, voters,
-    # simulations, threshold, betavariancesquared, partyweight, output,
-    # adjustment_method
-
-    # 1. Setup:
-    #  - Load data files
-    #  - Select methods
-    # threshold *= 0.01
-    # const = util.load_constituencies(constituencies)
-    # parties, votes = util.load_votes(votes, const)
-    #
-    # divmethod = voting.DIVIDER_RULES[divider]
-    # if not adjustment_divider:
-    #     adjustment_divmethod = divmethod
-    # else:
-    #     adjustment_divmethod = voting.DIVIDER_RULES[adjustment_divider]
-    #
-    # for sim in range(simulations):
-    #     print "\rSimulation %d" % sim,
-    #     sys.stdout.flush()
-    #
-    #     for meth in adjustment_method:
-    #         method = voting.ADJUSTMENT_METHODS[meth]
-    #
-    #         results = method(votes, v_const_seats, v_party_adjustment_seats,
-    #                          m_allocations, adjustment_divmethod, threshold)
-
-    # Output:
-    #  - delta of entropy from optimal
-    #  - delta of seats from optimal
-    #  - smallest number of votes behind a seat
-    #  - largest number of votes behind a seat
-    #
-
 @cli.command()
 @click.argument('rules', required=True,
                 type=click.Path(exists=True))
@@ -144,6 +110,8 @@ def apportion(votes, **kwargs):
     """Do regular apportionment based on votes and constituency data."""
     rules = voting.ElectionRules()
     kwargs["adjustment_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
+    kwargs["adj_determine_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
+    kwargs["adj_alloc_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
     try:
       for arg, val in kwargs.iteritems():
         rules[arg] = val

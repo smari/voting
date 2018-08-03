@@ -158,7 +158,30 @@ class Election:
         """Conduct primary apportionment"""
         if self.rules["debug"]:
             print(" + Primary apportionment")
-        m_allocations, v_seatcount = self.primary_apportionment(self.m_votes)
+
+        gen = self.rules.get_generator("primary_divider")
+        const = self.rules["constituency_seats"]
+        parties = self.rules["parties"]
+
+        m_allocations = []
+        self.last = []
+        for i in range(len(const)):
+            num_seats = const[i]
+            if num_seats != 0:
+                alloc, div = apportion1d(self.m_votes[i], num_seats, [0]*len(parties), gen)
+                self.last.append(div[2])
+            else:
+                alloc = [0]*len(parties)
+                self.last.append(0)
+            # v_allocations = [seats.count(p) for p in range(len(parties))]
+            m_allocations.append(alloc)
+            # self.order.append(seats)
+
+        # Useful:
+        # print tabulate([[parties[x] for x in y] for y in self.order])
+
+        v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
+
         self.const_seats_alloc = m_allocations
         self.v_cur_allocations = v_seatcount
 
@@ -207,33 +230,6 @@ class Election:
 
         if self.rules["show_entropy"]:
             print("\nEntropy: %s" % self.entropy())
-
-    def primary_apportionment(self, m_votes):
-        """Do primary allocation of seats for all constituencies"""
-        gen = self.rules.get_generator("primary_divider")
-        const = self.rules["constituency_seats"]
-        parties = self.rules["parties"]
-
-        m_allocations = []
-        self.last = []
-        for i in range(len(const)):
-            num_seats = const[i]
-            if num_seats != 0:
-                alloc, div = apportion1d(m_votes[i], num_seats, [0]*len(parties), gen)
-                self.last.append(div[2])
-            else:
-                alloc = [0]*len(parties)
-                self.last.append(0)
-            # v_allocations = [seats.count(p) for p in range(len(parties))]
-            m_allocations.append(alloc)
-            # self.order.append(seats)
-
-        # Useful:
-        # print tabulate([[parties[x] for x in y] for y in self.order])
-
-        v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
-
-        return m_allocations, v_seatcount
 
 
 ADJUSTMENT_METHODS = {
