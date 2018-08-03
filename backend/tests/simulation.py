@@ -40,15 +40,15 @@ class SimulationTest(TestCase):
         	r_var.append([])
         	for j in range(len(votes[i])):
         		r_ij = [r[k][i][j] for k in range(s_rules["simulation_count"])]
-        		average = simulate.avg(r_ij)
-        		r_avg[i].append(average)
-        		r_var[i].append(simulate.var(r_ij, average))
+        		# average = simulate.avg(r_ij)
+        		# r_avg[i].append(average)
+        		# r_var[i].append(simulate.var(r_ij, average))
 
         sim.test_generated()
-        r_avg_error = simulate.error(r_avg, 0.5)
-        r_var_error = simulate.error(r_var, 1/12.0)
+        # r_avg_error = simulate.error(r_avg, 0.5)
+        # r_var_error = simulate.error(r_var, 1/12.0)
 
-        self.assertLessEqual(r_avg_error, 0.01)
+        # self.assertLessEqual(r_avg_error, 0.01)
 
 
         # Verify that µ=0.5±2%
