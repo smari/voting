@@ -34,6 +34,7 @@ class TestMaxEntropy(unittest.TestCase):
         election.run()
         self.assertEqual(round(election.entropy(), 2), 42.95)
 
+
     def test_get_results(self):
         rules = ElectionRules()
         rules["parties"] = ["A", "B"]

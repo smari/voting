@@ -35,10 +35,12 @@ def cli(debug):
                 help='The method to be tested')
 @click.option('--simulation_count', type=click.INT, default=10000,
                 help='Number of simulations to run')
-@click.option('--gen_method', type=click.Choice(sim.GENERATING_METHODS.keys()),
+@click.option('--gen_method',
+                type=click.Choice(sim.GENERATING_METHODS.keys()),
                 default="beta", help='Method to generate votes')
 @click.option('--var_param', type=click.FLOAT, default=0.1)
-@click.option('--to_xlsx', type=click.STRING)
+@click.option('--to_xlsx', type=click.STRING,
+                help='Filename to write information to an xlsx file')
 @click.option('--show-details', default=False, is_flag=True)
 def simulate(votes, constituencies, **kwargs):
     """Simulate elections."""
@@ -87,10 +89,15 @@ def www(host="localhost", port=5000, **kwargs):
 @cli.command()
 @click.option('--divider', required=True,
               type=click.Choice(voting.DIVIDER_RULES.keys()),
-              help='Divider rule to use.')
-@click.option('--adjustment-divider', default=None, required=False,
+              help='Primary divider rule to use.')
+@click.option('--adj-determine-divider', default=None, required=False,
               type=click.Choice(voting.DIVIDER_RULES.keys()),
-              help='Divider rule for adjustment seats. Defaults to primary.')
+              help='Divider rule for determining adjustment seats.'
+              +'Defaults to primary.')
+@click.option('--adj-alloc-divider', default=None, required=False,
+              type=click.Choice(voting.DIVIDER_RULES.keys()),
+              help='Divider rule for apportioning adjustment seats.'
+              +'Defaults to primary.')
 @click.option('--constituencies', required=True, type=click.Path(exists=True),
               help='File with constituency data')
 @click.option('--votes', required=True, type=click.Path(exists=True),
@@ -109,9 +116,10 @@ def www(host="localhost", port=5000, **kwargs):
 def apportion(votes, **kwargs):
     """Do regular apportionment based on votes and constituency data."""
     rules = voting.ElectionRules()
-    kwargs["adjustment_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
-    kwargs["adj_determine_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
-    kwargs["adj_alloc_divider"] = kwargs["adjustment_divider"] or kwargs["divider"]
+    kwargs["primary_divider"] = kwargs["divider"]
+    kwargs["adj_determine_divider"] = kwargs["adj_determine_divider"] or kwargs["divider"]
+    kwargs["adj_alloc_divider"] = kwargs["adj_alloc_divider"] or kwargs["adj_determine_divider"]
+    kwargs["adjustment_threshold"] = kwargs["threshold"]*0.01
     try:
       for arg, val in kwargs.iteritems():
         rules[arg] = val
@@ -126,7 +134,8 @@ def apportion(votes, **kwargs):
 
     if rules["show_details"]:
         util.print_steps_election(election)
-    util.pretty_print_election(election)
+    else:
+        util.pretty_print_election(election)
     if rules["to_xlsx"]:
         util.election_to_xlsx(election, rules["to_xlsx"])
 
