@@ -14,6 +14,7 @@ from methods import var_alt_scal, alternating_scaling, icelandic_law
 from methods import monge, nearest_neighbor, relative_superiority
 from methods import norwegian_law, norwegian_icelandic
 from methods import opt_entropy, switching
+from methods import pure_vote_ratios
 
 #??????
 def random_id(length=8):
@@ -754,5 +755,6 @@ ADJUSTMENT_METHODS = {
     "norwegian-icelandic": norwegian_icelandic,
     "opt-entropy": opt_entropy,
     "switching": switching,
-    "var-alt-scal": var_alt_scal
+    "var-alt-scal": var_alt_scal,
+    "pure-vote-ratios": pure_vote_ratios,
 }
