@@ -160,7 +160,7 @@ def print_steps_election(election):
     print_table(total_seats, header, const_names, out)
 
     print("\nSeat shares")
-    shares = [["{:.1%}".format(s/c[-1]) if s != 0 else None for s in c[:-1]]
+    shares = [["{:.1%}".format(float(s)/c[-1]) if s != 0 else None for s in c[:-1]]
                 for c in total_seats]
     print_table(shares, header, const_names, out)
 
