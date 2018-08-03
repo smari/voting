@@ -18,13 +18,12 @@ class SimulationTest(TestCase):
 
     def test_generate_votes_average(self):
         s_rules = simulate.SimulationRules()
-        s_rules["simulation_count"] = 100
+        s_rules["simulation_count"] = 1000
         e_rules = voting.ElectionRules()
         e_rules["constituency_names"] = ["I", "II", "III"]
         e_rules["parties"] = ["A", "B"]
         votes = [[500, 300], [200, 400], [350, 450]]
-        election = voting.Election(e_rules, votes)
-        sim = simulate.Simulation(s_rules, election, 0.1)
+        sim = simulate.Simulation(s_rules, [e_rules], votes, 0.1)
         gen = sim.gen_votes()
         r = []
         r_avg = []

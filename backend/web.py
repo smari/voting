@@ -3,10 +3,10 @@ from flask_cors import CORS
 import threading
 import random
 import os.path
-from voting import run_script, get_capabilities_dict, get_presets_dict
 import voting
 import simulate as sim
 from hashlib import sha256
+import json
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -193,6 +193,56 @@ def handle_capabilities():
 @app.route('/api/presets/', methods=["GET"])
 def get_presets():
     return jsonify(get_presets_dict())
+
+
+def get_capabilities_dict():
+    return {
+        "election_rules": voting.ElectionRules(),
+        "simulation_rules": sim.SimulationRules(),
+        "capabilities": {
+            "divider_rules": voting.DIVIDER_RULE_NAMES,
+            "adjustment_methods": voting.ADJUSTMENT_METHOD_NAMES,
+            "generating_methods": sim.GENERATING_METHOD_NAMES
+        },
+    }
+
+def get_presets_dict():
+    from os import listdir
+    from os.path import isfile, join
+    presetsdir = "../data/presets/"
+    try:
+        files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
+                 and f.endswith('.json')]
+    except Exception as e:
+        print("Presets directory read failure: %s" % (e))
+        files = []
+    pr = []
+    for f in files:
+        try:
+            with open(presetsdir+f) as json_file:
+                data = json.load(json_file)
+        except  json.decoder.JSONDecodeError:
+            data = {'error': 'Problem parsing json, please fix "{}"'.format(
+                presetsdir+f)}
+        pr.append(data)
+    return pr
+
+def run_script(rules):
+    if type(rules) in ["str", "unicode"]:
+        with open(rules, "r") as read_file:
+            rules = json.load(read_file)
+
+    if type(rules) != dict:
+        return {"error": "Incorrect script format."}
+
+    if rules["action"] not in ["simulation", "election"]:
+        return {"error": "Script action must be election or simulation."}
+
+    if rules["action"] == "election":
+        return voting.run_script_election(rules)
+
+    else:
+        return sim.run_script_simulation(rules)
 
 
 if __name__ == '__main__':

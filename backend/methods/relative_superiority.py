@@ -2,38 +2,39 @@
 from copy import deepcopy, copy
 from apportion import apportion1d, threshold_elimination_constituencies
 
-def relative_superiority(m_votes, v_const_seats, v_party_seats,
+def relative_superiority(m_votes, v_total_seats, v_party_seats,
                          m_prior_allocations, divisor_gen, threshold=None,
                          **kwargs):
     """Apportion by Þorkell Helgason's Relative Superiority method"""
 
     m_allocations = deepcopy(m_prior_allocations)
     num_allocated = sum([sum(x) for x in m_allocations])
-    num_total_seats = sum(v_const_seats)
+    num_total_seats = sum(v_total_seats)
     for n in range(num_total_seats-num_allocated):
         m_votes = threshold_elimination_constituencies(m_votes, 0.0,
                     v_party_seats, m_allocations)
         superiority = []
         first_in = []
-        for j in range(len(m_votes)):
-            seats_left = v_const_seats[j] - sum(m_allocations[j])
+        for c in range(len(m_votes)):
+            seats_left = v_total_seats[c] - sum(m_allocations[c])
             if not seats_left:
                 superiority.append(0)
                 first_in.append(0)
                 continue
 
             # Find the party next in line in the constituency:
-            next_alloc_num = sum(m_allocations[j]) + 1
-            alloc_next, div_next = apportion1d(m_votes[j], next_alloc_num,
-                                   m_allocations[j], divisor_gen)
-            diff = [alloc_next[i]-m_allocations[j][i]
-                    for i in range(len(m_votes[j]))]
+            next_alloc_num = sum(m_allocations[c]) + 1
+            alloc_next, div_next = apportion1d(m_votes[c], next_alloc_num,
+                                   m_allocations[c], divisor_gen)
+            diff = [alloc_next[p]-m_allocations[c][p]
+                    for p in range(len(m_votes[c]))]
             next_in = diff.index(1)
             first_in.append(next_in)
+
             # Calculate continuation:
-            _, div_after = apportion1d(m_votes[j],
-                                        v_const_seats[j]+1,
-                                        m_allocations[j],
+            _, div_after = apportion1d(m_votes[c],
+                                        v_total_seats[c]+1,
+                                        m_allocations[c],
                                         divisor_gen)
 
             # Calculate relative superiority

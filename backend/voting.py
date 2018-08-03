@@ -8,7 +8,6 @@ from util import load_votes, load_constituencies, entropy
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
 from rules import Rules
-from simulate import SimulationRules, run_script_simulation, GENERATING_METHOD_NAMES # TODO: This belongs elsewhere.
 from methods import *
 import io
 
@@ -21,7 +20,7 @@ from methods.relative_superiority import *
 from methods.norwegian_law import *
 from methods.norwegian_icelandic import *
 from methods.opt_entropy import opt_entropy
-from methods.kristinn_lund import *
+from methods.switching import *
 
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
@@ -65,7 +64,8 @@ class ElectionRules(Rules):
         super(ElectionRules, self).__init__()
         self.value_rules = {
             "primary_divider": DIVIDER_RULES.keys(),
-            "adjustment_divider": DIVIDER_RULES.keys(),
+            "adj_determine_divider": DIVIDER_RULES.keys(),
+            "adj_alloc_divider": DIVIDER_RULES.keys(),
             "adjustment_method": ADJUSTMENT_METHODS.keys(),
         }
         self.range_rules = {
@@ -78,7 +78,8 @@ class ElectionRules(Rules):
 
         # Election rules
         self["primary_divider"] = "dhondt"
-        self["adjustment_divider"] = "dhondt"
+        self["adj_determine_divider"] = "dhondt"
+        self["adj_alloc_divider"] = "dhondt"
         self["adjustment_threshold"] = 0.05
         self["adjustment_method"] = "icelandic-law"
         self["constituency_seats"] = []
@@ -125,8 +126,7 @@ class Election:
         assert(all([len(x) == len(self.rules["parties"])
                     for x in votes]))
         self.m_votes = votes
-        self.v_votes = [sum([votes[i][j] for i in range(len(votes))])
-                        for j in range(len(votes[0]))]
+        self.v_votes = [sum(x) for x in zip(*votes)]
 
     def get_results_dict(self):
         return {
@@ -160,32 +160,32 @@ class Election:
             print(" + Primary apportionment")
 
         gen = self.rules.get_generator("primary_divider")
-        const = self.rules["constituency_seats"]
+        const_seats = self.rules["constituency_seats"]
         parties = self.rules["parties"]
 
         m_allocations = []
         self.last = []
-        for i in range(len(const)):
-            num_seats = const[i]
+        for i in range(len(const_seats)):
+            num_seats = const_seats[i]
             if num_seats != 0:
                 alloc, div = apportion1d(self.m_votes[i], num_seats, [0]*len(parties), gen)
                 self.last.append(div[2])
             else:
                 alloc = [0]*len(parties)
                 self.last.append(0)
-            # v_allocations = [seats.count(p) for p in range(len(parties))]
             m_allocations.append(alloc)
             # self.order.append(seats)
 
         # Useful:
         # print tabulate([[parties[x] for x in y] for y in self.order])
 
-        v_seatcount = [sum([x[i] for x in m_allocations]) for i in range(len(parties))]
+        v_allocations = [sum(x) for x in zip(*m_allocations)]
 
-        self.const_seats_alloc = m_allocations
-        self.v_cur_allocations = v_seatcount
+        self.m_const_seats_alloc = m_allocations
+        self.v_const_seats_alloc = v_allocations
 
     def run_threshold_elimination(self):
+        """Eliminate parties that do not reach the adjustment threshold."""
         if self.rules["debug"]:
             print(" + Threshold elimination")
         threshold = self.rules["adjustment_threshold"]
@@ -196,28 +196,27 @@ class Election:
         self.m_votes_eliminated = m_elim_votes
 
     def run_determine_adjustment_seats(self):
-        """
-        Calculate the number of adjusment seats each party gets.
-        """
+        """Calculate the number of adjustment seats each party gets."""
         if self.rules["debug"]:
             print(" + Determine adjustment seats")
         v_votes = self.v_votes_eliminated
-        gen = self.rules.get_generator("adjustment_divider")
-        v_priors = self.v_cur_allocations
+        gen = self.rules.get_generator("adj_determine_divider")
+        v_priors = self.v_const_seats_alloc
         v_seats, _ = apportion1d(v_votes, self.total_seats, v_priors, gen)
         self.v_adjustment_seats = v_seats
         return v_seats
 
     def run_adjustment_apportionment(self):
+        """Conduct adjustment seat apportionment."""
         if self.rules["debug"]:
             print(" + Apportion adjustment seats")
         method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
-        gen = self.rules.get_generator("adjustment_divider")
+        gen = self.rules.get_generator("adj_alloc_divider")
 
         results, asi = method(self.m_votes_eliminated,
             self.v_total_seats,
             self.v_adjustment_seats,
-            self.const_seats_alloc,
+            self.m_const_seats_alloc,
             gen,
             self.rules["adjustment_threshold"],
             orig_votes=self.m_votes,
@@ -227,6 +226,10 @@ class Election:
 
         self.results = results
         self.gen = gen
+
+        v_results = [sum(x) for x in zip(*results)]
+        devs = [abs(a-b) for a, b in zip(self.v_adjustment_seats, v_results)]
+        self.adj_dev = sum(devs)
 
         if self.rules["show_entropy"]:
             print("\nEntropy: %s" % self.entropy())
@@ -242,7 +245,7 @@ ADJUSTMENT_METHODS = {
     "norwegian-law": norwegian_apportionment,
     "norwegian-icelandic": norw_ice_apportionment,
     "opt-entropy": opt_entropy,
-    "lund": kristinn_lund
+    "switching": switching
 }
 
 ADJUSTMENT_METHOD_NAMES = {
@@ -253,61 +256,9 @@ ADJUSTMENT_METHOD_NAMES = {
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
     "norwegian-law": "Norwegian law",
     "norwegian-icelandic": "Norwegian-Icelandic variant",
-    "lund": "Kristinn Lund's Method"
+    "switching": "Switching Method"
 }
 
-
-
-# TODO: These functions should be elsewhere.
-
-def get_capabilities_dict():
-    return {
-        "election_rules": ElectionRules(),
-        "simulation_rules": SimulationRules(),
-        "capabilities": {
-            "divider_rules": DIVIDER_RULE_NAMES,
-            "adjustment_methods": ADJUSTMENT_METHOD_NAMES,
-            "generating_methods": GENERATING_METHOD_NAMES
-        },
-    }
-
-def get_presets_dict():
-    from os import listdir
-    from os.path import isfile, join
-    presetsdir = "../data/presets/"
-    try:
-        files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
-                 and f.endswith('.json')]
-    except Exception as e:
-        print("Presets directory read failure: %s" % (e))
-        files = []
-    pr = []
-    for f in files:
-        try:
-            with open(presetsdir+f) as json_file:
-                data = json.load(json_file)
-        except  json.decoder.JSONDecodeError:
-            data = {'error': 'Problem parsing json, please fix "{}"'.format(
-                presetsdir+f)}
-        pr.append(data)
-    return pr
-
-def run_script(rules):
-    if type(rules) in ["str", "unicode"]:
-        with open(rules, "r") as read_file:
-            rules = json.load(read_file)
-
-    if type(rules) != dict:
-        return {"error": "Incorrect script format."}
-
-    if rules["action"] not in ["simulation", "election"]:
-        return {"error": "Script action must be election or simulation."}
-
-    if rules["action"] == "election":
-        return run_script_election(rules)
-
-    else:
-        return run_script_simulation(rules)
 
 
 def run_script_election(rules):

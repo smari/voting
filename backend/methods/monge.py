@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-def monge(m_votes, v_const_seats, v_party_seats,
+def monge(m_votes, v_total_seats, v_party_seats,
                             m_prior_allocations, divisor_gen, threshold=None,
                             orig_votes=None, **kwargs):
     """Apportion by Monge algorithm"""
@@ -13,7 +13,7 @@ def monge(m_votes, v_const_seats, v_party_seats,
         return float(m_votes[constituency][party])/divisor
 
     m_allocations = deepcopy(m_prior_allocations)
-    total_seats = sum(v_const_seats)
+    total_seats = sum(v_total_seats)
     allocated_seats = sum([sum(x) for x in m_allocations])
     for seat in range(total_seats - allocated_seats):
         #calculate max_Monge_ratio
