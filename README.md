@@ -149,6 +149,7 @@ The SPA is currently being refactored using [create-react-app](https://github.co
    * [x] Norwegian voting law algorithm
    * [x] Norwegian voting law algorithm adjusted for Icelandic conditions
    * [x] Kristinn Lund method
+   * [x] Pure vote ratios method
 
 ### Simulation
 
