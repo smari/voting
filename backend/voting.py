@@ -19,6 +19,7 @@ from methods.nearest_neighbor import *
 from methods.relative_superiority import *
 from methods.norwegian_law import *
 from methods.norwegian_icelandic import *
+from methods.pure_vote_ratios import *
 from methods.opt_entropy import opt_entropy
 from methods.switching import *
 
@@ -245,7 +246,8 @@ ADJUSTMENT_METHODS = {
     "norwegian-law": norwegian_apportionment,
     "norwegian-icelandic": norw_ice_apportionment,
     "opt-entropy": opt_entropy,
-    "switching": switching
+    "switching": switching,
+    "pure-vote-ratios": pure_vote_ratios_apportionment,
 }
 
 ADJUSTMENT_METHOD_NAMES = {
@@ -256,7 +258,8 @@ ADJUSTMENT_METHOD_NAMES = {
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
     "norwegian-law": "Norwegian law",
     "norwegian-icelandic": "Norwegian-Icelandic variant",
-    "switching": "Switching Method"
+    "switching": "Switching Method",
+    "pure-vote-ratios": "Pure Vote Ratios"
 }
 
 

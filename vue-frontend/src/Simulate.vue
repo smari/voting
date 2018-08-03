@@ -26,8 +26,8 @@
       <div class="col-sm-2">
         <span v-if="!simulation_done">{{iteration_time}}s/iter</span>
       </div>
-      <div class="col-sm-6" v-if="!simulation_done">
-        <b-progress :value="current_iteration" :max="simulation_rules.simulation_count" show-progress animated></b-progress>
+      <div class="col-sm-6">
+        <b-progress :value="current_iteration" :max="simulation_rules.simulation_count" show-value animated></b-progress>
       </div>
     </div>
 
