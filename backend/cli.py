@@ -31,7 +31,7 @@ def cli(debug):
                 help='File with vote data to use as seed')
 @click.option('--constituencies', required=True, type=click.Path(exists=True),
                 help='File with constituency data')
-@click.option('--test_method', type=click.STRING,
+@click.option('--test_method', required=True, type=click.STRING,
                 help='The method to be tested')
 @click.option('--simulation_count', type=click.INT, default=10000,
                 help='Number of simulations to run')
