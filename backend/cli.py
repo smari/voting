@@ -31,15 +31,15 @@ def cli(debug):
                 help='File with vote data to use as seed')
 @click.option('--constituencies', required=True, type=click.Path(exists=True),
                 help='File with constituency data')
-@click.option('--test_method', required=True, type=click.STRING,
+@click.option('--test-method', required=True, type=click.STRING,
                 help='The method to be tested')
-@click.option('--simulation_count', type=click.INT, default=10000,
+@click.option('--simulation-count', type=click.INT, default=10000,
                 help='Number of simulations to run')
-@click.option('--gen_method',
+@click.option('--gen-method',
                 type=click.Choice(sim.GENERATING_METHODS.keys()),
                 default="beta", help='Method to generate votes')
-@click.option('--var_param', type=click.FLOAT, default=0.1)
-@click.option('--to_xlsx', type=click.STRING,
+@click.option('--var-param', type=click.FLOAT, default=0.1)
+@click.option('--to-xlsx', type=click.STRING,
                 help='Filename to write information to an xlsx file')
 @click.option('--show-details', default=False, is_flag=True)
 def simulate(votes, constituencies, **kwargs):
@@ -56,7 +56,6 @@ def simulate(votes, constituencies, **kwargs):
     except AttributeError:
       for arg, val in kwargs.items():
         s_rules[arg] = val
-
 
     e_rules = util.sim_election_rules(e_rules, s_rules["test_method"])
 

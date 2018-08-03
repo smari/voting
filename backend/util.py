@@ -14,6 +14,7 @@ from methods import var_alt_scal, alternating_scaling, icelandic_law
 from methods import monge, nearest_neighbor, relative_superiority
 from methods import norwegian_law, norwegian_icelandic
 from methods import opt_entropy, switching
+from methods import pure_vote_ratios
 
 #??????
 def random_id(length=8):
@@ -125,7 +126,7 @@ def print_steps_election(election):
     print_table(const_seats, header, const_names, out)
 
     print("\nAdjustment seat apportionment")
-    print("Threshold: ", "{:.1%}".format(rules["adjustment_threshold"]))
+    print("Threshold: {:.1%}".format(rules["adjustment_threshold"]))
     v_votes = election.v_votes
     v_votes.append(sum(election.v_votes))
     v_elim_votes = election.v_votes_eliminated
@@ -142,11 +143,12 @@ def print_steps_election(election):
     method = ADJUSTMENT_METHODS[rules["adjustment_method"]]
     try:
         h, data = method.print_seats(rules, election.adj_seats_info)
+        print("")
         print(tabulate(data, h, out))
-        print()
+        print("")
     except AttributeError:
         pass
-    
+
     total_seats = add_totals(election.results)
     print("\nAdjustment seats")
     adj_seats = [[total_seats[c][p]-const_seats[c][p]
@@ -753,5 +755,6 @@ ADJUSTMENT_METHODS = {
     "norwegian-icelandic": norwegian_icelandic,
     "opt-entropy": opt_entropy,
     "switching": switching,
-    "var-alt-scal": var_alt_scal
+    "var-alt-scal": var_alt_scal,
+    "pure-vote-ratios": pure_vote_ratios,
 }

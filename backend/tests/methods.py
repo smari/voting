@@ -37,7 +37,7 @@ class TestAdjustmentMethods(TestCase):
     def setUp(self):
         self.rules = voting.ElectionRules()
         self.rules_6c = voting.ElectionRules()
-        votes_file = "../data/elections/iceland_landskjorstjorn_2013.xlsx"
+        votes_file = "../data/elections/iceland_landskjorstjorn_2013.csv"
         const_file = "../data/constituencies/constituencies_iceland_2013.csv"
         const_file_6c = "../data/constituencies/iceland_2013_6x6.xlsx"
         self.rules["constituencies"] = const_file
@@ -57,7 +57,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
-    def test_alternating_scaling_6c(self):    
+    def test_alternating_scaling_6c(self):
         self.rules_6c["adjustment_method"] = "alternating-scaling"
         election = voting.Election(self.rules_6c, self.votes)
         results = election.run()
