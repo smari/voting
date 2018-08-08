@@ -296,7 +296,6 @@ class Simulation:
                           for p in range(len(results[c]))
                           for c in range(len(results))]
         dh_min = min(dh_min_factors)
-        print(dh_min_factors)
         self.dhondt_min[idx] += dh_min
         self.sq_dhondt_min[idx] += dh_min**2
         dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 10000000000000000000000
@@ -461,6 +460,7 @@ class Simulation:
     def get_results_dict(self):
         self.analysis()
         return {
+            "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": ["Entropy", "Entropy Ratio",
                          "Seat Deviation from Optimal",

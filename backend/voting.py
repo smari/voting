@@ -77,6 +77,8 @@ class ElectionRules(Rules):
             "constituency_names", "parties"
         ]
 
+        self["name"] = "My test"
+
         # Election rules
         self["primary_divider"] = "dhondt"
         self["adj_determine_divider"] = "dhondt"

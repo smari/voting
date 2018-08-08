@@ -3,11 +3,23 @@
     <h1>Simulate elections</h1>
 
     <h2>Settings</h2>
-    <ElectionSettings server="server" @update-rules="updateElectionRules">
-    </ElectionSettings>
-
+    <h3>Simulation settings</h3>
     <SimulationSettings @update-rules="updateSimulationRules">
     </SimulationSettings>
+
+    <h3>Simulate elections</h3>
+    <b-button @click="addElectionRules">Add election ruleset</b-button>
+    <b-container v-for="(rules, rulesidx) in election_rules" :key="rules.name" style="background: #eee; padding: 15px; border-radius: 5px; margin-bottom: 1.5em;">
+      <b-row>
+        <b-col>
+          <ElectionSettings :rulesidx="rulesidx" @update-rules="updateElectionRules">
+          </ElectionSettings>
+        </b-col>
+        <b-col>
+          <b-button @click="deleteElectionRules(rulesidx)">Delete ruleset</b-button>
+        </b-col>
+      </b-row>
+    </b-container>
 
     <h2>Reference votes</h2>
     <p>Reference votes are the votes that will be used as a reference for the statistical distribution in the simulation.</p>
@@ -32,7 +44,7 @@
     </div>
 
     <h2>Quality measures</h2>
-    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data">
+    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames">
     </SimulationData>
 
   </div>
@@ -64,12 +76,15 @@ export default {
       parties: [],
       constituency_seats: [],
       constituency_adjustment_seats: [],
-      election_rules: {
-        adjustment_divider: "",
-        primary_divider: "",
-        adjustment_threshold: 0.0,
-        adjustment_method: "",
-      },
+      election_rules: [
+        {
+          name: "",
+          adjustment_divider: "",
+          primary_divider: "",
+          adjustment_threshold: 0.0,
+          adjustment_method: "",
+        }
+      ],
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",
@@ -82,25 +97,39 @@ export default {
     }
   },
   methods: {
-    updateElectionRules: function(rules, recalc) {
-      this.election_rules = rules;
+    addElectionRules: function() {
+      this.election_rules.push(
+        {
+          name: "",
+          adjustment_divider: "",
+          primary_divider: "",
+          adjustment_threshold: 0.0,
+          adjustment_method: "",
+        }
+      )
     },
-    updateSimulationRules: function(rules, recalc) {
+    deleteElectionRules: function(idx) {
+      this.election_rules.splice(idx, 1);
+    },
+    updateElectionRules: function(rules, idx) {
+      this.election_rules[idx] = rules;
+    },
+    updateSimulationRules: function(rules) {
       this.simulation_rules = rules;
     },
-    updateVotes: function(votes, recalc) {
+    updateVotes: function(votes) {
       this.ref_votes = votes;
     },
-    updateConstituencySeats: function(seats, recalc) {
+    updateConstituencySeats: function(seats) {
       this.constituency_seats = seats;
     },
-    updateAdjustmentSeats: function(seats, recalc) {
+    updateAdjustmentSeats: function(seats) {
       this.constituency_adjustment_seats = seats;
     },
-    updateConstituencies: function(cons, recalc) {
+    updateConstituencies: function(cons) {
       this.constituency_names = cons;
     },
-    updateParties: function(parties, recalc) {
+    updateParties: function(parties) {
       this.parties = parties;
     },
     serverError: function(error) {

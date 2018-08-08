@@ -144,16 +144,24 @@ def stop_simulation():
 
 def set_up_simulation():
     data = request.get_json(force=True)
-    election_rules = voting.ElectionRules()
+    rulesets = []
 
-    for k, v in data["election_rules"].items():
-        election_rules[k] = v
+    for rs in data["election_rules"]:
+        election_rules = voting.ElectionRules()
 
-    for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
-        if x in data and data[x]:
-            election_rules[x] = data[x]
-        else:
-            return False, "Missing data ('%s')" % x
+        print(data["election_rules"])
+        print(rs)
+        for k, v in rs.items():
+            print("Setting election_rules[%s] = %s" % (k, v))
+            election_rules[k] = v
+
+        for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
+            if x in data and data[x]:
+                election_rules[x] = data[x]
+            else:
+                return False, "Missing data ('%s')" % x
+
+        rulesets.append(election_rules)
 
     if not "ref_votes" in data:
         return False, "Votes missing."
@@ -169,7 +177,7 @@ def set_up_simulation():
         simulation_rules[k] = v
 
     try:
-        simulation = sim.Simulation(simulation_rules, [election_rules], data["ref_votes"])
+        simulation = sim.Simulation(simulation_rules, rulesets, data["ref_votes"])
     except ZeroDivisionError:
         return False, "Need to have more votes."
 

@@ -10,8 +10,10 @@
   </VoteMatrix>
 
   <h2>Settings</h2>
-  <ElectionSettings server="server" @update-rules="updateRules">
-  </ElectionSettings>
+  <b-container>
+    <ElectionSettings server="server" @update-rules="updateRules">
+    </ElectionSettings>
+  </b-container>
 
   <h2>Results</h2>
   <b-container>
