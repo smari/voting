@@ -291,13 +291,15 @@ class Simulation:
                     for c in range(len(results))]) * scale
         self.sainte_lague[idx] += stl
         self.sq_sainte_lague[idx] += stl**2
-        dh_min = min([bi_seat_shares[c][p]/results[c][p]
-                    if results[c][p] != 0 else 0
-                    for p in range(len(results[c]))
-                    for c in range(len(results))])
+        dh_min_factors = [bi_seat_shares[c][p]/float(results[c][p])
+                          if results[c][p] != 0 else 10000000000000000
+                          for p in range(len(results[c]))
+                          for c in range(len(results))]
+        dh_min = min(dh_min_factors)
+        print(dh_min_factors)
         self.dhondt_min[idx] += dh_min
         self.sq_dhondt_min[idx] += dh_min**2
-        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 0
+        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 10000000000000000000000
                         for p in range(len(results[c]))
                         for c in range(len(results))])
         self.dhondt_sum[idx] += dh_sum
