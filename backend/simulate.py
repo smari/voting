@@ -51,6 +51,21 @@ GENERATING_METHOD_NAMES = {
     "beta": "Beta distribution"
 }
 
+MEASURES = {
+    "entropy":         "Entropy",
+    "entropy_ratio":   "Entropy Ratio",
+    "dev_opt":         "Seat Deviation from Optimal",
+    "dev_law":         "Seat Deviation from Icelandic Law",
+    "dev_ind_const":   "Seat Deviation from Independent Constituencies",
+    "dev_one_const":   "Seat Deviation from Single Constituency",
+    "dev_all_adj":     "Seat Deviation from All Adjustment Seats",
+    "loosemore_hanby": "Loosemore-Hanby Index",
+    "sainte_lague":    "Sainte-Lague minsum Index",
+    "dhondt_min":      "d'Hondt maxmin Index",
+    "dhondt_sum":      "d'Hondt minsum Index",
+    "adj_dev":         "Adjustment seat deviation from determined",
+}
+
 def error(avg, ref):
     """
     Compare average of generated votes to reference votes to test the
@@ -462,15 +477,7 @@ class Simulation:
         return {
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
-            "measures": ["Entropy", "Entropy Ratio",
-                         "Seat Deviation from Optimal",
-                         "Seat Deviation from Icelandic Law",
-                         "Seat Deviation from Independent Constituencies",
-                         "Seat Deviation from Single Constituency",
-                         "Seat Deviation from All Adjustment Seats",
-                         "Loosemore-Hanby Index", "Sainte-Lague minsum Index",
-                         "d'Hondt maxmin Index", "d'Hondt minsum Index",
-                         "Adjustment seat deviation from determined"],
+            "measures": [MEASURES[measure] for measure in MEASURES.keys()],
             "data": [self.avg_entropy, self.avg_entropy_ratio,
                      self.avg_dev_opt, self.avg_dev_law,
                      self.avg_dev_ind_const, self.avg_dev_one_const,
