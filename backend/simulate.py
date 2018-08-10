@@ -374,56 +374,18 @@ class Simulation:
     def analysis(self):
         """Calculate averages and variances of various quality measures."""
         n = self.iteration
-        self.avg_const_seats, self.var_const_seats = [], []
-        self.avg_adj_seats, self.var_adj_seats = [], []
-        self.avg_total_seats, self.var_total_seats = [], []
-        self.avg_seat_shares, self.var_seat_shares = [], []
         for r in range(len(self.e_rules)):
             for measure in MEASURES.keys():
                 self.analyze_measure(r, measure, n)
-
-            self.avg_const_seats.append([[s/n for s in c] for c in self.const_seats[r]])
-            self.avg_adj_seats.append([[s/n for s in c] for c in self.adj_seats[r]])
-            self.avg_total_seats.append([[s/n for s in c] for c in self.total_seats[r]])
-            self.avg_seat_shares.append([[s/n for s in c] for c in self.seat_shares[r]])
-            self.var_const_seats.append([])
-            self.var_adj_seats.append([])
-            self.var_total_seats.append([])
-            self.var_seat_shares.append([])
             for c in range(len(self.ref_votes)):
-                self.var_const_seats[r].append([])
-                self.var_adj_seats[r].append([])
-                self.var_total_seats[r].append([])
-                self.var_seat_shares[r].append([])
                 for p in range(len(self.ref_votes[c])):
                     for measure in LIST_MEASURES.keys():
                         self.analyze_list(r, measure, c, p, n)
-                    variance = (self.sq_const_seats[r][c][p] - self.const_seats[r][c][p]**2/n) / (n-1)
-                    self.var_const_seats[r][c].append(variance)
-                    variance = (self.sq_adj_seats[r][c][p] - self.adj_seats[r][c][p]**2/n) / (n-1)
-                    self.var_adj_seats[r][c].append(variance)
-                    variance = (self.sq_total_seats[r][c][p] - self.total_seats[r][c][p]**2/n) / (n-1)
-                    self.var_total_seats[r][c].append(variance)
-                    variance = abs(self.sq_seat_shares[r][c][p] - self.seat_shares[r][c][p]**2/n) / (n-1)
-                    self.var_seat_shares[r][c].append(variance)
 
     def simulate(self):
         """Simulate many elections."""
         gen = self.gen_votes()
         num_rules = len(self.e_rules)
-        self.const_seats, self.sq_const_seats = [], []
-        self.adj_seats, self.sq_adj_seats = [], []
-        self.total_seats, self.sq_total_seats = [], []
-        self.seat_shares, self.sq_seat_shares = [], []
-        for r in range(num_rules):
-            self.const_seats.append(zeros_like(self.ref_votes))
-            self.sq_const_seats.append(zeros_like(self.ref_votes))
-            self.adj_seats.append(zeros_like(self.ref_votes))
-            self.sq_adj_seats.append(zeros_like(self.ref_votes))
-            self.total_seats.append(zeros_like(self.ref_votes))
-            self.sq_total_seats.append(zeros_like(self.ref_votes))
-            self.seat_shares.append(zeros_like(self.ref_votes))
-            self.sq_seat_shares.append(zeros_like(self.ref_votes))
         self.seats_total_const = []
         self.ref_total_seats = []
         self.ref_const_seats = []
@@ -454,19 +416,11 @@ class Simulation:
                 total_seats_alloc = add_totals(results)
                 for c in range(len(self.ref_votes)):
                     for p in range(len(self.ref_votes[c])):
-                        self.const_seats[r][c][p] += const_seats_alloc[c][p]
-                        self.sq_const_seats[r][c][p] += const_seats_alloc[c][p]**2
                         self.aggregate_list(r, "const_seats", c, p, const_seats_alloc[c][p])
                         adj = total_seats_alloc[c][p]-const_seats_alloc[c][p]
-                        self.adj_seats[r][c][p] += adj
-                        self.sq_adj_seats[r][c][p] += adj**2
                         self.aggregate_list(r, "adj_seats", c, p, adj)
-                        self.total_seats[r][c][p] += total_seats_alloc[c][p]
-                        self.sq_total_seats[r][c][p] += total_seats_alloc[c][p]**2
                         self.aggregate_list(r, "total_seats", c, p, total_seats_alloc[c][p])
                         sh = total_seats_alloc[c][p]/total_seats_alloc[c][-1]
-                        self.seat_shares[r][c][p] += sh
-                        self.sq_seat_shares[r][c][p] += sh**2
                         self.aggregate_list(r, "seat_shares", c, p, sh)
                 entropy = election.entropy()
                 self.aggregate_measure(r, "entropy", entropy)
