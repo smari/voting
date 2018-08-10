@@ -288,7 +288,7 @@ class Simulation:
 
     def method_analysis(self, ruleset, votes, results, entropy):
         """Various tests to determine the quality of the given method."""
-        opt_rules = generate_comparison_rules(self.e_rules[ruleset], "opt")
+        opt_rules = generate_opt_ruleset(self.e_rules[ruleset])
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
         entropy_ratio = exp(entropy - opt_election.entropy())
