@@ -325,6 +325,13 @@ class Simulation:
         dev_all_adj = dev([v_results], all_adj_results)
         self.aggregate_measure(ruleset, "dev_all_adj", dev_all_adj)
 
+        bi_seat_shares = self.calculate_bi_seat_shares(votes, opt_results)
+        self.loosemore_hanby(ruleset, results, bi_seat_shares)
+        self.sainte_lague(ruleset, results, bi_seat_shares)
+        self.dhondt_min(ruleset, results, bi_seat_shares)
+        self.dhondt_sum(ruleset, results, bi_seat_shares)
+
+    def calculate_bi_seat_shares(self, votes, opt_results):
         bi_seat_shares = deepcopy(votes)
         const_mult = [1]*len(bi_seat_shares)
         party_mult = [1]*len(bi_seat_shares[0])
@@ -353,12 +360,16 @@ class Simulation:
         except AssertionError:
             pass
 
+        return bi_seat_shares
+
+    def loosemore_hanby(self, ruleset, results, bi_seat_shares):
         total_seats = sum([sum(c) for c in results])
         lh = sum([sum([abs(bi_seat_shares[c][p]-results[c][p])
                     for p in range(len(results[c]))])
                     for c in range(len(results))]) / (2*total_seats)
         self.aggregate_measure(ruleset, "loosemore_hanby", lh)
 
+    def sainte_lague(self, ruleset, results, bi_seat_shares):
         scale = 1
         stl = sum([sum([(bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
                     if bi_seat_shares[c][p] != 0 else 0
@@ -366,6 +377,7 @@ class Simulation:
                     for c in range(len(results))]) * scale
         self.aggregate_measure(ruleset, "sainte_lague", stl)
 
+    def dhondt_min(self, ruleset, results, bi_seat_shares):
         dh_min_factors = [bi_seat_shares[c][p]/float(results[c][p])
                           if results[c][p] != 0 else 10000000000000000
                           for p in range(len(results[c]))
@@ -373,6 +385,7 @@ class Simulation:
         dh_min = min(dh_min_factors)
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
+    def dhondt_sum(self, ruleset, results, bi_seat_shares):
         dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 10000000000000000000000
                         for p in range(len(results[c]))
                         for c in range(len(results))])
