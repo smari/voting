@@ -157,6 +157,28 @@ class Simulation:
         self.terminate = False
         self.iteration_time = timedelta(0)
 
+        self.no_rulesets = len(self.e_rules)
+        self.data = []
+        for ruleset in range(self.no_rulesets):
+            self.data.append({})
+            for measure in MEASURES.keys():
+                self.data[ruleset][measure] = {
+                    "sum": 0, "sqs": 0,
+                    "avg": 0, "var": 0
+                }
+
+    def aggregate_measure(self, ruleset, measure, value):
+        self.data[ruleset][measure]["sum"] += value
+        self.data[ruleset][measure]["sqs"] += value**2
+
+    def analyze_measure(self, ruleset, measure, count):
+        s = float(self.data[ruleset][measure]["sum"])
+        t = float(self.data[ruleset][measure]["sqs"])
+        avg = s/count
+        var = (t - s*avg) / (count-1)
+        self.data[ruleset][measure]["avg"] = avg
+        self.data[ruleset][measure]["var"] = var
+
     def gen_votes(self):
         """
         Generate votes similar to given votes using the given
