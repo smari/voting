@@ -271,7 +271,7 @@ class Simulation:
         simul_shares = {
             aggregate: [
                 [
-                    self.list_data[-1]["simul_votes"][c][p][aggregate]
+                    self.list_data[-1]["simul_shares"][c][p][aggregate]
                     for p in range(self.no_parties)
                 ]
                 for c in range(self.no_constituencies)
