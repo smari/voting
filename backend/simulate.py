@@ -452,8 +452,8 @@ class Simulation:
                 results = election.run()
                 const_seats_alloc = add_totals(election.m_const_seats_alloc)
                 total_seats_alloc = add_totals(results)
-                for c in range(len(self.total_seats[r])):
-                    for p in range(len(self.total_seats[r][c])):
+                for c in range(len(self.ref_votes)):
+                    for p in range(len(self.ref_votes[c])):
                         self.const_seats[r][c][p] += const_seats_alloc[c][p]
                         self.sq_const_seats[r][c][p] += const_seats_alloc[c][p]**2
                         self.aggregate_list(r, "const_seats", c, p, const_seats_alloc[c][p])
