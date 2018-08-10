@@ -315,8 +315,8 @@ class Simulation:
 
         v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
         v_results = [sum(x) for x in zip(*results)]
-        self.dev_one_const("dev_one_const", one_const_rules, v_votes, v_results)
-        self.dev_all_adj("dev_all_adj", all_adj_rules, v_votes, v_results)
+        self.dev_extreme("dev_one_const", one_const_rules, v_votes, v_results)
+        self.dev_extreme("dev_all_adj", all_adj_rules, v_votes, v_results)
 
         bi_seat_shares = self.calculate_bi_seat_shares(votes, opt_results)
         self.loosemore_hanby(ruleset, results, bi_seat_shares)
@@ -324,13 +324,7 @@ class Simulation:
         self.dhondt_min(ruleset, results, bi_seat_shares)
         self.dhondt_sum(ruleset, results, bi_seat_shares)
 
-    def dev_one_const(self, measure, rules, votes, reference_results):
-        election = voting.Election(rules, votes)
-        results = election.run()
-        deviation = dev([reference_results], results)
-        self.aggregate_measure(ruleset, measure, deviation)
-
-    def dev_all_adj(self, measure, rules, votes, reference_results):
+    def dev_extreme(self, measure, rules, votes, reference_results):
         election = voting.Election(rules, votes)
         results = election.run()
         deviation = dev([reference_results], results)
