@@ -174,6 +174,7 @@ class Simulation:
         self.terminate = False
         self.iteration_time = timedelta(0)
 
+        self.no_total_simulations = self.sim_rules["simulation_count"]
         self.no_rulesets = len(self.e_rules)
         self.no_constituencies = len(m_votes)
         self.no_parties = len(m_votes[0])
@@ -242,8 +243,8 @@ class Simulation:
             rv = [v[:-1] for v in self.ref_votes[:-1]]
             votes, shares = gen(rv, self.var_param)
 
-            for c in range(len(votes)):
-                for p in range(len(votes[c])):
+            for c in range(self.no_constituencies):
+                for p in range(self.no_parties):
                     self.aggregate_list(-1, "simul_votes", c, p, votes[c][p])
                     self.aggregate_list(-1, "simul_shares", c, p, shares[c][p])
                 self.aggregate_list(-1, "simul_votes", c, -1, sum(votes[c]))
@@ -252,7 +253,7 @@ class Simulation:
             total_votes.append(sum(total_votes))
             total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0
                                 for t in total_votes]
-            for p in range(len(total_votes)):
+            for p in range(1+self.no_parties):
                 self.aggregate_list(-1, "simul_votes", -1, p, total_votes[p])
                 self.aggregate_list(-1, "simul_shares", -1, p, total_shares[p])
 
@@ -260,19 +261,16 @@ class Simulation:
 
     def test_generated(self):
         """Analysis of generated votes."""
-        n = self.sim_rules["simulation_count"]
+        n = self.no_total_simulations
         var_beta_distr = []
-
-        for c in range(len(self.ref_votes)):
+        for c in range(1+self.no_constituencies):
             var_beta_distr.append([])
-            for p in range(len(self.ref_votes[c])):
+            for p in range(1+self.no_parties):
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p, n)
-
                 var_beta_distr[c].append(self.var_param
                                         *self.ref_shares[c][p]
                                         *(self.ref_shares[c][p]-1))
-
         simul_shares = {
             aggregate: [
                 [
@@ -287,7 +285,6 @@ class Simulation:
             "err_avg": error(simul_shares["avg"], self.ref_shares),
             "err_var": error(simul_shares["var"], var_beta_distr)
         }
-
 
     def method_analysis(self, idx, votes, results, entropy):
         """Various tests to determine the quality of the given method."""
@@ -384,25 +381,24 @@ class Simulation:
     def analysis(self):
         """Calculate averages and variances of various quality measures."""
         n = self.iteration
-        for r in range(len(self.e_rules)):
+        for ruleset in range(self.no_rulesets):
             for measure in MEASURES.keys():
-                self.analyze_measure(r, measure, n)
-            for c in range(len(self.ref_votes)):
-                for p in range(len(self.ref_votes[c])):
+                self.analyze_measure(ruleset, measure, n)
+            for c in range(1+self.no_constituencies):
+                for p in range(1+self.no_parties):
                     for measure in LIST_MEASURES.keys():
-                        self.analyze_list(r, measure, c, p, n)
+                        self.analyze_list(ruleset, measure, c, p, n)
 
     def simulate(self):
         """Simulate many elections."""
         gen = self.gen_votes()
-        num_rules = len(self.e_rules)
         self.seats_total_const = []
         self.ref_total_seats = []
         self.ref_const_seats = []
         self.ref_adj_seats = []
-        for r in range(len(self.e_rules)):
+        for ruleset in range(self.no_rulesets):
             votes = [v[:-1] for v in self.ref_votes[:-1]]
-            election = voting.Election(self.e_rules[r], votes)
+            election = voting.Election(self.e_rules[ruleset], votes)
             results = election.run()
             self.seats_total_const.append(election.v_total_seats)
             ref_total_seats = add_totals(results)
@@ -413,31 +409,31 @@ class Simulation:
                                 for p in range(len(ref_total_seats[c]))]
                                 for c in range(len(ref_total_seats))]
             self.ref_adj_seats.append(ref_adj_seats)
-        for i in range(self.sim_rules["simulation_count"]):
+        for i in range(self.no_total_simulations):
             round_start = datetime.now()
             self.iteration = i + 1
             if self.terminate:
                 break
             votes, shares = next(gen)
-            for r in range(len(self.e_rules)):
-                election = voting.Election(self.e_rules[r], votes)
+            for ruleset in range(self.no_rulesets):
+                election = voting.Election(self.e_rules[ruleset], votes)
                 results = election.run()
                 const_seats_alloc = add_totals(election.m_const_seats_alloc)
                 total_seats_alloc = add_totals(results)
-                for c in range(len(self.ref_votes)):
-                    for p in range(len(self.ref_votes[c])):
+                for c in range(1+self.no_constituencies):
+                    for p in range(1+self.no_parties):
                         cs  = const_seats_alloc[c][p]
                         ts  = total_seats_alloc[c][p]
                         adj = ts-const_seats_alloc[c][p]
                         sh  = ts/total_seats_alloc[c][-1]
-                        self.aggregate_list(r, "const_seats", c, p, cs)
-                        self.aggregate_list(r, "total_seats", c, p, ts)
-                        self.aggregate_list(r, "adj_seats", c, p, adj)
-                        self.aggregate_list(r, "seat_shares", c, p, sh)
+                        self.aggregate_list(ruleset, "const_seats", c, p, cs)
+                        self.aggregate_list(ruleset, "total_seats", c, p, ts)
+                        self.aggregate_list(ruleset, "adj_seats", c, p, adj)
+                        self.aggregate_list(ruleset, "seat_shares", c, p, sh)
                 entropy = election.entropy()
-                self.aggregate_measure(r, "entropy", entropy)
-                self.aggregate_measure(r, "adj_dev", election.adj_dev)
-                self.method_analysis(r, votes, results, entropy)
+                self.aggregate_measure(ruleset, "entropy", entropy)
+                self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
+                self.method_analysis(ruleset, votes, results, entropy)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
         self.analysis()
