@@ -66,6 +66,13 @@ MEASURES = {
     "adj_dev":         "Adjustment seat deviation from determined",
 }
 
+LIST_MEASURES = {
+    "const_seats":   "constituency seats",
+    "adj_seats":     "adjustment seats",
+    "total_seats":   "constituency and adjustment seats combined",
+    "seat_shares":   "floating number of seats proportional to vote shares"
+}
+
 def error(avg, ref):
     """
     Compare average of generated votes to reference votes to test the
@@ -158,7 +165,10 @@ class Simulation:
         self.iteration_time = timedelta(0)
 
         self.no_rulesets = len(self.e_rules)
+        self.no_constituencies = len(m_votes)
+        self.no_parties = len(m_votes[0])
         self.data = []
+        self.list_data = []
         for ruleset in range(self.no_rulesets):
             self.data.append({})
             for measure in MEASURES.keys():
@@ -166,6 +176,28 @@ class Simulation:
                     "sum": 0, "sqs": 0,
                     "avg": 0, "var": 0
                 }
+            self.list_data.append({})
+            for measure in LIST_MEASURES.keys():
+                self.list_data[ruleset][measure] = []
+                for c in range(1+self.no_constituencies):
+                    self.list_data[ruleset][measure].append([])
+                    for p in range(1+self.no_parties):
+                        self.list_data[ruleset][measure][c].append({
+                            "sum": 0, "sqs": 0,
+                            "avg": 0, "var": 0
+                        })
+
+    def aggregate_list(self, ruleset, measure, cnstncy, party, value):
+        self.list_data[ruleset][measure][cnstncy][party]["sum"] += value
+        self.list_data[ruleset][measure][cnstncy][party]["sqs"] += value**2
+
+    def analyze_list(self, ruleset, measure, cnstncy, party, count):
+        s = float(self.list_data[ruleset][measure][cnstncy][party]["sum"])
+        t = float(self.list_data[ruleset][measure][cnstncy][party]["sqs"])
+        avg = s/count
+        var = (t - s*avg) / (count-1)
+        self.list_data[ruleset][measure][cnstncy][party]["avg"] = avg
+        self.list_data[ruleset][measure][cnstncy][party]["var"] = var
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["sum"] += value
