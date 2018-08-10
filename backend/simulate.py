@@ -292,12 +292,9 @@ class Simulation:
 
         opt_election = voting.Election(ref_rules["opt"], votes)
         opt_results = opt_election.run()
-        self.deviation(ruleset, "opt", None, None, results, opt_results)
-
-        opt_entropy = opt_election.entropy()
-        entropy_ratio = exp(entropy - opt_entropy)
+        entropy_ratio = exp(entropy - opt_election.entropy())
         self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
-
+        self.deviation(ruleset, "opt", None, None, results, opt_results)
         self.deviation(ruleset, "law", ref_rules, votes, results)
         self.deviation(ruleset, "ind_const", ref_rules, votes, results)
         v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
