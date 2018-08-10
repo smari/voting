@@ -314,22 +314,27 @@ class Simulation:
         self.aggregate_measure(ruleset, "dev_ind_const", dev_ind_const)
 
         v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
-        one_const_election = voting.Election(one_const_rules, v_votes)
-        one_const_results = one_const_election.run()
         v_results = [sum(x) for x in zip(*results)]
-        dev_one_const = dev([v_results], one_const_results)
-        self.aggregate_measure(ruleset, "dev_one_const", dev_one_const)
-
-        all_adj_election = voting.Election(all_adj_rules, v_votes)
-        all_adj_results = all_adj_election.run()
-        dev_all_adj = dev([v_results], all_adj_results)
-        self.aggregate_measure(ruleset, "dev_all_adj", dev_all_adj)
+        self.dev_one_const(one_const_rules, v_votes, v_results)
+        self.dev_all_adj(all_adj_rules, v_votes, v_results)
 
         bi_seat_shares = self.calculate_bi_seat_shares(votes, opt_results)
         self.loosemore_hanby(ruleset, results, bi_seat_shares)
         self.sainte_lague(ruleset, results, bi_seat_shares)
         self.dhondt_min(ruleset, results, bi_seat_shares)
         self.dhondt_sum(ruleset, results, bi_seat_shares)
+
+    def dev_one_const(self, one_const_rules, v_votes, v_results):
+        one_const_election = voting.Election(one_const_rules, v_votes)
+        one_const_results = one_const_election.run()
+        dev_one_const = dev([v_results], one_const_results)
+        self.aggregate_measure(ruleset, "dev_one_const", dev_one_const)
+
+    def dev_all_adj(self, all_adj_rules, v_votes, v_results):
+        all_adj_election = voting.Election(all_adj_rules, v_votes)
+        all_adj_results = all_adj_election.run()
+        dev_all_adj = dev([v_results], all_adj_results)
+        self.aggregate_measure(ruleset, "dev_all_adj", dev_all_adj)
 
     def calculate_bi_seat_shares(self, votes, opt_results):
         bi_seat_shares = deepcopy(votes)
