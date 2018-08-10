@@ -455,13 +455,10 @@ class Simulation:
 def sim_ref_rules(rs):
 
     opt_rs = voting.ElectionRules()
-    law_rs = voting.ElectionRules()
-    ind_const_rs = voting.ElectionRules()
-    one_const_rs = voting.ElectionRules()
-    all_adj_rs = voting.ElectionRules()
-
     opt_rs.update(rs)
     opt_rs["adjustment_method"] = "alternating-scaling"
+
+    law_rs = voting.ElectionRules()
     law_rs["adjustment_method"] = "icelandic-law"
     law_rs["primary_divider"] = "dhondt"
     law_rs["adj_determine_divider"] = "dhondt"
@@ -471,16 +468,22 @@ def sim_ref_rules(rs):
     law_rs["constituency_adjustment_seats"] = rs["constituency_adjustment_seats"]
     law_rs["constituency_names"] = rs["constituency_names"]
     law_rs["parties"] = rs["parties"]
+
+    ind_const_rs = voting.ElectionRules()
     ind_const_rs.update(rs)
     ind_const_rs["constituency_seats"] = copy(rs["constituency_seats"])
     ind_const_rs["constituency_adjustment_seats"] = []
     for i in range(len(rs["constituency_seats"])):
         ind_const_rs["constituency_seats"][i] += rs["constituency_adjustment_seats"][i]
         ind_const_rs["constituency_adjustment_seats"].append(0)
+
+    one_const_rs = voting.ElectionRules()
     one_const_rs.update(rs)
     one_const_rs["constituency_seats"] = [sum(rs["constituency_seats"])]
     one_const_rs["constituency_adjustment_seats"] = [sum(rs["constituency_adjustment_seats"])]
     one_const_rs["constituency_names"] = ["All"]
+
+    all_adj_rs = voting.ElectionRules()
     all_adj_rs.update(one_const_rs)
     all_adj_rs["constituency_seats"] = [0]
     all_adj_rs["constituency_adjustment_seats"] = [one_const_rs["constituency_seats"][0]
