@@ -523,12 +523,13 @@ class Simulation:
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": [MEASURES[measure] for measure in MEASURES.keys()],
-            "data": [self.avg_entropy, self.avg_entropy_ratio,
-                     self.avg_dev_opt, self.avg_dev_law,
-                     self.avg_dev_ind_const, self.avg_dev_one_const,
-                     self.avg_dev_all_adj, self.avg_loosemore_hanby,
-                     self.avg_sainte_lague, self.avg_dhondt_min,
-                     self.avg_dhondt_sum, self.avg_adj_dev]
+            "data": [
+                [
+                    self.data[ruleset][measure]["avg"]
+                    for ruleset in range(self.no_rulesets)
+                ]
+                for measure in MEASURES.keys()
+            ]
         }
 
 
