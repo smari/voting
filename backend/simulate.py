@@ -324,17 +324,17 @@ class Simulation:
         self.dhondt_min(ruleset, results, bi_seat_shares)
         self.dhondt_sum(ruleset, results, bi_seat_shares)
 
-    def dev_one_const(self, one_const_rules, v_votes, v_results):
-        one_const_election = voting.Election(one_const_rules, v_votes)
-        one_const_results = one_const_election.run()
-        dev_one_const = dev([v_results], one_const_results)
-        self.aggregate_measure(ruleset, "dev_one_const", dev_one_const)
+    def dev_one_const(self, rules, votes, reference_results):
+        election = voting.Election(rules, votes)
+        results = election.run()
+        deviation = dev([reference_results], results)
+        self.aggregate_measure(ruleset, "dev_one_const", deviation)
 
-    def dev_all_adj(self, all_adj_rules, v_votes, v_results):
-        all_adj_election = voting.Election(all_adj_rules, v_votes)
-        all_adj_results = all_adj_election.run()
-        dev_all_adj = dev([v_results], all_adj_results)
-        self.aggregate_measure(ruleset, "dev_all_adj", dev_all_adj)
+    def dev_all_adj(self, rules, votes, reference_results):
+        election = voting.Election(rules, votes)
+        results = election.run()
+        deviation = dev([reference_results], results)
+        self.aggregate_measure(ruleset, "dev_all_adj", deviation)
 
     def calculate_bi_seat_shares(self, votes, opt_results):
         bi_seat_shares = deepcopy(votes)
