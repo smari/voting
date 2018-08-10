@@ -426,11 +426,11 @@ class Simulation:
                 total_seats_alloc = add_totals(results)
                 for c in range(len(self.ref_votes)):
                     for p in range(len(self.ref_votes[c])):
-                        self.aggregate_list(r, "const_seats", c, p, const_seats_alloc[c][p])
                         adj = total_seats_alloc[c][p]-const_seats_alloc[c][p]
-                        self.aggregate_list(r, "adj_seats", c, p, adj)
-                        self.aggregate_list(r, "total_seats", c, p, total_seats_alloc[c][p])
                         sh = total_seats_alloc[c][p]/total_seats_alloc[c][-1]
+                        self.aggregate_list(r, "const_seats", c, p, const_seats_alloc[c][p])
+                        self.aggregate_list(r, "total_seats", c, p, total_seats_alloc[c][p])
+                        self.aggregate_list(r, "adj_seats", c, p, adj)
                         self.aggregate_list(r, "seat_shares", c, p, sh)
                 entropy = election.entropy()
                 self.aggregate_measure(r, "entropy", entropy)
