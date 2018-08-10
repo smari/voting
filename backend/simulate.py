@@ -426,10 +426,11 @@ class Simulation:
                 total_seats_alloc = add_totals(results)
                 for c in range(len(self.ref_votes)):
                     for p in range(len(self.ref_votes[c])):
+                        cs  = const_seats_alloc[c][p]
                         ts  = total_seats_alloc[c][p]
                         adj = ts-const_seats_alloc[c][p]
                         sh  = ts/total_seats_alloc[c][-1]
-                        self.aggregate_list(r, "const_seats", c, p, const_seats_alloc[c][p])
+                        self.aggregate_list(r, "const_seats", c, p, cs)
                         self.aggregate_list(r, "total_seats", c, p, ts)
                         self.aggregate_list(r, "adj_seats", c, p, adj)
                         self.aggregate_list(r, "seat_shares", c, p, sh)
