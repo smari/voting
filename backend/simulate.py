@@ -255,25 +255,33 @@ class Simulation:
         ind_const_rules = ref_rules["ind_const"]
         one_const_rules = ref_rules["one_const"]
         all_adj_rules = ref_rules["all_adj"]
+
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
         opt_entropy = opt_election.entropy()
         entropy_ratio = exp(entropy - opt_entropy)
         self.entropy_ratio[idx] += entropy_ratio
         self.sq_entropy_ratio[idx] += entropy_ratio**2
+        self.aggregate_measure(idx, "entropy_ratio", entropy_ratio)
         dev_opt = dev(results, opt_results)
         self.dev_opt[idx] += dev_opt
         self.sq_dev_opt[idx] += dev_opt**2
+        self.aggregate_measure(idx, "dev_opt", dev_opt)
+
         law_election = voting.Election(law_rules, votes)
         law_results = law_election.run()
         dev_law = dev(results, law_results)
         self.dev_law[idx] += dev_law
         self.sq_dev_law[idx] += dev_law**2
+        self.aggregate_measure(idx, "dev_law", dev_law)
+
         ind_const_election = voting.Election(ind_const_rules, votes)
         ind_const_results = ind_const_election.run()
         dev_ind_const = dev(results, ind_const_results)
         self.dev_ind_const[idx] += dev_ind_const
         self.sq_dev_ind_const[idx] += dev_ind_const**2
+        self.aggregate_measure(idx, "dev_ind_const", dev_ind_const)
+
         v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
         one_const_election = voting.Election(one_const_rules, v_votes)
         one_const_results = one_const_election.run()
@@ -281,11 +289,14 @@ class Simulation:
         dev_one_const = dev([v_results], one_const_results)
         self.dev_one_const[idx] += dev_one_const
         self.sq_dev_one_const[idx] += dev_one_const**2
+        self.aggregate_measure(idx, "dev_one_const", dev_one_const)
+
         all_adj_election = voting.Election(all_adj_rules, v_votes)
         all_adj_results = all_adj_election.run()
         dev_all_adj = dev([v_results], all_adj_results)
         self.dev_all_adj[idx] += dev_all_adj
         self.sq_dev_all_adj[idx] += dev_all_adj**2
+        self.aggregate_measure(idx, "dev_all_adj", dev_all_adj)
 
         bi_seat_shares = deepcopy(votes)
         const_mult = [1]*len(bi_seat_shares)
@@ -321,6 +332,8 @@ class Simulation:
                     for c in range(len(results))]) / (2*total_seats)
         self.loosemore_hanby[idx] += lh
         self.sq_loosemore_hanby[idx] += lh**2
+        self.aggregate_measure(idx, "loosemore_hanby", lh)
+
         scale = 1
         stl = sum([sum([(bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
                     if bi_seat_shares[c][p] != 0 else 0
@@ -328,6 +341,8 @@ class Simulation:
                     for c in range(len(results))]) * scale
         self.sainte_lague[idx] += stl
         self.sq_sainte_lague[idx] += stl**2
+        self.aggregate_measure(idx, "sainte_lague", stl)
+
         dh_min_factors = [bi_seat_shares[c][p]/float(results[c][p])
                           if results[c][p] != 0 else 10000000000000000
                           for p in range(len(results[c]))
@@ -335,11 +350,14 @@ class Simulation:
         dh_min = min(dh_min_factors)
         self.dhondt_min[idx] += dh_min
         self.sq_dhondt_min[idx] += dh_min**2
+        self.aggregate_measure(idx, "dhondt_min", dh_min)
+
         dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 10000000000000000000000
                         for p in range(len(results[c]))
                         for c in range(len(results))])
         self.dhondt_sum[idx] += dh_sum
         self.sq_dhondt_sum[idx] += dh_sum**2
+        self.aggregate_measure(idx, "dhondt_sum", dh_sum)
 
     def analysis(self):
         """Calculate averages and variances of various quality measures."""
@@ -373,6 +391,9 @@ class Simulation:
         self.var_dhondt_sum = []
         self.var_adj_dev = []
         for r in range(len(self.e_rules)):
+            for measure in MEASURES.keys():
+                self.analyze_measure(r, measure, n)
+
             self.avg_const_seats.append([[s/n for s in c] for c in self.const_seats[r]])
             self.avg_adj_seats.append([[s/n for s in c] for c in self.adj_seats[r]])
             self.avg_total_seats.append([[s/n for s in c] for c in self.total_seats[r]])
@@ -485,8 +506,10 @@ class Simulation:
                 entropy = election.entropy()
                 self.entropy[r] += entropy
                 self.sq_entropy[r] += entropy**2
+                self.aggregate_measure(r, "entropy", entropy)
                 self.adj_dev[r] += election.adj_dev
                 self.sq_adj_dev[r] += election.adj_dev**2
+                self.aggregate_measure(r, "adj_dev", election.adj_dev)
                 self.method_analysis(r, votes, results, entropy)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
