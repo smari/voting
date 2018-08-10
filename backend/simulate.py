@@ -289,13 +289,8 @@ class Simulation:
     def method_analysis(self, ruleset, votes, results, entropy):
         """Various tests to determine the quality of the given method."""
         ref_rules = sim_ref_rules(self.e_rules[ruleset])
-        opt_rules = ref_rules["opt"]
-        law_rules = ref_rules["law"]
-        ind_const_rules = ref_rules["ind_const"]
-        one_const_rules = ref_rules["one_const"]
-        all_adj_rules = ref_rules["all_adj"]
 
-        opt_election = voting.Election(opt_rules, votes)
+        opt_election = voting.Election(ref_rules["opt"], votes)
         opt_results = opt_election.run()
         opt_entropy = opt_election.entropy()
         entropy_ratio = exp(entropy - opt_entropy)
