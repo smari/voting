@@ -232,10 +232,6 @@ class Simulation:
         Generate votes similar to given votes using the given
         generating method.
         """
-        self.simul_votes = zeros_like(self.ref_votes)
-        self.sq_simul_votes = zeros_like(self.ref_votes)
-        self.simul_shares = zeros_like(self.ref_votes)
-        self.sq_simul_shares = zeros_like(self.ref_votes)
         gen = GENERATING_METHODS[self.variate]
         while True:
             rv = [v[:-1] for v in self.ref_votes[:-1]]
@@ -243,28 +239,16 @@ class Simulation:
 
             for c in range(len(votes)):
                 for p in range(len(votes[c])):
-                    self.simul_votes[c][p] += votes[c][p]
-                    self.sq_simul_votes[c][p] += votes[c][p]**2
                     self.aggregate_list(-1, "simul_votes", c, p, votes[c][p])
-                    self.simul_shares[c][p] += shares[c][p]
-                    self.sq_simul_shares[c][p] += shares[c][p]**2
                     self.aggregate_list(-1, "simul_shares", c, p, shares[c][p])
-                self.simul_votes[c][-1] += sum(votes[c])
-                self.sq_simul_votes[c][-1] += sum(votes[c])**2
                 self.aggregate_list(-1, "simul_votes", c, -1, sum(votes[c]))
-                self.simul_shares[c][-1] += sum(shares[c])
-                self.sq_simul_shares[c][-1] += sum(shares[c])**2
                 self.aggregate_list(-1, "simul_shares", c, -1, sum(shares[c]))
             total_votes = [sum(x) for x in zip(*votes)]
             total_votes.append(sum(total_votes))
             total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0
                                 for t in total_votes]
             for p in range(len(total_votes)):
-                self.simul_votes[-1][p] += total_votes[p]
-                self.sq_simul_votes[-1][p] += total_votes[p]**2
                 self.aggregate_list(-1, "simul_votes", -1, p, total_votes[p])
-                self.simul_shares[-1][p] += total_shares[p]
-                self.sq_simul_shares[-1][p] += total_shares[p]**2
                 self.aggregate_list(-1, "simul_shares", -1, p, total_shares[p])
 
             yield votes, shares
@@ -272,32 +256,18 @@ class Simulation:
     def test_generated(self):
         """Analysis of generated votes."""
         n = self.sim_rules["simulation_count"]
-        self.avg_simul_votes = [[v/n for v in c] for c in self.simul_votes]
-        self.avg_simul_shares = [[s/n for s in c] for c in self.simul_shares]
-        var_simul_votes = []
-        var_simul_shares = []
         var_beta_distr = []
 
         for c in range(len(self.ref_votes)):
-            var_simul_votes.append([])
-            var_simul_shares.append([])
             var_beta_distr.append([])
             for p in range(len(self.ref_votes[c])):
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p, n)
-                variance_votes = (self.sq_simul_votes[c][p]
-                                    -self.simul_votes[c][p]**2/n) / (n-1)
-                variance_shares = (self.sq_simul_shares[c][p]
-                                    -self.simul_shares[c][p]**2/n) / (n-1)
-                var_simul_votes[c].append(variance_votes)
-                var_simul_shares[c].append(variance_shares)
 
                 var_beta_distr[c].append(self.var_param
                                         *self.ref_shares[c][p]
                                         *(self.ref_shares[c][p]-1))
 
-        self.var_simul_votes = var_simul_votes
-        self.var_simul_shares = var_simul_shares
         simul_shares = {
             aggregate: [
                 [
