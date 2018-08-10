@@ -312,9 +312,9 @@ class Simulation:
         self.dhondt_min(ruleset, results, bi_seat_shares)
         self.dhondt_sum(ruleset, results, bi_seat_shares)
 
-    def deviation(self, ruleset, option, rules, votes, reference_results):
-        election = voting.Election(rules[option], votes)
-        results = election.run()
+    def deviation(self, ruleset, option, rules, votes, reference_results, results=None):
+        if results == None:
+            results = voting.Election(rules[option], votes).run()
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
