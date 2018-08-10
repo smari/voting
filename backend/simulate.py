@@ -191,6 +191,7 @@ class Simulation:
                             "sum": 0, "sqs": 0,
                             "avg": 0, "var": 0
                         })
+        self.data.append({})
         self.list_data.append({})
         for measure in VOTE_MEASURES.keys():
             self.list_data[-1][measure] = []
@@ -297,9 +298,20 @@ class Simulation:
 
         self.var_simul_votes = var_simul_votes
         self.var_simul_shares = var_simul_shares
-        self.error_avg_simul_shares = error(self.avg_simul_shares,
-                                            self.ref_shares)
-        self.error_var_simul_shares = error(var_simul_shares, var_beta_distr)
+        simul_shares = {
+            aggregate: [
+                [
+                    self.list_data[-1]["simul_votes"][c][p][aggregate]
+                    for p in range(self.no_parties)
+                ]
+                for c in range(self.no_constituencies)
+            ]
+            for aggregate in ["avg", "var"]
+        }
+        self.data[-1]["simul_shares"] = {
+            "err_avg": error(simul_shares["avg"], self.ref_shares),
+            "err_var": error(simul_shares["var"], var_beta_distr)
+        }
 
 
     def method_analysis(self, idx, votes, results, entropy):
