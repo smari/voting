@@ -336,8 +336,8 @@ class Simulation:
             s = [sum(x) for x in zip(*bi_seat_shares)]
             party_mult = [seats_party_opt[p]/s[p] if s[p] != 0 else 1
                             for p in range(len(seats_party_opt))]
-            for c in range(len(bi_seat_shares)):
-                for p in range(len(bi_seat_shares[c])):
+            for c in range(self.no_constituencies):
+                for p in range(self.no_parties):
                     r = uniform(0.0, 1.0)
                     bi_seat_shares[c][p] *= 1 - r + r*const_mult[c]*party_mult[p]
             error = sum([abs(1-cm) for cm in const_mult]) + sum([abs(1-pm) for pm in party_mult])
