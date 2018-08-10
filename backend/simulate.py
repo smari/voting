@@ -294,13 +294,13 @@ class Simulation:
         opt_results = opt_election.run()
         entropy_ratio = exp(entropy - opt_election.entropy())
         self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
-        self.deviation(ruleset, "opt", None, None, results, opt_results)
-        self.deviation(ruleset, "law", ref_rules, votes, results)
-        self.deviation(ruleset, "ind_const", ref_rules, votes, results)
+        self.deviation(ruleset, "opt", None, results, opt_results)
+        self.deviation(ruleset, "law", votes, results)
+        self.deviation(ruleset, "ind_const", votes, results)
         v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
         v_results = [sum(x) for x in zip(*results)]
-        self.deviation(ruleset, "one_const", ref_rules, v_votes, [v_results])
-        self.deviation(ruleset, "all_adj", ref_rules, v_votes, [v_results])
+        self.deviation(ruleset, "one_const", v_votes, [v_results])
+        self.deviation(ruleset, "all_adj", v_votes, [v_results])
 
         bi_seat_shares = self.calculate_bi_seat_shares(ruleset, votes, opt_results)
         self.loosemore_hanby(ruleset, results, bi_seat_shares)
@@ -308,7 +308,7 @@ class Simulation:
         self.dhondt_min(ruleset, results, bi_seat_shares)
         self.dhondt_sum(ruleset, results, bi_seat_shares)
 
-    def deviation(self, ruleset, option, rules, votes, reference_results, results=None):
+    def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
             rules = sim_ref_rules(self.e_rules[ruleset], option)
             results = voting.Election(rules, votes).run()
