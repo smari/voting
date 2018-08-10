@@ -303,15 +303,8 @@ class Simulation:
         dev_opt = dev(results, opt_results)
         self.aggregate_measure(ruleset, "dev_opt", dev_opt)
 
-        law_election = voting.Election(law_rules, votes)
-        law_results = law_election.run()
-        dev_law = dev(results, law_results)
-        self.aggregate_measure(ruleset, "dev_law", dev_law)
-
-        ind_const_election = voting.Election(ind_const_rules, votes)
-        ind_const_results = ind_const_election.run()
-        dev_ind_const = dev(results, ind_const_results)
-        self.aggregate_measure(ruleset, "dev_ind_const", dev_ind_const)
+        self.deviation(ruleset, "dev_law", law_rules, votes, results)
+        self.deviation(ruleset, "dev_ind_const", ind_const_rules, votes, results)
 
         v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
         v_results = [sum(x) for x in zip(*results)]
