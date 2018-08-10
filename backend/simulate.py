@@ -288,7 +288,7 @@ class Simulation:
 
     def method_analysis(self, ruleset, votes, results, entropy):
         """Various tests to determine the quality of the given method."""
-        opt_rules = sim_ref_rules(self.e_rules[ruleset], "opt")
+        opt_rules = generate_comparison_rules(self.e_rules[ruleset], "opt")
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
         entropy_ratio = exp(entropy - opt_election.entropy())
@@ -309,7 +309,7 @@ class Simulation:
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
-            rules = sim_ref_rules(self.e_rules[ruleset], option)
+            rules = generate_comparison_rules(self.e_rules[ruleset], option)
             results = voting.Election(rules, votes).run()
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
@@ -451,7 +451,7 @@ class Simulation:
             ]
         }
 
-def sim_ref_rules(ruleset, option="all"):
+def generate_comparison_rules(ruleset, option="all"):
     if option == "opt":
         return generate_opt_ruleset(ruleset)
     if option == "law":
