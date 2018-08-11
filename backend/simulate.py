@@ -302,7 +302,7 @@ class Simulation:
                 cs  = const_seats_alloc[c][p]
                 ts  = total_seats_alloc[c][p]
                 adj = ts-const_seats_alloc[c][p]
-                sh  = ts/total_seats_alloc[c][-1]
+                sh  = float(ts)/total_seats_alloc[c][-1]
                 self.aggregate_list(ruleset, "const_seats", c, p, cs)
                 self.aggregate_list(ruleset, "total_seats", c, p, ts)
                 self.aggregate_list(ruleset, "adj_seats", c, p, adj)
