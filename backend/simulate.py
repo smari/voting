@@ -286,6 +286,20 @@ class Simulation:
             "err_var": error(simul_shares["var"], var_beta_distr)
         }
 
+    def collect_list_measures(self, ruleset, results, election):
+        const_seats_alloc = add_totals(election.m_const_seats_alloc)
+        total_seats_alloc = add_totals(results)
+        for c in range(1+self.no_constituencies):
+            for p in range(1+self.no_parties):
+                cs  = const_seats_alloc[c][p]
+                ts  = total_seats_alloc[c][p]
+                adj = ts-const_seats_alloc[c][p]
+                sh  = ts/total_seats_alloc[c][-1]
+                self.aggregate_list(ruleset, "const_seats", c, p, cs)
+                self.aggregate_list(ruleset, "total_seats", c, p, ts)
+                self.aggregate_list(ruleset, "adj_seats", c, p, adj)
+                self.aggregate_list(ruleset, "seat_shares", c, p, sh)
+
     def method_analysis(self, ruleset, votes, results, election):
         """Various tests to determine the quality of the given method."""
         self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
@@ -425,18 +439,7 @@ class Simulation:
             for ruleset in range(self.no_rulesets):
                 election = voting.Election(self.e_rules[ruleset], votes)
                 results = election.run()
-                const_seats_alloc = add_totals(election.m_const_seats_alloc)
-                total_seats_alloc = add_totals(results)
-                for c in range(1+self.no_constituencies):
-                    for p in range(1+self.no_parties):
-                        cs  = const_seats_alloc[c][p]
-                        ts  = total_seats_alloc[c][p]
-                        adj = ts-const_seats_alloc[c][p]
-                        sh  = ts/total_seats_alloc[c][-1]
-                        self.aggregate_list(ruleset, "const_seats", c, p, cs)
-                        self.aggregate_list(ruleset, "total_seats", c, p, ts)
-                        self.aggregate_list(ruleset, "adj_seats", c, p, adj)
-                        self.aggregate_list(ruleset, "seat_shares", c, p, sh)
+                self.collect_list_measures(ruleset, results, election)
                 self.method_analysis(ruleset, votes, results, election)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
