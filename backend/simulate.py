@@ -288,11 +288,19 @@ class Simulation:
 
     def method_analysis(self, ruleset, votes, results, entropy):
         """Various tests to determine the quality of the given method."""
+        opt_results = self.entropy_ratio(ruleset, votes, entropy)
+        self.deviation_measures(ruleset, votes, results, opt_results)
+        self.other_measures(ruleset, votes, results, opt_results)
+
+    def entropy_ratio(self, ruleset, votes, entropy):
         opt_rules = generate_opt_ruleset(self.e_rules[ruleset])
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
         entropy_ratio = exp(entropy - opt_election.entropy())
         self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
+        return opt_results
+
+    def deviation_measures(self, ruleset, votes, results, opt_results):
         self.deviation(ruleset, "opt", None, results, opt_results)
         self.deviation(ruleset, "law", votes, results)
         self.deviation(ruleset, "ind_const", votes, results)
@@ -301,6 +309,7 @@ class Simulation:
         self.deviation(ruleset, "one_const", v_votes, [v_results])
         self.deviation(ruleset, "all_adj", v_votes, [v_results])
 
+    def other_measures(self, ruleset, votes, results, opt_results):
         bi_seat_shares = self.calculate_bi_seat_shares(ruleset, votes, opt_results)
         self.loosemore_hanby(ruleset, results, bi_seat_shares)
         self.sainte_lague(ruleset, results, bi_seat_shares)
