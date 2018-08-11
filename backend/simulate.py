@@ -304,7 +304,7 @@ class Simulation:
         self.deviation(ruleset, "opt", None, results, opt_results)
         self.deviation(ruleset, "law", votes, results)
         self.deviation(ruleset, "ind_const", votes, results)
-        v_votes = [[sum([c[p] for c in votes]) for p in range(len(votes[0]))]]
+        v_votes = [[sum([c[p] for c in votes]) for p in range(self.no_parties)]]
         v_results = [sum(x) for x in zip(*results)]
         self.deviation(ruleset, "one_const", v_votes, [v_results])
         self.deviation(ruleset, "all_adj", v_votes, [v_results])
@@ -411,8 +411,8 @@ class Simulation:
             ref_const_seats = add_totals(election.m_const_seats_alloc)
             self.ref_const_seats.append(ref_const_seats)
             ref_adj_seats = [[ref_total_seats[c][p]-ref_const_seats[c][p]
-                                for p in range(len(ref_total_seats[c]))]
-                                for c in range(len(ref_total_seats))]
+                                for p in range(1+self.no_parties)]
+                                for c in range(1+self.no_constituencies)]
             self.ref_adj_seats.append(ref_adj_seats)
         for i in range(self.no_total_simulations):
             round_start = datetime.now()
