@@ -348,14 +348,18 @@ class Simulation:
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
     def calculate_bi_seat_shares(self, ruleset, votes, opt_results):
+        election = voting.Election(self.e_rules[ruleset], self.base_votes)
+        election.run()
+        v_total_seats = election.v_total_seats
+
         bi_seat_shares = deepcopy(votes)
         const_mult = [1]*len(bi_seat_shares)
         party_mult = [1]*len(bi_seat_shares[0])
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
         error = 1
         while round(error, 5) != 0.0:
-            const_mult = [self.seats_total_const[ruleset][c]/sum(bi_seat_shares[c])
-                            for c in range(len(self.seats_total_const[ruleset]))]
+            const_mult = [v_total_seats[c]/sum(bi_seat_shares[c])
+                            for c in range(len(v_total_seats))]
             s = [sum(x) for x in zip(*bi_seat_shares)]
             party_mult = [seats_party_opt[p]/s[p] if s[p] != 0 else 1
                             for p in range(len(seats_party_opt))]
@@ -371,8 +375,8 @@ class Simulation:
         except AssertionError:
             pass
         try:
-            assert(all([sum(bi_seat_shares[c]) == self.seats_total_const[ruleset][c]
-                        for c in range(len(self.seats_total_const[ruleset]))]))
+            assert(all([sum(bi_seat_shares[c]) == v_total_seats[c]
+                        for c in range(len(v_total_seats))]))
         except AssertionError:
             pass
 
