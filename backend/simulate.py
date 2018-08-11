@@ -300,7 +300,7 @@ class Simulation:
                 self.aggregate_list(ruleset, "adj_seats", c, p, adj)
                 self.aggregate_list(ruleset, "seat_shares", c, p, sh)
 
-    def method_analysis(self, ruleset, votes, results, election):
+    def collect_general_measures(self, ruleset, votes, results, election):
         """Various tests to determine the quality of the given method."""
         self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
         opt_results = self.entropy(ruleset, votes, election.entropy())
@@ -440,7 +440,7 @@ class Simulation:
                 election = voting.Election(self.e_rules[ruleset], votes)
                 results = election.run()
                 self.collect_list_measures(ruleset, results, election)
-                self.method_analysis(ruleset, votes, results, election)
+                self.collect_general_measures(ruleset, votes, results, election)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
         self.analysis()
