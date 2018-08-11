@@ -425,11 +425,6 @@ class Simulation:
     def simulate(self):
         """Simulate many elections."""
         gen = self.gen_votes()
-        self.seats_total_const = []
-        for ruleset in range(self.no_rulesets):
-            election = voting.Election(self.e_rules[ruleset], self.base_votes)
-            results = election.run()
-            self.seats_total_const.append(election.v_total_seats)
         for i in range(self.no_total_simulations):
             round_start = datetime.now()
             self.iteration = i + 1
