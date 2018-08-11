@@ -286,9 +286,10 @@ class Simulation:
             "err_var": error(simul_shares["var"], var_beta_distr)
         }
 
-    def method_analysis(self, ruleset, votes, results, entropy):
+    def method_analysis(self, ruleset, votes, results, election):
         """Various tests to determine the quality of the given method."""
-        opt_results = self.entropy(ruleset, votes, entropy)
+        self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
+        opt_results = self.entropy(ruleset, votes, election.entropy())
         self.deviation_measures(ruleset, votes, results, opt_results)
         self.other_measures(ruleset, votes, results, opt_results)
 
@@ -436,9 +437,7 @@ class Simulation:
                         self.aggregate_list(ruleset, "total_seats", c, p, ts)
                         self.aggregate_list(ruleset, "adj_seats", c, p, adj)
                         self.aggregate_list(ruleset, "seat_shares", c, p, sh)
-                entropy = election.entropy()
-                self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
-                self.method_analysis(ruleset, votes, results, entropy)
+                self.method_analysis(ruleset, votes, results, election)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
         self.analysis()
