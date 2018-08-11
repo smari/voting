@@ -166,8 +166,9 @@ class Simulation:
     def __init__(self, sim_rules, e_rules, m_votes, var_param=0.1):
         self.sim_rules = sim_rules
         self.e_rules = e_rules
-        self.ref_votes = add_totals(m_votes)
-        self.ref_shares = [[v/c[-1] for v in c] for c in self.ref_votes]
+        self.base_votes = m_votes
+        xtd_votes = add_totals(self.base_votes)
+        self.ref_shares = [[v/c[-1] for v in c] for c in xtd_votes]
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
@@ -240,8 +241,7 @@ class Simulation:
         """
         gen = GENERATING_METHODS[self.variate]
         while True:
-            rv = [v[:-1] for v in self.ref_votes[:-1]]
-            votes, shares = gen(rv, self.var_param)
+            votes, shares = gen(self.base_votes, self.var_param)
 
             for c in range(self.no_constituencies):
                 for p in range(self.no_parties):
@@ -418,8 +418,7 @@ class Simulation:
         self.ref_const_seats = []
         self.ref_adj_seats = []
         for ruleset in range(self.no_rulesets):
-            votes = [v[:-1] for v in self.ref_votes[:-1]]
-            election = voting.Election(self.e_rules[ruleset], votes)
+            election = voting.Election(self.e_rules[ruleset], self.base_votes)
             results = election.run()
             self.seats_total_const.append(election.v_total_seats)
             ref_total_seats = add_totals(results)
