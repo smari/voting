@@ -164,6 +164,18 @@ class SimulationRules(Rules):
 class Simulation:
     """Simulate a set of elections."""
     def __init__(self, sim_rules, e_rules, m_votes, var_param=0.1):
+        self.no_total_simulations = sim_rules["simulation_count"]
+        self.no_rulesets = len(e_rules)
+        self.no_constituencies = len(m_votes)
+        self.no_parties = len(m_votes[0])
+        assert(all([len(c) == self.no_parties for c in m_votes]))
+        assert(all([
+            self.no_constituencies == len(ruleset["constituency_names"])
+            and self.no_constituencies == len(ruleset["constituency_seats"])
+            and self.no_constituencies == len(ruleset["constituency_adjustment_seats"])
+            and self.no_parties == len(ruleset["parties"])
+            for ruleset in e_rules
+        ]))
         self.sim_rules = sim_rules
         self.e_rules = e_rules
         self.base_votes = m_votes
@@ -175,10 +187,6 @@ class Simulation:
         self.terminate = False
         self.iteration_time = timedelta(0)
 
-        self.no_total_simulations = self.sim_rules["simulation_count"]
-        self.no_rulesets = len(self.e_rules)
-        self.no_constituencies = len(m_votes)
-        self.no_parties = len(m_votes[0])
         self.data = []
         self.list_data = []
         for ruleset in range(self.no_rulesets):
