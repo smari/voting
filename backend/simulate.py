@@ -457,6 +457,19 @@ class Simulation:
                     for ruleset in range(self.no_rulesets)
                 ]
                 for measure in MEASURES.keys()
+            ],
+            "lore": [
+                {
+                    "name": self.e_rules[ruleset]["name"],
+                    "measures": {
+                        measure: {
+                            aggregate: self.data[ruleset][measure][aggregate]
+                            for aggregate in ["avg", "var"]
+                        }
+                        for measure in MEASURES.keys()
+                    }
+                }
+                for ruleset in range(self.no_rulesets)
             ]
         }
 
