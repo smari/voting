@@ -288,16 +288,17 @@ class Simulation:
 
     def method_analysis(self, ruleset, votes, results, entropy):
         """Various tests to determine the quality of the given method."""
-        opt_results = self.entropy_ratio(ruleset, votes, entropy)
+        opt_results = self.entropy(ruleset, votes, entropy)
         self.deviation_measures(ruleset, votes, results, opt_results)
         self.other_measures(ruleset, votes, results, opt_results)
 
-    def entropy_ratio(self, ruleset, votes, entropy):
+    def entropy(self, ruleset, votes, entropy):
         opt_rules = generate_opt_ruleset(self.e_rules[ruleset])
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
         entropy_ratio = exp(entropy - opt_election.entropy())
         self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
+        self.aggregate_measure(ruleset, "entropy", entropy)
         return opt_results
 
     def deviation_measures(self, ruleset, votes, results, opt_results):
@@ -436,7 +437,6 @@ class Simulation:
                         self.aggregate_list(ruleset, "adj_seats", c, p, adj)
                         self.aggregate_list(ruleset, "seat_shares", c, p, sh)
                 entropy = election.entropy()
-                self.aggregate_measure(ruleset, "entropy", entropy)
                 self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
                 self.method_analysis(ruleset, votes, results, entropy)
             round_end = datetime.now()
