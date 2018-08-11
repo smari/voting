@@ -422,21 +422,10 @@ class Simulation:
         """Simulate many elections."""
         gen = self.gen_votes()
         self.seats_total_const = []
-        self.ref_total_seats = []
-        self.ref_const_seats = []
-        self.ref_adj_seats = []
         for ruleset in range(self.no_rulesets):
             election = voting.Election(self.e_rules[ruleset], self.base_votes)
             results = election.run()
             self.seats_total_const.append(election.v_total_seats)
-            ref_total_seats = add_totals(results)
-            self.ref_total_seats.append(ref_total_seats)
-            ref_const_seats = add_totals(election.m_const_seats_alloc)
-            self.ref_const_seats.append(ref_const_seats)
-            ref_adj_seats = [[ref_total_seats[c][p]-ref_const_seats[c][p]
-                                for p in range(1+self.no_parties)]
-                                for c in range(1+self.no_constituencies)]
-            self.ref_adj_seats.append(ref_adj_seats)
         for i in range(self.no_total_simulations):
             round_start = datetime.now()
             self.iteration = i + 1
