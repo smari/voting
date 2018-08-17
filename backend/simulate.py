@@ -547,7 +547,7 @@ def run_script_simulation(rules):
 
     election = voting.Election(rs, rules["ref_votes"])
 
-    sim = Simulation(srs, election)
+    sim = Simulation(srs, election, rules["ref_votes"])
     sim.simulate()
 
     return sim
