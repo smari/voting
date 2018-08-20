@@ -77,6 +77,8 @@ class ElectionRules(Rules):
             "constituency_names", "parties"
         ]
 
+        self["name"] = "My test"
+
         # Election rules
         self["primary_divider"] = "dhondt"
         self["adj_determine_divider"] = "dhondt"
@@ -116,6 +118,9 @@ class ElectionRules(Rules):
 class Election:
     """A single election."""
     def __init__(self, rules, votes=None):
+        self.no_constituencies = len(rules["constituency_adjustment_seats"])
+        assert(len(rules["constituency_seats"]) == self.no_constituencies)
+        assert(len(rules["constituency_names"]) == self.no_constituencies)
         self.rules = rules
         self.set_votes(votes)
 
@@ -123,7 +128,7 @@ class Election:
         return entropy(self.m_votes, self.results, self.gen)
 
     def set_votes(self, votes):
-        assert(len(votes) == len(self.rules["constituency_names"]))
+        assert(len(votes) == self.no_constituencies)
         assert(all([len(x) == len(self.rules["parties"])
                     for x in votes]))
         self.m_votes = votes

@@ -21,6 +21,8 @@ class SimulationTest(TestCase):
         s_rules["simulation_count"] = 1000
         e_rules = voting.ElectionRules()
         e_rules["constituency_names"] = ["I", "II", "III"]
+        e_rules["constituency_seats"] = [5, 6, 4]
+        e_rules["constituency_adjustment_seats"] = [1, 2, 1]
         e_rules["parties"] = ["A", "B"]
         votes = [[500, 300], [200, 400], [350, 450]]
         sim = simulate.Simulation(s_rules, [e_rules], votes, 0.1)

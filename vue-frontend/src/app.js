@@ -12,11 +12,13 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import App from './App.vue'
 import Election from './Election.vue'
 import Simulate from './Simulate.vue'
+import Intro from './Intro.vue'
 
 const routes = [
+  { path: '/', component: Intro },
   { path: '/election', component: Election },
   { path: '/simulate', component: Simulate }
 ]
 
 var router = new VueRouter({ routes })
-var app = new Vue({ router, el: "#app", render: h => h(App) })
+var app = new Vue({ router, el: "#app", path: '/', render: h => h(App) })
