@@ -5,6 +5,8 @@ def monge(m_votes, v_total_seats, v_party_seats,
                             orig_votes=None, **kwargs):
     """Apportion by Monge algorithm"""
 
+    large_number = 99999999999999999999999999
+
     def divided_vote(m_votes, m_prior_allocations, constituency, party, divisor_gen):
         gen = divisor_gen()
         for seat in range(1+sum([v_constituency_allocations[party]
@@ -21,7 +23,7 @@ def monge(m_votes, v_total_seats, v_party_seats,
         for constituency in range(len(m_votes)):
             for party in range(len(m_votes[0])):
                 a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
-                min_ratio = 1
+                min_ratio = large_number
                 none_found = True
                 for other_constituency in range(len(m_votes)):
                     if other_constituency == constituency:
@@ -35,7 +37,7 @@ def monge(m_votes, v_total_seats, v_party_seats,
                         try:
                             ratio = (a*d)/(b*c)
                         except ZeroDivisionError:
-                            ratio = 1
+                            ratio = large_number
                         if none_found or ratio < min_ratio:
                             min_ratio = ratio
                             reference_constituency = other_constituency
