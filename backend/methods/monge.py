@@ -21,10 +21,10 @@ def monge(m_votes, v_total_seats, v_party_seats,
         #calculate max_Monge_ratio
         max_Monge_ratio = 0
         for constituency in range(len(m_votes)):
-            if not seats_left_for_constituency(constituency, v_total_seats, m_allocations):
+            if no_seats_left_for_constituency(constituency, v_total_seats, m_allocations):
                 continue
             for party in range(len(m_votes[0])):
-                if not seats_left_for_party(party, v_party_seats, m_allocations):
+                if no_seats_left_for_party(party, v_party_seats, m_allocations):
                     continue
                 a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
                 min_ratio = large_number
@@ -32,12 +32,12 @@ def monge(m_votes, v_total_seats, v_party_seats,
                 for other_constituency in range(len(m_votes)):
                     if other_constituency == constituency:
                         continue
-                    if not seats_left_for_constituency(other_constituency, v_total_seats, m_allocations):
+                    if no_seats_left_for_constituency(other_constituency, v_total_seats, m_allocations):
                         continue
                     for other_party in range(len(m_votes[0])):
                         if other_party == party:
                             continue
-                        if not seats_left_for_party(other_party, v_party_seats, m_allocations):
+                        if no_seats_left_for_party(other_party, v_party_seats, m_allocations):
                             continue
                         d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
                         b = divided_vote(m_votes, m_allocations, constituency, other_party, divisor_gen)
@@ -61,12 +61,12 @@ def monge(m_votes, v_total_seats, v_party_seats,
 
     return m_allocations, None
 
-def seats_left_for_party(party, v_party_seats, m_allocations):
+def no_seats_left_for_party(party, v_party_seats, m_allocations):
     seats_already_allocated_for_party_lists = [c[party] for c in m_allocations]
     previously_allocated_seats = sum(seats_already_allocated_for_party_lists)
     seats_left = v_party_seats[party] - previously_allocated_seats
-    return seats_left > 0
+    return seats_left <= 0
 
-def seats_left_for_constituency(constituency, v_total_seats, m_allocations):
+def no_seats_left_for_constituency(constituency, v_total_seats, m_allocations):
     seats_left = v_total_seats[constituency] - sum(m_allocations[constituency])
-    return seats_left > 0
+    return seats_left <= 0
