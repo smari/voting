@@ -62,9 +62,7 @@ def monge(m_votes, v_total_seats, v_party_seats,
     return m_allocations, None
 
 def no_seats_left_for_party(party, v_party_seats, m_allocations):
-    seats_already_allocated_for_party_lists = [c[party] for c in m_allocations]
-    previously_allocated_seats = sum(seats_already_allocated_for_party_lists)
-    seats_left = v_party_seats[party] - previously_allocated_seats
+    seats_left = v_party_seats[party] - sum([c[party] for c in m_allocations])
     return seats_left <= 0
 
 def no_seats_left_for_constituency(constituency, v_total_seats, m_allocations):
