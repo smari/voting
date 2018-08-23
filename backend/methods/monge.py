@@ -5,61 +5,46 @@ def monge(m_votes, v_total_seats, v_party_seats,
                             orig_votes=None, **kwargs):
     """Apportion by Monge algorithm"""
 
-    large_number = 99999999999999999999999999
-
-    def divided_vote(m_votes, m_prior_allocations, constituency, party, divisor_gen):
-        gen = divisor_gen()
-        for seat in range(1+sum([v_constituency_allocations[party]
-                                for v_constituency_allocations in m_prior_allocations])):
-            divisor = next(gen)
-        return float(m_votes[constituency][party])/divisor
-
     m_allocations = deepcopy(m_prior_allocations)
     total_seats = sum(v_total_seats)
-    allocated_seats = sum([sum(x) for x in m_allocations])
-    for seat in range(total_seats - allocated_seats):
-        #calculate max_Monge_ratio
-        max_Monge_ratio = 0
-        for constituency in range(len(m_votes)):
-            if no_seats_left_for_constituency(constituency, v_total_seats, m_allocations):
-                continue
-            for party in range(len(m_votes[0])):
-                if no_seats_left_for_party(party, v_party_seats, m_allocations):
-                    continue
-                a = divided_vote(m_votes, m_allocations, constituency, party, divisor_gen)
-                min_ratio = large_number
-                none_found = True
-                for other_constituency in range(len(m_votes)):
-                    if other_constituency == constituency:
-                        continue
-                    if no_seats_left_for_constituency(other_constituency, v_total_seats, m_allocations):
-                        continue
-                    for other_party in range(len(m_votes[0])):
-                        if other_party == party:
-                            continue
-                        if no_seats_left_for_party(other_party, v_party_seats, m_allocations):
-                            continue
-                        d = divided_vote(m_votes, m_allocations, other_constituency, other_party, divisor_gen)
-                        b = divided_vote(m_votes, m_allocations, constituency, other_party, divisor_gen)
-                        c = divided_vote(m_votes, m_allocations, other_constituency, party, divisor_gen)
-                        try:
-                            ratio = (a*d)/(b*c)
-                        except ZeroDivisionError:
-                            ratio = large_number
-                        if none_found or ratio < min_ratio:
-                            min_ratio = ratio
-                            reference_constituency = other_constituency
-                            reference_party = other_party
-                            none_found = False
-                if min_ratio > max_Monge_ratio:
-                    max_Monge_ratio = min_ratio
-                    max_constituency = constituency
-                    max_party = party
-
-        #allocate seat based on Monge ratio
-        m_allocations[max_constituency][max_party] += 1
+    while sum([sum(x) for x in m_allocations]) < total_seats:
+        best = find_best_Monge_list(m_votes, m_allocations, v_total_seats, v_party_seats, divisor_gen)
+        if best == None:
+            # if we did not find any list to allocate to now,
+            # then we also won't on next iteration
+            # throw some exception perhaps?
+            return m_allocations, "Adjustment seat allocation incomplete."
+        m_allocations[best["constituency"]][best["party"]] += 1
 
     return m_allocations, None
+
+def find_best_Monge_list(votes, allocations, total_seats, party_seats, divisor_gen):
+    #calculate max_Monge_ratio
+    no_constituencies = len(votes)
+    no_parties = len(votes[0])
+    considerations = []
+    for C in range(no_constituencies):
+        if no_seats_left_for_constituency(C, total_seats, allocations):
+            continue
+        for P in range(no_parties):
+            if no_seats_left_for_party(P, party_seats, allocations):
+                continue
+            closest = find_closest_comparison(C, P, votes, allocations, divisor_gen)
+            if closest == None:
+                # do not append, ignore list if there is no valid comparison
+                continue
+            considerations.append({
+                "min_ratio": closest["ratio"],
+                "constituency": C,
+                "party": P,
+                "reference_constituency": closest["reference_constituency"],
+                "reference_party": closest["reference_party"]
+            })
+    if considerations:
+        ratios = [consideration["min_ratio"] for consideration in considerations]
+        best = considerations[ratios.index(max(ratios))]
+        return best
+    return None
 
 def no_seats_left_for_party(party, v_party_seats, m_allocations):
     seats_left = v_party_seats[party] - sum([c[party] for c in m_allocations])
@@ -68,3 +53,40 @@ def no_seats_left_for_party(party, v_party_seats, m_allocations):
 def no_seats_left_for_constituency(constituency, v_total_seats, m_allocations):
     seats_left = v_total_seats[constituency] - sum(m_allocations[constituency])
     return seats_left <= 0
+
+def find_closest_comparison(C1, P1, votes, allocations, total_seats, party_seats, divisor_gen):
+    no_constituencies = len(votes)
+    no_parties = len(votes[0])
+    a = divided_vote(votes, allocations, C1, P1, divisor_gen)
+    comparisons = []
+    for C2 in range(no_constituencies):
+        if C2 == C1:
+            continue
+        if no_seats_left_for_constituency(C2, total_seats, allocations):
+            continue
+        for P2 in range(no_parties):
+            if P2 == P1:
+                continue
+            if no_seats_left_for_party(P2, party_seats, allocations):
+                continue
+            d = divided_vote(votes, allocations, C2, P2, divisor_gen)
+            b = divided_vote(votes, allocations, C1, P2, divisor_gen)
+            c = divided_vote(votes, allocations, C2, P1, divisor_gen)
+            if b > 0 and c > 0:
+                comparisons.append({
+                    "ratio": (a*d)/(b*c),
+                    "reference_constituency": C2,
+                    "reference_party": P2
+                })
+    if comparisons:
+        ratios = [comparison["ratio"] for comparison in comparisons]
+        closest = comparisons[ratios.index(min(ratios))]
+        return closest
+    return None
+
+def divided_vote(votes, prior_allocations, c, p, divisor_gen):
+    gen = divisor_gen()
+    for seat in range(1+sum([constituency_allocations[p]
+                            for constituency_allocations in prior_allocations])):
+        divisor = next(gen)
+    return float(votes[c][p])/divisor
