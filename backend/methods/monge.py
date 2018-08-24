@@ -13,6 +13,7 @@ def monge(
     """Apportion by Monge algorithm"""
     allocations = deepcopy(prior_allocations)
     total_seats = sum(c_goals)
+    assert(sum(p_goals) == total_seats)
     while sum([sum(x) for x in allocations]) < total_seats:
         best = find_best_Monge_list(
             votes, allocations, c_goals, p_goals, divisor_gen
