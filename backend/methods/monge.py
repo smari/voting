@@ -37,10 +37,10 @@ def find_best_Monge_list(
     no_parties = len(votes[0])
     considerations = []
     for C in range(no_constituencies):
-        if no_seats_left_for_constituency(C, total_seats, allocations):
-            continue
+        if constituency_full(C, total_seats, allocations):
+            continue #No need to consider lists that can't be given more seats
         for P in range(no_parties):
-            if no_seats_left_for_party(P, party_seats, allocations):
+            if party_satisfied(P, party_seats, allocations):
                 continue
             closest = find_closest_comparison(
                 C, P, votes, allocations, divisor_gen
@@ -61,13 +61,11 @@ def find_best_Monge_list(
         return best
     return None
 
-def no_seats_left_for_party(party, v_party_seats, m_allocations):
-    seats_left = v_party_seats[party] - sum([c[party] for c in m_allocations])
-    return seats_left <= 0
+def party_satisfied(P, party_seats, allocations):
+    return sum([const[P] for const in allocations]) >= party_seats[P]
 
-def no_seats_left_for_constituency(constituency, v_total_seats, m_allocations):
-    seats_left = v_total_seats[constituency] - sum(m_allocations[constituency])
-    return seats_left <= 0
+def constituency_full(C, total_seats, allocations):
+    return sum(allocations[C]) >= total_seats[C]
 
 def find_closest_comparison(
     C1,
@@ -84,13 +82,13 @@ def find_closest_comparison(
     comparisons = []
     for C2 in range(no_constituencies):
         if C2 == C1:
-            continue
-        if no_seats_left_for_constituency(C2, total_seats, allocations):
+            continue #compare to lists in different constituencies only
+        if constituency_full(C2, total_seats, allocations):
             continue
         for P2 in range(no_parties):
             if P2 == P1:
-                continue
-            if no_seats_left_for_party(P2, party_seats, allocations):
+                continue #compare to lists for different party only
+            if party_satisfied(P2, party_seats, allocations):
                 continue
             d = divided_vote(votes, allocations, C2, P2, divisor_gen)
             b = divided_vote(votes, allocations, C1, P2, divisor_gen)
