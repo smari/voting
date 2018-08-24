@@ -18,11 +18,12 @@ def monge(
             m_votes, m_allocations, v_total_seats, v_party_seats, divisor_gen
         )
         if best == None:
-            # if we did not find any list to allocate to now,
-            # then we also won't on next iteration
+            # if we did not find any list now to allocate to,
+            # then we won't on further iterations either
             # throw some exception perhaps?
             # TODO: Find better way to indicate this
             return m_allocations, "Adjustment seat allocation incomplete."
+        #allocate seat based on best Monge ratio
         m_allocations[best["constituency"]][best["party"]] += 1
     return m_allocations, None
 
