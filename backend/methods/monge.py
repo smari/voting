@@ -1,11 +1,11 @@
 from copy import deepcopy
 
 def monge(
-    m_votes,
-    v_total_seats,
-    v_party_seats,
-    m_prior_allocations,
-    divisor_gen,
+    m_votes,             #2d - votes for each list
+    v_total_seats,       #1d - total number of seats in each constituency
+    v_party_seats,       #1d - total number of seats for each party
+    m_prior_allocations, #2d - seats already allocated to lists
+    divisor_gen,         #divisor sequence formula
     threshold=None,
     orig_votes=None,
     **kwargs
@@ -27,11 +27,11 @@ def monge(
     return m_allocations, None
 
 def find_best_Monge_list(
-    votes,
-    allocations,
-    total_seats,
-    party_seats,
-    divisor_gen
+    votes,       #2d - votes for each list
+    allocations, #2d - seats already allocated to lists
+    total_seats, #1d - total number of seats in each constituency
+    party_seats, #1d - total number of seats each party is supposed to get
+    divisor_gen  #divisor sequence formula
 ):
     #calculate max_Monge_ratio
     no_constituencies = len(votes)
@@ -69,13 +69,13 @@ def constituency_full(C, total_seats, allocations):
     return sum(allocations[C]) >= total_seats[C]
 
 def find_closest_comparison(
-    C1,
-    P1,
-    votes,
-    allocations,
-    total_seats,
-    party_seats,
-    divisor_gen
+    C1,          #index of constituency being considered
+    P1,          #index of party        being considered
+    votes,       #2d - votes for each list
+    allocations, #2d - seats already allocated to lists
+    total_seats, #1d - total number of seats in each constituency
+    party_seats, #1d - total number of seats each party is supposed to get
+    divisor_gen  #divisor sequence formula
 ):
     no_constituencies = len(votes)
     no_parties = len(votes[0])
