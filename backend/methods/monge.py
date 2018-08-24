@@ -30,8 +30,8 @@ def monge(
 def find_best_Monge_list(
     votes,       #2d - votes for each list
     allocations, #2d - seats already allocated to lists
-    total_seats, #1d - total number of seats in each constituency
-    party_seats, #1d - total number of seats each party is supposed to get
+    c_goals,     #1d - total number of seats in each constituency
+    p_goals,     #1d - total number of seats each party is supposed to get
     divisor_gen  #divisor sequence formula
 ):
     #calculate max_Monge_ratio
@@ -39,13 +39,13 @@ def find_best_Monge_list(
     no_parties = len(votes[0])
     considerations = []
     for C in range(no_constituencies):
-        if constituency_full(C, total_seats, allocations):
+        if constituency_full(C, c_goals, allocations):
             continue #No need to consider lists that can't be given more seats
         for P in range(no_parties):
-            if party_satisfied(P, party_seats, allocations):
+            if party_satisfied(P, p_goals, allocations):
                 continue
             closest = find_closest_comparison(
-                C, P, votes, allocations, total_seats, party_seats, divisor_gen
+                C, P, votes, allocations, c_goals, p_goals, divisor_gen
             )
             if closest == None:
                 #do not append, ignore list if there is no valid comparison
@@ -63,19 +63,19 @@ def find_best_Monge_list(
         return best
     return None
 
-def party_satisfied(P, party_seats, allocations):
-    return sum([const[P] for const in allocations]) >= party_seats[P]
+def party_satisfied(P, p_goals, allocations):
+    return sum([const[P] for const in allocations]) >= p_goals[P]
 
-def constituency_full(C, total_seats, allocations):
-    return sum(allocations[C]) >= total_seats[C]
+def constituency_full(C, c_goals, allocations):
+    return sum(allocations[C]) >= c_goals[C]
 
 def find_closest_comparison(
     C1,          #index of constituency being considered
     P1,          #index of party        being considered
     votes,       #2d - votes for each list
     allocations, #2d - seats already allocated to lists
-    total_seats, #1d - total number of seats in each constituency
-    party_seats, #1d - total number of seats each party is supposed to get
+    c_goals,     #1d - total number of seats in each constituency
+    p_goals,     #1d - total number of seats each party is supposed to get
     divisor_gen  #divisor sequence formula
 ):
     no_constituencies = len(votes)
@@ -85,12 +85,12 @@ def find_closest_comparison(
     for C2 in range(no_constituencies):
         if C2 == C1:
             continue #compare to lists in different constituencies only
-        if constituency_full(C2, total_seats, allocations):
+        if constituency_full(C2, c_goals, allocations):
             continue #TODO: Decide if we should compare to unconsidered lists
         for P2 in range(no_parties):
             if P2 == P1:
                 continue #compare to lists for different party only
-            if party_satisfied(P2, party_seats, allocations):
+            if party_satisfied(P2, p_goals, allocations):
                 continue
             d = divided_vote(votes, allocations, C2, P2, divisor_gen)
             b = divided_vote(votes, allocations, C1, P2, divisor_gen)
