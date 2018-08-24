@@ -1,31 +1,31 @@
 from copy import deepcopy
 
 def monge(
-    m_votes,             #2d - votes for each list
-    v_total_seats,       #1d - total number of seats in each constituency
-    v_party_seats,       #1d - total number of seats for each party
-    m_prior_allocations, #2d - seats already allocated to lists
-    divisor_gen,         #divisor sequence formula
+    votes,             #2d - votes for each list
+    c_goals,           #1d - total number of seats in each constituency
+    p_goals,           #1d - total number of seats for each party
+    prior_allocations, #2d - seats already allocated to lists
+    divisor_gen,       #divisor sequence formula
     threshold=None,
     orig_votes=None,
     **kwargs
 ):
     """Apportion by Monge algorithm"""
-    m_allocations = deepcopy(m_prior_allocations)
-    total_seats = sum(v_total_seats)
-    while sum([sum(x) for x in m_allocations]) < total_seats:
+    allocations = deepcopy(prior_allocations)
+    total_seats = sum(c_goals)
+    while sum([sum(x) for x in allocations]) < total_seats:
         best = find_best_Monge_list(
-            m_votes, m_allocations, v_total_seats, v_party_seats, divisor_gen
+            votes, allocations, c_goals, p_goals, divisor_gen
         )
         if best == None:
             # if we did not find any list now to allocate to,
             # then we won't on further iterations either
             # throw some exception perhaps?
             # TODO: Find better way to indicate this
-            return m_allocations, "Adjustment seat allocation incomplete."
+            return allocations, "Adjustment seat allocation incomplete."
         #allocate seat based on best Monge ratio
-        m_allocations[best["constituency"]][best["party"]] += 1
-    return m_allocations, None
+        allocations[best["constituency"]][best["party"]] += 1
+    return allocations, None
 
 def find_best_Monge_list(
     votes,       #2d - votes for each list
