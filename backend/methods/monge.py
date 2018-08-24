@@ -21,6 +21,7 @@ def monge(
             # if we did not find any list to allocate to now,
             # then we also won't on next iteration
             # throw some exception perhaps?
+            # TODO: Find better way to indicate this
             return m_allocations, "Adjustment seat allocation incomplete."
         m_allocations[best["constituency"]][best["party"]] += 1
     return m_allocations, None
@@ -84,7 +85,7 @@ def find_closest_comparison(
         if C2 == C1:
             continue #compare to lists in different constituencies only
         if constituency_full(C2, total_seats, allocations):
-            continue
+            continue #TODO: Decide if we should compare to unconsidered lists
         for P2 in range(no_parties):
             if P2 == P1:
                 continue #compare to lists for different party only
@@ -99,6 +100,8 @@ def find_closest_comparison(
                     "reference_constituency": C2,
                     "reference_party": P2
                 })
+                #TODO: Decide what to do in case b or c is 0.
+                #Is this the way to go?
     if comparisons:
         ratios = [comparison["ratio"] for comparison in comparisons]
         closest = comparisons[ratios.index(min(ratios))]
