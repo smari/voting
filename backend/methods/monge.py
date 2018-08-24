@@ -111,7 +111,10 @@ def find_closest_comparison(
 
 def divided_vote(votes, prior_allocations, C, P, divisor_gen):
     gen = divisor_gen()
-    for seat in range(1+sum([constituency_allocations[P]
-                            for constituency_allocations in prior_allocations])):
+    number_of_seats_already_allocated_to_party_P = sum([
+        constituency_allocation[P]
+        for constituency_allocation in prior_allocations
+    ])
+    for seat in range(1+number_of_seats_already_allocated_to_party_P):
         divisor = next(gen)
     return float(votes[C][P])/divisor
