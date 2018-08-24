@@ -44,7 +44,7 @@ def find_best_Monge_list(
             if party_satisfied(P, party_seats, allocations):
                 continue
             closest = find_closest_comparison(
-                C, P, votes, allocations, divisor_gen
+                C, P, votes, allocations, total_seats, party_seats, divisor_gen
             )
             if closest == None:
                 # do not append, ignore list if there is no valid comparison
