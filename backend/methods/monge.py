@@ -57,7 +57,7 @@ def find_best_Monge_list(
                 "reference_party": closest["reference_party"]
             })
     if considerations:
-        ratios = [consideration["min_ratio"] for consideration in considerations]
+        ratios = [conion["min_ratio"] for conion in considerations]
         best = considerations[ratios.index(max(ratios))]
         return best
     return None
