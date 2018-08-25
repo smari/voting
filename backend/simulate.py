@@ -375,12 +375,12 @@ class Simulation:
 
         try:
             assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]
-                        for p in range(len(seats_party_opt))]))
+                        for p in range(self.no_parties)]))
         except AssertionError:
             pass
         try:
             assert(all([sum(bi_seat_shares[c]) == v_total_seats[c]
-                        for c in range(len(v_total_seats))]))
+                        for c in range(self.no_constituencies)]))
         except AssertionError:
             pass
 
