@@ -353,20 +353,21 @@ class Simulation:
         v_total_seats = election.v_total_seats
 
         bi_seat_shares = deepcopy(votes)
-        const_mult = [1]*len(bi_seat_shares)
-        party_mult = [1]*len(bi_seat_shares[0])
+        const_mult = [1]*self.no_constituencies
+        party_mult = [1]*self.no_parties
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
+        rein = 0 # uniform(0.0, 1.0)
         error = 1
         while round(error, 5) != 0.0:
-            const_mult = [v_total_seats[c]/sum(bi_seat_shares[c])
-                            for c in range(len(v_total_seats))]
-            s = [sum(x) for x in zip(*bi_seat_shares)]
-            party_mult = [seats_party_opt[p]/s[p] if s[p] != 0 else 1
-                            for p in range(len(seats_party_opt))]
             for c in range(self.no_constituencies):
+                const_mult = v_total_seats[c]/sum(bi_seat_shares[c])
                 for p in range(self.no_parties):
-                    r = uniform(0.0, 1.0)
-                    bi_seat_shares[c][p] *= 1 - r + r*const_mult[c]*party_mult[p]
+                    bi_seat_shares[c][p] *= rein + (1-rein)*const_mult
+            s = [sum(x) for x in zip(*bi_seat_shares)]
+            for p in range(self.no_parties):
+                party_mult = seats_party_opt[p]/s[p] if s[p] != 0 else 1
+                for c in range(self.no_constituencies):
+                    bi_seat_shares[c][p] *= rein + (1-rein)*party_mult
             error = sum([abs(1-cm) for cm in const_mult]) + sum([abs(1-pm) for pm in party_mult])
 
         try:
@@ -547,7 +548,7 @@ def run_script_simulation(rules):
 
     election = voting.Election(rs, rules["ref_votes"])
 
-    sim = Simulation(srs, election)
+    sim = Simulation(srs, election, rules["ref_votes"])
     sim.simulate()
 
     return sim
