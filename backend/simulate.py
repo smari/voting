@@ -360,14 +360,14 @@ class Simulation:
         error = 1
         while round(error, 5) != 0.0:
             for c in range(self.no_constituencies):
-                const_mult = v_total_seats[c]/sum(bi_seat_shares[c])
+                mult = v_total_seats[c]/sum(bi_seat_shares[c])
                 for p in range(self.no_parties):
-                    bi_seat_shares[c][p] *= const_mult + rein*(1-const_mult)
+                    bi_seat_shares[c][p] *= mult + rein*(1-mult)
             s = [sum(x) for x in zip(*bi_seat_shares)]
             for p in range(self.no_parties):
-                party_mult = seats_party_opt[p]/s[p] if s[p] != 0 else 1
+                mult = seats_party_opt[p]/s[p] if s[p] != 0 else 1
                 for c in range(self.no_constituencies):
-                    bi_seat_shares[c][p] *= party_mult + rein*(1-party_mult)
+                    bi_seat_shares[c][p] *= mult + rein*(1-mult)
             error = sum([abs(1-cm) for cm in const_mult]) + sum([abs(1-pm) for pm in party_mult])
 
         try:
