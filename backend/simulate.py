@@ -357,19 +357,21 @@ class Simulation:
         rein = 0 # uniform(0.0, 1.0)
         error = 1
         while round(error, 5) != 0.0:
+            error = 0
             for c in range(self.no_constituencies):
                 s = sum(bi_seat_shares[c])
                 if s != 0:
                     mult = float(v_total_seats[c])/s
+                    error += abs(1-mult)
                     for p in range(self.no_parties):
                         bi_seat_shares[c][p] *= mult + rein*(1-mult)
             for p in range(self.no_parties):
                 s = sum([c[p] for c in bi_seat_shares])
                 if s != 0:
                     mult = float(seats_party_opt[p])/s
+                    error += abs(1-mult)
                     for c in range(self.no_constituencies):
                         bi_seat_shares[c][p] *= mult + rein*(1-mult)
-            error = sum([abs(1-cm) for cm in const_mult]) + sum([abs(1-pm) for pm in party_mult])
 
         try:
             assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]
