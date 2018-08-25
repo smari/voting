@@ -358,8 +358,9 @@ class Simulation:
         error = 1
         while round(error, 5) != 0.0:
             for c in range(self.no_constituencies):
-                if sum(bi_seat_shares[c]) != 0:
-                    mult = v_total_seats[c]/sum(bi_seat_shares[c])
+                s = sum(bi_seat_shares[c])
+                if s != 0:
+                    mult = v_total_seats[c]/s
                     for p in range(self.no_parties):
                         bi_seat_shares[c][p] *= mult + rein*(1-mult)
             for p in range(self.no_parties):
