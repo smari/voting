@@ -353,8 +353,6 @@ class Simulation:
         v_total_seats = election.v_total_seats
 
         bi_seat_shares = deepcopy(votes)
-        const_mult = [1]*self.no_constituencies
-        party_mult = [1]*self.no_parties
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
         rein = 0 # uniform(0.0, 1.0)
         error = 1
