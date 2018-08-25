@@ -363,9 +363,10 @@ class Simulation:
                     bi_seat_shares[c][p] *= mult + rein*(1-mult)
             s = [sum(x) for x in zip(*bi_seat_shares)]
             for p in range(self.no_parties):
-                mult = seats_party_opt[p]/s[p] if s[p] != 0 else 1
-                for c in range(self.no_constituencies):
-                    bi_seat_shares[c][p] *= mult + rein*(1-mult)
+                if s[p] != 0:
+                    mult = seats_party_opt[p]/s[p]
+                    for c in range(self.no_constituencies):
+                        bi_seat_shares[c][p] *= mult + rein*(1-mult)
             error = sum([abs(1-cm) for cm in const_mult]) + sum([abs(1-pm) for pm in party_mult])
 
         try:
