@@ -410,7 +410,8 @@ class Simulation:
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
     def dhondt_sum(self, ruleset, results, bi_seat_shares):
-        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 10000000000000000000000
+        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
+                        if bi_seat_shares[c][p] != 0 else 10000000000000000000000
                         for p in range(self.no_parties)
                         for c in range(self.no_constituencies)])
         self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
