@@ -390,7 +390,7 @@ class Simulation:
         total_seats = sum([sum(c) for c in results])
         lh = sum([sum([abs(bi_seat_shares[c][p]-results[c][p])
                     for p in range(self.no_parties)])
-                    for c in range(self.no_constituencies)]) / (2*total_seats)
+                    for c in range(self.no_constituencies)]) / total_seats
         self.aggregate_measure(ruleset, "loosemore_hanby", lh)
 
     def sainte_lague(self, ruleset, results, bi_seat_shares):
