@@ -65,10 +65,16 @@ def find_best_Monge_list(
     return None
 
 def party_satisfied(P, p_goals, allocations):
-    return sum([const[P] for const in allocations]) >= p_goals[P]
+    return p_unclaimed(P, p_goals, allocations) <= 0
 
 def constituency_full(C, c_goals, allocations):
-    return sum(allocations[C]) >= c_goals[C]
+    return c_unclaimed(C, c_goals, allocations) <= 0
+
+def p_unclaimed(P, p_goals, allocations):
+    return p_goals[P] - sum([c[P] for c in allocations])
+
+def c_unclaimed(C, c_goals, allocations):
+    return c_goals[C] - sum(allocations[C])
 
 def find_closest_comparison(
     C1,          #index of constituency being considered
@@ -111,10 +117,8 @@ def find_closest_comparison(
     return None
 
 def divided_vote(votes, prior_allocations, C, P, divisor_gen):
-    v = votes[C][P]
     k = prior_allocations[C][P]
-    d = divisor(k, divisor_gen)
-    return float(v)/d
+    return float(votes[C][P]) / divisor(k, divisor_gen)
 
 def divisor(k, divisor_gen):
     gen = divisor_gen()
@@ -122,3 +126,13 @@ def divisor(k, divisor_gen):
     for step in range(k):
         d = next(gen)
     return d
+
+def fully_divided_vote(votes, allocations, C, P, c_goals, p_goals, divisor_gen):
+    slack = seats_still_available(C, P, c_goals, p_goals, allocations)
+    N = allocations[C][P] + slack
+    return float(votes[C][P]) / divisor(N, divisor_gen)
+
+def seats_still_available(C, P, c_goals, p_goals, allocations):
+    c_left = c_unclaimed(C, c_goals, allocations)
+    p_left = p_unclaimed(P, p_goals, allocations)
+    return min(c_left, p_left)
