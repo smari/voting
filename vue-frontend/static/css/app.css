@@ -24,6 +24,13 @@ h2 {
   border:         1px solid #ccc;
 }
 
+.ruleset {
+  background: #eee;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 1.5em;
+}
+
 th.topleft {
   border-top: 0px !important;
   border-left: 0px !important;

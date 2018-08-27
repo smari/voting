@@ -9,14 +9,14 @@
 
     <h3>Simulate elections</h3>
     <b-button @click="addElectionRules">Add election ruleset</b-button>
-    <b-container v-for="(rules, rulesidx) in election_rules" :key="rules.name" style="background: #eee; padding: 15px; border-radius: 5px; margin-bottom: 1.5em;">
+    <b-container v-for="(rules, rulesidx) in election_rules" :key="rules.name" class="ruleset">
       <b-row>
-        <b-col>
+        <b-col cols="10">
           <ElectionSettings :rulesidx="rulesidx" @update-rules="updateElectionRules">
           </ElectionSettings>
         </b-col>
         <b-col>
-          <b-button @click="deleteElectionRules(rulesidx)">Delete ruleset</b-button>
+          <b-button @click="deleteElectionRules(rulesidx)">Delete this ruleset</b-button>
         </b-col>
       </b-row>
     </b-container>
@@ -26,21 +26,24 @@
     <VoteMatrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @server-error="serverError">
     </VoteMatrix>
 
-    <div class="row">
-      <div class="col-sm-4">
+    <div style="text-align: center; margin-bottom: 0.7em;">
         <span v-if="simulation_done">
-          <b-button :disabled="!simulation_done" @click="recalculate">Simulate</b-button>
+          <b-button size="lg" variant="success" :disabled="!simulation_done" @click="recalculate">Start simulation</b-button>
         </span>
         <span v-if="!simulation_done">
-          <b-button :disabled="simulation_done" @click="stop_simulation">Stop simulation</b-button>
+          <b-button size="lg" variant="danger" :disabled="simulation_done" @click="stop_simulation">Stop simulation</b-button>
         </span>
-      </div>
-      <div class="col-sm-2">
+    </div>
+    <div class="row" style="margin-bottom: 0.7em;">
+      <b-col cols="2">
         <span v-if="!simulation_done">{{iteration_time}}s/iter</span>
-      </div>
-      <div class="col-sm-6">
+      </b-col>
+      <b-col cols="8">
         <b-progress :value="current_iteration" :max="simulation_rules.simulation_count" show-value animated></b-progress>
-      </div>
+      </b-col>
+      <b-col cols="2">
+
+      </b-col>
     </div>
 
     <h2>Quality measures</h2>
