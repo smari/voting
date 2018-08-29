@@ -591,7 +591,7 @@ def simulation_to_xlsx(simulation, filename):
         draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.list_data[-1]["sim_votes"]["avg"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.list_data[-1]["simul_shares"]["avg"])
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.list_data[-1]["sim_shares"]["avg"])
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.list_data[r]["const_seats"]["avg"])
@@ -613,7 +613,7 @@ def simulation_to_xlsx(simulation, filename):
         sdev_votes = [[round(sqrt(v),3) for v in c]
                         for c in simulation.list_data[-1]["sim_votes"]["var"]]
         sdev_vote_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
-                                for c in simulation.list_data[-1]["simul_shares"]["var"]]
+                                for c in simulation.list_data[-1]["sim_shares"]["var"]]
         sdev_const_seats = [[round(sqrt(v),3) for v in c]
                                 for c in simulation.list_data[r]["const_seats"]["var"]]
         sdev_adj_seats = [[round(sqrt(v),3) for v in c]
