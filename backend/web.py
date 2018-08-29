@@ -4,9 +4,11 @@ import threading
 import random
 import os.path
 import voting
+import tempfile
 import simulate as sim
 from hashlib import sha256
 import json
+import util
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -109,8 +111,8 @@ def check_simulation():
     if data["sid"] not in SIMULATIONS:
         return jsonify({"error": "Please supply a valid SID."})
     simulation, thread = SIMULATIONS[data["sid"]]
-    if thread.done:
-        del(SIMULATIONS[data["sid"]])
+    #if thread.done:
+    #    del(SIMULATIONS[data["sid"]])
 
     return jsonify({
             "done": thread.done,
@@ -131,8 +133,8 @@ def stop_simulation():
 
     simulation.terminate = True
     thread.join()
-    if thread.done:
-        del(SIMULATIONS[data["sid"]])
+    #if thread.done:
+    #    del(SIMULATIONS[data["sid"]])
 
     return jsonify({
             "done": thread.done,
@@ -140,6 +142,21 @@ def stop_simulation():
             "target": simulation.sim_rules["simulation_count"],
             "results": simulation.get_results_dict()
         })
+
+
+@app.route('/api/simulate/getxlsx/', methods=['GET'])
+def get_xlsx():
+    if "sid" not in request.args:
+        return jsonify({'error': 'Please supply a SID.'})
+    if request.args["sid"] not in SIMULATIONS:
+        return jsonify({"error": "Please supply a valid SID."})
+
+    tempfile.tempdir = 'uploads/'
+    tmpfilename = tempfile.mktemp(prefix='votesim-%s-' % request.args["sid"])
+
+    simulation, thread = SIMULATIONS[request.args["sid"]]
+    util.simulation_to_xlsx(simulation, tmpfilename)
+    return send_from_directory(directory='uploads/', filename=filename)
 
 
 def set_up_simulation():
