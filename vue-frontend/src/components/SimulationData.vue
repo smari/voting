@@ -24,10 +24,33 @@
       </td>
     </tr>
   </table>
+
+  <h3>Lore</h3>
+  <table v-if="lore.length != 0" class="simulationdata">
+    <tr class="methods">
+      <th class="small-12 medium-1 topleft">
+      </th>
+      <th v-for="(measure, idx) in lore" class="small-12 medium-1 column methodname">
+        <div>{{ measure.name }}</div>
+      </th>
+    </tr>
+    <tr>
+      <th class="small-12 medium-1 column measurename">Adjustment method</th>
+      <td class="small-12 medium-2 column methoddata" v-for="(measure, idx) in lore">{{measure.name}}</td>
+    </tr>
+    <tr v-for="(measure, idx) in lore">
+      <th class="small-12 medium-1 column measurename">
+          {{ measures[measureidx] }}
+      </th>
+      <td v-for="(measure, idx) in lore" class="small-12 medium-2 column methoddata">
+          {{ data[measureidx][methodidx].toFixed(4) }}
+      </td>
+    </tr>
+  </table>
 </b-container>
 </template>
 <script>
 export default {
-  props: ["testnames", "measures", "methods", "data"]
+  props: ["testnames", "measures", "methods", "data", "lore"]
 }
 </script>

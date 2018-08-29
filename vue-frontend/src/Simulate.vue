@@ -49,7 +49,7 @@
     <h2>Results</h2>
     <b-button size="lg" :href="get_xlsx_url()">Download XLSX file</b-button>
     <h3>Quality measures</h3>
-    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames">
+    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames" :lore="results.lore">
     </SimulationData>
 
   </div>
