@@ -474,7 +474,9 @@ class Simulation:
         return {
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
-            "measures": [MEASURES[measure] for measure in MEASURES.keys()],
+            "measures": MEASURES,
+            "list measures": LIST_MEASURES,
+            "vote measures": VOTE_MEASURES,
             "data": [
                 [
                     self.data[ruleset][measure]["avg"]
