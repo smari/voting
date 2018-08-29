@@ -218,6 +218,8 @@ class Simulation:
                         "avg": 0, "var": 0
                     })
 
+        self.run_initial_elections()
+
     def aggregate_list(self, ruleset, measure, cnstncy, party, value):
         self.list_data[ruleset][measure][cnstncy][party]["sum"] += value
         self.list_data[ruleset][measure][cnstncy][party]["sqs"] += value**2
@@ -241,6 +243,28 @@ class Simulation:
         var = (t - s*avg) / (count-1)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
+
+    def run_initial_elections(self):
+        self.base_allocations = []
+        for r in range(self.no_rulesets):
+            election = voting.Election(self.e_rules[r], self.base_votes)
+            total_seats = election.run()
+            cnstncy_seats = election.m_const_seats_alloc
+            adj_seats = [[
+                    total_seats[c][p]-cnstncy_seats[c][p]
+                    for p in range(self.no_parties)
+                ]
+                for c in range(self.no_constituencies)
+            ]
+            self.base_allocations.append({
+                "cnstncy_seats": cnstncy_seats,
+                "adj_seats": adj_seats,
+                "total_seats": total_seats,
+                "party_sums": election.v_total_seats,
+                "xtd_cnstncy_seats": add_totals(cnstncy_seats),
+                "xtd_adj_seat": add_totals(adj_seats),
+                "xtd_total_seats": add_totals(total_seats)
+            })
 
     def gen_votes(self):
         """
