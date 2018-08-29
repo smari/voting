@@ -3,47 +3,34 @@
   <b-alert :show="methods.length == 0">
     Run simulation to get results.
   </b-alert>
-  <table v-if="methods.length != 0" class="simulationdata">
+  <table v-if="lore.length > 0" class="simulationdata">
     <tr class="methods">
       <th class="small-12 medium-1 topleft">
       </th>
-      <th v-for="(testname, idx) in testnames" class="small-12 medium-1 column methodname">
-        <div>{{ testname }}</div>
-      </th>
-    </tr>
-    <tr>
-      <th class="small-12 medium-1 column measurename">Adjustment method</th>
-      <td class="small-12 medium-2 column methoddata" v-for="(method, methodidx) in methods">{{method}}</td>
-    </tr>
-    <tr v-for="(measure, measureidx) in measures">
-      <th class="small-12 medium-1 column measurename">
-          {{ measures[measureidx] }}
-      </th>
-      <td v-for="(method, methodidx) in methods" class="small-12 medium-2 column methoddata">
-          {{ data[measureidx][methodidx].toFixed(4) }}
-      </td>
-    </tr>
-  </table>
-
-  <h3>Lore</h3>
-  <table v-if="lore.length != 0" class="simulationdata">
-    <tr class="methods">
-      <th class="small-12 medium-1 topleft">
-      </th>
-      <th v-for="(measure, idx) in lore" class="small-12 medium-1 column methodname">
+      <th colspan="2" v-for="(measure, idx) in lore" class="small-12 medium-1 column methodname">
         <div>{{ measure.name }}</div>
       </th>
     </tr>
     <tr>
       <th class="small-12 medium-1 column measurename">Adjustment method</th>
-      <td class="small-12 medium-2 column methoddata" v-for="(measure, idx) in lore">{{measure.name}}</td>
+      <td colspan="2" class="small-12 medium-2 column methoddata" v-for="(measure, idx) in lore">{{measure.name}}</td>
     </tr>
-    <tr v-for="(measure, idx) in lore">
+    <tr>
+      <th class="small-12 medium-1 topleft"></th>
+      <template v-for="(test, tidx) in lore">
+        <th class="small-12 medium-2 column methodname">Average</th>
+        <th class="small-12 medium-2 column methodname">Variance</th>
+      </template>
+    </tr>
+    <tr v-for="(measure, midx) in measures">
       <th class="small-12 medium-1 column measurename">
-          {{ measures[measureidx] }}
+          {{ measure }}
       </th>
-      <td v-for="(measure, idx) in lore" class="small-12 medium-2 column methoddata">
-          {{ data[measureidx][methodidx].toFixed(4) }}
+      <td v-for="(test, testidx) in lore" class="small-12 medium-2 column methoddata">
+        {{ lore[testidx]["measures"][midx]["avg"].toFixed(4) }}
+      </td>
+      <td v-for="(test, testidx) in lore" class="small-12 medium-2 column methoddata">
+        {{ lore[testidx]["measures"][midx]["var"].toFixed(4) }}
       </td>
     </tr>
   </table>

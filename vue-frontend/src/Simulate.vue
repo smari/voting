@@ -48,10 +48,17 @@
 
     <h2>Results</h2>
     <b-button size="lg" :href="get_xlsx_url()">Download XLSX file</b-button>
+
+    <h3>Total seats</h3>
+    <ResultMatrix v-for="(res, idx) in results.lore" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.total_seats.avg" :variance="res.list_measures.total_seats.var" round="2">
+    </ResultMatrix>
+
+    <ResultMatrix v-for="(res, idx) in results.lore" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.total_seats.sum" :variance="res.list_measures.total_seats.sqs" round="2">
+    </ResultMatrix>
+
     <h3>Quality measures</h3>
     <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames" :lore="results.lore">
     </SimulationData>
-
   </div>
 </template>
 
@@ -99,7 +106,7 @@ export default {
       iteration_time: 0,
       inflight: 0,
       ref_votes: [],
-      results: { measures: [], methods: [], data: []},
+      results: { measures: [], methods: [], data: [], lore: [ ]},
     }
   },
   methods: {
@@ -183,6 +190,7 @@ export default {
             this.current_iteration = response.body.iteration;
             this.iteration_time = response.body.iteration_time
             this.results = response.body.results;
+            console.log(this.results);
             this.server.waitingForData = false;
             if (this.simulation_done) {
               window.clearInterval(this.checktimer);
@@ -195,7 +203,7 @@ export default {
     },
     recalculate: function() {
       this.current_iteration = 0;
-      this.results = { measures: [], methods: [], data: []}
+      this.results = { measures: [], methods: [], data: [], lore: []}
       this.sid = "";
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
