@@ -18,6 +18,10 @@
     When choosing the <i>election rules</i>, you have a lot of different options to choose from ─ for a deeper understanding of these, you should read our guides on <b><a href="#/dividers">divider rules</a></b> and <b><a href="#/adjustmentmethods">adjustment methods</a></b>.
   </p>
 
+  <div style="text-align: center;">
+    <b-button :size="lg" href="#/election">Run a single election</b-button>
+  </div>
+
   <h2>Simulate</h2>
 
   <p>
@@ -39,6 +43,10 @@
   <p>
     When choosing the <i>election rules</i>, you have a lot of different options to choose from ─ for a deeper understanding of these, you should read our guides on <b><a href="#/dividers">divider rules</a></b> and <b><a href="#/adjustmentmethods">adjustment methods</a></b>.
   </p>
+
+  <div style="text-align: center;">
+    <b-button :size="lg" href="#/simulate">Run a simulation</b-button>
+  </div>
 
 </b-container>
 </template>

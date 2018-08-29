@@ -157,7 +157,7 @@ class SimulationRules(Rules):
         super(SimulationRules, self).__init__()
         # Simulation rules
         self["simulate"] = False
-        self["simulation_count"] = 10000
+        self["simulation_count"] = 1000
         self["gen_method"] = "beta"
 
 

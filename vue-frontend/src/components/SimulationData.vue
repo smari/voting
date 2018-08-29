@@ -20,7 +20,7 @@
           {{ measures[measureidx] }}
       </th>
       <td v-for="(method, methodidx) in methods" class="small-12 medium-2 column methoddata">
-          {{ data[measureidx][methodidx].toFixed(2) }}
+          {{ data[measureidx][methodidx].toFixed(4) }}
       </td>
     </tr>
   </table>

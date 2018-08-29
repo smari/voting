@@ -9,6 +9,20 @@ Biproportional allocation on matrices is a common issue that arises when you hav
 More generally this approach could be used to allocate limited resources to factories depending on their relative importance or needs, or to solve a number of other biproportional optimization problems.
 
 
+## Installation
+
+It is highly recommended that you use a *Virtualenv* for voting. Python 3 is recommended.
+
+1. Create a new Python3 Virtualenv, e.g. 'voting', and enter it.
+2. Make sure you have `npm` available on your system.
+2. Clone this repository (e.g. from git@github.com:smari/voting)
+3. `(cd backend && pip install -r requirements.txt)`
+4. `(cd vue-frontend && npm install)`
+5. `(cd vue-frontend && npm run-script build)`
+
+That should be enough to start using the simulator.
+
+
 ## Command Line Interface
 
 The basic interaction mode. You feed it some data files, it feeds you some results.
@@ -101,7 +115,8 @@ The web interface can be started by:
 python web.py
 ```
 
-Then direct a browser to `http://localhost:5000/` and start having fun.
+Then direct a browser to `http://localhost:5000/` and start having fun. This is the recommended mode to use the simulator in.
+
 
 ### Design
 

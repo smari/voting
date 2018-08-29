@@ -1,17 +1,28 @@
 <template>
   <b-container fluid class="votematrix-container">
+    <b-button-toolbar key-nav aria-label="Vote tools">
+      <b-button-group class="mx-1">
+        <b-btn @click="addConstituency()">Add constituency</b-btn>
+        <b-btn @click="addParty()">Add party</b-btn>
+        <b-btn @click="clearVotes()">Clear votes</b-btn>
+        <b-btn @click="clearAll()">Reset everything</b-btn>
+      </b-button-group>
+      <b-button-group class="mx-1">
+        <b-button disabled>Upload XLSX</b-button>
+        <b-button disabled>Upload CSV</b-button>
+        <b-button disabled>Paste input</b-button>
+        <b-dropdown id="ddown1" text="Presets" size="sm">
+          <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
+        </b-dropdown>
+      </b-button-group>
+      <b-button-group class="mx-1">
+        <b-button disabled>Save voteset</b-button>
+      </b-button-group>
+    </b-button-toolbar>
     <table class="votematrix">
       <tr class="parties">
         <th class="small-12 medium-1 topleft">
-          <b-dropdown id="ddown1" text="Actions" size="sm" variant="outline-secondary">
-            <b-dropdown-item @click="addConstituency()">Add constituency</b-dropdown-item>
-            <b-dropdown-item @click="addParty()">Add party</b-dropdown-item>
-            <b-dropdown-item @click="clearVotes()">Clear votes</b-dropdown-item>
-            <b-dropdown-item @click="clearAll()">Reset everything</b-dropdown-item>
-          </b-dropdown>
-          <b-dropdown id="ddown1" text="Presets" size="sm" variant="outline-secondary">
-            <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
-          </b-dropdown>
+          &nbsp;
         </th>
         <th>
           <abbr title="Constituency seats"># Cons.</abbr>
