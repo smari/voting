@@ -1,7 +1,9 @@
 <template>
   <b-container fluid class="votematrix-container">
-    <b-modal id="modalupload" title="Upload CSV or XLSX file" @ok="uploadVotes">
-      <p>The file provided must be a CSV or an Excel XLSX file formatted with parties along the top and constitutions along the left hand side.</p>
+    <b-modal size="lg" id="modalupload" title="Upload CSV or XLSX file" @ok="uploadVotes">
+      <p>The file provided must be a CSV or an Excel XLSX file formatted with parties on the first row and constitution names on the first column.</p>
+      <b-img rounded fluid src="/static/img/parties_xlsx.png"/>
+      <p>Optionally, if the second and third columns are named 'cons' or 'adj', they will be understood to be information about the number of constituency seats and adjustment seats, respectively, in each constituency. If you leave them out, you can specify the number of seats manually.</p>
       <b-form-file v-model="uploadfile" :state="Boolean(uploadfile)" placeholder="Choose a file..."></b-form-file>
     </b-modal>
 
@@ -172,6 +174,12 @@ export default {
         this.constituencies = response.data.constituencies;
         this.parties = response.data.parties;
         this.votes = response.data.votes;
+        if (response.data.constituency_seats) {
+          this.constituency_seats = response.data.constituency_seats;
+        }
+        if (response.data.constituency_adjustment_seats) {
+          this.constituency_adjustment_seats = response.data.constituency_adjustment_seats;
+        }
       }, response => {
         console.log("Error:", response);
           // Error?
