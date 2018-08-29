@@ -249,20 +249,20 @@ class Simulation:
         for r in range(self.no_rulesets):
             election = voting.Election(self.e_rules[r], self.base_votes)
             total_seats = election.run()
-            cnstncy_seats = election.m_const_seats_alloc
+            const_seats = election.m_const_seats_alloc
             adj_seats = [[
-                    total_seats[c][p]-cnstncy_seats[c][p]
+                    total_seats[c][p]-const_seats[c][p]
                     for p in range(self.no_parties)
                 ]
                 for c in range(self.no_constituencies)
             ]
             self.base_allocations.append({
-                "cnstncy_seats": cnstncy_seats,
+                "const_seats": const_seats,
                 "adj_seats": adj_seats,
                 "total_seats": total_seats,
                 "party_sums": election.v_total_seats,
-                "xtd_cnstncy_seats": add_totals(cnstncy_seats),
-                "xtd_adj_seat": add_totals(adj_seats),
+                "xtd_const_seats": add_totals(const_seats),
+                "xtd_adj_seats": add_totals(adj_seats),
                 "xtd_total_seats": add_totals(total_seats)
             })
 
@@ -379,14 +379,14 @@ class Simulation:
                     mult = float(v_total_seats[c])/s
                     error += abs(1-mult)
                     for p in range(self.no_parties):
-                        bi_seat_shares[c][p] *= mult + rein*(1-mult)
+                        bi_seat_shares[c][p] *= rein + mult*(1-rein)
             for p in range(self.no_parties):
                 s = sum([c[p] for c in bi_seat_shares])
                 if s != 0:
                     mult = float(seats_party_opt[p])/s
                     error += abs(1-mult)
                     for c in range(self.no_constituencies):
-                        bi_seat_shares[c][p] *= mult + rein*(1-mult)
+                        bi_seat_shares[c][p] *= rein + mult*(1-rein)
 
         try:
             assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]

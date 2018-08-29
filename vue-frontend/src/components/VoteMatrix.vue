@@ -1,5 +1,10 @@
 <template>
   <b-container fluid class="votematrix-container">
+    <b-modal id="modalupload" title="Upload CSV or XLSX file" @ok="uploadVotes">
+      <p>The file provided must be a CSV or an Excel XLSX file formatted with parties along the top and constitutions along the left hand side.</p>
+      <b-form-file v-model="uploadfile" :state="Boolean(uploadfile)" placeholder="Choose a file..."></b-form-file>
+    </b-modal>
+
     <b-button-toolbar key-nav aria-label="Vote tools">
       <b-button-group class="mx-1">
         <b-btn @click="addConstituency()">Add constituency</b-btn>
@@ -8,8 +13,7 @@
         <b-btn @click="clearAll()">Reset everything</b-btn>
       </b-button-group>
       <b-button-group class="mx-1">
-        <b-button disabled>Upload XLSX</b-button>
-        <b-button disabled>Upload CSV</b-button>
+        <b-button v-b-modal.modalupload>Upload votes</b-button>
         <b-button disabled>Paste input</b-button>
         <b-dropdown id="ddown1" text="Presets" size="sm">
           <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
@@ -63,7 +67,8 @@ export default {
       constituency_adjustment_seats: [2, 3],
       parties: ["A", "B"],
       votes: [[1500, 2000], [2500, 1700]],
-      presets: {}
+      presets: {},
+      uploadfile: null,
     }
   },
   created: function() {
@@ -156,6 +161,21 @@ export default {
       this.constituency_seats = el.constituency_seats;
       this.constituency_adjustment_seats = el.constituency_adjustment_seats;
       this.votes = el.votes;
+    },
+    uploadVotes: function(evt) {
+      if (!this.uploadfile) {
+        evt.preventDefault();
+      }
+      var formData = new FormData();
+      formData.append('file', this.uploadfile, this.uploadfile.name);
+      this.$http.post('/api/votes/upload/', formData).then(response => {
+        this.constituencies = response.data.constituencies;
+        this.parties = response.data.parties;
+        this.votes = response.data.votes;
+      }, response => {
+        console.log("Error:", response);
+          // Error?
+      });
     }
   },
 }
