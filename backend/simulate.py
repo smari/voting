@@ -70,7 +70,7 @@ LIST_MEASURES = {
     "const_seats":   "constituency seats",
     "adj_seats":     "adjustment seats",
     "total_seats":   "constituency and adjustment seats combined",
-    "seat_shares":   "floating number of seats proportional to vote shares",
+    "seat_shares":   "total seats scaled to a total of 1 for each constituency",
     "dev_opt":       "deviation from optimal solution",
     "dev_law":       "deviation from official law method",
     "dev_ind_const": "deviation from Independent Constituencies",
@@ -79,8 +79,8 @@ LIST_MEASURES = {
 }
 
 VOTE_MEASURES = {
-    "simul_votes":   "votes in simulations",
-    "simul_shares":  "shares in simulations",
+    "sim_votes":    "votes in simulations",
+    "simul_shares": "shares in simulations",
 }
 
 def error(avg, ref):
@@ -194,43 +194,45 @@ class Simulation:
             for measure in MEASURES.keys():
                 self.data[ruleset][measure] = {
                     "sum": 0, "sqs": 0,
-                    "avg": 0, "var": 0
+                    "avg": 0, "var": 0, "std": 0
                 }
             self.list_data.append({})
             for measure in LIST_MEASURES.keys():
-                self.list_data[ruleset][measure] = []
-                for c in range(1+self.no_constituencies):
-                    self.list_data[ruleset][measure].append([])
-                    for p in range(1+self.no_parties):
-                        self.list_data[ruleset][measure][c].append({
-                            "sum": 0, "sqs": 0,
-                            "avg": 0, "var": 0
-                        })
+                self.list_data[ruleset][measure] = {}
+                for attr in [
+                    "sum", "sqs",
+                    "avg", "var", "std"
+                ]:
+                    self.list_data[ruleset][measure][attr] \
+                        = [[0] * (self.no_parties+1)] \
+                          * (self.no_constituencies+1)
         self.data.append({})
         self.list_data.append({})
         for measure in VOTE_MEASURES.keys():
-            self.list_data[-1][measure] = []
-            for c in range(1+self.no_constituencies):
-                self.list_data[-1][measure].append([])
-                for p in range(1+self.no_parties):
-                    self.list_data[-1][measure][c].append({
-                        "sum": 0, "sqs": 0,
-                        "avg": 0, "var": 0
-                    })
+            self.list_data[-1][measure] = {}
+            for attr in [
+                "sum", "sqs",
+                "avg", "var", "std"
+            ]:
+                self.list_data[-1][measure][attr] \
+                    = [[0] * (self.no_parties+1)] \
+                      * (self.no_constituencies+1)
 
         self.run_initial_elections()
 
     def aggregate_list(self, ruleset, measure, cnstncy, party, value):
-        self.list_data[ruleset][measure][cnstncy][party]["sum"] += value
-        self.list_data[ruleset][measure][cnstncy][party]["sqs"] += value**2
+        self.list_data[ruleset][measure]["sum"][cnstncy][party] += value
+        self.list_data[ruleset][measure]["sqs"][cnstncy][party] += value**2
 
     def analyze_list(self, ruleset, measure, cnstncy, party, count):
-        s = float(self.list_data[ruleset][measure][cnstncy][party]["sum"])
-        t = float(self.list_data[ruleset][measure][cnstncy][party]["sqs"])
+        s = float(self.list_data[ruleset][measure]["sum"][cnstncy][party])
+        t = float(self.list_data[ruleset][measure]["sqs"][cnstncy][party])
         avg = s/count
         var = (t - s*avg) / (count-1)
-        self.list_data[ruleset][measure][cnstncy][party]["avg"] = avg
-        self.list_data[ruleset][measure][cnstncy][party]["var"] = var
+        # std = sqrt(var)
+        self.list_data[ruleset][measure]["avg"][cnstncy][party] = avg
+        self.list_data[ruleset][measure]["var"][cnstncy][party] = var
+        # self.list_data[ruleset][measure]["std"][cnstncy][party] = std
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["sum"] += value
@@ -241,8 +243,10 @@ class Simulation:
         t = float(self.data[ruleset][measure]["sqs"])
         avg = s/count
         var = (t - s*avg) / (count-1)
+        # std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
+        # self.data[ruleset][measure]["std"] = std
 
     def run_initial_elections(self):
         self.base_allocations = []
@@ -256,6 +260,8 @@ class Simulation:
                 ]
                 for c in range(self.no_constituencies)
             ]
+            xtd_total_seats = add_totals(total_seats)
+            seat_shares = [[v/c[-1] for v in c] for c in xtd_total_seats]
             self.base_allocations.append({
                 "const_seats": const_seats,
                 "adj_seats": adj_seats,
@@ -263,7 +269,8 @@ class Simulation:
                 "party_sums": election.v_total_seats,
                 "xtd_const_seats": add_totals(const_seats),
                 "xtd_adj_seats": add_totals(adj_seats),
-                "xtd_total_seats": add_totals(total_seats)
+                "xtd_total_seats": xtd_total_seats,
+                "seat_shares": seat_shares
             })
 
     def gen_votes(self):
@@ -277,16 +284,16 @@ class Simulation:
 
             for c in range(self.no_constituencies):
                 for p in range(self.no_parties):
-                    self.aggregate_list(-1, "simul_votes", c, p, votes[c][p])
+                    self.aggregate_list(-1, "sim_votes", c, p, votes[c][p])
                     self.aggregate_list(-1, "simul_shares", c, p, shares[c][p])
-                self.aggregate_list(-1, "simul_votes", c, -1, sum(votes[c]))
+                self.aggregate_list(-1, "sim_votes", c, -1, sum(votes[c]))
                 self.aggregate_list(-1, "simul_shares", c, -1, sum(shares[c]))
             total_votes = [sum(x) for x in zip(*votes)]
             total_votes.append(sum(total_votes))
             total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0
                                 for t in total_votes]
             for p in range(1+self.no_parties):
-                self.aggregate_list(-1, "simul_votes", -1, p, total_votes[p])
+                self.aggregate_list(-1, "sim_votes", -1, p, total_votes[p])
                 self.aggregate_list(-1, "simul_shares", -1, p, total_shares[p])
 
             yield votes, shares
@@ -303,16 +310,7 @@ class Simulation:
                 var_beta_distr[c].append(self.var_param
                                         *self.ref_shares[c][p]
                                         *(self.ref_shares[c][p]-1))
-        simul_shares = {
-            aggregate: [
-                [
-                    self.list_data[-1]["simul_shares"][c][p][aggregate]
-                    for p in range(self.no_parties)
-                ]
-                for c in range(self.no_constituencies)
-            ]
-            for aggregate in ["avg", "var"]
-        }
+        simul_shares = self.list_data[-1]["simul_shares"]
         self.data[-1]["simul_shares"] = {
             "err_avg": error(simul_shares["avg"], self.ref_shares),
             "err_var": error(simul_shares["var"], var_beta_distr)
@@ -476,7 +474,9 @@ class Simulation:
         return {
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
-            "measures": [MEASURES[measure] for measure in MEASURES.keys()],
+            "measures": MEASURES,
+            "list_measures": LIST_MEASURES,
+            "vote_measures": VOTE_MEASURES,
             "data": [
                 [
                     self.data[ruleset][measure]["avg"]
@@ -487,16 +487,12 @@ class Simulation:
             "lore": [
                 {
                     "name": self.e_rules[ruleset]["name"],
-                    "measures": {
-                        measure: {
-                            aggregate: self.data[ruleset][measure][aggregate]
-                            for aggregate in ["avg", "var"]
-                        }
-                        for measure in MEASURES.keys()
-                    }
+                    "measures": self.data[ruleset],
+                    "list_measures": self.list_data[ruleset]
                 }
                 for ruleset in range(self.no_rulesets)
-            ]
+            ],
+            "vote_data": self.list_data[-1]
         }
 
 def generate_comparison_rules(ruleset, option="all"):

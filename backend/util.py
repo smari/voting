@@ -446,7 +446,7 @@ def print_simulation(simulation):
 
         """
         print("\nVotes")
-        print_table(simulation.avg_simul_votes, h, const_names, out)
+        print_table(simulation.list_data[-1]["sim_votes"]["avg"], h, const_names, out)
 
         print("\nVote shares")
         shares = [["{:.1%}".format(s) for s in c[:-1]]
@@ -455,25 +455,17 @@ def print_simulation(simulation):
         """
 
         print("\nConstituency seats")
-        avg_const_seats = [[c[p]["avg"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["const_seats"]]
-        print_table(avg_const_seats, h, const_names, out)
+        print_table(simulation.list_data[r]["const_seats"]["avg"], h, const_names, out)
 
         print("\nAdjustment seats")
-        avg_adj_seats = [[c[p]["avg"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["adj_seats"]]
-        print_table(avg_adj_seats, h, const_names, out)
+        print_table(simulation.list_data[r]["adj_seats"]["avg"], h, const_names, out)
 
         print("\nTotal seats")
-        avg_total_seats = [[c[p]["avg"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["total_seats"]]
-        print_table(avg_total_seats, h, const_names, out)
+        print_table(simulation.list_data[r]["total_seats"]["avg"], h, const_names, out)
 
         print("\nSeat shares")
-        avg_seat_shares = [[c[p]["avg"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["seat_shares"]]
         shares = [["{:.1%}".format(s) for s in c[:-1]]
-                    for c in avg_seat_shares]
+                    for c in simulation.list_data[r]["seat_shares"]["avg"]]
         print_table(shares, h[:-1], const_names, out)
 
         print("\nStandard deviations from simulation")
@@ -481,7 +473,7 @@ def print_simulation(simulation):
         """
         print("\nVotes")
         sdev_votes = [[round(sqrt(v),3) for v in c]
-                        for c in simulation.var_simul_votes]
+                        for c in simulation.list_data[-1]["sim_votes"]["var"]]
         print_table(sdev_votes, h, const_names, out)
 
         print("\nVote shares")
@@ -490,14 +482,10 @@ def print_simulation(simulation):
         print_table(sdev_vote_shares, h[:-1], const_names, out)
         """
 
-        var_const_seats = [[c[p]["var"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["const_seats"]]
-        var_adj_seats = [[c[p]["var"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["adj_seats"]]
-        var_total_seats = [[c[p]["var"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["total_seats"]]
-        var_seat_shares = [[c[p]["var"] for p in range(len(c))]
-                            for c in simulation.list_data[r]["seat_shares"]]
+        var_const_seats = simulation.list_data[r]["const_seats"]["var"]
+        var_adj_seats   = simulation.list_data[r]["adj_seats"]["var"]
+        var_total_seats = simulation.list_data[r]["total_seats"]["var"]
+        var_seat_shares = simulation.list_data[r]["seat_shares"]["var"]
         shares = [["{:.1%}".format(s) for s in c[:-1]]
                     for c in var_seat_shares]
 
@@ -586,16 +574,16 @@ def simulation_to_xlsx(simulation, filename):
         draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, m_shares)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.ref_const_seats[r])
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.base_allocations[r]["const_seats"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.ref_adj_seats[r])
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.base_allocations[r]["adj_seats"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.ref_total_seats[r])
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.base_allocations[r]["total_seats"])
 
         m_seat_shares = [["{:.1%}".format(s/seats[-1]) for s in seats[:-1]]
-                         for seats in ref_total_seats]
+                         for seats in simulation.base_allocations[r]["total_seats"]]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
 
@@ -607,22 +595,22 @@ def simulation_to_xlsx(simulation, filename):
                                 "Averages from simulation", r_format)
 
         col = 2
-        draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.avg_simul_votes)
+        draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.list_data[-1]["sim_votes"]["avg"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.avg_simul_shares)
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.list_data[-1]["simul_shares"]["avg"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.avg_const_seats)
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.list_data[r]["const_seats"]["avg"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.avg_adj_seats[r])
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.list_data[r]["adj_seats"]["avg"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.avg_total_seats[r])
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.list_data[r]["total_seats"]["avg"])
 
         m_seat_shares = [["{:.1%}".format(s) for s in const_shares[:-1]]
-                         for const_shares in simulation.avg_seat_shares[r]]
+                         for const_shares in simulation.list_data[r]["seat_shares"]["avg"]]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
 
@@ -630,17 +618,17 @@ def simulation_to_xlsx(simulation, filename):
 
         # Standard deviations:
         sdev_votes = [[round(sqrt(v),3) for v in c]
-                        for c in simulation.var_simul_votes]
+                        for c in simulation.list_data[-1]["sim_votes"]["var"]]
         sdev_vote_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
-                                for c in simulation.var_simul_shares]
+                                for c in simulation.list_data[-1]["simul_shares"]["var"]]
         sdev_const_seats = [[round(sqrt(v),3) for v in c]
-                                for c in simulation.var_const_seats[r]]
+                                for c in simulation.list_data[r]["const_seats"]["var"]]
         sdev_adj_seats = [[round(sqrt(v),3) for v in c]
-                            for c in simulation.var_adj_seats[r]]
+                            for c in simulation.list_data[r]["adj_seats"]["var"]]
         sdev_total_seats = [[round(sqrt(v),3) for v in c]
-                                for c in simulation.var_total_seats[r]]
+                                for c in simulation.list_data[r]["total_seats"]["var"]]
         sdev_seat_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
-                                for c in simulation.var_seat_shares[r]]
+                                for c in simulation.list_data[r]["seat_shares"]["var"]]
 
         toprow += len(const_names)+4
         row = copy(toprow)
