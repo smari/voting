@@ -491,7 +491,8 @@ class Simulation:
                     "list_measures": self.list_data[ruleset]
                 }
                 for ruleset in range(self.no_rulesets)
-            ]
+            ],
+            "vote_data": self.list_data[-1]
         }
 
 def generate_comparison_rules(ruleset, option="all"):
