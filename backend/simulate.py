@@ -229,10 +229,10 @@ class Simulation:
         t = float(self.list_data[ruleset][measure]["sqs"][cnstncy][party])
         avg = s/count
         var = (t - s*avg) / (count-1)
-        std = sqrt(var)
+        # std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][cnstncy][party] = avg
         self.list_data[ruleset][measure]["var"][cnstncy][party] = var
-        self.list_data[ruleset][measure]["std"][cnstncy][party] = std
+        # self.list_data[ruleset][measure]["std"][cnstncy][party] = std
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["sum"] += value
@@ -243,10 +243,10 @@ class Simulation:
         t = float(self.data[ruleset][measure]["sqs"])
         avg = s/count
         var = (t - s*avg) / (count-1)
-        std = sqrt(var)
+        # std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
-        self.data[ruleset][measure]["std"] = std
+        # self.data[ruleset][measure]["std"] = std
 
     def run_initial_elections(self):
         self.base_allocations = []
