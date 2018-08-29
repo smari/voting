@@ -525,16 +525,16 @@ def simulation_to_xlsx(simulation, filename):
         draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, m_shares)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.ref_const_seats[r])
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.base_allocations[r]["cnstncy_seats"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.ref_adj_seats[r])
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.base_allocations[r]["adj_seats"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.ref_total_seats[r])
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.base_allocations[r]["total_seats"])
 
         m_seat_shares = [["{:.1%}".format(s/seats[-1]) for s in seats[:-1]]
-                         for seats in ref_total_seats]
+                         for seats in simulation.base_allocations[r]["total_seats"]]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
 
