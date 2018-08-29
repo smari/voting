@@ -464,38 +464,33 @@ def print_simulation(simulation):
         print("\nStandard deviations from simulation")
 
         print("\nVotes")
-        sdev_votes = [[round(sqrt(v),3) for v in c]
-                        for c in simulation.list_data[-1]["sim_votes"]["var"]]
+        sdev_votes = [[round(v,3) for v in c]
+                        for c in simulation.list_data[-1]["sim_votes"]["std"]]
         print_table(sdev_votes, h, const_names, out)
 
         print("\nVote shares")
-        sdev_vote_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
-                            for c in simulation.list_data[-1]["sim_shares"]["var"]]
+        sdev_vote_shares = [["{:.1%}".format(s) for s in c[:-1]]
+                            for c in simulation.list_data[-1]["sim_shares"]["std"]]
         print_table(sdev_vote_shares, h[:-1], const_names, out)
 
         print("\nConstituency seats")
-        sdev_const_seats = [[round(sqrt(s),3) for s in c]
-                            for c in simulation.list_data[r]["const_seats"]["var"]]
+        sdev_const_seats = [[round(s,3) for s in c]
+                            for c in simulation.list_data[r]["const_seats"]["std"]]
         print_table(sdev_const_seats, h, const_names, out)
 
         print("\nAdjustment seats")
-        sdev_adj_seats = [[round(sqrt(s),3) for s in c]
-                            for c in simulation.list_data[r]["adj_seats"]["var"]]
+        sdev_adj_seats = [[round(s,3) for s in c]
+                            for c in simulation.list_data[r]["adj_seats"]["std"]]
         print_table(sdev_adj_seats, h, const_names, out)
 
         print("\nTotal seats")
-        sdev_total_seats = [[round(sqrt(s),3) for s in c]
-                            for c in simulation.list_data[r]["total_seats"]["var"]]
+        sdev_total_seats = [[round(s,3) for s in c]
+                            for c in simulation.list_data[r]["total_seats"]["std"]]
         print_table(sdev_total_seats, h, const_names, out)
 
         print("\nSeat shares")
-        var_seat_shares = simulation.list_data[r]["seat_shares"]["var"]
-        shares = [["{:.1%}".format(s) for s in c[:-1]]
-                    for c in var_seat_shares]
-        print_table(shares, h[:-1], const_names, out)
-
-        sdev_seat_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
-                            for c in var_seat_shares]
+        sdev_seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+                            for c in simulation.list_data[r]["seat_shares"]["std"]]
         print_table(sdev_seat_shares, h[:-1], const_names, out)
 
         #print("\nVotes added to change results")
@@ -606,18 +601,18 @@ def simulation_to_xlsx(simulation, filename):
 
 
         # Standard deviations:
-        sdev_votes = [[round(sqrt(v),3) for v in c]
-                        for c in simulation.list_data[-1]["sim_votes"]["var"]]
-        sdev_vote_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
-                                for c in simulation.list_data[-1]["sim_shares"]["var"]]
-        sdev_const_seats = [[round(sqrt(v),3) for v in c]
-                                for c in simulation.list_data[r]["const_seats"]["var"]]
-        sdev_adj_seats = [[round(sqrt(v),3) for v in c]
-                            for c in simulation.list_data[r]["adj_seats"]["var"]]
-        sdev_total_seats = [[round(sqrt(v),3) for v in c]
-                                for c in simulation.list_data[r]["total_seats"]["var"]]
-        sdev_seat_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
-                                for c in simulation.list_data[r]["seat_shares"]["var"]]
+        sdev_votes = [[round(v,3) for v in c]
+                        for c in simulation.list_data[-1]["sim_votes"]["std"]]
+        sdev_vote_shares = [["{:.1%}".format(s) for s in c[:-1]]
+                                for c in simulation.list_data[-1]["sim_shares"]["std"]]
+        sdev_const_seats = [[round(v,3) for v in c]
+                                for c in simulation.list_data[r]["const_seats"]["std"]]
+        sdev_adj_seats = [[round(v,3) for v in c]
+                            for c in simulation.list_data[r]["adj_seats"]["std"]]
+        sdev_total_seats = [[round(v,3) for v in c]
+                                for c in simulation.list_data[r]["total_seats"]["std"]]
+        sdev_seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+                                for c in simulation.list_data[r]["seat_shares"]["std"]]
 
         toprow += len(const_names)+4
         row = copy(toprow)
