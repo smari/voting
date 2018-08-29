@@ -70,7 +70,7 @@ LIST_MEASURES = {
     "const_seats":   "constituency seats",
     "adj_seats":     "adjustment seats",
     "total_seats":   "constituency and adjustment seats combined",
-    "seat_shares":   "floating number of seats proportional to vote shares",
+    "seat_shares":   "total seats scaled to a total of 1 for each constituency",
     "dev_opt":       "deviation from optimal solution",
     "dev_law":       "deviation from official law method",
     "dev_ind_const": "deviation from Independent Constituencies",
