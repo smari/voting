@@ -308,11 +308,11 @@ class Simulation:
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p, n)
                 var_beta_distr[c].append(self.var_param
-                                        *self.ref_shares[c][p]
-                                        *(self.ref_shares[c][p]-1))
+                                        *self.vote_shares[c][p]
+                                        *(self.vote_shares[c][p]-1))
         simul_shares = self.list_data[-1]["simul_shares"]
         self.data[-1]["simul_shares"] = {
-            "err_avg": error(simul_shares["avg"], self.ref_shares),
+            "err_avg": error(simul_shares["avg"], self.vote_shares),
             "err_var": error(simul_shares["var"], var_beta_distr)
         }
 
