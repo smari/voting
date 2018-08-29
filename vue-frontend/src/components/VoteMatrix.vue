@@ -1,8 +1,41 @@
 <template>
   <b-container fluid class="votematrix-container">
-    <b-modal id="modalupload" title="Upload CSV or XLSX file" @ok="uploadVotes">
-      <p>The file provided must be a CSV or an Excel XLSX file formatted with parties along the top and constitutions along the left hand side.</p>
+    <b-modal size="lg" id="modalupload" title="Upload CSV or XLSX file" @ok="uploadVotes">
+      <p>The file provided must be a CSV or an Excel XLSX file formatted with parties on the first row and constitution names on the first column.</p>
+      <b-img rounded fluid src="/static/img/parties_xlsx.png"/>
+      <p>Optionally, if the second and third columns are named 'cons' or 'adj', they will be understood to be information about the number of constituency seats and adjustment seats, respectively, in each constituency. If you leave them out, you can specify the number of seats manually.</p>
       <b-form-file v-model="uploadfile" :state="Boolean(uploadfile)" placeholder="Choose a file..."></b-form-file>
+    </b-modal>
+
+    <b-modal size="lg" id="modalpaste" title="Paste CSV" @ok="pasteCSV">
+      <p>Here you can paste in comma separated values to override the current vote table.</p>
+      <b-form-textarea id="id_paste_csv"
+                     v-model="paste.csv"
+                     placeholder="Add your vote data"
+                     rows="7">
+      </b-form-textarea>
+      <b-form-checkbox
+                     v-model="paste.has_parties"
+                     value="true"
+                     unchecked-value="false">
+      First row is a header with party names.
+      </b-form-checkbox>
+      <b-form-checkbox
+                     v-model="paste.has_constituencies"
+                     value="true"
+                     unchecked-value="false">
+      First column contains constituency names.
+      </b-form-checkbox>
+      <b-form-checkbox v-model="paste.has_constituency_seats"
+                       value="true"
+                       unchecked-value="false">
+      Second column contains constituency seats.
+      </b-form-checkbox>
+      <b-form-checkbox v-model="paste.has_constituency_adjustment_seats"
+                       value="true"
+                       unchecked-value="false">
+      Third column contains adjustment seats.
+      </b-form-checkbox>
     </b-modal>
 
     <b-button-toolbar key-nav aria-label="Vote tools">
@@ -14,7 +47,7 @@
       </b-button-group>
       <b-button-group class="mx-1">
         <b-button v-b-modal.modalupload>Upload votes</b-button>
-        <b-button disabled>Paste input</b-button>
+        <b-button v-b-modal.modalpaste>Paste input</b-button>
         <b-dropdown id="ddown1" text="Presets" size="sm">
           <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
         </b-dropdown>
@@ -69,6 +102,12 @@ export default {
       votes: [[1500, 2000], [2500, 1700]],
       presets: {},
       uploadfile: null,
+      paste: { csv: '',
+               has_parties: false,
+               has_constituencies: false,
+               has_constituency_seats: false,
+               has_constituency_adjustment_seats: false
+             }
     }
   },
   created: function() {
@@ -172,6 +211,36 @@ export default {
         this.constituencies = response.data.constituencies;
         this.parties = response.data.parties;
         this.votes = response.data.votes;
+        if (response.data.constituency_seats) {
+          this.constituency_seats = response.data.constituency_seats;
+        }
+        if (response.data.constituency_adjustment_seats) {
+          this.constituency_adjustment_seats = response.data.constituency_adjustment_seats;
+        }
+      }, response => {
+        console.log("Error:", response);
+          // Error?
+      });
+    },
+    pasteCSV: function(evt) {
+      if (!this.paste.csv) {
+        evt.preventDefault();
+        return;
+      }
+      this.$http.post('/api/votes/paste/', this.paste).then(response => {
+        this.votes = response.data.votes;
+        if (response.data.constituencies) {
+          this.constituencies = response.data.constituencies;
+        }
+        if (response.data.parties) {
+          this.parties = response.data.parties;
+        }
+        if (response.data.constituency_seats) {
+          this.constituency_seats = response.data.constituency_seats;
+        }
+        if (response.data.constituency_adjustment_seats) {
+          this.constituency_adjustment_seats = response.data.constituency_adjustment_seats;
+        }
       }, response => {
         console.log("Error:", response);
           // Error?

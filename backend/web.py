@@ -9,6 +9,11 @@ import simulate as sim
 from hashlib import sha256
 import json
 import util
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+import csv
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -73,8 +78,43 @@ def upload_votes():
     if 'file' not in request.files:
         return jsonify({'error': 'must upload a file.'})
     f = request.files['file']
-    parties, consts, votes = util.load_votes_from_stream(f.stream, f.filename)
-    return jsonify({'parties': parties, 'constituencies': consts, 'votes': votes})
+    res = util.load_votes_from_stream(f.stream, f.filename)
+    return jsonify(res)
+
+@app.route('/api/votes/paste/', methods=['POST'])
+def paste_votes():
+    data = request.get_json(force=True)
+
+    if "csv" not in data:
+        return jsonify({'error': 'must provide csv'})
+
+    rd = []
+    for row in csv.reader(StringIO(data["csv"]), skipinitialspace=True):
+        rd.append(row)
+
+    res = {}
+    if data["has_parties"]:
+        res["parties"] = rd[0]
+        del(rd[0])
+
+    if data["has_constituencies"]:
+        res["constituencies"] = [row[0] for row in rd]
+        for row in rd: del(row[0])
+        if data["has_parties"]: res["parties"] = res["parties"][1:]
+
+    if data["has_constituency_seats"]:
+        res["constituency_seats"] = [row[0] for row in rd]
+        for row in rd: del(row[0])
+        if data["has_parties"]: res["parties"] = res["parties"][1:]
+
+    if data["has_constituency_adjustment_seats"]:
+        res["constituency_adjustment_seats"] = [row[0] for row in rd]
+        for row in rd: del(row[0])
+        if data["has_parties"]: res["parties"] = res["parties"][1:]
+
+    res["votes"] = rd
+
+    return jsonify(res)
 
 
 SIMULATIONS = {}

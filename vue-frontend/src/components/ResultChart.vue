@@ -8,7 +8,11 @@ export default {
     this.renderResultChart();
   },
   data: function () { return {
-    options: {},
+    options: {
+      animation: {
+        duration: 0
+      }
+    },
   }},
   props: ["parties", "seats"],
   methods: {
