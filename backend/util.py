@@ -413,7 +413,7 @@ def print_simulation(simulation):
 
         print("\nVote shares")
         shares = [["{:.1%}".format(s) for s in c[:-1]]
-                    for c in simulation.ref_shares]
+                    for c in simulation.vote_shares]
         print_table(shares, h[:-1], const_names, out)
 
         print("\nConstituency seats")

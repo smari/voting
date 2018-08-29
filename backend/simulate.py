@@ -180,7 +180,7 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.ref_shares = [[v/c[-1] for v in c] for c in self.xtd_votes]
+        self.vote_shares = [[v/c[-1] for v in c] for c in self.xtd_votes]
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
