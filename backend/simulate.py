@@ -79,8 +79,8 @@ LIST_MEASURES = {
 }
 
 VOTE_MEASURES = {
-    "sim_votes":    "votes in simulations",
-    "simul_shares": "shares in simulations",
+    "sim_votes":  "votes in simulations",
+    "sim_shares": "shares in simulations",
 }
 
 def error(avg, ref):
@@ -286,16 +286,16 @@ class Simulation:
             for c in range(self.no_constituencies):
                 for p in range(self.no_parties):
                     self.aggregate_list(-1, "sim_votes", c, p, votes[c][p])
-                    self.aggregate_list(-1, "simul_shares", c, p, shares[c][p])
+                    self.aggregate_list(-1, "sim_shares", c, p, shares[c][p])
                 self.aggregate_list(-1, "sim_votes", c, -1, sum(votes[c]))
-                self.aggregate_list(-1, "simul_shares", c, -1, sum(shares[c]))
+                self.aggregate_list(-1, "sim_shares", c, -1, sum(shares[c]))
             total_votes = [sum(x) for x in zip(*votes)]
             total_votes.append(sum(total_votes))
             total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0
                                 for t in total_votes]
             for p in range(1+self.no_parties):
                 self.aggregate_list(-1, "sim_votes", -1, p, total_votes[p])
-                self.aggregate_list(-1, "simul_shares", -1, p, total_shares[p])
+                self.aggregate_list(-1, "sim_shares", -1, p, total_shares[p])
 
             yield votes, shares
 
@@ -311,10 +311,10 @@ class Simulation:
                 var_beta_distr[c].append(self.var_param
                                         *self.vote_shares[c][p]
                                         *(self.vote_shares[c][p]-1))
-        simul_shares = self.list_data[-1]["simul_shares"]
-        self.data[-1]["simul_shares"] = {
-            "err_avg": error(simul_shares["avg"], self.vote_shares),
-            "err_var": error(simul_shares["var"], var_beta_distr)
+        sim_shares = self.list_data[-1]["sim_shares"]
+        self.data[-1]["sim_shares"] = {
+            "err_avg": error(sim_shares["avg"], self.vote_shares),
+            "err_var": error(sim_shares["var"], var_beta_distr)
         }
 
     def collect_list_measures(self, ruleset, results, election):
