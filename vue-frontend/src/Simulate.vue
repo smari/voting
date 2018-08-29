@@ -46,7 +46,9 @@
       </b-col>
     </div>
 
-    <h2>Quality measures</h2>
+    <h2>Results</h2>
+    <b-button size="lg" :href="get_xlsx_url()">Download XLSX file</b-button>
+    <h3>Quality measures</h3>
     <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames">
     </SimulationData>
 
@@ -220,6 +222,10 @@ export default {
           this.server.error = true;
           this.server.waitingForData = false;
         });
+    },
+
+    get_xlsx_url: function() {
+      return "/api/simulate/getxlsx/?sid=" + this.sid;
     }
   },
 }
