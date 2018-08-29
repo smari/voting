@@ -9,6 +9,7 @@ import xlsxwriter
 import openpyxl
 from copy import deepcopy, copy
 import configparser
+import codecs
 
 from methods import var_alt_scal, alternating_scaling, icelandic_law
 from methods import monge, nearest_neighbor, relative_superiority
@@ -54,6 +55,30 @@ def load_constituencies(confile):
             "num_constituency_seats": int(row[1]),
             "num_adjustment_seats": int(row[2])})
     return cons
+
+def load_votes_from_stream(stream, filename):
+    rd = []
+    print("Stream:", stream)
+    print("Filename:", filename)
+    if filename.endswith(".csv"):
+        for row in csv.reader(codecs.iterdecode(stream, 'utf-8'), skipinitialspace=True):
+            rd.append(row)
+    elif filename.endswith(".xlsx"):
+        book = openpyxl.load_workbook(stream)
+        sheet = book.active
+        for row in sheet.rows:
+            rd.append([cell.value for cell in row])
+    else:
+        return None, None, None
+
+    print(tabulate(rd))
+
+    parties = rd[0][1:]
+    consts = [row[0] for row in rd[1:]]
+    votes = [row[1:] for row in rd[1:]]
+
+    return parties, consts, votes
+
 
 def load_votes(votefile, consts):
     """Load votes from a file."""

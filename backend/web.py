@@ -68,6 +68,15 @@ def handle_election():
     return jsonify(election.get_results_dict())
 
 
+@app.route('/api/votes/upload/', methods=['POST'])
+def upload_votes():
+    if 'file' not in request.files:
+        return jsonify({'error': 'must upload a file.'})
+    f = request.files['file']
+    parties, consts, votes = util.load_votes_from_stream(f.stream, f.filename)
+    return jsonify({'parties': parties, 'constituencies': consts, 'votes': votes})
+
+
 SIMULATIONS = {}
 SIMULATION_IDX = 0
 
