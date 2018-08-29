@@ -439,7 +439,7 @@ def print_simulation(simulation):
 
         """
         print("\nVotes")
-        print_table(simulation.avg_simul_votes, h, const_names, out)
+        print_table(simulation.list_data[-1]["simul_votes"]["avg"], h, const_names, out)
 
         print("\nVote shares")
         shares = [["{:.1%}".format(s) for s in c[:-1]]
@@ -466,7 +466,7 @@ def print_simulation(simulation):
         """
         print("\nVotes")
         sdev_votes = [[round(sqrt(v),3) for v in c]
-                        for c in simulation.var_simul_votes]
+                        for c in simulation.list_data[-1]["simul_votes"]["var"]]
         print_table(sdev_votes, h, const_names, out)
 
         print("\nVote shares")
