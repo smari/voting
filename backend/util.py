@@ -57,9 +57,8 @@ def load_constituencies(confile):
     return cons
 
 def load_votes_from_stream(stream, filename):
+    res = {}
     rd = []
-    print("Stream:", stream)
-    print("Filename:", filename)
     if filename.endswith(".csv"):
         for row in csv.reader(codecs.iterdecode(stream, 'utf-8'), skipinitialspace=True):
             rd.append(row)
@@ -71,13 +70,21 @@ def load_votes_from_stream(stream, filename):
     else:
         return None, None, None
 
-    print(tabulate(rd))
+    res["constituencies"] = [row[0] for row in rd[1:]]
+    for row in rd: del(row[0])
 
-    parties = rd[0][1:]
-    consts = [row[0] for row in rd[1:]]
-    votes = [row[1:] for row in rd[1:]]
+    if rd[0][0].lower() == "cons":
+        res["constituency_seats"] = [row[0] for row in rd[1:]]
+        for row in rd: del(row[0])
 
-    return parties, consts, votes
+    if rd[0][0].lower() == "adj":
+        res["constituency_adjustment_seats"] = [row[0] for row in rd[1:]]
+        for row in rd: del(row[0])
+
+    res["parties"] = rd[0]
+    res["votes"] = rd[1:]
+
+    return res
 
 
 def load_votes(votefile, consts):
