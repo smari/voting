@@ -205,9 +205,10 @@ class Simulation:
                     "sum", "sqs",
                     "avg", "var", "std"
                 ]:
-                    self.list_data[ruleset][measure][attr] \
-                        = [[0] * (self.no_parties+1)] \
-                          * (self.no_constituencies+1)
+                    self.list_data[ruleset][measure][attr] = []
+                    for c in range(self.no_constituencies+1):
+                        self.list_data[ruleset][measure][attr].append([0]*(self.no_parties+1))
+
         self.data.append({})
         self.list_data.append({})
         for measure in VOTE_MEASURES.keys():
@@ -216,9 +217,9 @@ class Simulation:
                 "sum", "sqs",
                 "avg", "var", "std"
             ]:
-                self.list_data[-1][measure][attr] \
-                    = [[0] * (self.no_parties+1)] \
-                      * (self.no_constituencies+1)
+                self.list_data[-1][measure][attr] = []
+                for c in range(self.no_constituencies+1):
+                    self.list_data[-1][measure][attr].append([0]*(self.no_parties+1))
 
         self.run_initial_elections()
 
