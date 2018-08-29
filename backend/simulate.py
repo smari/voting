@@ -5,6 +5,8 @@ from random import betavariate, uniform
 from copy import copy, deepcopy
 from util import add_totals
 
+from tabulate import tabulate
+
 import voting
 import io
 import json
@@ -180,7 +182,7 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.ref_shares = [[v/c[-1] for v in c] for c in self.xtd_votes]
+        self.vote_shares = [[v/c[-1] for v in c] for c in self.xtd_votes]
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
@@ -220,19 +222,22 @@ class Simulation:
 
         self.run_initial_elections()
 
-    def aggregate_list(self, ruleset, measure, cnstncy, party, value):
-        self.list_data[ruleset][measure]["sum"][cnstncy][party] += value
-        self.list_data[ruleset][measure]["sqs"][cnstncy][party] += value**2
+    def aggregate_list(self, ruleset, measure, const, party, value):
+        self.list_data[ruleset][measure]["sum"][const][party] += value
+        self.list_data[ruleset][measure]["sqs"][const][party] += value**2
 
-    def analyze_list(self, ruleset, measure, cnstncy, party, count):
-        s = float(self.list_data[ruleset][measure]["sum"][cnstncy][party])
-        t = float(self.list_data[ruleset][measure]["sqs"][cnstncy][party])
+    def analyze_list(self, ruleset, measure, const, party, count):
+        s = float(self.list_data[ruleset][measure]["sum"][const][party])
+        t = float(self.list_data[ruleset][measure]["sqs"][const][party])
         avg = s/count
         var = (t - s*avg) / (count-1)
+        if measure == "total_seats":
+            print("Measure: %s, const %s, party %s" % (measure, const, party))
+            print("s: %s, cnt: %s, avg: %s, var: %s, t: %s, s*avg: %s" % (s, count, avg, var, t, s*avg))
         # std = sqrt(var)
-        self.list_data[ruleset][measure]["avg"][cnstncy][party] = avg
-        self.list_data[ruleset][measure]["var"][cnstncy][party] = var
-        # self.list_data[ruleset][measure]["std"][cnstncy][party] = std
+        self.list_data[ruleset][measure]["avg"][const][party] = avg
+        self.list_data[ruleset][measure]["var"][const][party] = var
+        # self.list_data[ruleset][measure]["std"][const][party] = std
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["sum"] += value
@@ -308,17 +313,18 @@ class Simulation:
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p, n)
                 var_beta_distr[c].append(self.var_param
-                                        *self.ref_shares[c][p]
-                                        *(self.ref_shares[c][p]-1))
+                                        *self.vote_shares[c][p]
+                                        *(self.vote_shares[c][p]-1))
         simul_shares = self.list_data[-1]["simul_shares"]
         self.data[-1]["simul_shares"] = {
-            "err_avg": error(simul_shares["avg"], self.ref_shares),
+            "err_avg": error(simul_shares["avg"], self.vote_shares),
             "err_var": error(simul_shares["var"], var_beta_distr)
         }
 
     def collect_list_measures(self, ruleset, results, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
         total_seats_alloc = add_totals(results)
+        print(tabulate(total_seats_alloc))
         for c in range(1+self.no_constituencies):
             for p in range(1+self.no_parties):
                 cs  = const_seats_alloc[c][p]
