@@ -39,6 +39,7 @@ def find_best_Monge_list(
     no_constituencies = len(votes)
     no_parties = len(votes[0])
     considerations = []
+    available_lists = []
     for C in range(no_constituencies):
         if constituency_full(C, c_goals, allocations):
             continue #No need to consider lists that can't be given more seats
@@ -52,6 +53,10 @@ def find_best_Monge_list(
             )
             if closest == None:
                 #do not append, ignore list if there is no valid comparison
+                available_lists.append({
+                    "constituency": C,
+                    "party": P
+                })
                 continue
             considerations.append({
                 "min_det": closest["det"],
@@ -64,6 +69,16 @@ def find_best_Monge_list(
         determinants = [conion["min_det"] for conion in considerations]
         best = considerations[determinants.index(max(determinants))]
         return best
+    elif len(available_lists) == 1:
+        only = available_lists[0]
+        chosen = {
+            "min_det": 0,
+            "constituency": only["constituency"],
+            "party": only["party"],
+            "reference_constituency": None,
+            "reference_party": None,
+        }
+        return chosen
     return None
 
 def constituency_full(C, c_goals, allocations):
