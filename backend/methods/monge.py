@@ -54,15 +54,15 @@ def find_best_Monge_list(
                 #do not append, ignore list if there is no valid comparison
                 continue
             considerations.append({
-                "min_ratio": closest["ratio"],
+                "min_det": closest["det"],
                 "constituency": C,
                 "party": P,
                 "reference_constituency": closest["reference_constituency"],
                 "reference_party": closest["reference_party"]
             })
     if considerations:
-        ratios = [conion["min_ratio"] for conion in considerations]
-        best = considerations[ratios.index(max(ratios))]
+        determinants = [conion["min_det"] for conion in considerations]
+        best = considerations[determinants.index(max(determinants))]
         return best
     return None
 
@@ -110,37 +110,14 @@ def find_closest_comparison(
             # d = divided_vote(votes, allocations, C2, P2, divisor_gen)
             b = divided_vote(votes, allocations, C1, P2, divisor_gen)
             c = divided_vote(votes, allocations, C2, P1, divisor_gen)
-            if b > 0 and c > 0:
-                comparisons.append({
-                    "ratio": (a*d)/(b*c),
-                    "reference_constituency": C2,
-                    "reference_party": P2
-                })
-                #TODO: Decide what to do in case b or c is 0.
-                #Is this the way to go?
-            #TODO: Finish this thought:
-            #we are already assuming a>0
-            # elif b == 0 or c == 0:
-            #     if d > 0:
-            #         include = False
-            #     else:
-            #         if b == 0 and c == 0:
-            #             include = False
-            #         else:
-            #             ratio = a/(max(b,c))
-            #             include = True
-            # else:
-            #     ratio = (a*d)/(b*c)
-            #     include = True
-            # if include:
-            #     comparisons.append({
-            #         "ratio": ratio,
-            #         "reference_constituency": C2,
-            #         "reference_party": P2
-            #     })
+            comparisons.append({
+                "det": a*d-b*c,
+                "reference_constituency": C2,
+                "reference_party": P2
+            })
     if comparisons:
-        ratios = [comparison["ratio"] for comparison in comparisons]
-        closest = comparisons[ratios.index(min(ratios))]
+        determinants = [comparison["det"] for comparison in comparisons]
+        closest = comparisons[determinants.index(min(determinants))]
         return closest
     return None
 
