@@ -9,7 +9,7 @@
 
     <h3>Simulate elections</h3>
     <b-button @click="addElectionRules">Add election ruleset</b-button>
-    <b-container v-for="(rules, rulesidx) in election_rules" :key="rules.name" class="ruleset">
+    <b-container v-for="(rules, rulesidx) in election_rules" :key="rulesidx" class="ruleset">
       <b-row>
         <b-col cols="10">
           <ElectionSettings :rulesidx="rulesidx" @update-rules="updateElectionRules">
@@ -96,6 +96,7 @@ export default {
       },
       simulation_done: true,
       current_iteration: 0,
+      iteration_time: 0,
       inflight: 0,
       ref_votes: [],
       results: { measures: [], methods: [], data: []},
