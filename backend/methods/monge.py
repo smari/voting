@@ -45,6 +45,8 @@ def find_best_Monge_list(
         for P in range(no_parties):
             if party_satisfied(P, p_goals, allocations):
                 continue
+            if list_unsupported(votes, C, P):
+                continue
             closest = find_closest_comparison(
                 C, P, votes, allocations, c_goals, p_goals, divisor_gen
             )
@@ -116,6 +118,26 @@ def find_closest_comparison(
                 })
                 #TODO: Decide what to do in case b or c is 0.
                 #Is this the way to go?
+            #TODO: Finish this thought:
+            #we are already assuming a>0
+            # elif b == 0 or c == 0:
+            #     if d > 0:
+            #         include = False
+            #     else:
+            #         if b == 0 and c == 0:
+            #             include = False
+            #         else:
+            #             ratio = a/(max(b,c))
+            #             include = True
+            # else:
+            #     ratio = (a*d)/(b*c)
+            #     include = True
+            # if include:
+            #     comparisons.append({
+            #         "ratio": ratio,
+            #         "reference_constituency": C2,
+            #         "reference_party": P2
+            #     })
     if comparisons:
         ratios = [comparison["ratio"] for comparison in comparisons]
         closest = comparisons[ratios.index(min(ratios))]
