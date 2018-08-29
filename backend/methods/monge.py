@@ -64,17 +64,17 @@ def find_best_Monge_list(
         return best
     return None
 
-def party_satisfied(P, p_goals, allocations):
-    return p_unclaimed(P, p_goals, allocations) <= 0
-
 def constituency_full(C, c_goals, allocations):
     return c_unclaimed(C, c_goals, allocations) <= 0
 
-def p_unclaimed(P, p_goals, allocations):
-    return p_goals[P] - sum([c[P] for c in allocations])
+def party_satisfied(P, p_goals, allocations):
+    return p_unclaimed(P, p_goals, allocations) <= 0
 
 def c_unclaimed(C, c_goals, allocations):
     return c_goals[C] - sum(allocations[C])
+
+def p_unclaimed(P, p_goals, allocations):
+    return p_goals[P] - sum([c[P] for c in allocations])
 
 def find_closest_comparison(
     C1,          #index of constituency being considered
