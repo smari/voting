@@ -249,20 +249,20 @@ class Simulation:
         for r in range(self.no_rulesets):
             election = voting.Election(self.e_rules[r], self.base_votes)
             total_seats = election.run()
-            cnstncy_seats = election.m_const_seats_alloc
+            const_seats = election.m_const_seats_alloc
             adj_seats = [[
-                    total_seats[c][p]-cnstncy_seats[c][p]
+                    total_seats[c][p]-const_seats[c][p]
                     for p in range(self.no_parties)
                 ]
                 for c in range(self.no_constituencies)
             ]
             self.base_allocations.append({
-                "cnstncy_seats": cnstncy_seats,
+                "const_seats": const_seats,
                 "adj_seats": adj_seats,
                 "total_seats": total_seats,
                 "party_sums": election.v_total_seats,
-                "xtd_cnstncy_seats": add_totals(cnstncy_seats),
-                "xtd_adj_seat": add_totals(adj_seats),
+                "xtd_const_seats": add_totals(const_seats),
+                "xtd_adj_seats": add_totals(adj_seats),
                 "xtd_total_seats": add_totals(total_seats)
             })
 
