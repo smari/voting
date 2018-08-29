@@ -439,7 +439,7 @@ def print_simulation(simulation):
 
         """
         print("\nVotes")
-        print_table(simulation.list_data[-1]["simul_votes"]["avg"], h, const_names, out)
+        print_table(simulation.list_data[-1]["sim_votes"]["avg"], h, const_names, out)
 
         print("\nVote shares")
         shares = [["{:.1%}".format(s) for s in c[:-1]]
@@ -466,7 +466,7 @@ def print_simulation(simulation):
         """
         print("\nVotes")
         sdev_votes = [[round(sqrt(v),3) for v in c]
-                        for c in simulation.list_data[-1]["simul_votes"]["var"]]
+                        for c in simulation.list_data[-1]["sim_votes"]["var"]]
         print_table(sdev_votes, h, const_names, out)
 
         print("\nVote shares")
@@ -588,7 +588,7 @@ def simulation_to_xlsx(simulation, filename):
                                 "Averages from simulation", r_format)
 
         col = 2
-        draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.list_data[-1]["simul_votes"]["avg"])
+        draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.list_data[-1]["sim_votes"]["avg"])
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.list_data[-1]["simul_shares"]["avg"])
@@ -611,7 +611,7 @@ def simulation_to_xlsx(simulation, filename):
 
         # Standard deviations:
         sdev_votes = [[round(sqrt(v),3) for v in c]
-                        for c in simulation.list_data[-1]["simul_votes"]["var"]]
+                        for c in simulation.list_data[-1]["sim_votes"]["var"]]
         sdev_vote_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
                                 for c in simulation.list_data[-1]["simul_shares"]["var"]]
         sdev_const_seats = [[round(sqrt(v),3) for v in c]
