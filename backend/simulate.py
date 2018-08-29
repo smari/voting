@@ -353,30 +353,34 @@ class Simulation:
         v_total_seats = election.v_total_seats
 
         bi_seat_shares = deepcopy(votes)
-        const_mult = [1]*len(bi_seat_shares)
-        party_mult = [1]*len(bi_seat_shares[0])
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
+        rein = 0 # uniform(0.0, 1.0)
         error = 1
         while round(error, 5) != 0.0:
-            const_mult = [v_total_seats[c]/sum(bi_seat_shares[c])
-                            for c in range(len(v_total_seats))]
-            s = [sum(x) for x in zip(*bi_seat_shares)]
-            party_mult = [seats_party_opt[p]/s[p] if s[p] != 0 else 1
-                            for p in range(len(seats_party_opt))]
+            error = 0
             for c in range(self.no_constituencies):
-                for p in range(self.no_parties):
-                    r = uniform(0.0, 1.0)
-                    bi_seat_shares[c][p] *= 1 - r + r*const_mult[c]*party_mult[p]
-            error = sum([abs(1-cm) for cm in const_mult]) + sum([abs(1-pm) for pm in party_mult])
+                s = sum(bi_seat_shares[c])
+                if s != 0:
+                    mult = float(v_total_seats[c])/s
+                    error += abs(1-mult)
+                    for p in range(self.no_parties):
+                        bi_seat_shares[c][p] *= mult + rein*(1-mult)
+            for p in range(self.no_parties):
+                s = sum([c[p] for c in bi_seat_shares])
+                if s != 0:
+                    mult = float(seats_party_opt[p])/s
+                    error += abs(1-mult)
+                    for c in range(self.no_constituencies):
+                        bi_seat_shares[c][p] *= mult + rein*(1-mult)
 
         try:
             assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]
-                        for p in range(len(seats_party_opt))]))
+                        for p in range(self.no_parties)]))
         except AssertionError:
             pass
         try:
             assert(all([sum(bi_seat_shares[c]) == v_total_seats[c]
-                        for c in range(len(v_total_seats))]))
+                        for c in range(self.no_constituencies)]))
         except AssertionError:
             pass
 
@@ -386,7 +390,7 @@ class Simulation:
         total_seats = sum([sum(c) for c in results])
         lh = sum([sum([abs(bi_seat_shares[c][p]-results[c][p])
                     for p in range(self.no_parties)])
-                    for c in range(self.no_constituencies)]) / (2*total_seats)
+                    for c in range(self.no_constituencies)]) / total_seats
         self.aggregate_measure(ruleset, "loosemore_hanby", lh)
 
     def sainte_lague(self, ruleset, results, bi_seat_shares):
@@ -406,7 +410,8 @@ class Simulation:
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
     def dhondt_sum(self, ruleset, results, bi_seat_shares):
-        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p] if bi_seat_shares[c][p] != 0 else 10000000000000000000000
+        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
+                        if bi_seat_shares[c][p] != 0 else 10000000000000000000000
                         for p in range(self.no_parties)
                         for c in range(self.no_constituencies)])
         self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
