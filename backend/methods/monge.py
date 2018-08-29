@@ -70,6 +70,9 @@ def constituency_full(C, c_goals, allocations):
 def party_satisfied(P, p_goals, allocations):
     return p_unclaimed(P, p_goals, allocations) <= 0
 
+def list_unsupported(votes, C, P):
+    return votes[C][P] <= 0
+
 def c_unclaimed(C, c_goals, allocations):
     return c_goals[C] - sum(allocations[C])
 
