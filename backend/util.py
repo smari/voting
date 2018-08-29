@@ -391,16 +391,19 @@ def print_simulation(simulation):
                     for c in simulation.ref_shares]
         print_table(shares, h[:-1], const_names, out)
 
-        """
         print("\nConstituency seats")
-        print_table(simulation.ref_const_seats[r], h, const_names, out)
+        ref_const_seats = simulation.base_allocations[r]["xtd_const_seats"]
+        print_table(ref_const_seats, h, const_names, out)
 
         print("\nAdjustment seats")
-        print_table(simulation.ref_adj_seats[r], h, const_names, out)
+        ref_adj_seats = simulation.base_allocations[r]["xtd_adj_seats"]
+        print_table(ref_adj_seats, h, const_names, out)
 
         print("\nTotal seats")
-        print_table(simulation.ref_total_seats[r], h, const_names, out)
+        ref_total_seats = simulation.base_allocations[r]["xtd_total_seats"]
+        print_table(ref_total_seats, h, const_names, out)
 
+        """
         print("\nSeat shares")
         shares = [["{:.1%}".format(s/c[-1]) for s in c[:-1]]
                     for c in simulation.ref_total_seats[r]]
