@@ -5,6 +5,8 @@ from random import betavariate, uniform
 from copy import copy, deepcopy
 from util import add_totals
 
+from tabulate import tabulate
+
 import voting
 import io
 import json
@@ -229,6 +231,9 @@ class Simulation:
         t = float(self.list_data[ruleset][measure]["sqs"][const][party])
         avg = s/count
         var = (t - s*avg) / (count-1)
+        if measure == "total_seats":
+            print("Measure: %s, const %s, party %s" % (measure, const, party))
+            print("s: %s, cnt: %s, avg: %s, var: %s, t: %s, s*avg: %s" % (s, count, avg, var, t, s*avg))
         # std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
@@ -319,6 +324,7 @@ class Simulation:
     def collect_list_measures(self, ruleset, results, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
         total_seats_alloc = add_totals(results)
+        print(tabulate(total_seats_alloc))
         for c in range(1+self.no_constituencies):
             for p in range(1+self.no_parties):
                 cs  = const_seats_alloc[c][p]
