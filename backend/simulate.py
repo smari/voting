@@ -194,14 +194,14 @@ class Simulation:
             for measure in MEASURES.keys():
                 self.data[ruleset][measure] = {
                     "sum": 0, "sqs": 0,
-                    "avg": 0, "var": 0
+                    "avg": 0, "var": 0, "std": 0
                 }
             self.list_data.append({})
             for measure in LIST_MEASURES.keys():
                 self.list_data[ruleset][measure] = {}
                 for attr in [
                     "sum", "sqs",
-                    "avg", "var"
+                    "avg", "var", "std"
                 ]:
                     self.list_data[ruleset][measure][attr] \
                         = [[0] * (self.no_parties+1)] \
@@ -212,7 +212,7 @@ class Simulation:
             self.list_data[-1][measure] = {}
             for attr in [
                 "sum", "sqs",
-                "avg", "var"
+                "avg", "var", "std"
             ]:
                 self.list_data[-1][measure][attr] \
                     = [[0] * (self.no_parties+1)] \
@@ -229,8 +229,10 @@ class Simulation:
         t = float(self.list_data[ruleset][measure]["sqs"][cnstncy][party])
         avg = s/count
         var = (t - s*avg) / (count-1)
+        std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][cnstncy][party] = avg
         self.list_data[ruleset][measure]["var"][cnstncy][party] = var
+        self.list_data[ruleset][measure]["std"][cnstncy][party] = std
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["sum"] += value
@@ -241,8 +243,10 @@ class Simulation:
         t = float(self.data[ruleset][measure]["sqs"])
         avg = s/count
         var = (t - s*avg) / (count-1)
+        std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
+        self.data[ruleset][measure]["std"] = std
 
     def run_initial_elections(self):
         self.base_allocations = []
