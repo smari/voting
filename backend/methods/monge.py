@@ -93,7 +93,7 @@ def find_closest_comparison(
         if C2 == C1:
             continue #compare to lists in different constituencies only
         if constituency_full(C2, c_goals, allocations):
-            continue #TODO: Decide if we should compare to unconsidered lists
+            continue
         for P2 in range(no_parties):
             if P2 == P1:
                 continue #compare to lists for different party only
