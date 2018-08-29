@@ -73,8 +73,8 @@ def upload_votes():
     if 'file' not in request.files:
         return jsonify({'error': 'must upload a file.'})
     f = request.files['file']
-    parties, consts, votes = util.load_votes_from_stream(f.stream, f.filename)
-    return jsonify({'parties': parties, 'constituencies': consts, 'votes': votes})
+    res = util.load_votes_from_stream(f.stream, f.filename)
+    return jsonify(res)
 
 
 SIMULATIONS = {}
