@@ -371,7 +371,7 @@ def print_simulation(simulation):
         print("==========================================")
         print("Adjustment method:", rules["adjustment_method"])
         print("==========================================\n")
-        votes = [v[:-1] for v in simulation.ref_votes[:-1]]
+        votes = simulation.base_votes
         h = ["Constituency"]
         h.extend(rules["parties"]+["Total"])
         if "constituencies" in rules:
@@ -383,7 +383,7 @@ def print_simulation(simulation):
         print("Reference")
 
         print("\nVotes")
-        print_table(simulation.ref_votes, h, const_names, out)
+        print_table(simulation.base_votes, h, const_names, out)
 
         print("\nVote shares")
         shares = [["{:.1%}".format(s) for s in c[:-1]]
@@ -466,6 +466,7 @@ def print_simulation(simulation):
 def simulation_to_xlsx(simulation, filename):
     """Write detailed information about a simulation to an xlsx file."""
     workbook = xlsxwriter.Workbook(filename)
+
     r_format = workbook.add_format()
     r_format.set_rotation(90)
     r_format.set_align('center')
@@ -473,12 +474,32 @@ def simulation_to_xlsx(simulation, filename):
     r_format.set_text_wrap()
     r_format.set_bold()
     r_format.set_font_size(12)
+
     h_format = workbook.add_format()
     h_format.set_align('center')
     h_format.set_bold()
     h_format.set_font_size(14)
+
     cell_format = workbook.add_format()
     cell_format.set_align('right')
+
+
+    def write_matrix(worksheet, startrow, startcol, matrix, cformat):
+        for c in range(len(matrix)):
+            for p in range(len(matrix[c])):
+                if matrix[c][p] != 0:
+                    worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                    cformat)
+
+        return c, p
+
+    def draw_block(worksheet, row, col, heading, xheaders, yheaders, matrix):
+        worksheet.merge_range(row, col, row, col+len(xheaders), heading,
+                                h_format)
+        worksheet.write_row(row+1, col+1, xheaders, cell_format)
+        worksheet.write_column(row+2, col, yheaders, cell_format)
+        write_matrix(worksheet, row+2, col+1, matrix, cell_format)
+
 
     for r in range(len(simulation.e_rules)):
         method_name = simulation.e_rules[r]["adjustment_method"]
@@ -487,176 +508,64 @@ def simulation_to_xlsx(simulation, filename):
         parties = simulation.e_rules[r]["parties"] + ["Total"]
 
         # Reference data:
-        ref_votes = simulation.ref_votes
-        ref_const_seats = simulation.ref_const_seats[r]
-        ref_total_seats = simulation.ref_total_seats[r]
-        ref_adj_seats = simulation.ref_adj_seats[r]
+        ref_votes = simulation.xtd_votes
 
         toprow = 3
-        row = copy(toprow)
-        col = 2
-        worksheet.merge_range(row+1, 0, len(const_names)+row+1, 0,
-                                "Reference data", r_format)
-        worksheet.merge_range(row, col, row, col+len(parties), "Votes",
-                                h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for c in range(len(ref_votes)):
-            for p in range(len(ref_votes[c])):
-                if ref_votes[c][p] != 0:
-                    worksheet.write(row, col+p+1, ref_votes[c][p],
-                                    cell_format)
-            row += 1
-        row = copy(toprow)
-        col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties)-1,
-                                "Vote shares", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties[:-1], cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for const_votes in ref_votes:
-            shares = ["{:.1%}".format(v/const_votes[-1])
-                        for v in const_votes[:-1]]
-            worksheet.write_row(row, col+1, shares, cell_format)
-            row += 1
-        row = copy(toprow)
-        col += len(parties)+1
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Constituency seats", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for c in range(len(ref_const_seats)):
-            for p in range(len(ref_const_seats[c])):
-                if ref_const_seats[c][p] != 0:
-                    worksheet.write(row, col+p+1, ref_const_seats[c][p],
-                                    cell_format)
-            row += 1
-        row = copy(toprow)
-        col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Adjustment seats", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for c in range(len(ref_adj_seats)):
-            for p in range(len(ref_adj_seats[c])):
-                if ref_adj_seats[c][p] != 0:
-                    worksheet.write(row, col+p+1, ref_adj_seats[c][p],
-                                    cell_format)
-            row += 1
-        row = copy(toprow)
-        col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties), "Total seats",
-                                h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for c in range(len(ref_total_seats)):
-            for p in range(len(ref_total_seats[c])):
-                if ref_total_seats[c][p] != 0:
-                    worksheet.write(row, col+p+1, ref_total_seats[c][p],
-                                    cell_format)
-            row += 1
-        row = copy(toprow)
-        col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties)-1,
-                                "Seat shares", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties[:-1], cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for seats in ref_total_seats:
-            seat_shares = ["{:.1%}".format(s/seats[-1]) for s in seats[:-1]]
-            worksheet.write_row(row, col+1, seat_shares, cell_format)
-            row += 1
 
-        # Averages:
-        toprow += len(const_names)+3
-        row = copy(toprow)
+        # Reference data
+        worksheet.merge_range(toprow, 0, len(const_names)+toprow+1, 0,
+                                "Reference data", r_format)
+
         col = 2
-        worksheet.merge_range(row+1, 0, len(const_names)+row+1, 0,
+        draw_block(worksheet, toprow, col, "Votes", parties, const_names, ref_votes)
+
+        m_shares = [["{:.1%}".format(v/const_votes[-1])
+                    for v in const_votes[:-1]] for const_votes in ref_votes]
+        col += len(parties)+2
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, m_shares)
+
+        col += len(parties)+2
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.ref_const_seats[r])
+
+        col += len(parties)+2
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.ref_adj_seats[r])
+
+        col += len(parties)+2
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.ref_total_seats[r])
+
+        m_seat_shares = [["{:.1%}".format(s/seats[-1]) for s in seats[:-1]]
+                         for seats in ref_total_seats]
+        col += len(parties)+2
+        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
+
+
+        # Now doing simulation results:
+        toprow += len(const_names)+3
+
+        worksheet.merge_range(toprow, 0, len(const_names)+toprow+1, 0,
                                 "Averages from simulation", r_format)
-        worksheet.merge_range(row, col, row, col+len(parties), "Votes",
-                                h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for const_votes in simulation.avg_simul_votes:
-            for p in range(len(const_votes)):
-                if const_votes[p] != 0:
-                    worksheet.write(row, col+p+1, const_votes[p], cell_format)
-            row += 1
-        row = copy(toprow)
+
+        col = 2
+        draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.avg_simul_votes)
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties)-1,
-                                "Vote shares", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties[:-1], cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for const_shares in simulation.avg_simul_shares:
-            shares = ["{:.1%}".format(s) for s in const_shares[:-1]]
-            worksheet.write_row(row, col+1, shares, cell_format)
-            row += 1
-        row = copy(toprow)
-        col += len(parties)+1
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Constituency seats", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for seats in simulation.avg_const_seats[r]:
-            for p in range(len(seats)):
-                if seats[p] != 0:
-                    worksheet.write(row, col+p+1, seats[p], cell_format)
-            row += 1
-        row = copy(toprow)
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.avg_simul_shares)
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Adjustment seats", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for seats in simulation.avg_adj_seats[r]:
-            for p in range(len(seats)):
-                if seats[p] != 0:
-                    worksheet.write(row, col+p+1, seats[p], cell_format)
-            row += 1
-        row = copy(toprow)
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.avg_const_seats)
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties), "Total seats",
-                                h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for seats in simulation.avg_total_seats[r]:
-            for p in range(len(seats)):
-                if seats[p] != 0:
-                    worksheet.write(row, col+p+1, seats[p], cell_format)
-            row += 1
-        row = copy(toprow)
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.avg_adj_seats[r])
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties)-1,
-                                "Seat shares", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties[:-1], cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for const_shares in simulation.avg_seat_shares[r]:
-            shares = ["{:.1%}".format(s) for s in const_shares[:-1]]
-            worksheet.write_row(row, col+1, shares, cell_format)
-            row += 1
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.avg_total_seats[r])
+
+        m_seat_shares = [["{:.1%}".format(s) for s in const_shares[:-1]]
+                         for const_shares in simulation.avg_seat_shares[r]]
+        col += len(parties)+2
+        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
+
+
 
         # Standard deviations:
         sdev_votes = [[round(sqrt(v),3) for v in c]
@@ -672,7 +581,7 @@ def simulation_to_xlsx(simulation, filename):
         sdev_seat_shares = [["{:.1%}".format(sqrt(s)) for s in c[:-1]]
                                 for c in simulation.var_seat_shares[r]]
 
-        toprow += len(const_names)+3
+        toprow += len(const_names)+4
         row = copy(toprow)
         col = 2
         worksheet.merge_range(row+1, 0, len(const_names)+row+1, 0,
