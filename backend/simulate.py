@@ -220,19 +220,19 @@ class Simulation:
 
         self.run_initial_elections()
 
-    def aggregate_list(self, ruleset, measure, cnstncy, party, value):
-        self.list_data[ruleset][measure]["sum"][cnstncy][party] += value
-        self.list_data[ruleset][measure]["sqs"][cnstncy][party] += value**2
+    def aggregate_list(self, ruleset, measure, const, party, value):
+        self.list_data[ruleset][measure]["sum"][const][party] += value
+        self.list_data[ruleset][measure]["sqs"][const][party] += value**2
 
-    def analyze_list(self, ruleset, measure, cnstncy, party, count):
-        s = float(self.list_data[ruleset][measure]["sum"][cnstncy][party])
-        t = float(self.list_data[ruleset][measure]["sqs"][cnstncy][party])
+    def analyze_list(self, ruleset, measure, const, party, count):
+        s = float(self.list_data[ruleset][measure]["sum"][const][party])
+        t = float(self.list_data[ruleset][measure]["sqs"][const][party])
         avg = s/count
         var = (t - s*avg) / (count-1)
         # std = sqrt(var)
-        self.list_data[ruleset][measure]["avg"][cnstncy][party] = avg
-        self.list_data[ruleset][measure]["var"][cnstncy][party] = var
-        # self.list_data[ruleset][measure]["std"][cnstncy][party] = std
+        self.list_data[ruleset][measure]["avg"][const][party] = avg
+        self.list_data[ruleset][measure]["var"][const][party] = var
+        # self.list_data[ruleset][measure]["std"][const][party] = std
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["sum"] += value
