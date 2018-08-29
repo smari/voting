@@ -475,8 +475,8 @@ class Simulation:
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": MEASURES,
-            "list measures": LIST_MEASURES,
-            "vote measures": VOTE_MEASURES,
+            "list_measures": LIST_MEASURES,
+            "vote_measures": VOTE_MEASURES,
             "data": [
                 [
                     self.data[ruleset][measure]["avg"]
@@ -487,13 +487,8 @@ class Simulation:
             "lore": [
                 {
                     "name": self.e_rules[ruleset]["name"],
-                    "measures": {
-                        measure: {
-                            aggregate: self.data[ruleset][measure][aggregate]
-                            for aggregate in ["avg", "var"]
-                        }
-                        for measure in MEASURES.keys()
-                    }
+                    "measures": self.data[ruleset],
+                    "list_measures": self.list_data[ruleset]
                 }
                 for ruleset in range(self.no_rulesets)
             ]
