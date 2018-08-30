@@ -200,12 +200,11 @@ def get_xlsx():
     if request.args["sid"] not in SIMULATIONS:
         return jsonify({"error": "Please supply a valid SID."})
 
-    tempfile.tempdir = 'uploads/'
-    tmpfilename = tempfile.mktemp(prefix='votesim-%s-' % request.args["sid"])
-
+    tmpfilename = tempfile.mktemp(prefix='votesim-%s-' % request.args["sid"][:6])
     simulation, thread = SIMULATIONS[request.args["sid"]]
     util.simulation_to_xlsx(simulation, tmpfilename)
-    return send_from_directory(directory='uploads/', filename=filename)
+    print("%s" % (tmpfilename))
+    return send_from_directory(directory='/tmp', filename=tmpfilename.split("/")[-1], attachment_filename="simulation.xlsx", as_attachment=True)
 
 
 def set_up_simulation():
