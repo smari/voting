@@ -490,10 +490,7 @@ class Simulation:
         }
 
 def bare(xtd_table):
-    bare_table = []
-    for row in xtd_table[:-1]:
-        bare_table.append([val] for val in row[:-1])
-    return bare_table
+    return [row[:-1] for row in xtd_table[:-1]]
 
 def generate_comparison_rules(ruleset, option="all"):
     if option == "opt":
