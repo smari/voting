@@ -482,22 +482,34 @@ class Simulation:
                 {
                     "name": self.e_rules[ruleset]["name"],
                     "measures": self.data[ruleset],
-                    "list_measures": bare_list_data(ruleset)
+                    "list_measures": self.bare_list_data(ruleset)
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": bare_vote_data()
+            "vote_data": self.bare_vote_data()
         }
 
     def bare_list_data(self, ruleset):
         return {
-            measure: bare(self.list_data[ruleset][measure])
+            measure: {
+                aggr: bare(self.list_data[ruleset][measure][aggr])
+                for aggr in [
+                    "sum", "sqs",
+                    "avg", "var", "std"
+                ]
+            }
             for measure in LIST_MEASURES.keys()
         }
 
     def bare_vote_data(self):
         return {
-            measure: bare(self.list_data[-1][measure])
+            measure: {
+                aggr: bare(self.list_data[-1][measure][aggr])
+                for aggr in [
+                    "sum", "sqs",
+                    "avg", "var", "std"
+                ]
+            }
             for measure in VOTE_MEASURES.keys()
         }
 
