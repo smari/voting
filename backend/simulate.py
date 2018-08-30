@@ -482,11 +482,23 @@ class Simulation:
                 {
                     "name": self.e_rules[ruleset]["name"],
                     "measures": self.data[ruleset],
-                    "list_measures": bare(self.list_data[ruleset])
+                    "list_measures": bare_list_data(ruleset)
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": bare(self.list_data[-1])
+            "vote_data": bare_vote_data()
+        }
+
+    def bare_list_data(self, ruleset):
+        return {
+            measure: bare(self.list_data[ruleset][measure])
+            for measure in LIST_MEASURES.keys()
+        }
+
+    def bare_vote_data(self):
+        return {
+            measure: bare(self.list_data[-1][measure])
+            for measure in VOTE_MEASURES.keys()
         }
 
 def bare(xtd_table):
