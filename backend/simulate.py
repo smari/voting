@@ -479,13 +479,6 @@ class Simulation:
             "list_measures": LIST_MEASURES,
             "vote_measures": VOTE_MEASURES,
             "data": [
-                [
-                    self.data[ruleset][measure]["avg"]
-                    for ruleset in range(self.num_rulesets)
-                ]
-                for measure in MEASURES.keys()
-            ],
-            "lore": [
                 {
                     "name": self.e_rules[ruleset]["name"],
                     "measures": self.data[ruleset],
