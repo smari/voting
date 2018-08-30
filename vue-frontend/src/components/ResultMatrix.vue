@@ -1,6 +1,12 @@
 <template>
   <b-container>
     <table class="resultmatrix" v-if="seats.length > 0">
+      <tr v-if="title">
+        <th class="small-12 medium-1 topleft"></th>
+        <th :colspan="variance?2*parties.length:parties.length">
+          {{title}}
+        </th>
+      </tr>
       <tr class="parties">
         <th class="small-12 medium-1 topleft"></th>
         <th :colspan="variance?2:1" v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
@@ -46,7 +52,8 @@ export default {
     "parties": { default: [] },
     "seats": { default: [] },
     "round": { default: 0 },
-    "variance": { default: false }
+    "variance": { default: false },
+    "title": { default: "" },
   },
   computed: {
     seatssum: function() {

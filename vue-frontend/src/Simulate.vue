@@ -50,14 +50,19 @@
     <b-button size="lg" :href="get_xlsx_url()">Download XLSX file</b-button>
 
     <h3>Total seats</h3>
-    <ResultMatrix v-for="(res, idx) in results.lore" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.total_seats.avg" :variance="res.list_measures.total_seats.var" round="2">
+    <ResultMatrix v-for="(res, idx) in results.data" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.total_seats.avg" :variance="res.list_measures.total_seats.var" :title="res.name" round="2">
     </ResultMatrix>
 
-    <ResultMatrix v-for="(res, idx) in results.lore" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.total_seats.sum" :variance="res.list_measures.total_seats.sqs" round="2">
+    <h3>Constituency seats</h3>
+    <ResultMatrix v-for="(res, idx) in results.data" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.const_seats.avg" :variance="res.list_measures.const_seats.var" :title="res.name" round="2">
+    </ResultMatrix>
+
+    <h3>Adjustment seats</h3>
+    <ResultMatrix v-for="(res, idx) in results.data" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.adj_seats.avg" :variance="res.list_measures.adj_seats.var" :title="res.name" round="2">
     </ResultMatrix>
 
     <h3>Quality measures</h3>
-    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames" :lore="results.lore">
+    <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames">
     </SimulationData>
   </div>
 </template>
@@ -106,7 +111,7 @@ export default {
       iteration_time: 0,
       inflight: 0,
       ref_votes: [],
-      results: { measures: [], methods: [], data: [], lore: [ ]},
+      results: { measures: [], methods: [], data: [] },
     }
   },
   methods: {
@@ -203,7 +208,7 @@ export default {
     },
     recalculate: function() {
       this.current_iteration = 0;
-      this.results = { measures: [], methods: [], data: [], lore: []}
+      this.results = { measures: [], methods: [], data: [] }
       this.sid = "";
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
