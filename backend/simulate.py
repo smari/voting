@@ -479,22 +479,50 @@ class Simulation:
             "list_measures": LIST_MEASURES,
             "vote_measures": VOTE_MEASURES,
             "data": [
-                [
-                    self.data[ruleset][measure]["avg"]
-                    for ruleset in range(self.num_rulesets)
-                ]
-                for measure in MEASURES.keys()
+                {
+                    "name": self.e_rules[ruleset]["name"],
+                    "measures": self.data[ruleset],
+                    "list_measures": self.bare_list_data(ruleset)
+                }
+                for ruleset in range(self.num_rulesets)
             ],
             "lore": [
                 {
                     "name": self.e_rules[ruleset]["name"],
                     "measures": self.data[ruleset],
-                    "list_measures": self.list_data[ruleset]
+                    "list_measures": self.bare_list_data(ruleset)
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": self.list_data[-1]
+            "vote_data": self.bare_vote_data()
         }
+
+    def bare_list_data(self, ruleset):
+        return {
+            measure: {
+                aggr: bare(self.list_data[ruleset][measure][aggr])
+                for aggr in [
+                    "sum", "sqs",
+                    "avg", "var", "std"
+                ]
+            }
+            for measure in LIST_MEASURES.keys()
+        }
+
+    def bare_vote_data(self):
+        return {
+            measure: {
+                aggr: bare(self.list_data[-1][measure][aggr])
+                for aggr in [
+                    "sum", "sqs",
+                    "avg", "var", "std"
+                ]
+            }
+            for measure in VOTE_MEASURES.keys()
+        }
+
+def bare(xtd_table):
+    return [row[:-1] for row in xtd_table[:-1]]
 
 def generate_comparison_rules(ruleset, option="all"):
     if option == "opt":
