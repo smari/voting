@@ -489,12 +489,18 @@ class Simulation:
                 {
                     "name": self.e_rules[ruleset]["name"],
                     "measures": self.data[ruleset],
-                    "list_measures": self.list_data[ruleset]
+                    "list_measures": bare(self.list_data[ruleset])
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": self.list_data[-1]
+            "vote_data": bare(self.list_data[-1])
         }
+
+def bare(xtd_table):
+    bare_table = []
+    for row in xtd_table[:-1]:
+        bare_table.append([val] for val in row[:-1])
+    return bare_table
 
 def generate_comparison_rules(ruleset, option="all"):
     if option == "opt":
