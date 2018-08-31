@@ -83,6 +83,14 @@ VOTE_MEASURES = {
     "sim_shares": "shares in simulations",
 }
 
+AGGREGATES = {
+    "sum": "sum of elements in a sequence",
+    "sqs": "sum of squares",
+    "avg": "average",
+    "var": "variance",
+    "std": "standard deviation"
+}
+
 def error(avg, ref):
     """
     Compare average of generated votes to reference votes to test the
@@ -193,31 +201,25 @@ class Simulation:
             self.data.append({})
             for measure in MEASURES.keys():
                 self.data[ruleset][measure] = {
-                    "sum": 0, "sqs": 0,
-                    "avg": 0, "var": 0, "std": 0
+                    aggr: 0
+                    for aggr in AGGREGATES.keys()
                 }
             self.list_data.append({})
             for measure in LIST_MEASURES.keys():
                 self.list_data[ruleset][measure] = {}
-                for attr in [
-                    "sum", "sqs",
-                    "avg", "var", "std"
-                ]:
-                    self.list_data[ruleset][measure][attr] = []
+                for aggr in AGGREGATES.keys():
+                    self.list_data[ruleset][measure][aggr] = []
                     for c in range(self.num_constituencies+1):
-                        self.list_data[ruleset][measure][attr].append([0]*(self.num_parties+1))
+                        self.list_data[ruleset][measure][aggr].append([0]*(self.num_parties+1))
 
         self.data.append({})
         self.list_data.append({})
         for measure in VOTE_MEASURES.keys():
             self.list_data[-1][measure] = {}
-            for attr in [
-                "sum", "sqs",
-                "avg", "var", "std"
-            ]:
-                self.list_data[-1][measure][attr] = []
+            for aggr in AGGREGATES.keys():
+                self.list_data[-1][measure][aggr] = []
                 for c in range(self.num_constituencies+1):
-                    self.list_data[-1][measure][attr].append([0]*(self.num_parties+1))
+                    self.list_data[-1][measure][aggr].append([0]*(self.num_parties+1))
 
         self.run_initial_elections()
 
@@ -493,10 +495,7 @@ class Simulation:
         return {
             measure: {
                 aggr: bare(self.list_data[ruleset][measure][aggr])
-                for aggr in [
-                    "sum", "sqs",
-                    "avg", "var", "std"
-                ]
+                for aggr in AGGREGATES.keys()
             }
             for measure in LIST_MEASURES.keys()
         }
@@ -505,10 +504,7 @@ class Simulation:
         return {
             measure: {
                 aggr: bare(self.list_data[-1][measure][aggr])
-                for aggr in [
-                    "sum", "sqs",
-                    "avg", "var", "std"
-                ]
+                for aggr in AGGREGATES.keys()
             }
             for measure in VOTE_MEASURES.keys()
         }
