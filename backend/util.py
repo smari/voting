@@ -567,7 +567,7 @@ def simulation_to_xlsx(simulation, filename):
         draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.base_allocations[r]["total_seats"])
 
         m_seat_shares = [["{:.1%}".format(s/seats[-1]) for s in seats[:-1]]
-                         for seats in simulation.base_allocations[r]["total_seats"]]
+                         for seats in simulation.base_allocations[r]["xtd_total_seats"]]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
 
