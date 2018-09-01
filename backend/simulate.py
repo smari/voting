@@ -480,6 +480,7 @@ class Simulation:
             "measures": MEASURES,
             "list_measures": LIST_MEASURES,
             "vote_measures": VOTE_MEASURES,
+            "aggregates": AGGREGATES,
             "data": [
                 {
                     "name": self.e_rules[ruleset]["name"],
