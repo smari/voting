@@ -188,7 +188,7 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.vote_shares = [[v/c[-1] for v in c] for c in self.xtd_votes]
+        self.vote_shares = [[float(v)/c[-1] for v in c] for c in self.xtd_votes]
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
@@ -264,7 +264,7 @@ class Simulation:
                 for c in range(self.num_constituencies)
             ]
             xtd_total_seats = add_totals(total_seats)
-            seat_shares = [[v/c[-1] for v in c] for c in xtd_total_seats]
+            seat_shares = [[float(v)/c[-1] for v in c] for c in xtd_total_seats]
             self.base_allocations.append({
                 "const_seats": const_seats,
                 "adj_seats": adj_seats,
