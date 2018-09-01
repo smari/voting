@@ -549,20 +549,20 @@ def simulation_to_xlsx(simulation, filename):
         draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.xtd_votes)
 
         m_shares = [["{:.1%}".format(v)
-                    for v in c[:-1]] for c in simulation.vote_shares]
+                    for v in c] for c in simulation.vote_shares]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, m_shares)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.base_allocations[r]["const_seats"])
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.base_allocations[r]["xtd_const_seats"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.base_allocations[r]["adj_seats"])
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.base_allocations[r]["xtd_adj_seats"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.base_allocations[r]["total_seats"])
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.base_allocations[r]["xtd_total_seats"])
 
-        m_seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+        m_seat_shares = [["{:.1%}".format(s) for s in c]
                          for c in simulation.base_allocations[r]["seat_shares"]]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
@@ -589,7 +589,7 @@ def simulation_to_xlsx(simulation, filename):
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.list_data[r]["total_seats"]["avg"])
 
-        m_seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+        m_seat_shares = [["{:.1%}".format(s) for s in c]
                          for c in simulation.list_data[r]["seat_shares"]["avg"]]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
@@ -599,7 +599,7 @@ def simulation_to_xlsx(simulation, filename):
         # Standard deviations:
         sdev_votes = [[round(v,3) for v in c]
                         for c in simulation.list_data[-1]["sim_votes"]["std"]]
-        sdev_vote_shares = [["{:.1%}".format(s) for s in c[:-1]]
+        sdev_vote_shares = [["{:.1%}".format(s) for s in c]
                                 for c in simulation.list_data[-1]["sim_shares"]["std"]]
         sdev_const_seats = [[round(v,3) for v in c]
                                 for c in simulation.list_data[r]["const_seats"]["std"]]
@@ -607,7 +607,7 @@ def simulation_to_xlsx(simulation, filename):
                             for c in simulation.list_data[r]["adj_seats"]["std"]]
         sdev_total_seats = [[round(v,3) for v in c]
                                 for c in simulation.list_data[r]["total_seats"]["std"]]
-        sdev_seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+        sdev_seat_shares = [["{:.1%}".format(s) for s in c]
                                 for c in simulation.list_data[r]["seat_shares"]["std"]]
 
         toprow += len(const_names)+4
@@ -626,10 +626,10 @@ def simulation_to_xlsx(simulation, filename):
             row += 1
         row = copy(toprow)
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties)-1,
+        worksheet.merge_range(row, col, row, col+len(parties),
                                 "Vote shares", h_format)
         row += 1
-        worksheet.write_row(row, col+1, parties[:-1], cell_format)
+        worksheet.write_row(row, col+1, parties, cell_format)
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for const_vote_shares in sdev_vote_shares:
@@ -670,10 +670,10 @@ def simulation_to_xlsx(simulation, filename):
             row += 1
         row = copy(toprow)
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties)-1,
+        worksheet.merge_range(row, col, row, col+len(parties),
                                 "Seat shares", h_format)
         row += 1
-        worksheet.write_row(row, col+1, parties[:-1], cell_format)
+        worksheet.write_row(row, col+1, parties, cell_format)
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for shares in sdev_seat_shares:
