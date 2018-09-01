@@ -541,16 +541,12 @@ def simulation_to_xlsx(simulation, filename):
         parties = simulation.e_rules[r]["parties"] + ["Total"]
 
         # Reference data:
-        xtd_votes = simulation.xtd_votes
-
         toprow = 3
-
-        # Reference data
         worksheet.merge_range(toprow, 0, len(const_names)+toprow+1, 0,
                                 "Reference data", r_format)
 
         col = 2
-        draw_block(worksheet, toprow, col, "Votes", parties, const_names, xtd_votes)
+        draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.xtd_votes)
 
         m_shares = [["{:.1%}".format(v)
                     for v in const_votes[:-1]] for const_votes in simulation.vote_shares]
