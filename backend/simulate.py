@@ -273,7 +273,7 @@ class Simulation:
                 "xtd_const_seats": add_totals(const_seats),
                 "xtd_adj_seats": add_totals(adj_seats),
                 "xtd_total_seats": xtd_total_seats,
-                "seat_shares": seat_shares
+                "xtd_seat_shares": seat_shares
             })
 
     def gen_votes(self):

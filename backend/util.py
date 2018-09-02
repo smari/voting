@@ -434,7 +434,7 @@ def print_simulation(simulation):
 
         print("\nSeat shares")
         shares = [["{:.1%}".format(s) for s in c[:-1]]
-                    for c in simulation.base_allocations[r]["seat_shares"]]
+                    for c in simulation.base_allocations[r]["xtd_seat_shares"]]
         print_table(shares, h[:-1], const_names, out)
 
         print("\nAverages from simulation")
@@ -563,7 +563,7 @@ def simulation_to_xlsx(simulation, filename):
         draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.base_allocations[r]["xtd_total_seats"])
 
         m_seat_shares = [["{:.1%}".format(s) for s in c]
-                         for c in simulation.base_allocations[r]["seat_shares"]]
+                         for c in simulation.base_allocations[r]["xtd_seat_shares"]]
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
 
