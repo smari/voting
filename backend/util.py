@@ -516,6 +516,10 @@ def simulation_to_xlsx(simulation, filename):
     cell_format = workbook.add_format()
     cell_format.set_align('right')
 
+    share_format = workbook.add_format()
+    share_format.set_align('right')
+    share_format.set_num_format('0,0%')
+
 
     def write_matrix(worksheet, startrow, startcol, matrix, cformat):
         for c in range(len(matrix)):
@@ -526,12 +530,12 @@ def simulation_to_xlsx(simulation, filename):
 
         return c, p
 
-    def draw_block(worksheet, row, col, heading, xheaders, yheaders, matrix):
+    def draw_block(worksheet, row, col, heading, xheaders, yheaders, matrix, cformat=cell_format):
         worksheet.merge_range(row, col, row, col+len(xheaders), heading,
                                 h_format)
         worksheet.write_row(row+1, col+1, xheaders, cell_format)
         worksheet.write_column(row+2, col, yheaders, cell_format)
-        write_matrix(worksheet, row+2, col+1, matrix, cell_format)
+        write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
 
     for r in range(len(simulation.e_rules)):
@@ -548,10 +552,8 @@ def simulation_to_xlsx(simulation, filename):
         col = 2
         draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.xtd_votes)
 
-        m_shares = [["{:.1%}".format(v)
-                    for v in c] for c in simulation.vote_shares]
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, m_shares)
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.vote_shares, share_format)
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.base_allocations[r]["xtd_const_seats"])
@@ -562,10 +564,8 @@ def simulation_to_xlsx(simulation, filename):
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.base_allocations[r]["xtd_total_seats"])
 
-        m_seat_shares = [["{:.1%}".format(s) for s in c]
-                         for c in simulation.base_allocations[r]["xtd_seat_shares"]]
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
+        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, simulation.base_allocations[r]["xtd_seat_shares"], share_format)
 
 
         # Now doing simulation results:
@@ -577,7 +577,7 @@ def simulation_to_xlsx(simulation, filename):
         draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.list_data[-1]["sim_votes"]["avg"])
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.list_data[-1]["sim_shares"]["avg"])
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.list_data[-1]["sim_shares"]["avg"], share_format)
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.list_data[r]["const_seats"]["avg"])
@@ -588,26 +588,22 @@ def simulation_to_xlsx(simulation, filename):
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.list_data[r]["total_seats"]["avg"])
 
-        m_seat_shares = [["{:.1%}".format(s) for s in c]
-                         for c in simulation.list_data[r]["seat_shares"]["avg"]]
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, m_seat_shares)
+        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, simulation.list_data[r]["seat_shares"]["avg"], share_format)
 
 
 
         # Standard deviations:
         sdev_votes = [[round(v,3) for v in c]
                         for c in simulation.list_data[-1]["sim_votes"]["std"]]
-        sdev_vote_shares = [["{:.1%}".format(s) for s in c]
-                                for c in simulation.list_data[-1]["sim_shares"]["std"]]
+        sdev_vote_shares = simulation.list_data[-1]["sim_shares"]["std"]
         sdev_const_seats = [[round(v,3) for v in c]
                                 for c in simulation.list_data[r]["const_seats"]["std"]]
         sdev_adj_seats = [[round(v,3) for v in c]
                             for c in simulation.list_data[r]["adj_seats"]["std"]]
         sdev_total_seats = [[round(v,3) for v in c]
                                 for c in simulation.list_data[r]["total_seats"]["std"]]
-        sdev_seat_shares = [["{:.1%}".format(s) for s in c]
-                                for c in simulation.list_data[r]["seat_shares"]["std"]]
+        sdev_seat_shares = simulation.list_data[r]["seat_shares"]["std"]
 
         toprow += len(const_names)+4
         row = copy(toprow)
@@ -632,7 +628,7 @@ def simulation_to_xlsx(simulation, filename):
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for const_vote_shares in sdev_vote_shares:
-            worksheet.write_row(row, col+1, const_vote_shares, cell_format)
+            worksheet.write_row(row, col+1, const_vote_shares, share_format)
             row += 1
         row = copy(toprow)
         col += len(parties)+1
@@ -676,7 +672,7 @@ def simulation_to_xlsx(simulation, filename):
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for shares in sdev_seat_shares:
-            worksheet.write_row(row, col+1, shares, cell_format)
+            worksheet.write_row(row, col+1, shares, share_format)
             row += 1
 
 
