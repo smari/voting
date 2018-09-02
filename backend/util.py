@@ -599,34 +599,27 @@ def simulation_to_xlsx(simulation, filename):
 
 
         # Standard deviations:
-        sdev_votes       = simulation.list_data[-1]["sim_votes"]["std"]
-        sdev_vote_shares = simulation.list_data[-1]["sim_shares"]["std"]
-        sdev_const_seats = simulation.list_data[r]["const_seats"]["std"]
-        sdev_adj_seats   = simulation.list_data[r]["adj_seats"]["std"]
-        sdev_total_seats = simulation.list_data[r]["total_seats"]["std"]
-        sdev_seat_shares = simulation.list_data[r]["seat_shares"]["std"]
-
         toprow += len(const_names)+4
         worksheet.merge_range(toprow+1, 0, len(const_names)+toprow+1, 0,
                             "Standard deviations from simulation", r_format)
 
         col = 2
-        draw_block(worksheet, toprow, col, "Votes", parties, const_names, sdev_votes, sim_format)
+        draw_block(worksheet, toprow, col, "Votes", parties, const_names, simulation.list_data[-1]["sim_votes"]["std"], sim_format)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, sdev_vote_shares, share_format)
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, simulation.list_data[-1]["sim_shares"]["std"], share_format)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, sdev_const_seats, sim_format)
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, simulation.list_data[r]["const_seats"]["std"], sim_format)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, sdev_adj_seats, sim_format)
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, simulation.list_data[r]["adj_seats"]["std"], sim_format)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, sdev_total_seats, sim_format)
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, simulation.list_data[r]["total_seats"]["std"], sim_format)
 
         col += len(parties)+2
-        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, sdev_seat_shares, share_format)
+        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, simulation.list_data[r]["seat_shares"]["std"], share_format)
 
 
     workbook.close()
