@@ -607,74 +607,26 @@ def simulation_to_xlsx(simulation, filename):
         sdev_seat_shares = simulation.list_data[r]["seat_shares"]["std"]
 
         toprow += len(const_names)+4
-        row = copy(toprow)
-        col = 2
-        worksheet.merge_range(row+1, 0, len(const_names)+row+1, 0,
+        worksheet.merge_range(toprow+1, 0, len(const_names)+toprow+1, 0,
                             "Standard deviations from simulation", r_format)
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Votes", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for const_votes in sdev_votes:
-            worksheet.write_row(row, col+1, const_votes, sim_format)
-            row += 1
-        row = copy(toprow)
+
+        col = 2
+        draw_block(worksheet, toprow, col, "Votes", parties, const_names, sdev_votes, sim_format)
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Vote shares", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for const_vote_shares in sdev_vote_shares:
-            worksheet.write_row(row, col+1, const_vote_shares, share_format)
-            row += 1
-        row = copy(toprow)
+        draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, sdev_vote_shares, share_format)
+
         col += len(parties)+1
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Constituency seats", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for seats in sdev_const_seats:
-            worksheet.write_row(row, col+1, seats, sim_format)
-            row += 1
-        row = copy(toprow)
+        draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, sdev_const_seats, sim_format)
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Adjustment seats", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for seats in sdev_adj_seats:
-            worksheet.write_row(row, col+1, seats, sim_format)
-            row += 1
-        row = copy(toprow)
+        draw_block(worksheet, toprow, col, "Adjustment seats", parties, const_names, sdev_adj_seats, sim_format)
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Total seats", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for seats in sdev_total_seats:
-            worksheet.write_row(row, col+1, seats, sim_format)
-            row += 1
-        row = copy(toprow)
+        draw_block(worksheet, toprow, col, "Total seats", parties, const_names, sdev_total_seats, sim_format)
+
         col += len(parties)+2
-        worksheet.merge_range(row, col, row, col+len(parties),
-                                "Seat shares", h_format)
-        row += 1
-        worksheet.write_row(row, col+1, parties, cell_format)
-        row += 1
-        worksheet.write_column(row, col, const_names, cell_format)
-        for shares in sdev_seat_shares:
-            worksheet.write_row(row, col+1, shares, share_format)
-            row += 1
+        draw_block(worksheet, toprow, col, "Seat shares", parties, const_names, sdev_seat_shares, share_format)
 
 
     workbook.close()
