@@ -538,6 +538,8 @@ def simulation_to_xlsx(simulation, filename):
     def draw_block(worksheet, row, col, heading, matrix, cformat=cell_format):
         xheaders = parties
         yheaders = const_names
+        if heading.endswith("shares"):
+            cformat = share_format
         worksheet.merge_range(row, col, row, col+len(xheaders), heading,
                                 h_format)
         worksheet.write_row(row+1, col+1, xheaders, cell_format)
@@ -562,7 +564,7 @@ def simulation_to_xlsx(simulation, filename):
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Vote shares",
-            simulation.vote_shares, share_format)
+            simulation.vote_shares)
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Constituency seats",
@@ -578,7 +580,7 @@ def simulation_to_xlsx(simulation, filename):
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares",
-            simulation.base_allocations[r]["xtd_seat_shares"], share_format)
+            simulation.base_allocations[r]["xtd_seat_shares"])
 
 
         # Now doing simulation results:
@@ -592,7 +594,7 @@ def simulation_to_xlsx(simulation, filename):
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Vote shares",
-            simulation.list_data[-1]["sim_shares"]["avg"], share_format)
+            simulation.list_data[-1]["sim_shares"]["avg"])
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Constituency seats",
@@ -608,7 +610,7 @@ def simulation_to_xlsx(simulation, filename):
 
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Seat shares",
-            simulation.list_data[r]["seat_shares"]["avg"], share_format)
+            simulation.list_data[r]["seat_shares"]["avg"])
 
 
 
