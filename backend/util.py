@@ -516,6 +516,10 @@ def simulation_to_xlsx(simulation, filename):
     cell_format = workbook.add_format()
     cell_format.set_align('right')
 
+    sim_format = workbook.add_format()
+    sim_format.set_align('right')
+    sim_format.set_num_format('#.##0,000')
+
     share_format = workbook.add_format()
     share_format.set_align('right')
     share_format.set_num_format('0,0%')
@@ -594,15 +598,11 @@ def simulation_to_xlsx(simulation, filename):
 
 
         # Standard deviations:
-        sdev_votes = [[round(v,3) for v in c]
-                        for c in simulation.list_data[-1]["sim_votes"]["std"]]
+        sdev_votes       = simulation.list_data[-1]["sim_votes"]["std"]
         sdev_vote_shares = simulation.list_data[-1]["sim_shares"]["std"]
-        sdev_const_seats = [[round(v,3) for v in c]
-                                for c in simulation.list_data[r]["const_seats"]["std"]]
-        sdev_adj_seats = [[round(v,3) for v in c]
-                            for c in simulation.list_data[r]["adj_seats"]["std"]]
-        sdev_total_seats = [[round(v,3) for v in c]
-                                for c in simulation.list_data[r]["total_seats"]["std"]]
+        sdev_const_seats = simulation.list_data[r]["const_seats"]["std"]
+        sdev_adj_seats   = simulation.list_data[r]["adj_seats"]["std"]
+        sdev_total_seats = simulation.list_data[r]["total_seats"]["std"]
         sdev_seat_shares = simulation.list_data[r]["seat_shares"]["std"]
 
         toprow += len(const_names)+4
@@ -617,7 +617,7 @@ def simulation_to_xlsx(simulation, filename):
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for const_votes in sdev_votes:
-            worksheet.write_row(row, col+1, const_votes, cell_format)
+            worksheet.write_row(row, col+1, const_votes, sim_format)
             row += 1
         row = copy(toprow)
         col += len(parties)+2
@@ -639,7 +639,7 @@ def simulation_to_xlsx(simulation, filename):
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for seats in sdev_const_seats:
-            worksheet.write_row(row, col+1, seats, cell_format)
+            worksheet.write_row(row, col+1, seats, sim_format)
             row += 1
         row = copy(toprow)
         col += len(parties)+2
@@ -650,7 +650,7 @@ def simulation_to_xlsx(simulation, filename):
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for seats in sdev_adj_seats:
-            worksheet.write_row(row, col+1, seats, cell_format)
+            worksheet.write_row(row, col+1, seats, sim_format)
             row += 1
         row = copy(toprow)
         col += len(parties)+2
@@ -661,7 +661,7 @@ def simulation_to_xlsx(simulation, filename):
         row += 1
         worksheet.write_column(row, col, const_names, cell_format)
         for seats in sdev_total_seats:
-            worksheet.write_row(row, col+1, seats, cell_format)
+            worksheet.write_row(row, col+1, seats, sim_format)
             row += 1
         row = copy(toprow)
         col += len(parties)+2
