@@ -570,7 +570,6 @@ def simulation_to_xlsx(simulation, filename):
 
         # Now doing simulation results:
         toprow += len(const_names)+3
-
         worksheet.merge_range(toprow, 0, len(const_names)+toprow+1, 0,
                                 "Averages from simulation", r_format)
 
