@@ -616,7 +616,7 @@ def simulation_to_xlsx(simulation, filename):
         col += len(parties)+2
         draw_block(worksheet, toprow, col, "Vote shares", parties, const_names, sdev_vote_shares, share_format)
 
-        col += len(parties)+1
+        col += len(parties)+2
         draw_block(worksheet, toprow, col, "Constituency seats", parties, const_names, sdev_const_seats, sim_format)
 
         col += len(parties)+2
