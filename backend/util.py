@@ -515,6 +515,7 @@ def simulation_to_xlsx(simulation, filename):
 
     cell_format = workbook.add_format()
     cell_format.set_align('right')
+    cell_format.set_num_format('#.##0')
 
     sim_format = workbook.add_format()
     sim_format.set_align('right')
