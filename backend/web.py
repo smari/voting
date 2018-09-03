@@ -269,8 +269,20 @@ def handle_capabilities():
     return jsonify(get_capabilities_dict())
 
 @app.route('/api/presets/', methods=["GET"])
-def get_presets():
+def get_presets_list():
     return jsonify(get_presets_dict())
+
+@app.route('/api/presets/load/', methods=['POST'])
+def get_preset():
+    qv = request.get_json(force=True)
+    if 'eid' not in qv:
+        return jsonify({'error': 'Must supply eid'})
+    prs = get_presets_dict()
+    # TODO: This is silly but it paves the way to a real database
+    for p in prs:
+        if p['id'] == qv['eid']:
+            res = util.load_votes_from_stream(open('../data/elections/%s' % p['filename'], "r"), p['filename'])
+            return jsonify(res)
 
 
 def get_capabilities_dict():
@@ -287,23 +299,33 @@ def get_capabilities_dict():
 def get_presets_dict():
     from os import listdir
     from os.path import isfile, join
-    presetsdir = "../data/presets/"
+
     try:
-        files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
-                 and f.endswith('.json')]
-    except Exception as e:
-        print("Presets directory read failure: %s" % (e))
-        files = []
-    pr = []
-    for f in files:
-        try:
-            with open(presetsdir+f) as json_file:
-                data = json.load(json_file)
-        except  json.decoder.JSONDecodeError:
-            data = {'error': 'Problem parsing json, please fix "{}"'.format(
-                presetsdir+f)}
-        pr.append(data)
-    return pr
+        with open('../data/presets.json') as js:
+            data = json.load(js)
+    except IOError:
+        data = {'error': 'Could not load presets: database lost.'}
+    #except json.decoder.JSONDecodeError:
+    #    data = {'error': 'Could not load presets due to parse error.'}
+
+    return data
+    # presetsdir = "../data/presets/"
+    # try:
+    #     files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
+    #              and f.endswith('.json')]
+    # except Exception as e:
+    #     print("Presets directory read failure: %s" % (e))
+    #     files = []
+    # pr = []
+    # for f in files:
+    #     try:
+    #         with open(presetsdir+f) as json_file:
+    #             data = json.load(json_file)
+    #     except  json.decoder.JSONDecodeError:
+    #         data = {'error': 'Problem parsing json, please fix "{}"'.format(
+    #             presetsdir+f)}
+    #     pr.append(data)
+    # return pr
 
 def run_script(rules):
     if type(rules) in ["str", "unicode"]:

@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Alþingi elections",
+    "country": "Iceland",
+    "year": "2003",
+    "filename": "iceland_landskjorstjorn_2003.csv"
+  },
+  {
+    "id": 2,
+    "name": "Alþingi elections",
+    "country": "Iceland",
+    "year": "2007",
+    "filename": "iceland_landskjorstjorn_2007.csv"
+  },
+  {
+    "id": 3,
+    "name": "Alþingi elections",
+    "country": "Iceland",
+    "year": "2009",
+    "filename": "iceland_landskjorstjorn_2009.csv"
+  },
+  {
+    "id": 4,
+    "name": "Alþingi elections",
+    "country": "Iceland",
+    "year": "2013",
+    "filename": "iceland_landskjorstjorn_2013.csv"
+  },
+  {
+    "id": 5,
+    "name": "Alþingi elections",
+    "country": "Iceland",
+    "year": "2016",
+    "filename": "iceland_landskjorstjorn_2016.csv"
+  }
+]

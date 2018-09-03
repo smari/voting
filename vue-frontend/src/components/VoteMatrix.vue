@@ -38,6 +38,17 @@
       </b-form-checkbox>
     </b-modal>
 
+    <b-modal size="lg" id="modalpreset" ref="modalpresetref" title="Load preset" cancel-only>
+
+      <b-table hover :items="presets" :fields="presetfields">
+        <template slot="actions" slot-scope="row">
+          <b-button size="sm" @click.stop="loadPreset(row.item.id); $refs.modalpresetref.hide()" class="mr-1 mt-0 mb-0">
+            Load
+          </b-button>
+        </template>
+      </b-table>
+    </b-modal>
+
     <b-button-toolbar key-nav aria-label="Vote tools">
       <b-button-group class="mx-1">
         <b-btn @click="addConstituency()">Add constituency</b-btn>
@@ -48,9 +59,10 @@
       <b-button-group class="mx-1">
         <b-button v-b-modal.modalupload>Upload votes</b-button>
         <b-button v-b-modal.modalpaste>Paste input</b-button>
-        <b-dropdown id="ddown1" text="Presets" size="sm">
+        <b-button v-b-modal.modalpreset>Load preset</b-button>
+        <!--b-dropdown id="ddown1" text="Presets" size="sm">
           <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
-        </b-dropdown>
+        </b-dropdown-->
       </b-button-group>
       <b-button-group class="mx-1">
         <b-button disabled>Save voteset</b-button>
@@ -100,7 +112,13 @@ export default {
       constituency_adjustment_seats: [2, 3],
       parties: ["A", "B"],
       votes: [[1500, 2000], [2500, 1700]],
-      presets: {},
+      presets: [],
+      presetfields: [
+        { key: 'name', sortable: true },
+        { key: 'year', sortable: true },
+        { key: 'country', sortable: true },
+        { key: 'actions' },
+      ],
       uploadfile: null,
       paste: { csv: '',
                has_parties: false,
@@ -193,6 +211,11 @@ export default {
       this.parties = [];
       this.votes = [];
     },
+    loadPreset: function(eid) {
+      this.$http.post('/api/presets/load/', {'eid': eid}).then(response => {
+        this.handleReceivedVotes(response.data);
+      })
+    },
     setPreset: function(idx) {
       let el = this.presets[idx].election_rules;
       this.constituencies = el.constituency_names;
@@ -208,19 +231,19 @@ export default {
       var formData = new FormData();
       formData.append('file', this.uploadfile, this.uploadfile.name);
       this.$http.post('/api/votes/upload/', formData).then(response => {
-        this.constituencies = response.data.constituencies;
-        this.parties = response.data.parties;
-        this.votes = response.data.votes;
-        if (response.data.constituency_seats) {
-          this.constituency_seats = response.data.constituency_seats;
-        }
-        if (response.data.constituency_adjustment_seats) {
-          this.constituency_adjustment_seats = response.data.constituency_adjustment_seats;
-        }
-      }, response => {
-        console.log("Error:", response);
-          // Error?
+        this.handleReceivedVotes(response.data);
       });
+    },
+    handleReceivedVotes(data) {
+      this.constituencies = data.constituencies;
+      this.parties = data.parties;
+      this.votes = data.votes;
+      if (data.constituency_seats) {
+        this.constituency_seats = data.constituency_seats;
+      }
+      if (data.constituency_adjustment_seats) {
+        this.constituency_adjustment_seats = data.constituency_adjustment_seats;
+      }
     },
     pasteCSV: function(evt) {
       if (!this.paste.csv) {
