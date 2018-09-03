@@ -204,7 +204,12 @@ def get_xlsx():
     simulation, thread = SIMULATIONS[request.args["sid"]]
     util.simulation_to_xlsx(simulation, tmpfilename)
     print("%s" % (tmpfilename))
-    return send_from_directory(directory='/tmp', filename=tmpfilename.split("/")[-1], attachment_filename="simulation.xlsx", as_attachment=True)
+    return send_from_directory(
+        directory=os.path.dirname(tmpfilename),
+        filename=os.path.basename(tmpfilename),
+        attachment_filename="simulation.xlsx",
+        as_attachment=True
+    )
 
 
 def set_up_simulation():
