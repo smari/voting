@@ -166,7 +166,7 @@ def print_steps_election(election):
     print_table(xtd_votes, header, const_names, out)
 
     print("\nVote shares")
-    shares = [[v/c[-1] for v in c[:-1]] for c in xtd_votes]
+    shares = [[v/c[-1] for v in c] for c in xtd_votes]
     print_table(shares, header, const_names, out, "{:.1%}")
 
     print("\nConstituency seats")
@@ -206,7 +206,7 @@ def print_steps_election(election):
     print_table(xtd_total_seats, header, const_names, out)
 
     print("\nSeat shares")
-    shares = [[float(s)/c[-1] for s in c[:-1]] for c in xtd_total_seats]
+    shares = [[float(s)/c[-1] for s in c] for c in xtd_total_seats]
     print_table(shares, header, const_names, out, "{:.1%}")
 
 def pretty_print_election(election):
