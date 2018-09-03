@@ -166,7 +166,7 @@ def print_steps_election(election):
     print_table(xtd_votes, header, const_names, out)
 
     print("\nVote shares")
-    shares = [[v/c[-1] for v in c] for c in xtd_votes]
+    shares = find_shares(xtd_votes)
     print_table(shares, header, const_names, out, "{:.1%}")
 
     print("\nConstituency seats")
@@ -206,7 +206,7 @@ def print_steps_election(election):
     print_table(xtd_total_seats, header, const_names, out)
 
     print("\nSeat shares")
-    shares = [[float(s)/c[-1] for s in c] for c in xtd_total_seats]
+    shares = find_shares(xtd_total_seats)
     print_table(shares, header, const_names, out, "{:.1%}")
 
 def pretty_print_election(election):
@@ -252,13 +252,13 @@ def election_to_xlsx(election, filename):
     const_names.append("Total")
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
-    shares = [["{:.1%}".format(v/c[-1]) if v != 0 else None for v in c[:-1]]
-                for c in xtd_votes]
+    shares = [["{:.1%}".format(s) if s != 0 else None for s in c[:-1]]
+                for c in find_shares(xtd_votes)]
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-    seat_shares = [["{:.1%}".format(s/c[-1]) for s in c[:-1]]
-                    for c in xtd_total_seats]
+    seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+                    for c in find_shares(xtd_total_seats)]
 
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
