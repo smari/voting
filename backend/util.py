@@ -414,8 +414,7 @@ def print_simulation(simulation):
         print("Reference")
 
         print("\nVotes")
-        xtd_votes = simulation.xtd_votes
-        print_table(xtd_votes, h, const_names, out)
+        print_table(simulation.xtd_votes, h, const_names, out)
 
         print("\nVote shares")
         shares = [["{:.1%}".format(s) for s in c[:-1]]
