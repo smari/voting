@@ -554,14 +554,6 @@ def simulation_to_xlsx(simulation, filename):
         {"abbr": "ts", "heading": "Total seats"       },
         {"abbr": "ss", "heading": "Seat shares"       },
     ]
-    grid = [
-        "Votes",
-        "Vote shares",
-        "Constituency seats",
-        "Adjustment seats",
-        "Total seats",
-        "Seat shares",
-    ]
 
     for r in range(len(simulation.e_rules)):
         method_name = simulation.e_rules[r]["adjustment_method"]
@@ -606,60 +598,6 @@ def simulation_to_xlsx(simulation, filename):
                     category["cell_format"])
                 col += len(parties)+2
             toprow += len(const_names)+3
-
-        # Reference data:
-        toprow = 3
-        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
-                                "Reference data", r_format)
-
-        mtrx = {
-            "Votes":              simulation.xtd_votes,
-            "Vote shares":        simulation.xtd_vote_shares,
-            "Constituency seats": simulation.base_allocations[r]["xtd_const_seats"],
-            "Adjustment seats":   simulation.base_allocations[r]["xtd_adj_seats"],
-            "Total seats":        simulation.base_allocations[r]["xtd_total_seats"],
-            "Seat shares":        simulation.base_allocations[r]["xtd_seat_shares"],
-        }
-        col = 2
-        for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], int_format)
-            col += len(parties)+2
-
-        # Now doing simulation results:
-        toprow += len(const_names)+3
-        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
-                                "Averages from simulation", r_format)
-
-        mtrx = {
-            "Votes":              simulation.list_data[-1]["sim_votes"]["avg"],
-            "Vote shares":        simulation.list_data[-1]["sim_shares"]["avg"],
-            "Constituency seats": simulation.list_data[r]["const_seats"]["avg"],
-            "Adjustment seats":   simulation.list_data[r]["adj_seats"]["avg"],
-            "Total seats":        simulation.list_data[r]["total_seats"]["avg"],
-            "Seat shares":        simulation.list_data[r]["seat_shares"]["avg"],
-        }
-        col = 2
-        for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], sim_format)
-            col += len(parties)+2
-
-        # Standard deviations:
-        toprow += len(const_names)+3
-        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
-                            "Standard deviations from simulation", r_format)
-
-        mtrx = {
-            "Votes":              simulation.list_data[-1]["sim_votes"]["std"],
-            "Vote shares":        simulation.list_data[-1]["sim_shares"]["std"],
-            "Constituency seats": simulation.list_data[r]["const_seats"]["std"],
-            "Adjustment seats":   simulation.list_data[r]["adj_seats"]["std"],
-            "Total seats":        simulation.list_data[r]["total_seats"]["std"],
-            "Seat shares":        simulation.list_data[r]["seat_shares"]["std"],
-        }
-        col = 2
-        for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], sim_format)
-            col += len(parties)+2
 
     workbook.close()
 
