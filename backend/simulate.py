@@ -264,12 +264,12 @@ class Simulation:
                 for c in range(self.num_constituencies)
             ]
             xtd_total_seats = add_totals(total_seats)
-            seat_shares = [[float(v)/c[-1] for v in c] for c in xtd_total_seats]
+            xtd_seat_shares = [[float(v)/c[-1] for v in c] for c in xtd_total_seats]
             self.base_allocations.append({
                 "xtd_const_seats": add_totals(const_seats),
                 "xtd_adj_seats": add_totals(adj_seats),
                 "xtd_total_seats": xtd_total_seats,
-                "xtd_seat_shares": seat_shares
+                "xtd_seat_shares": xtd_seat_shares
             })
 
     def gen_votes(self):
