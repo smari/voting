@@ -142,7 +142,7 @@ def print_table(data, header, labels, output, f_string=None):
     Print 'data' in a table with 'header' and rows labelled with 'labels'.
     """
     if f_string:
-        data = [[f_string.format(d) if d else d for d in row] for row in data]
+        data = [[f_string.format(d) if d!=None else d for d in row] for row in data]
     data = [[labels[i]] + data[i] for i in range(len(data))]
     data = [[d if d != 0 and d != "0.0%" else None for d in row]
                 for row in data]
