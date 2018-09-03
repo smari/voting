@@ -485,11 +485,11 @@ class Simulation:
                 {
                     "name": self.e_rules[ruleset]["name"],
                     "measures": self.data[ruleset],
-                    "list_measures": self.bare_list_data(ruleset)
+                    "list_measures": self.list_data[ruleset]
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": self.bare_vote_data()
+            "vote_data": self.list_data[-1]
         }
 
     def bare_list_data(self, ruleset):
