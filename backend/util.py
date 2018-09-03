@@ -546,20 +546,20 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write_column(row+2, col, yheaders, cell_format)
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
+    grid = [
+        "Votes",
+        "Vote shares",
+        "Constituency seats",
+        "Adjustment seats",
+        "Total seats",
+        "Seat shares",
+    ]
 
     for r in range(len(simulation.e_rules)):
         method_name = simulation.e_rules[r]["adjustment_method"]
         worksheet   = workbook.add_worksheet(method_name)
         const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
         parties     = simulation.e_rules[r]["parties"] + ["Total"]
-        grid = [
-            "Votes",
-            "Vote shares",
-            "Constituency seats",
-            "Adjustment seats",
-            "Total seats",
-            "Seat shares",
-        ]
 
         # Reference data:
         toprow = 3
