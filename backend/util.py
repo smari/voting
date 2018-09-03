@@ -552,7 +552,7 @@ def simulation_to_xlsx(simulation, filename):
 
         # Reference data:
         toprow = 3
-        worksheet.merge_range(toprow, 0, len(const_names)+toprow+1, 0,
+        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
                                 "Reference data", r_format)
 
         mtrx = {
@@ -570,7 +570,7 @@ def simulation_to_xlsx(simulation, filename):
 
         # Now doing simulation results:
         toprow += len(const_names)+3
-        worksheet.merge_range(toprow, 0, len(const_names)+toprow+1, 0,
+        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
                                 "Averages from simulation", r_format)
 
         mtrx = {
@@ -588,7 +588,7 @@ def simulation_to_xlsx(simulation, filename):
 
         # Standard deviations:
         toprow += len(const_names)+4
-        worksheet.merge_range(toprow+1, 0, len(const_names)+toprow+1, 0,
+        worksheet.merge_range(toprow+1, 0, toprow+1+len(const_names), 0,
                             "Standard deviations from simulation", r_format)
 
         mtrx = {
