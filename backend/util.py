@@ -122,10 +122,12 @@ def add_totals(m):
     nm.append(totals)
     return nm
 
-def print_table(data, header, labels, output):
+def print_table(data, header, labels, output, format_string=None):
     """
     Print 'data' in a table with 'header' and rows labelled with 'labels'.
     """
+    if format_string:
+        data = [[format_string.format(d) for d in row] for row in data]
     data = [[labels[i]] + data[i] for i in range(len(data))]
     data = [[d if d != 0 and d != "0.0%" else None for d in row]
                 for row in data]
@@ -149,9 +151,9 @@ def print_steps_election(election):
     print_table(votes, header, const_names, out)
 
     print("\nVote shares")
-    shares = [["{:.1%}".format(v/c[-1]) for v in c[:-1]]
+    shares = [[v/c[-1] for v in c[:-1]]
                 for c in votes]
-    print_table(shares, header, const_names, out)
+    print_table(shares, header, const_names, out, "{:.1%}")
 
     print("\nConstituency seats")
     const_seats = add_totals(election.m_const_seats_alloc)
@@ -192,9 +194,9 @@ def print_steps_election(election):
     print_table(total_seats, header, const_names, out)
 
     print("\nSeat shares")
-    shares = [["{:.1%}".format(float(s)/c[-1]) if s != 0 else None for s in c[:-1]]
+    shares = [[float(s)/c[-1] if s != 0 else None for s in c[:-1]]
                 for c in total_seats]
-    print_table(shares, header, const_names, out)
+    print_table(shares, header, const_names, out, "{:.1%}")
 
 def pretty_print_election(election):
     """Print results of a single election."""
@@ -417,9 +419,9 @@ def print_simulation(simulation):
         print_table(simulation.xtd_votes, h, const_names, out)
 
         print("\nVote shares")
-        shares = [["{:.1%}".format(s) for s in c[:-1]]
+        shares = [[s for s in c[:-1]]
                     for c in simulation.vote_shares]
-        print_table(shares, h[:-1], const_names, out)
+        print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
         print("\nConstituency seats")
         print_table(simulation.base_allocations[r]["xtd_const_seats"], h, const_names, out)
@@ -431,9 +433,9 @@ def print_simulation(simulation):
         print_table(simulation.base_allocations[r]["xtd_total_seats"], h, const_names, out)
 
         print("\nSeat shares")
-        shares = [["{:.1%}".format(s) for s in c[:-1]]
+        shares = [[s for s in c[:-1]]
                     for c in simulation.base_allocations[r]["xtd_seat_shares"]]
-        print_table(shares, h[:-1], const_names, out)
+        print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
         print("\nAverages from simulation")
 
@@ -441,9 +443,9 @@ def print_simulation(simulation):
         print_table(simulation.list_data[-1]["sim_votes"]["avg"], h, const_names, out)
 
         print("\nVote shares")
-        shares = [["{:.1%}".format(s) for s in c[:-1]]
+        shares = [[s for s in c[:-1]]
                     for c in simulation.list_data[-1]["sim_shares"]["avg"]]
-        print_table(shares, h[:-1], const_names, out)
+        print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
         print("\nConstituency seats")
         print_table(simulation.list_data[r]["const_seats"]["avg"], h, const_names, out)
@@ -455,9 +457,9 @@ def print_simulation(simulation):
         print_table(simulation.list_data[r]["total_seats"]["avg"], h, const_names, out)
 
         print("\nSeat shares")
-        shares = [["{:.1%}".format(s) for s in c[:-1]]
+        shares = [[s for s in c[:-1]]
                     for c in simulation.list_data[r]["seat_shares"]["avg"]]
-        print_table(shares, h[:-1], const_names, out)
+        print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
         print("\nStandard deviations from simulation")
 
@@ -467,9 +469,9 @@ def print_simulation(simulation):
         print_table(sdev_votes, h, const_names, out)
 
         print("\nVote shares")
-        sdev_vote_shares = [["{:.1%}".format(s) for s in c[:-1]]
+        sdev_vote_shares = [[s for s in c[:-1]]
                             for c in simulation.list_data[-1]["sim_shares"]["std"]]
-        print_table(sdev_vote_shares, h[:-1], const_names, out)
+        print_table(sdev_vote_shares, h[:-1], const_names, out, "{:.1%}")
 
         print("\nConstituency seats")
         sdev_const_seats = [[round(s,3) for s in c]
@@ -487,9 +489,9 @@ def print_simulation(simulation):
         print_table(sdev_total_seats, h, const_names, out)
 
         print("\nSeat shares")
-        sdev_seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+        sdev_seat_shares = [[s for s in c[:-1]]
                             for c in simulation.list_data[r]["seat_shares"]["std"]]
-        print_table(sdev_seat_shares, h[:-1], const_names, out)
+        print_table(sdev_seat_shares, h[:-1], const_names, out, "{:.1%}")
 
         #print("\nVotes added to change results")
         #print_table(simulation.votes_to_change, h[:-1], const_names[:-1], out)
