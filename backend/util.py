@@ -504,15 +504,18 @@ def simulation_to_xlsx(simulation, filename):
 
     cell_format = workbook.add_format()
     cell_format.set_align('right')
-    cell_format.set_num_format('#.##0')
+
+    int_format = workbook.add_format()
+    int_format.set_align('right')
+    int_format.set_num_format('#,##0')
 
     sim_format = workbook.add_format()
     sim_format.set_align('right')
-    sim_format.set_num_format('#.##0,000')
+    sim_format.set_num_format('#,##0.000')
 
     share_format = workbook.add_format()
     share_format.set_align('right')
-    share_format.set_num_format('0,0%')
+    share_format.set_num_format('0.0%')
 
 
     def write_matrix(worksheet, startrow, startcol, matrix, cformat):
@@ -565,7 +568,7 @@ def simulation_to_xlsx(simulation, filename):
         }
         col = 2
         for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]])
+            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], int_format)
             col += len(parties)+2
 
         # Now doing simulation results:
@@ -583,7 +586,7 @@ def simulation_to_xlsx(simulation, filename):
         }
         col = 2
         for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]])
+            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], sim_format)
             col += len(parties)+2
 
         # Standard deviations:
@@ -601,8 +604,7 @@ def simulation_to_xlsx(simulation, filename):
         }
         col = 2
         for i in range(len(grid)):
-            draw_block(
-                worksheet, toprow, col, grid[i], mtrx[grid[i]], sim_format)
+            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], sim_format)
             col += len(parties)+2
 
     workbook.close()
