@@ -419,7 +419,7 @@ def print_simulation(simulation):
         print_table(simulation.xtd_votes, h, const_names, out)
 
         print("\nVote shares")
-        shares = [[s for s in c[:-1]]
+        shares = [c[:-1]
                     for c in simulation.vote_shares]
         print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
@@ -433,7 +433,7 @@ def print_simulation(simulation):
         print_table(simulation.base_allocations[r]["xtd_total_seats"], h, const_names, out)
 
         print("\nSeat shares")
-        shares = [[s for s in c[:-1]]
+        shares = [c[:-1]
                     for c in simulation.base_allocations[r]["xtd_seat_shares"]]
         print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
@@ -443,7 +443,7 @@ def print_simulation(simulation):
         print_table(simulation.list_data[-1]["sim_votes"]["avg"], h, const_names, out)
 
         print("\nVote shares")
-        shares = [[s for s in c[:-1]]
+        shares = [c[:-1]
                     for c in simulation.list_data[-1]["sim_shares"]["avg"]]
         print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
@@ -457,7 +457,7 @@ def print_simulation(simulation):
         print_table(simulation.list_data[r]["total_seats"]["avg"], h, const_names, out)
 
         print("\nSeat shares")
-        shares = [[s for s in c[:-1]]
+        shares = [c[:-1]
                     for c in simulation.list_data[r]["seat_shares"]["avg"]]
         print_table(shares, h[:-1], const_names, out, "{:.1%}")
 
@@ -469,7 +469,7 @@ def print_simulation(simulation):
         print_table(sdev_votes, h, const_names, out)
 
         print("\nVote shares")
-        sdev_vote_shares = [[s for s in c[:-1]]
+        sdev_vote_shares = [c[:-1]
                             for c in simulation.list_data[-1]["sim_shares"]["std"]]
         print_table(sdev_vote_shares, h[:-1], const_names, out, "{:.1%}")
 
@@ -489,7 +489,7 @@ def print_simulation(simulation):
         print_table(sdev_total_seats, h, const_names, out)
 
         print("\nSeat shares")
-        sdev_seat_shares = [[s for s in c[:-1]]
+        sdev_seat_shares = [c[:-1]
                             for c in simulation.list_data[r]["seat_shares"]["std"]]
         print_table(sdev_seat_shares, h[:-1], const_names, out, "{:.1%}")
 
