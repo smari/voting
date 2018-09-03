@@ -137,6 +137,9 @@ def matrix_subtraction(A, B):
         for i in range(m)
     ]
 
+def find_shares(xtd_table):
+    return [[float(v)/c[-1] for v in c] for c in xtd_table]
+
 def print_table(data, header, labels, output, f_string=None):
     """
     Print 'data' in a table with 'header' and rows labelled with 'labels'.

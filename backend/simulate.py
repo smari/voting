@@ -3,7 +3,7 @@ from rules import Rules
 from math import sqrt, exp
 from random import betavariate, uniform
 from copy import copy, deepcopy
-from util import add_totals, matrix_subtraction
+from util import add_totals, matrix_subtraction, find_shares
 
 import voting
 import io
@@ -114,9 +114,6 @@ def dev(results, ref):
         for p in range(len(results[c])):
             d += abs(results[c][p] - ref[c][p])
     return d
-
-def find_shares(xtd_table):
-    return [[float(v)/c[-1] for v in c] for c in xtd_table]
 
 def votes_to_change(election):
     """
