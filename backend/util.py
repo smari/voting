@@ -454,26 +454,22 @@ def print_simulation(simulation):
         print("\nStandard deviations from simulation")
 
         print("\nVotes")
-        sdev_votes = [[v for v in c]
-                        for c in simulation.list_data[-1]["sim_votes"]["std"]]
+        sdev_votes = simulation.list_data[-1]["sim_votes"]["std"]
         print_table(sdev_votes, h, const_names, out, "{:.3f}")
 
         print("\nVote shares")
         print_table(simulation.list_data[-1]["sim_shares"]["std"], h, const_names, out, "{:.1%}")
 
         print("\nConstituency seats")
-        sdev_const_seats = [[s for s in c]
-                            for c in simulation.list_data[r]["const_seats"]["std"]]
+        sdev_const_seats = simulation.list_data[r]["const_seats"]["std"]
         print_table(sdev_const_seats, h, const_names, out, "{:.3f}")
 
         print("\nAdjustment seats")
-        sdev_adj_seats = [[s for s in c]
-                            for c in simulation.list_data[r]["adj_seats"]["std"]]
+        sdev_adj_seats = simulation.list_data[r]["adj_seats"]["std"]
         print_table(sdev_adj_seats, h, const_names, out, "{:.3f}")
 
         print("\nTotal seats")
-        sdev_total_seats = [[s for s in c]
-                            for c in simulation.list_data[r]["total_seats"]["std"]]
+        sdev_total_seats = simulation.list_data[r]["total_seats"]["std"]
         print_table(sdev_total_seats, h, const_names, out, "{:.3f}")
 
         print("\nSeat shares")
