@@ -128,10 +128,7 @@ def matrix_subtraction(A, B):
     if m == 0:
         return []
     n = len(A[0])
-    assert(all([
-        len(A[i]) == n and len(B[i]) == n
-        for i in range(m)
-    ]))
+    assert(all([len(A[i]) == n and len(B[i]) == n for i in range(m)]))
     return [
         [A[i][j] - B[i][j] for j in range(n)]
         for i in range(m)
