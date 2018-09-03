@@ -115,6 +115,9 @@ def dev(results, ref):
             d += abs(results[c][p] - ref[c][p])
     return d
 
+def find_shares(xtd_table):
+    return [[float(v)/c[-1] for v in c] for c in xtd_table]
+
 def votes_to_change(election):
     """
     Find how many additional votes each individual list must receive
@@ -188,7 +191,7 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.xtd_vote_shares = [[float(v)/c[-1] for v in c] for c in self.xtd_votes]
+        self.xtd_vote_shares = find_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
@@ -258,7 +261,7 @@ class Simulation:
             xtd_total_seats = add_totals(election.run())
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-            xtd_seat_shares = [[float(v)/c[-1] for v in c] for c in xtd_total_seats]
+            xtd_seat_shares = find_shares(xtd_total_seats)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
