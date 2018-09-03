@@ -549,9 +549,9 @@ def simulation_to_xlsx(simulation, filename):
 
     for r in range(len(simulation.e_rules)):
         method_name = simulation.e_rules[r]["adjustment_method"]
-        worksheet = workbook.add_worksheet(method_name)
+        worksheet   = workbook.add_worksheet(method_name)
         const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
-        parties = simulation.e_rules[r]["parties"] + ["Total"]
+        parties     = simulation.e_rules[r]["parties"] + ["Total"]
         grid = [
             "Votes",
             "Vote shares",
