@@ -403,7 +403,6 @@ def print_simulation(simulation):
         print("==========================================")
         print("Adjustment method:", rules["adjustment_method"])
         print("==========================================\n")
-        votes = simulation.base_votes
         h = ["Constituency"]
         h.extend(rules["parties"]+["Total"])
         if "constituencies" in rules:
@@ -415,7 +414,7 @@ def print_simulation(simulation):
         print("Reference")
 
         print("\nVotes")
-        xtd_votes = add_totals(votes)
+        xtd_votes = add_totals(simulation.base_votes)
         print_table(xtd_votes, h, const_names, out)
 
         print("\nVote shares")
