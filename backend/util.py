@@ -252,12 +252,12 @@ def election_to_xlsx(election, filename):
     const_names.append("Total")
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
-    shares = [["{:.1%}".format(s) if s != 0 else None for s in c[:-1]]
+    xtd_shares = [["{:.1%}".format(s) if s != 0 else None for s in c]
                 for c in find_shares(xtd_votes)]
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-    seat_shares = [["{:.1%}".format(s) for s in c[:-1]]
+    xtd_seat_shares = [["{:.1%}".format(s) for s in c]
                     for c in find_shares(xtd_total_seats)]
 
     workbook = xlsxwriter.Workbook(filename)
@@ -287,9 +287,9 @@ def election_to_xlsx(election, filename):
     worksheet.write(row, 1, 'Constituency', cell_format)
     worksheet.write_row(row, 2, parties[:-1], cell_format)
     worksheet.write_column(row+1, 1, const_names, cell_format)
-    for c in range(len(shares)):
+    for c in range(len(xtd_shares)):
         row += 1
-        worksheet.write_row(row, 2, shares[c], cell_format)
+        worksheet.write_row(row, 2, xtd_shares[c], cell_format)
     row += 2
     worksheet.merge_range(row, 2, row, 1+len(parties), "Constituency seats",
                                 h_format)
@@ -381,11 +381,11 @@ def election_to_xlsx(election, filename):
     worksheet.write(row, 1, 'Constituency', cell_format)
     worksheet.write_row(row, 2, parties[:-1], cell_format)
     worksheet.write_column(row+1, 1, const_names, cell_format)
-    for c in range(len(seat_shares)):
+    for c in range(len(xtd_seat_shares)):
         row += 1
-        for p in range(len(seat_shares[c])):
+        for p in range(len(xtd_seat_shares[c])):
             if xtd_total_seats[c][p] != 0:
-                worksheet.write(row, p+2, seat_shares[c][p], cell_format)
+                worksheet.write(row, p+2, xtd_seat_shares[c][p], cell_format)
     row += 2
     worksheet.write(row, 1, 'Entropy:', h_format)
     worksheet.write(row, 2, election.entropy(), cell_format)
