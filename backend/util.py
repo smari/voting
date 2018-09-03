@@ -538,6 +538,22 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write_column(row+2, col, yheaders, cell_format)
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
+    categories = [
+        {"abbr": "base", "cell_format": int_format,
+         "heading": "Reference data"                     },
+        {"abbr": "avg",  "cell_format": sim_format,
+         "heading": "Averages from simulation"           },
+        {"abbr": "std",  "cell_format": sim_format,
+         "heading": "Standard deviations from simulation"},
+    ]
+    tables = [
+        {"abbr": "v",  "heading": "Votes"             },
+        {"abbr": "vs", "heading": "Vote shares"       },
+        {"abbr": "cs", "heading": "Constituency seats"},
+        {"abbr": "as", "heading": "Adjustment seats"  },
+        {"abbr": "ts", "heading": "Total seats"       },
+        {"abbr": "ss", "heading": "Seat shares"       },
+    ]
     grid = [
         "Votes",
         "Vote shares",
@@ -552,6 +568,44 @@ def simulation_to_xlsx(simulation, filename):
         worksheet   = workbook.add_worksheet(method_name)
         const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
         parties     = simulation.e_rules[r]["parties"] + ["Total"]
+
+        data_matrix = {
+            "base": {
+                "v" : simulation.xtd_votes,
+                "vs": simulation.xtd_vote_shares,
+                "cs": simulation.base_allocations[r]["xtd_const_seats"],
+                "as": simulation.base_allocations[r]["xtd_adj_seats"],
+                "ts": simulation.base_allocations[r]["xtd_total_seats"],
+                "ss": simulation.base_allocations[r]["xtd_seat_shares"],
+            },
+            "avg": {
+                "v" : simulation.list_data[-1]["sim_votes"]["avg"],
+                "vs": simulation.list_data[-1]["sim_shares"]["avg"],
+                "cs": simulation.list_data[r]["const_seats"]["avg"],
+                "as": simulation.list_data[r]["adj_seats"]["avg"],
+                "ts": simulation.list_data[r]["total_seats"]["avg"],
+                "ss": simulation.list_data[r]["seat_shares"]["avg"],
+            },
+            "std": {
+                "v" : simulation.list_data[-1]["sim_votes"]["std"],
+                "vs": simulation.list_data[-1]["sim_shares"]["std"],
+                "cs": simulation.list_data[r]["const_seats"]["std"],
+                "as": simulation.list_data[r]["adj_seats"]["std"],
+                "ts": simulation.list_data[r]["total_seats"]["std"],
+                "ss": simulation.list_data[r]["seat_shares"]["std"],
+            },
+        }
+        toprow = 3
+        for category in categories:
+            worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
+                category["heading"], r_format)
+            col = 2
+            for table in tables:
+                draw_block(worksheet, toprow, col, table["heading"],
+                    data_matrix[category["abbr"]][table["abbr"]],
+                    category["cell_format"])
+                col += len(parties)+2
+            toprow += len(const_names)+3
 
         # Reference data:
         toprow = 3
