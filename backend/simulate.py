@@ -3,7 +3,7 @@ from rules import Rules
 from math import sqrt, exp
 from random import betavariate, uniform
 from copy import copy, deepcopy
-from util import add_totals
+from util import add_totals, matrix_subtraction
 
 import voting
 import io
@@ -257,12 +257,7 @@ class Simulation:
             election = voting.Election(self.e_rules[r], self.base_votes)
             xtd_total_seats = add_totals(election.run())
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
-            xtd_adj_seats = [[
-                    xtd_total_seats[c][p]-xtd_const_seats[c][p]
-                    for p in range(self.num_parties+1)
-                ]
-                for c in range(self.num_constituencies+1)
-            ]
+            xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = [[float(v)/c[-1] for v in c] for c in xtd_total_seats]
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,

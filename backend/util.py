@@ -122,6 +122,21 @@ def add_totals(m):
     nm.append(totals)
     return nm
 
+def matrix_subtraction(A, B):
+    m = len(A)
+    assert(len(B) == m)
+    if m == 0:
+        return []
+    n = len(A[0])
+    assert(all([
+        len(A[i]) == n and len(B[i]) == n
+        for i in range(m)
+    ]))
+    return [
+        [A[i][j] - B[i][j] for j in range(n)]
+        for i in range(m)
+    ]
+
 def print_table(data, header, labels, output, format_string=None):
     """
     Print 'data' in a table with 'header' and rows labelled with 'labels'.
@@ -184,9 +199,7 @@ def print_steps_election(election):
 
     xtd_total_seats = add_totals(election.results)
     print("\nAdjustment seats")
-    xtd_adj_seats = [[xtd_total_seats[c][p]-xtd_const_seats[c][p]
-                    for p in range(len(xtd_total_seats[c]))]
-                    for c in range(len(xtd_total_seats))]
+    xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
     print_table(xtd_adj_seats, header, const_names, out)
 
     print("\nTotal seats")
@@ -243,9 +256,7 @@ def election_to_xlsx(election, filename):
                 for c in xtd_votes]
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
-    xtd_adj_seats = [[xtd_total_seats[c][p]-xtd_const_seats[c][p]
-                    for p in range(len(xtd_total_seats[c]))]
-                    for c in range(len(xtd_total_seats))]
+    xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
     seat_shares = [["{:.1%}".format(s/c[-1]) for s in c[:-1]]
                     for c in xtd_total_seats]
 
