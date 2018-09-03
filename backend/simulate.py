@@ -266,10 +266,6 @@ class Simulation:
             xtd_total_seats = add_totals(total_seats)
             seat_shares = [[float(v)/c[-1] for v in c] for c in xtd_total_seats]
             self.base_allocations.append({
-                "const_seats": const_seats,
-                "adj_seats": adj_seats,
-                "total_seats": total_seats,
-                "party_sums": election.v_total_seats,
                 "xtd_const_seats": add_totals(const_seats),
                 "xtd_adj_seats": add_totals(adj_seats),
                 "xtd_total_seats": xtd_total_seats,
