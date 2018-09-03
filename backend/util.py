@@ -590,8 +590,8 @@ def simulation_to_xlsx(simulation, filename):
             col += len(parties)+2
 
         # Standard deviations:
-        toprow += len(const_names)+4
-        worksheet.merge_range(toprow+1, 0, toprow+1+len(const_names), 0,
+        toprow += len(const_names)+3
+        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
                             "Standard deviations from simulation", r_format)
 
         mtrx = {
