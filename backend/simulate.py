@@ -188,7 +188,7 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.vote_shares = [[float(v)/c[-1] for v in c] for c in self.xtd_votes]
+        self.xtd_vote_shares = [[float(v)/c[-1] for v in c] for c in self.xtd_votes]
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
@@ -311,11 +311,11 @@ class Simulation:
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p, n)
                 var_beta_distr[c].append(self.var_param
-                                        *self.vote_shares[c][p]
-                                        *(self.vote_shares[c][p]-1))
+                                        *self.xtd_vote_shares[c][p]
+                                        *(self.xtd_vote_shares[c][p]-1))
         sim_shares = self.list_data[-1]["sim_shares"]
         self.data[-1]["sim_shares"] = {
-            "err_avg": error(sim_shares["avg"], self.vote_shares),
+            "err_avg": error(sim_shares["avg"], self.xtd_vote_shares),
             "err_var": error(sim_shares["var"], var_beta_distr)
         }
 
