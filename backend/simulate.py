@@ -3,7 +3,7 @@ from rules import Rules
 from math import sqrt, exp
 from random import betavariate, uniform
 from copy import copy, deepcopy
-from util import add_totals
+from util import add_totals, matrix_subtraction, find_shares
 
 import voting
 import io
@@ -188,7 +188,7 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.vote_shares = [[v/c[-1] for v in c] for c in self.xtd_votes]
+        self.xtd_vote_shares = find_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
         self.var_param = var_param
         self.iteration = 0
@@ -255,25 +255,15 @@ class Simulation:
         self.base_allocations = []
         for r in range(self.num_rulesets):
             election = voting.Election(self.e_rules[r], self.base_votes)
-            total_seats = election.run()
-            const_seats = election.m_const_seats_alloc
-            adj_seats = [[
-                    total_seats[c][p]-const_seats[c][p]
-                    for p in range(self.num_parties)
-                ]
-                for c in range(self.num_constituencies)
-            ]
-            xtd_total_seats = add_totals(total_seats)
-            seat_shares = [[v/c[-1] for v in c] for c in xtd_total_seats]
+            xtd_total_seats = add_totals(election.run())
+            xtd_const_seats = add_totals(election.m_const_seats_alloc)
+            xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
+            xtd_seat_shares = find_shares(xtd_total_seats)
             self.base_allocations.append({
-                "const_seats": const_seats,
-                "adj_seats": adj_seats,
-                "total_seats": total_seats,
-                "party_sums": election.v_total_seats,
-                "xtd_const_seats": add_totals(const_seats),
-                "xtd_adj_seats": add_totals(adj_seats),
+                "xtd_const_seats": xtd_const_seats,
+                "xtd_adj_seats": xtd_adj_seats,
                 "xtd_total_seats": xtd_total_seats,
-                "seat_shares": seat_shares
+                "xtd_seat_shares": xtd_seat_shares
             })
 
     def gen_votes(self):
@@ -311,11 +301,11 @@ class Simulation:
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p, n)
                 var_beta_distr[c].append(self.var_param
-                                        *self.vote_shares[c][p]
-                                        *(self.vote_shares[c][p]-1))
+                                        *self.xtd_vote_shares[c][p]
+                                        *(self.xtd_vote_shares[c][p]-1))
         sim_shares = self.list_data[-1]["sim_shares"]
         self.data[-1]["sim_shares"] = {
-            "err_avg": error(sim_shares["avg"], self.vote_shares),
+            "err_avg": error(sim_shares["avg"], self.xtd_vote_shares),
             "err_var": error(sim_shares["var"], var_beta_distr)
         }
 
@@ -480,37 +470,17 @@ class Simulation:
             "measures": MEASURES,
             "list_measures": LIST_MEASURES,
             "vote_measures": VOTE_MEASURES,
+            "aggregates": AGGREGATES,
             "data": [
                 {
                     "name": self.e_rules[ruleset]["name"],
                     "measures": self.data[ruleset],
-                    "list_measures": self.bare_list_data(ruleset)
+                    "list_measures": self.list_data[ruleset]
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": self.bare_vote_data()
+            "vote_data": self.list_data[-1]
         }
-
-    def bare_list_data(self, ruleset):
-        return {
-            measure: {
-                aggr: bare(self.list_data[ruleset][measure][aggr])
-                for aggr in AGGREGATES.keys()
-            }
-            for measure in LIST_MEASURES.keys()
-        }
-
-    def bare_vote_data(self):
-        return {
-            measure: {
-                aggr: bare(self.list_data[-1][measure][aggr])
-                for aggr in AGGREGATES.keys()
-            }
-            for measure in VOTE_MEASURES.keys()
-        }
-
-def bare(xtd_table):
-    return [row[:-1] for row in xtd_table[:-1]]
 
 def generate_comparison_rules(ruleset, option="all"):
     if option == "opt":
