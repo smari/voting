@@ -84,7 +84,7 @@ VOTE_MEASURES = {
 }
 
 AGGREGATES = {
-    "cnt": "number of elements"
+    "cnt": "number of elements",
     "sum": "sum of elements",
     "sqs": "sum of squares",
     "avg": "average",
