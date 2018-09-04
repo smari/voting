@@ -93,7 +93,7 @@ def load_votes(votefile, consts):
         reader = read_csv(votefile)
     else:
         reader = read_xlsx(votefile)
-    parties = next(reader)[1:]
+    parties = next(reader)[3:]
     votes = [[] for i in range(len(consts))]
     c_names = [x["name"] for x in consts]
 
@@ -104,7 +104,7 @@ def load_votes(votefile, consts):
             print(row)
             raise Exception("Constituency '%s' not found in constituency file"
                             % row[0])
-        for x in row[1:]:
+        for x in row[3:]:
             try:
                 r = float(x)
             except:
