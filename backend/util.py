@@ -527,8 +527,8 @@ def simulation_to_xlsx(simulation, filename):
         yheaders = const_names
         if heading.endswith("shares"):
             cformat = share_format
-        worksheet.merge_range(row, col, row, col+len(xheaders), heading,
-                                h_format)
+        worksheet.merge_range(
+            row, col, row, col+len(xheaders), heading, h_format)
         worksheet.write_row(row+1, col+1, xheaders, cell_format)
         worksheet.write_column(row+2, col, yheaders, cell_format)
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
@@ -554,7 +554,7 @@ def simulation_to_xlsx(simulation, filename):
         method_name = simulation.e_rules[r]["adjustment_method"]
         worksheet   = workbook.add_worksheet(method_name)
         const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
-        parties     = simulation.e_rules[r]["parties"] + ["Total"]
+        parties     = simulation.e_rules[r]["parties"           ] + ["Total"]
 
         data_matrix = {
             "base": {
@@ -566,20 +566,20 @@ def simulation_to_xlsx(simulation, filename):
                 "ss": simulation.base_allocations[r]["xtd_seat_shares"],
             },
             "avg": {
-                "v" : simulation.list_data[-1]["sim_votes"]["avg"],
-                "vs": simulation.list_data[-1]["sim_shares"]["avg"],
-                "cs": simulation.list_data[r]["const_seats"]["avg"],
-                "as": simulation.list_data[r]["adj_seats"]["avg"],
-                "ts": simulation.list_data[r]["total_seats"]["avg"],
-                "ss": simulation.list_data[r]["seat_shares"]["avg"],
+                "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["avg"],
+                "cs": simulation.list_data[ r]["const_seats"]["avg"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["avg"],
+                "ts": simulation.list_data[ r]["total_seats"]["avg"],
+                "ss": simulation.list_data[ r]["seat_shares"]["avg"],
             },
             "std": {
-                "v" : simulation.list_data[-1]["sim_votes"]["std"],
-                "vs": simulation.list_data[-1]["sim_shares"]["std"],
-                "cs": simulation.list_data[r]["const_seats"]["std"],
-                "as": simulation.list_data[r]["adj_seats"]["std"],
-                "ts": simulation.list_data[r]["total_seats"]["std"],
-                "ss": simulation.list_data[r]["seat_shares"]["std"],
+                "v" : simulation.list_data[-1]["sim_votes"  ]["std"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["std"],
+                "cs": simulation.list_data[ r]["const_seats"]["std"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["std"],
+                "ts": simulation.list_data[ r]["total_seats"]["std"],
+                "ss": simulation.list_data[ r]["seat_shares"]["std"],
             },
         }
         toprow = 3
@@ -597,15 +597,15 @@ def simulation_to_xlsx(simulation, filename):
     workbook.close()
 
 ADJUSTMENT_METHODS = {
-    "alternating-scaling": alternating_scaling,
+    "alternating-scaling" : alternating_scaling,
     "relative-superiority": relative_superiority,
-    "nearest-neighbor": nearest_neighbor,
-    "monge": monge,
-    "icelandic-law": icelandic_law,
-    "norwegian-law": norwegian_law,
-    "norwegian-icelandic": norwegian_icelandic,
-    "opt-entropy": opt_entropy,
-    "switching": switching,
-    "var-alt-scal": var_alt_scal,
-    "pure-vote-ratios": pure_vote_ratios,
+    "nearest-neighbor"    : nearest_neighbor,
+    "monge"               : monge,
+    "icelandic-law"       : icelandic_law,
+    "norwegian-law"       : norwegian_law,
+    "norwegian-icelandic" : norwegian_icelandic,
+    "opt-entropy"         : opt_entropy,
+    "switching"           : switching,
+    "var-alt-scal"        : var_alt_scal,
+    "pure-vote-ratios"    : pure_vote_ratios,
 }
