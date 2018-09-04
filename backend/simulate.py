@@ -279,20 +279,12 @@ class Simulation:
         gen = GENERATING_METHODS[self.variate]
         while True:
             votes, shares = gen(self.base_votes, self.var_param)
-
-            for c in range(self.num_constituencies):
-                for p in range(self.num_parties):
-                    self.aggregate_list(-1, "sim_votes", c, p, votes[c][p])
-                    self.aggregate_list(-1, "sim_shares", c, p, shares[c][p])
-                self.aggregate_list(-1, "sim_votes", c, -1, sum(votes[c]))
-                self.aggregate_list(-1, "sim_shares", c, -1, sum(shares[c]))
-            total_votes = [sum(x) for x in zip(*votes)]
-            total_votes.append(sum(total_votes))
-            total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0
-                                for t in total_votes]
-            for p in range(1+self.num_parties):
-                self.aggregate_list(-1, "sim_votes", -1, p, total_votes[p])
-                self.aggregate_list(-1, "sim_shares", -1, p, total_shares[p])
+            xtd_votes  = add_totals(votes)
+            xtd_shares = add_totals(shares)
+            for c in range(self.num_constituencies+1):
+                for p in range(self.num_parties+1):
+                    self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
+                    self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
 
             yield votes, shares
 
