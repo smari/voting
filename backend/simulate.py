@@ -286,7 +286,7 @@ class Simulation:
                     self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
                     self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
 
-            yield votes, shares
+            yield votes
 
     def test_generated(self):
         """Analysis of generated votes."""
@@ -445,7 +445,7 @@ class Simulation:
             if self.terminate:
                 break
             self.iteration = i + 1
-            votes, _ = next(gen)
+            votes = next(gen)
             for ruleset in range(self.num_rulesets):
                 election = voting.Election(self.e_rules[ruleset], votes)
                 results = election.run()
