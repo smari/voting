@@ -525,8 +525,6 @@ def simulation_to_xlsx(simulation, filename):
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat)
 
-        return c, p
-
     def draw_block(worksheet, row, col, heading, matrix, cformat=cell_format):
         xheaders = parties
         yheaders = const_names
