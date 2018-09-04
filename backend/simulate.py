@@ -1,14 +1,13 @@
 # from voting import Election, SIMULATION_VARIATES
 from rules import Rules
 from math import sqrt, exp
-from random import betavariate, uniform
+from random import betavariate
 from copy import copy, deepcopy
 from util import add_totals, matrix_subtraction, find_shares
 
 import voting
 import io
 import json
-from numpy import zeros_like
 from datetime import datetime, timedelta
 
 
@@ -23,7 +22,6 @@ def beta_distribution(m_ref_votes, var_param):
     using 'm_ref_votes' as reference.
     """
     m_votes = []
-    m_shares = []
     ref_totals = [sum(c) for c in m_ref_votes]
 
     for c in range(len(m_ref_votes)):
@@ -38,10 +36,8 @@ def beta_distribution(m_ref_votes, var_param):
             else:
                 share = 0
             m_votes[c].append(int(share*ref_totals[c]))
-        shares = [v/float(sum(m_votes[c])) for v in m_votes[c]]
-        m_shares.append(shares)
 
-    return m_votes, m_shares
+    return m_votes
 
 GENERATING_METHODS = {
     "beta": beta_distribution
@@ -84,7 +80,8 @@ VOTE_MEASURES = {
 }
 
 AGGREGATES = {
-    "sum": "sum of elements in a sequence",
+    "cnt": "number of elements",
+    "sum": "sum of elements",
     "sqs": "sum of squares",
     "avg": "average",
     "var": "variance",
@@ -224,28 +221,32 @@ class Simulation:
         self.run_initial_elections()
 
     def aggregate_list(self, ruleset, measure, const, party, value):
+        self.list_data[ruleset][measure]["cnt"][const][party] += 1
         self.list_data[ruleset][measure]["sum"][const][party] += value
         self.list_data[ruleset][measure]["sqs"][const][party] += value**2
 
-    def analyze_list(self, ruleset, measure, const, party, count):
+    def analyze_list(self, ruleset, measure, const, party):
+        n = float(self.list_data[ruleset][measure]["cnt"][const][party])
         s = float(self.list_data[ruleset][measure]["sum"][const][party])
         t = float(self.list_data[ruleset][measure]["sqs"][const][party])
-        avg = s/count
-        var = (t - s*avg) / (count-1)
+        avg = s/n                 if n>0 else 0
+        var = (t - s*avg) / (n-1) if n>1 else 0
         std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
 
     def aggregate_measure(self, ruleset, measure, value):
+        self.data[ruleset][measure]["cnt"] += 1
         self.data[ruleset][measure]["sum"] += value
         self.data[ruleset][measure]["sqs"] += value**2
 
-    def analyze_measure(self, ruleset, measure, count):
+    def analyze_measure(self, ruleset, measure):
+        n = float(self.data[ruleset][measure]["cnt"])
         s = float(self.data[ruleset][measure]["sum"])
         t = float(self.data[ruleset][measure]["sqs"])
-        avg = s/count
-        var = (t - s*avg) / (count-1)
+        avg = s/n                 if n>0 else 0
+        var = (t - s*avg) / (n-1) if n>1 else 0
         std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
@@ -273,33 +274,24 @@ class Simulation:
         """
         gen = GENERATING_METHODS[self.variate]
         while True:
-            votes, shares = gen(self.base_votes, self.var_param)
+            votes = gen(self.base_votes, self.var_param)
+            xtd_votes  = add_totals(votes)
+            xtd_shares = find_shares(xtd_votes)
+            for c in range(self.num_constituencies+1):
+                for p in range(self.num_parties+1):
+                    self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
+                    self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
 
-            for c in range(self.num_constituencies):
-                for p in range(self.num_parties):
-                    self.aggregate_list(-1, "sim_votes", c, p, votes[c][p])
-                    self.aggregate_list(-1, "sim_shares", c, p, shares[c][p])
-                self.aggregate_list(-1, "sim_votes", c, -1, sum(votes[c]))
-                self.aggregate_list(-1, "sim_shares", c, -1, sum(shares[c]))
-            total_votes = [sum(x) for x in zip(*votes)]
-            total_votes.append(sum(total_votes))
-            total_shares = [t/total_votes[-1] if total_votes[-1] > 0 else 0
-                                for t in total_votes]
-            for p in range(1+self.num_parties):
-                self.aggregate_list(-1, "sim_votes", -1, p, total_votes[p])
-                self.aggregate_list(-1, "sim_shares", -1, p, total_shares[p])
-
-            yield votes, shares
+            yield votes
 
     def test_generated(self):
         """Analysis of generated votes."""
-        n = self.num_total_simulations
         var_beta_distr = []
         for c in range(1+self.num_constituencies):
             var_beta_distr.append([])
             for p in range(1+self.num_parties):
                 for measure in VOTE_MEASURES.keys():
-                    self.analyze_list(-1, measure, c, p, n)
+                    self.analyze_list(-1, measure, c, p)
                 var_beta_distr[c].append(self.var_param
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
@@ -369,7 +361,7 @@ class Simulation:
 
         bi_seat_shares = deepcopy(votes)
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
-        rein = 0 # uniform(0.0, 1.0)
+        rein = 0
         error = 1
         while round(error, 5) != 0.0:
             error = 0
@@ -433,24 +425,23 @@ class Simulation:
 
     def analysis(self):
         """Calculate averages and variances of various quality measures."""
-        n = self.iteration
         for ruleset in range(self.num_rulesets):
             for measure in MEASURES.keys():
-                self.analyze_measure(ruleset, measure, n)
+                self.analyze_measure(ruleset, measure)
             for c in range(1+self.num_constituencies):
                 for p in range(1+self.num_parties):
                     for measure in LIST_MEASURES.keys():
-                        self.analyze_list(ruleset, measure, c, p, n)
+                        self.analyze_list(ruleset, measure, c, p)
 
     def simulate(self):
         """Simulate many elections."""
         gen = self.gen_votes()
         for i in range(self.num_total_simulations):
             round_start = datetime.now()
-            self.iteration = i + 1
             if self.terminate:
                 break
-            votes, shares = next(gen)
+            self.iteration = i + 1
+            votes = next(gen)
             for ruleset in range(self.num_rulesets):
                 election = voting.Election(self.e_rules[ruleset], votes)
                 results = election.run()

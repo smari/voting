@@ -93,7 +93,7 @@ def load_votes(votefile, consts):
         reader = read_csv(votefile)
     else:
         reader = read_xlsx(votefile)
-    parties = next(reader)[1:]
+    parties = next(reader)[3:]
     votes = [[] for i in range(len(consts))]
     c_names = [x["name"] for x in consts]
 
@@ -104,7 +104,7 @@ def load_votes(votefile, consts):
             print(row)
             raise Exception("Constituency '%s' not found in constituency file"
                             % row[0])
-        for x in row[1:]:
+        for x in row[3:]:
             try:
                 r = float(x)
             except:
@@ -505,16 +505,13 @@ def simulation_to_xlsx(simulation, filename):
     cell_format = workbook.add_format()
     cell_format.set_align('right')
 
-    int_format = workbook.add_format()
-    int_format.set_align('right')
-    int_format.set_num_format('#,##0')
+    base_format = workbook.add_format()
+    base_format.set_num_format('#,##0')
 
     sim_format = workbook.add_format()
-    sim_format.set_align('right')
     sim_format.set_num_format('#,##0.000')
 
     share_format = workbook.add_format()
-    share_format.set_align('right')
     share_format.set_num_format('0.0%')
 
 
@@ -525,100 +522,90 @@ def simulation_to_xlsx(simulation, filename):
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat)
 
-        return c, p
-
     def draw_block(worksheet, row, col, heading, matrix, cformat=cell_format):
         xheaders = parties
         yheaders = const_names
         if heading.endswith("shares"):
             cformat = share_format
-        worksheet.merge_range(row, col, row, col+len(xheaders), heading,
-                                h_format)
+        worksheet.merge_range(
+            row, col, row, col+len(xheaders), heading, h_format)
         worksheet.write_row(row+1, col+1, xheaders, cell_format)
         worksheet.write_column(row+2, col, yheaders, cell_format)
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
-    grid = [
-        "Votes",
-        "Vote shares",
-        "Constituency seats",
-        "Adjustment seats",
-        "Total seats",
-        "Seat shares",
+    categories = [
+        {"abbr": "base", "cell_format": base_format,
+         "heading": "Reference data"                     },
+        {"abbr": "avg",  "cell_format": sim_format,
+         "heading": "Averages from simulation"           },
+        {"abbr": "std",  "cell_format": sim_format,
+         "heading": "Standard deviations from simulation"},
+    ]
+    tables = [
+        {"abbr": "v",  "heading": "Votes"             },
+        {"abbr": "vs", "heading": "Vote shares"       },
+        {"abbr": "cs", "heading": "Constituency seats"},
+        {"abbr": "as", "heading": "Adjustment seats"  },
+        {"abbr": "ts", "heading": "Total seats"       },
+        {"abbr": "ss", "heading": "Seat shares"       },
     ]
 
     for r in range(len(simulation.e_rules)):
         method_name = simulation.e_rules[r]["adjustment_method"]
         worksheet   = workbook.add_worksheet(method_name)
         const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
-        parties     = simulation.e_rules[r]["parties"] + ["Total"]
+        parties     = simulation.e_rules[r]["parties"           ] + ["Total"]
 
-        # Reference data:
+        data_matrix = {
+            "base": {
+                "v" : simulation.xtd_votes,
+                "vs": simulation.xtd_vote_shares,
+                "cs": simulation.base_allocations[r]["xtd_const_seats"],
+                "as": simulation.base_allocations[r]["xtd_adj_seats"],
+                "ts": simulation.base_allocations[r]["xtd_total_seats"],
+                "ss": simulation.base_allocations[r]["xtd_seat_shares"],
+            },
+            "avg": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["avg"],
+                "cs": simulation.list_data[ r]["const_seats"]["avg"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["avg"],
+                "ts": simulation.list_data[ r]["total_seats"]["avg"],
+                "ss": simulation.list_data[ r]["seat_shares"]["avg"],
+            },
+            "std": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["std"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["std"],
+                "cs": simulation.list_data[ r]["const_seats"]["std"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["std"],
+                "ts": simulation.list_data[ r]["total_seats"]["std"],
+                "ss": simulation.list_data[ r]["seat_shares"]["std"],
+            },
+        }
         toprow = 3
-        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
-                                "Reference data", r_format)
-
-        mtrx = {
-            "Votes":              simulation.xtd_votes,
-            "Vote shares":        simulation.xtd_vote_shares,
-            "Constituency seats": simulation.base_allocations[r]["xtd_const_seats"],
-            "Adjustment seats":   simulation.base_allocations[r]["xtd_adj_seats"],
-            "Total seats":        simulation.base_allocations[r]["xtd_total_seats"],
-            "Seat shares":        simulation.base_allocations[r]["xtd_seat_shares"],
-        }
-        col = 2
-        for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], int_format)
-            col += len(parties)+2
-
-        # Now doing simulation results:
-        toprow += len(const_names)+3
-        worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
-                                "Averages from simulation", r_format)
-
-        mtrx = {
-            "Votes":              simulation.list_data[-1]["sim_votes"]["avg"],
-            "Vote shares":        simulation.list_data[-1]["sim_shares"]["avg"],
-            "Constituency seats": simulation.list_data[r]["const_seats"]["avg"],
-            "Adjustment seats":   simulation.list_data[r]["adj_seats"]["avg"],
-            "Total seats":        simulation.list_data[r]["total_seats"]["avg"],
-            "Seat shares":        simulation.list_data[r]["seat_shares"]["avg"],
-        }
-        col = 2
-        for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], sim_format)
-            col += len(parties)+2
-
-        # Standard deviations:
-        toprow += len(const_names)+4
-        worksheet.merge_range(toprow+1, 0, toprow+1+len(const_names), 0,
-                            "Standard deviations from simulation", r_format)
-
-        mtrx = {
-            "Votes":              simulation.list_data[-1]["sim_votes"]["std"],
-            "Vote shares":        simulation.list_data[-1]["sim_shares"]["std"],
-            "Constituency seats": simulation.list_data[r]["const_seats"]["std"],
-            "Adjustment seats":   simulation.list_data[r]["adj_seats"]["std"],
-            "Total seats":        simulation.list_data[r]["total_seats"]["std"],
-            "Seat shares":        simulation.list_data[r]["seat_shares"]["std"],
-        }
-        col = 2
-        for i in range(len(grid)):
-            draw_block(worksheet, toprow, col, grid[i], mtrx[grid[i]], sim_format)
-            col += len(parties)+2
+        for category in categories:
+            worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
+                category["heading"], r_format)
+            col = 2
+            for table in tables:
+                draw_block(worksheet, toprow, col, table["heading"],
+                    data_matrix[category["abbr"]][table["abbr"]],
+                    category["cell_format"])
+                col += len(parties)+2
+            toprow += len(const_names)+3
 
     workbook.close()
 
 ADJUSTMENT_METHODS = {
-    "alternating-scaling": alternating_scaling,
+    "alternating-scaling" : alternating_scaling,
     "relative-superiority": relative_superiority,
-    "nearest-neighbor": nearest_neighbor,
-    "monge": monge,
-    "icelandic-law": icelandic_law,
-    "norwegian-law": norwegian_law,
-    "norwegian-icelandic": norwegian_icelandic,
-    "opt-entropy": opt_entropy,
-    "switching": switching,
-    "var-alt-scal": var_alt_scal,
-    "pure-vote-ratios": pure_vote_ratios,
+    "nearest-neighbor"    : nearest_neighbor,
+    "monge"               : monge,
+    "icelandic-law"       : icelandic_law,
+    "norwegian-law"       : norwegian_law,
+    "norwegian-icelandic" : norwegian_icelandic,
+    "opt-entropy"         : opt_entropy,
+    "switching"           : switching,
+    "var-alt-scal"        : var_alt_scal,
+    "pure-vote-ratios"    : pure_vote_ratios,
 }
