@@ -1,7 +1,7 @@
 # from voting import Election, SIMULATION_VARIATES
 from rules import Rules
 from math import sqrt, exp
-from random import betavariate, uniform
+from random import betavariate
 from copy import copy, deepcopy
 from util import add_totals, matrix_subtraction, find_shares
 
@@ -362,7 +362,7 @@ class Simulation:
 
         bi_seat_shares = deepcopy(votes)
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
-        rein = 0 # uniform(0.0, 1.0)
+        rein = 0
         error = 1
         while round(error, 5) != 0.0:
             error = 0
