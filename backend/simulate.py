@@ -23,7 +23,6 @@ def beta_distribution(m_ref_votes, var_param):
     using 'm_ref_votes' as reference.
     """
     m_votes = []
-    m_shares = []
     ref_totals = [sum(c) for c in m_ref_votes]
 
     for c in range(len(m_ref_votes)):
@@ -38,10 +37,8 @@ def beta_distribution(m_ref_votes, var_param):
             else:
                 share = 0
             m_votes[c].append(int(share*ref_totals[c]))
-        shares = [v/float(sum(m_votes[c])) for v in m_votes[c]]
-        m_shares.append(shares)
 
-    return m_votes, m_shares
+    return m_votes
 
 GENERATING_METHODS = {
     "beta": beta_distribution
@@ -278,9 +275,9 @@ class Simulation:
         """
         gen = GENERATING_METHODS[self.variate]
         while True:
-            votes, shares = gen(self.base_votes, self.var_param)
+            votes = gen(self.base_votes, self.var_param)
             xtd_votes  = add_totals(votes)
-            xtd_shares = add_totals(shares)
+            xtd_shares = find_shares(xtd_votes)
             for c in range(self.num_constituencies+1):
                 for p in range(self.num_parties+1):
                     self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
