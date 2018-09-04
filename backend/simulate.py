@@ -450,9 +450,9 @@ class Simulation:
         gen = self.gen_votes()
         for i in range(self.num_total_simulations):
             round_start = datetime.now()
-            self.iteration = i + 1
             if self.terminate:
                 break
+            self.iteration = i + 1
             votes, shares = next(gen)
             for ruleset in range(self.num_rulesets):
                 election = voting.Election(self.e_rules[ruleset], votes)
