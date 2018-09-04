@@ -84,7 +84,8 @@ VOTE_MEASURES = {
 }
 
 AGGREGATES = {
-    "sum": "sum of elements in a sequence",
+    "cnt": "number of elements"
+    "sum": "sum of elements",
     "sqs": "sum of squares",
     "avg": "average",
     "var": "variance",
@@ -224,28 +225,32 @@ class Simulation:
         self.run_initial_elections()
 
     def aggregate_list(self, ruleset, measure, const, party, value):
+        self.list_data[ruleset][measure]["cnt"][const][party] += 1
         self.list_data[ruleset][measure]["sum"][const][party] += value
         self.list_data[ruleset][measure]["sqs"][const][party] += value**2
 
-    def analyze_list(self, ruleset, measure, const, party, count):
+    def analyze_list(self, ruleset, measure, const, party):
+        n = float(self.list_data[ruleset][measure]["cnt"][const][party])
         s = float(self.list_data[ruleset][measure]["sum"][const][party])
         t = float(self.list_data[ruleset][measure]["sqs"][const][party])
-        avg = s/count
-        var = (t - s*avg) / (count-1)
+        avg = s/n
+        var = (t - s*avg) / (n-1)
         std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
 
     def aggregate_measure(self, ruleset, measure, value):
+        self.data[ruleset][measure]["cnt"] += 1
         self.data[ruleset][measure]["sum"] += value
         self.data[ruleset][measure]["sqs"] += value**2
 
-    def analyze_measure(self, ruleset, measure, count):
+    def analyze_measure(self, ruleset, measure):
+        n = float(self.data[ruleset][measure]["cnt"])
         s = float(self.data[ruleset][measure]["sum"])
         t = float(self.data[ruleset][measure]["sqs"])
-        avg = s/count
-        var = (t - s*avg) / (count-1)
+        avg = s/n
+        var = (t - s*avg) / (n-1)
         std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
@@ -293,13 +298,12 @@ class Simulation:
 
     def test_generated(self):
         """Analysis of generated votes."""
-        n = self.iteration
         var_beta_distr = []
         for c in range(1+self.num_constituencies):
             var_beta_distr.append([])
             for p in range(1+self.num_parties):
                 for measure in VOTE_MEASURES.keys():
-                    self.analyze_list(-1, measure, c, p, n)
+                    self.analyze_list(-1, measure, c, p)
                 var_beta_distr[c].append(self.var_param
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
@@ -433,14 +437,13 @@ class Simulation:
 
     def analysis(self):
         """Calculate averages and variances of various quality measures."""
-        n = self.iteration
         for ruleset in range(self.num_rulesets):
             for measure in MEASURES.keys():
-                self.analyze_measure(ruleset, measure, n)
+                self.analyze_measure(ruleset, measure)
             for c in range(1+self.num_constituencies):
                 for p in range(1+self.num_parties):
                     for measure in LIST_MEASURES.keys():
-                        self.analyze_list(ruleset, measure, c, p, n)
+                        self.analyze_list(ruleset, measure, c, p)
 
     def simulate(self):
         """Simulate many elections."""
