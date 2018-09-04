@@ -506,15 +506,12 @@ def simulation_to_xlsx(simulation, filename):
     cell_format.set_align('right')
 
     int_format = workbook.add_format()
-    int_format.set_align('right')
     int_format.set_num_format('#,##0')
 
     sim_format = workbook.add_format()
-    sim_format.set_align('right')
     sim_format.set_num_format('#,##0.000')
 
     share_format = workbook.add_format()
-    share_format.set_align('right')
     share_format.set_num_format('0.0%')
 
 
