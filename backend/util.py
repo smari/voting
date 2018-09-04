@@ -505,8 +505,8 @@ def simulation_to_xlsx(simulation, filename):
     cell_format = workbook.add_format()
     cell_format.set_align('right')
 
-    int_format = workbook.add_format()
-    int_format.set_num_format('#,##0')
+    base_format = workbook.add_format()
+    base_format.set_num_format('#,##0')
 
     sim_format = workbook.add_format()
     sim_format.set_num_format('#,##0.000')
@@ -534,7 +534,7 @@ def simulation_to_xlsx(simulation, filename):
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
     categories = [
-        {"abbr": "base", "cell_format": int_format,
+        {"abbr": "base", "cell_format": base_format,
          "heading": "Reference data"                     },
         {"abbr": "avg",  "cell_format": sim_format,
          "heading": "Averages from simulation"           },
