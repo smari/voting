@@ -445,7 +445,7 @@ class Simulation:
             if self.terminate:
                 break
             self.iteration = i + 1
-            votes, shares = next(gen)
+            votes, _ = next(gen)
             for ruleset in range(self.num_rulesets):
                 election = voting.Election(self.e_rules[ruleset], votes)
                 results = election.run()
