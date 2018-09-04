@@ -293,7 +293,7 @@ class Simulation:
 
     def test_generated(self):
         """Analysis of generated votes."""
-        n = self.num_total_simulations
+        n = self.iteration
         var_beta_distr = []
         for c in range(1+self.num_constituencies):
             var_beta_distr.append([])
