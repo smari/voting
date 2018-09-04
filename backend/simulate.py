@@ -8,7 +8,6 @@ from util import add_totals, matrix_subtraction, find_shares
 import voting
 import io
 import json
-from numpy import zeros_like
 from datetime import datetime, timedelta
 
 
