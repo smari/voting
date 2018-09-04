@@ -31,20 +31,20 @@ class SimulationTest(TestCase):
         r_avg = []
         r_var = []
         for k in range(s_rules["simulation_count"]):
-        	r.append([])
-        	_, shares = next(gen)
-        	for i in range(len(votes)):
-        		r[k].append([])
-        		for j in range(len(votes[i])):
-        			r[k][i].append(uniform(0.0,1.0))
+            r.append([])
+            _, shares = next(gen)
+            for i in range(len(votes)):
+                r[k].append([])
+                for j in range(len(votes[i])):
+                    r[k][i].append(uniform(0.0,1.0))
         for i in range(len(votes)):
-        	r_avg.append([])
-        	r_var.append([])
-        	for j in range(len(votes[i])):
-        		r_ij = [r[k][i][j] for k in range(s_rules["simulation_count"])]
-        		# average = simulate.avg(r_ij)
-        		# r_avg[i].append(average)
-        		# r_var[i].append(simulate.var(r_ij, average))
+            r_avg.append([])
+            r_var.append([])
+            for j in range(len(votes[i])):
+                r_ij = [r[k][i][j] for k in range(s_rules["simulation_count"])]
+                # average = simulate.avg(r_ij)
+                # r_avg[i].append(average)
+                # r_var[i].append(simulate.var(r_ij, average))
 
         sim.test_generated()
         # r_avg_error = simulate.error(r_avg, 0.5)
