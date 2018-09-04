@@ -32,7 +32,7 @@ class SimulationTest(TestCase):
         r_var = []
         for k in range(s_rules["simulation_count"]):
             r.append([])
-            _, shares = next(gen)
+            generated_votes = next(gen)
             for i in range(len(votes)):
                 r[k].append([])
                 for j in range(len(votes[i])):
