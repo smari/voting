@@ -233,8 +233,8 @@ class Simulation:
         n = float(self.list_data[ruleset][measure]["cnt"][const][party])
         s = float(self.list_data[ruleset][measure]["sum"][const][party])
         t = float(self.list_data[ruleset][measure]["sqs"][const][party])
-        avg = s/n
-        var = (t - s*avg) / (n-1)
+        avg = s/n                 if n>0 else 0
+        var = (t - s*avg) / (n-1) if n>1 else 0
         std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
@@ -249,8 +249,8 @@ class Simulation:
         n = float(self.data[ruleset][measure]["cnt"])
         s = float(self.data[ruleset][measure]["sum"])
         t = float(self.data[ruleset][measure]["sqs"])
-        avg = s/n
-        var = (t - s*avg) / (n-1)
+        avg = s/n                 if n>0 else 0
+        var = (t - s*avg) / (n-1) if n>1 else 0
         std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
