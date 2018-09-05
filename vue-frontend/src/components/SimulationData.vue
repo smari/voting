@@ -19,7 +19,7 @@
       <th class="small-12 medium-1 topleft"></th>
       <template v-for="(test, tidx) in data">
         <th class="small-12 medium-2 column methodname">Average</th>
-        <th class="small-12 medium-2 column methodname">Stddev</th>
+        <th class="small-12 medium-2 column methodname">Std. deviation</th>
       </template>
     </tr>
     <tr v-for="(measure, midx) in measures">
