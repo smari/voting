@@ -15,6 +15,11 @@ def monge(
     total_seats = sum(c_goals)
     assert(sum(p_goals) == total_seats)
     while sum([sum(x) for x in allocations]) < total_seats:
+        trivial_lists = find_trivial_seats(allocations, p_goals, c_goals)
+        for l in trivial_lists:
+            allocations[l["constituency"]][l["party"]] += l["seats"]
+        if sum([sum(x) for x in allocations]) >= total_seats:
+            break
         best = find_best_Monge_list(
             votes, allocations, c_goals, p_goals, divisor_gen
         )
@@ -86,7 +91,6 @@ def find_best_Monge_list(
     num_constituencies = len(votes)
     num_parties = len(votes[0])
     considerations = []
-    available_lists = []
     for C in range(num_constituencies):
         if constituency_full(C, c_goals, allocations):
             continue #No need to consider lists that can't be given more seats
@@ -100,10 +104,6 @@ def find_best_Monge_list(
             )
             if closest == None:
                 #do not append, ignore list if there is no valid comparison
-                available_lists.append({
-                    "constituency": C,
-                    "party": P
-                })
                 continue
             considerations.append({
                 "min_det": closest["det"],
@@ -116,16 +116,6 @@ def find_best_Monge_list(
         determinants = [conion["min_det"] for conion in considerations]
         best = considerations[determinants.index(max(determinants))]
         return best
-    elif len(available_lists) == 1:
-        only = available_lists[0]
-        chosen = {
-            "min_det": 0,
-            "constituency": only["constituency"],
-            "party": only["party"],
-            "reference_constituency": None,
-            "reference_party": None,
-        }
-        return chosen
     return None
 
 def constituency_full(C, c_goals, allocations):
