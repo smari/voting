@@ -28,6 +28,53 @@ def monge(
         allocations[best["constituency"]][best["party"]] += 1
     return allocations, None
 
+def find_trivial_seats(allocations, p_goals, c_goals):
+    num_constituencies = len(allocations)
+    num_parties = len(allocations[0])
+    available_constituencies = []
+    for C in range(num_constituencies):
+        if not constituency_full(C, c_goals, allocations):
+            available_constituencies.append(C)
+    if available_constituencies == []:
+        return []
+    hungry_parties = []
+    for P in range(num_parties):
+        if not party_satisfied(P, p_goals, allocations):
+            hungry_parties.append(P)
+    if hungry_parties == []:
+        return []
+    if len(available_constituencies) == 1:
+        trivial_seats = []
+        C = available_constituencies[0]
+        c_slack = c_unclaimed(C, c_goals, allocations)
+        p_slack = 0
+        for P in hungry_parties:
+            slack = p_unclaimed(P, p_goals, allocations)
+            p_slack += slack
+            trivial_seats.append({
+                "constituency": C,
+                "party": P,
+                "seats": slack,
+            })
+        assert(p_slack == c_slack)
+        return trivial_seats
+    if len(hungry_parties) == 1:
+        trivial_seats = []
+        P = hungry_parties[0]
+        p_slack = p_unclaimed(P, p_goals, allocations)
+        c_slack = 0
+        for C in available_constituencies:
+            slack = c_unclaimed(C, c_goals, allocations)
+            c_slack += slack
+            trivial_seats.append({
+                "constituency": C,
+                "party": P,
+                "seats": slack,
+            })
+        assert(p_slack == c_slack)
+        return trivial_seats
+    return [] # Multiple options, non-trivial.
+
 def find_best_Monge_list(
     votes,       #2d - votes for each list
     allocations, #2d - seats already allocated to lists
