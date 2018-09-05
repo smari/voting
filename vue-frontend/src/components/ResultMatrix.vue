@@ -34,7 +34,7 @@
         </template>
       </tr>
       <tr>
-        <th class="small-12 medium-1 topleft"></th>
+        <th class="small-12 medium-1 column bottomleft">Total</th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-1 column partyseats">
             {{ seats[parties.length][partyidx].toFixed(round) }}
