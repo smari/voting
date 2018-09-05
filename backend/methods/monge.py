@@ -30,7 +30,10 @@ def monge(
             # then we won't on further iterations either
             # throw some exception perhaps?
             # TODO: Find better way to indicate this
-            return allocations, "Adjustment seat allocation incomplete."
+            allocation_sequence.append({
+                "reason": "Unable to determine next seat. Could not finish."
+            })
+            break
         #allocate seat based on best Monge ratio
         allocations[best["constituency"]][best["party"]] += 1
         allocation_sequence.append(best)
@@ -63,6 +66,7 @@ def find_trivial_seats(allocations, p_goals, c_goals):
                 "constituency": C,
                 "party": P,
                 "seats": slack,
+                "reason": "Only one constituency available.",
             })
         assert(p_slack == c_slack)
         return trivial_seats
@@ -78,6 +82,7 @@ def find_trivial_seats(allocations, p_goals, c_goals):
                 "constituency": C,
                 "party": P,
                 "seats": slack,
+                "reason": "Only one party available.",
             })
         assert(p_slack == c_slack)
         return trivial_seats
@@ -124,6 +129,7 @@ def find_best_Monge_list(
     if considerations:
         determinants = [conion["min_det"] for conion in considerations]
         best = considerations[determinants.index(max(determinants))]
+        best["reason"] = "Maximizes comparison against closest competitor."
         return best
     return None
 
