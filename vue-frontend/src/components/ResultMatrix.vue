@@ -20,17 +20,6 @@
           <td class="small-12 medium-1 column partyseats">Stddev</td>
         </template>
       </tr>
-      <tr>
-        <th class="small-12 medium-1 topleft"></th>
-        <template v-for="(party, partyidx) in parties">
-          <td class="small-12 medium-1 column partyseats">
-            {{ seats[parties.length][partyidx].toFixed(round) }}
-          </td>
-          <td v-if="stddev" class="small-12 medium-1 column partyseats">
-            {{ stddev[parties.length][partyidx].toFixed(round) }}
-          </td>
-        </template>
-      </tr>
       <tr v-for="(constituency, conidx) in constituencies">
         <th class="small-12 medium-1 column constname">
             {{ constituencies[conidx] }}
@@ -41,6 +30,17 @@
           </td>
           <td v-if="stddev" class="small-12 medium-2 column partyseats">
               {{ stddev[conidx][partyidx].toFixed(round) }}
+          </td>
+        </template>
+      </tr>
+      <tr>
+        <th class="small-12 medium-1 topleft"></th>
+        <template v-for="(party, partyidx) in parties">
+          <td class="small-12 medium-1 column partyseats">
+            {{ seats[parties.length][partyidx].toFixed(round) }}
+          </td>
+          <td v-if="stddev" class="small-12 medium-1 column partyseats">
+            {{ stddev[parties.length][partyidx].toFixed(round) }}
           </td>
         </template>
       </tr>
