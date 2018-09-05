@@ -59,7 +59,7 @@ MEASURES = {
     "sainte_lague":    "Sainte-Lague minsum Index",
     "dhondt_min":      "d'Hondt maxmin Index",
     "dhondt_sum":      "d'Hondt minsum Index",
-    "adj_dev":         "Adjustment seat deviation from determined",
+    "adj_dev":         "Adjustment seat deviation from constraints",
 }
 
 LIST_MEASURES = {
