@@ -24,7 +24,7 @@
         <th class="small-12 medium-1 topleft"></th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-1 column partyseats">
-            {{ seatssum[partyidx].toFixed(round) }}
+            {{ seats[parties.length][partyidx].toFixed(round) }}
           </td>
           <td v-if="stddev">&nbsp;</td>
         </template>
