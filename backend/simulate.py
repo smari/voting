@@ -465,6 +465,7 @@ class Simulation:
             "data": [
                 {
                     "name": self.e_rules[ruleset]["name"],
+                    "method": self.e_rules[ruleset]["adjustment_method"],
                     "measures": self.data[ruleset],
                     "list_measures": self.list_data[ruleset]
                 }

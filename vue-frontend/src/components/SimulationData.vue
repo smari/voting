@@ -14,7 +14,7 @@
     <tr>
       <th class="small-12 medium-1 column measurename">Adjustment method</th>
       <td colspan="2" class="small-12 medium-2 column methoddata"
-        v-for="(ruleset, idx) in data">{{ruleset.name}}</td>
+        v-for="(ruleset, idx) in data">{{ruleset.method}}</td>
     </tr>
     <tr>
       <th class="small-12 medium-1 topleft"></th>
