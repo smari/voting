@@ -56,17 +56,6 @@ export default {
     "round": { default: 0 },
     "stddev": { default: false },
     "title": { default: "" },
-  },
-  computed: {
-    seatssum: function() {
-      let seats = Array(this.parties.length).fill(0);
-      for (let c in this.seats) {
-        seats = this.seats[c].map(function (num, idx) {
-          return seats[idx]+num;
-        });
-      }
-      return seats;
-    }
   }
 }
 </script>
