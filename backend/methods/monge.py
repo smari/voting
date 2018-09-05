@@ -12,12 +12,14 @@ def monge(
 ):
     """Apportion by Monge algorithm"""
     allocations = deepcopy(prior_allocations)
+    allocation_sequence = []
     total_seats = sum(c_goals)
     assert(sum(p_goals) == total_seats)
     while sum([sum(x) for x in allocations]) < total_seats:
         trivial_lists = find_trivial_seats(allocations, p_goals, c_goals)
         for l in trivial_lists:
             allocations[l["constituency"]][l["party"]] += l["seats"]
+            allocation_sequence.append(l)
         if sum([sum(x) for x in allocations]) >= total_seats:
             break
         best = find_best_Monge_list(
@@ -31,7 +33,8 @@ def monge(
             return allocations, "Adjustment seat allocation incomplete."
         #allocate seat based on best Monge ratio
         allocations[best["constituency"]][best["party"]] += 1
-    return allocations, None
+        allocation_sequence.append(best)
+    return allocations, allocation_sequence
 
 def find_trivial_seats(allocations, p_goals, c_goals):
     num_constituencies = len(allocations)
@@ -110,7 +113,13 @@ def find_best_Monge_list(
                 "constituency": C,
                 "party": P,
                 "reference_constituency": closest["reference_constituency"],
-                "reference_party": closest["reference_party"]
+                "reference_party": closest["reference_party"],
+                "ad": closest["ad"],
+                "bc": closest["bc"],
+                "a": closest["a"],
+                "b": closest["b"],
+                "c": closest["c"],
+                "d": closest["d"],
             })
     if considerations:
         determinants = [conion["min_det"] for conion in considerations]
@@ -164,6 +173,12 @@ def find_closest_comparison(
             c = divided_vote(votes, allocations, C2, P1, divisor_gen)
             comparisons.append({
                 "det": a*d-b*c,
+                "ad": a*d,
+                "bc": b*c,
+                "a": a,
+                "b": b,
+                "c": c,
+                "d": d,
                 "reference_constituency": C2,
                 "reference_party": P2
             })
