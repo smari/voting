@@ -19,7 +19,7 @@
       <th class="small-12 medium-1 topleft"></th>
       <template v-for="(test, tidx) in data">
         <th class="small-12 medium-2 column methodname">Average</th>
-        <th class="small-12 medium-2 column methodname">Variance</th>
+        <th class="small-12 medium-2 column methodname">Stddev</th>
       </template>
     </tr>
     <tr v-for="(measure, midx) in measures">
@@ -30,7 +30,7 @@
         {{ data[testidx]["measures"][midx]["avg"].toFixed(4) }}
       </td>
       <td v-for="(test, testidx) in data" class="small-12 medium-2 column methoddata">
-        {{ data[testidx]["measures"][midx]["var"].toFixed(4) }}
+        {{ data[testidx]["measures"][midx]["std"].toFixed(4) }}
       </td>
     </tr>
   </table>

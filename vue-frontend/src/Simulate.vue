@@ -58,7 +58,7 @@
         :constituencies="constituency_names"
         :parties="parties"
         :seats="res.list_measures.const_seats.avg"
-        :variance="res.list_measures.const_seats.var"
+        :stddev="res.list_measures.const_seats.std"
         :title="res.name"
         round="2">
       </ResultMatrix>
@@ -68,7 +68,7 @@
         :constituencies="constituency_names"
         :parties="parties"
         :seats="res.list_measures.adj_seats.avg"
-        :variance="res.list_measures.adj_seats.var"
+        :stddev="res.list_measures.adj_seats.std"
         :title="res.name"
         round="2">
       </ResultMatrix>
@@ -78,7 +78,7 @@
         :constituencies="constituency_names"
         :parties="parties"
         :seats="res.list_measures.total_seats.avg"
-        :variance="res.list_measures.total_seats.var"
+        :stddev="res.list_measures.total_seats.std"
         :title="res.name"
         round="2">
       </ResultMatrix>
