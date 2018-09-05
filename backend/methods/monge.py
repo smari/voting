@@ -36,14 +36,14 @@ def find_best_Monge_list(
     divisor_gen  #divisor sequence formula
 ):
     #calculate max_Monge_ratio
-    no_constituencies = len(votes)
-    no_parties = len(votes[0])
+    num_constituencies = len(votes)
+    num_parties = len(votes[0])
     considerations = []
     available_lists = []
-    for C in range(no_constituencies):
+    for C in range(num_constituencies):
         if constituency_full(C, c_goals, allocations):
             continue #No need to consider lists that can't be given more seats
-        for P in range(no_parties):
+        for P in range(num_parties):
             if party_satisfied(P, p_goals, allocations):
                 continue
             if list_unsupported(votes, C, P):
@@ -105,16 +105,16 @@ def find_closest_comparison(
     p_goals,     #1d - total number of seats each party is supposed to get
     divisor_gen  #divisor sequence formula
 ):
-    no_constituencies = len(votes)
-    no_parties = len(votes[0])
+    num_constituencies = len(votes)
+    num_parties = len(votes[0])
     a = divided_vote(votes, allocations, C1, P1, divisor_gen)
     comparisons = []
-    for C2 in range(no_constituencies):
+    for C2 in range(num_constituencies):
         if C2 == C1:
             continue #compare to lists in different constituencies only
         if constituency_full(C2, c_goals, allocations):
             continue
-        for P2 in range(no_parties):
+        for P2 in range(num_parties):
             if P2 == P1:
                 continue #compare to lists for different party only
             if party_satisfied(P2, p_goals, allocations):
