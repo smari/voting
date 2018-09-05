@@ -422,18 +422,22 @@ class Simulation:
         self.aggregate_measure(ruleset, "sainte_lague", stl)
 
     def dhondt_min(self, ruleset, results, bi_seat_shares):
-        dh_min_factors = [bi_seat_shares[c][p]/float(results[c][p])
-                          if results[c][p] != 0 else 10000000000000000
-                          for p in range(self.num_parties)
-                          for c in range(self.num_constituencies)]
+        dh_min_factors = [
+            bi_seat_shares[c][p]/float(results[c][p])
+            if results[c][p] != 0 else 10000000000000000
+            for p in range(self.num_parties)
+            for c in range(self.num_constituencies)
+        ]
         dh_min = min(dh_min_factors)
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
     def dhondt_sum(self, ruleset, results, bi_seat_shares, scale):
-        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
-                        if bi_seat_shares[c][p] != 0 else 10000000000000000000000
-                        for p in range(self.num_parties)
-                        for c in range(self.num_constituencies)])
+        dh_sum = sum([
+            max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
+            if bi_seat_shares[c][p] != 0 else 10000000000000000000000
+            for p in range(self.num_parties)
+            for c in range(self.num_constituencies)
+        ])
         dh_sum *= scale
         self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
 
