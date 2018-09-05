@@ -400,10 +400,8 @@ class Simulation:
     def loosemore_hanby(self, ruleset, results, bi_seat_shares):
         total_seats = sum([sum(c) for c in results])
         lh = sum([
-            sum([
-                abs(bi_seat_shares[c][p]-results[c][p])
-                for p in range(self.num_parties)
-            ])
+            abs(bi_seat_shares[c][p]-results[c][p])
+            for p in range(self.num_parties)
             for c in range(self.num_constituencies)
         ])
         lh /= total_seats
@@ -411,11 +409,9 @@ class Simulation:
 
     def sainte_lague(self, ruleset, results, bi_seat_shares, scale):
         stl = sum([
-            sum([
-                (bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
-                if bi_seat_shares[c][p] != 0 else 0
-                for p in range(self.num_parties)
-            ])
+            (bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
+            if bi_seat_shares[c][p] != 0 else 0
+            for p in range(self.num_parties)
             for c in range(self.num_constituencies)
         ])
         stl *= scale
