@@ -342,7 +342,10 @@ class Simulation:
 
     def other_measures(self, ruleset, votes, results, opt_results):
         bi_seat_shares = self.calculate_bi_seat_shares(ruleset, votes, opt_results)
-        scale = 1.0/sum([sum(c) for c in bi_seat_shares])
+        scale = 1.0/sum([
+            sum([1.0/s for s in c])
+            for c in bi_seat_shares
+        ])
         self.loosemore_hanby(ruleset, results, bi_seat_shares)
         self.sainte_lague(ruleset, results, bi_seat_shares, scale)
         self.dhondt_min(ruleset, results, bi_seat_shares)
