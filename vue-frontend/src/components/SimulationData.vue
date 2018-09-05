@@ -26,12 +26,14 @@
       <th class="small-12 medium-1 column measurename">
           {{ measure }}
       </th>
-      <td v-for="(test, testidx) in data" class="small-12 medium-2 column methoddata">
-        {{ data[testidx]["measures"][midx]["avg"].toFixed(4) }}
-      </td>
-      <td v-for="(test, testidx) in data" class="small-12 medium-2 column methoddata">
-        {{ data[testidx]["measures"][midx]["std"].toFixed(4) }}
-      </td>
+      <template v-for="(test, testidx) in data">
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[testidx]["measures"][midx]["avg"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[testidx]["measures"][midx]["std"].toFixed(4) }}
+        </td>
+      </template>
     </tr>
   </table>
 </b-container>
