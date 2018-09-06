@@ -29,12 +29,12 @@ def beta_distribution(m_ref_votes, var_param):
         m_votes.append([])
         for p in range(len(m_ref_votes[c])):
             mean_beta_distr = m_ref_votes[c][p]/float(ref_totals[c])
-            if mean_beta_distr > 0:
+            if 0 < mean_beta_distr and mean_beta_distr < 1:
                 var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
                 alpha, beta = beta_params(mean_beta_distr, var_param)
                 share = betavariate(alpha, beta)
             else:
-                share = 0
+                share = mean_beta_distr #either 0 or 1
             m_votes[c].append(int(share*ref_totals[c]))
 
     return m_votes
