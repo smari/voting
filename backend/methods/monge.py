@@ -214,3 +214,76 @@ def seats_still_available(C, P, c_goals, p_goals, allocations):
     c_left = c_unclaimed(C, c_goals, allocations)
     p_left = p_unclaimed(P, p_goals, allocations)
     return min(c_left, p_left)
+
+
+
+
+
+
+
+
+
+def print_seats(rules, adj_seats_info):
+    # Return data to print breakdown of adjustment seat apportionment
+    header = ["Adjustment seat number", "Constituency", "Party", "Reason",
+        "Closest comparison constituency", "Closest comparison party",
+        "Monge ratio", "Determinant", "ad", "bc", "a", "d", "b", "c",]
+
+    allocation_sequence = []
+    seat_number = 0
+    for i in range(len(adj_seats_info)):
+        allocation = adj_seats_info[i]
+        if "constituency" not in allocation:
+            allocation_sequence.append([
+                0,
+                "No constituency",
+                "No party",
+                allocation["reason"],
+            ])
+            continue
+        reason = allocation["reason"]
+        c_idx  = allocation["constituency"]
+        p_idx  = allocation["party"]
+        const_name = rules["constituency_names"][c_idx]
+        party_name = rules["parties"           ][p_idx]
+        if "min_det" in allocation:
+            ref_c_idx = allocation["reference_constituency"]
+            ref_p_idx = allocation["reference_party"]
+            ad = allocation["ad"]
+            bc = allocation["bc"]
+            comparison = {
+                "const_name": rules["constituency_names"][ref_c_idx],
+                "party_name": rules["parties"           ][ref_p_idx],
+                "det": allocation["min_det"],
+                "ratio": ad/float(bc) if bc != 0 else None,
+            }
+            for v in ["a", "b", "c", "d", "ad", "bc"]:
+                comparison[v] = allocation[v]
+        else:
+            comparison = {
+                attr: None
+                for attr in [
+                    "const_name", "party_name", "det", "ratio",
+                    "a", "b", "c", "d", "ad", "bc",
+                ]
+            }
+        seats = allocation["seats"] if "seats" in allocation else 1
+        for seat in range(seats):
+            seat_number += 1
+            allocation_sequence.append([
+                seat_number,
+                const_name,
+                party_name,
+                reason,
+                comparison["const_name"],
+                comparison["party_name"],
+                comparison["ratio"],
+                comparison["det"],
+                comparison["ad"],
+                comparison["bc"],
+                comparison["a"],
+                comparison["d"],
+                comparison["b"],
+                comparison["c"],
+            ])
+    return header, allocation_sequence
