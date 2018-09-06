@@ -95,7 +95,7 @@ def print_seats(rules, adj_seats_info):
     data = []
     for i in range(len(adj_seats_info)):
         data.append([i+1,
-                    rules["constituencies"][adj_seats_info[i][0]]["name"],
+                    rules["constituency_names"][adj_seats_info[i][0]],
                     adj_seats_info[i][1],
                     rules["parties"][adj_seats_info[i][2]],
                     "{:.3%}".format(adj_seats_info[i][3])])
