@@ -171,10 +171,10 @@ def find_closest_comparison(
                 continue #compare to lists for different party only
             if party_satisfied(P2, p_goals, allocations):
                 continue
-            d = fully_divided_vote(
-                votes, allocations, C2, P2, c_goals, p_goals, divisor_gen
-            )
-            # d = divided_vote(votes, allocations, C2, P2, divisor_gen)
+            # d = fully_divided_vote(
+            #     votes, allocations, C2, P2, c_goals, p_goals, divisor_gen
+            # )
+            d = divided_vote(votes, allocations, C2, P2, divisor_gen)
             b = divided_vote(votes, allocations, C1, P2, divisor_gen)
             c = divided_vote(votes, allocations, C2, P1, divisor_gen)
             comparisons.append({
