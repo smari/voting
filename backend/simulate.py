@@ -344,8 +344,7 @@ class Simulation:
     def other_measures(self, ruleset, votes, results, opt_results):
         bi_seat_shares = self.calculate_bi_seat_shares(ruleset, votes, opt_results)
         scale = 1.0/sum([
-            sum([1.0/s for s in c])
-            for c in bi_seat_shares
+            1.0/s for c in bi_seat_shares for s in c if s!=0
         ])
         self.loosemore_hanby(ruleset, results, bi_seat_shares)
         self.sainte_lague(ruleset, results, bi_seat_shares, scale)
@@ -412,9 +411,9 @@ class Simulation:
     def sainte_lague(self, ruleset, results, bi_seat_shares, scale):
         stl = sum([
             (bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
-            if bi_seat_shares[c][p] != 0 else 0
             for p in range(self.num_parties)
             for c in range(self.num_constituencies)
+            if bi_seat_shares[c][p] != 0
         ])
         stl *= scale
         self.aggregate_measure(ruleset, "sainte_lague", stl)
@@ -422,18 +421,18 @@ class Simulation:
     def dhondt_min(self, ruleset, results, bi_seat_shares):
         dh_min = min([
             bi_seat_shares[c][p]/float(results[c][p])
-            if results[c][p] != 0 else 10000000000000000
             for p in range(self.num_parties)
             for c in range(self.num_constituencies)
+            if results[c][p] != 0
         ])
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
     def dhondt_sum(self, ruleset, results, bi_seat_shares, scale):
         dh_sum = sum([
             max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
-            if bi_seat_shares[c][p] != 0 else 10000000000000000000000
             for p in range(self.num_parties)
             for c in range(self.num_constituencies)
+            if bi_seat_shares[c][p] != 0
         ])
         dh_sum *= scale
         self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
