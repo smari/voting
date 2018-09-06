@@ -606,7 +606,7 @@ def simulation_to_xlsx(simulation, filename):
             worksheet.write_row(row, col, h, cell_format)
             for line in data:
                 row += 1
-                worksheet.write_row(row, col, line, base_format)
+                worksheet.write_row(row, col, line, cell_format)
         except AttributeError:
             pass
 
