@@ -264,7 +264,8 @@ class Simulation:
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
                 "xtd_total_seats": xtd_total_seats,
-                "xtd_seat_shares": xtd_seat_shares
+                "xtd_seat_shares": xtd_seat_shares,
+                "step_info": election.adj_seats_info,
             })
 
     def gen_votes(self):
