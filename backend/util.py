@@ -166,8 +166,8 @@ def print_steps_election(election):
     print_table(xtd_votes, header, const_names, out)
 
     print("\nVote shares")
-    shares = find_xtd_shares(xtd_votes)
-    print_table(shares, header, const_names, out, "{:.1%}")
+    xtd_shares = find_xtd_shares(xtd_votes)
+    print_table(xtd_shares, header, const_names, out, "{:.1%}")
 
     print("\nConstituency seats")
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
@@ -206,8 +206,8 @@ def print_steps_election(election):
     print_table(xtd_total_seats, header, const_names, out)
 
     print("\nSeat shares")
-    shares = find_xtd_shares(xtd_total_seats)
-    print_table(shares, header, const_names, out, "{:.1%}")
+    xtd_shares = find_xtd_shares(xtd_total_seats)
+    print_table(xtd_shares, header, const_names, out, "{:.1%}")
 
 def pretty_print_election(election):
     """Print results of a single election."""
