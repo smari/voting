@@ -11,20 +11,20 @@ import json
 from datetime import datetime, timedelta
 
 
-def beta_params(mean, var_param):
-    alpha = mean*(1/var_param**2 - 1)
+def beta_params(mean, std_param):
+    alpha = mean*(1/std_param**2 - 1)
     beta = alpha*(1/mean - 1)
     return alpha, beta
 
 def beta_distribution(
     base_votes, #2d - votes for each list,
-    var_param   #distribution parameter in range (0,1)
+    std_param   #distribution parameter in range (0,1)
 ):
     """
     Generate a set of votes with beta distribution,
     using 'base_votes' as reference.
     """
-    assert(0 < var_param and var_param < 1)
+    assert(0 < std_param and std_param < 1)
     xtd_votes = add_totals(base_votes)
     xtd_shares = find_shares(xtd_votes)
 
@@ -36,8 +36,8 @@ def beta_distribution(
             mean_beta_distr = xtd_shares[c][p]
             assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
             if 0 < mean_beta_distr and mean_beta_distr < 1:
-                var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
-                alpha, beta = beta_params(mean_beta_distr, var_param)
+                var_beta = std_param*mean_beta_distr*(1-mean_beta_distr)
+                alpha, beta = beta_params(mean_beta_distr, std_param)
                 share = betavariate(alpha, beta)
             else:
                 share = mean_beta_distr #either 0 or 1
@@ -174,7 +174,7 @@ class SimulationRules(Rules):
 
 class Simulation:
     """Simulate a set of elections."""
-    def __init__(self, sim_rules, e_rules, m_votes, var_param=0.1):
+    def __init__(self, sim_rules, e_rules, m_votes, std_param=0.1):
         self.num_total_simulations = sim_rules["simulation_count"]
         self.num_rulesets = len(e_rules)
         self.num_constituencies = len(m_votes)
@@ -193,7 +193,7 @@ class Simulation:
         self.xtd_votes = add_totals(self.base_votes)
         self.xtd_vote_shares = find_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
-        self.var_param = var_param
+        self.var_param = std_param
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
