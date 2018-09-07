@@ -22,13 +22,14 @@ def beta_distribution(base_votes, var_param):
     using 'base_votes' as reference.
     """
     generated_votes = []
-    base_totals = [sum(c) for c in base_votes]
+    xtd_votes = add_totals(base_votes)
+    xtd_shares = find_shares(xtd_votes)
 
     for c in range(len(base_votes)):
         s = 0
         generated_votes.append([])
         for p in range(len(base_votes[c])):
-            mean_beta_distr = base_votes[c][p]/float(base_totals[c])
+            mean_beta_distr = xtd_shares[c][p]
             assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
             if 0 < mean_beta_distr and mean_beta_distr < 1:
                 var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
@@ -36,7 +37,7 @@ def beta_distribution(base_votes, var_param):
                 share = betavariate(alpha, beta)
             else:
                 share = mean_beta_distr #either 0 or 1
-            generated_votes[c].append(int(share*base_totals[c]))
+            generated_votes[c].append(int(share*xtd_votes[c][-1]))
 
     return generated_votes
 
