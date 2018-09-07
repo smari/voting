@@ -23,7 +23,13 @@
 
     <h2>Reference votes</h2>
     <p>Reference votes are the votes that will be used as a reference for the statistical distribution in the simulation.</p>
-    <VoteMatrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @server-error="serverError">
+    <VoteMatrix
+      @update-votes="updateVotes"
+      @update-adjustment-seats="updateAdjustmentSeats"
+      @update-constituency-seats="updateConstituencySeats"
+      @update-parties="updateParties"
+      @update-constituencies="updateConstituencies"
+      @server-error="serverError">
     </VoteMatrix>
 
     <div style="text-align: center; margin-bottom: 0.7em;">
