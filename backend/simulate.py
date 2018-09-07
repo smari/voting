@@ -3,7 +3,7 @@ from rules import Rules
 from math import sqrt, exp
 from random import betavariate
 from copy import copy, deepcopy
-from util import add_totals, matrix_subtraction, find_shares
+from util import add_totals, matrix_subtraction, find_xtd_shares
 
 import voting
 import io
@@ -26,7 +26,7 @@ def beta_distribution(
     """
     assert(0 < std_param and std_param < 1)
     xtd_votes = add_totals(base_votes)
-    xtd_shares = find_shares(xtd_votes)
+    xtd_shares = find_xtd_shares(xtd_votes)
 
     generated_votes = []
     for c in range(len(base_votes)):
@@ -191,7 +191,7 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.xtd_vote_shares = find_shares(self.xtd_votes)
+        self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
         self.std_param = std_param
         self.iteration = 0
@@ -265,7 +265,7 @@ class Simulation:
             xtd_total_seats = add_totals(election.run())
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-            xtd_seat_shares = find_shares(xtd_total_seats)
+            xtd_seat_shares = find_xtd_shares(xtd_total_seats)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
@@ -283,7 +283,7 @@ class Simulation:
         while True:
             votes = gen(self.base_votes, self.std_param)
             xtd_votes  = add_totals(votes)
-            xtd_shares = find_shares(xtd_votes)
+            xtd_shares = find_xtd_shares(xtd_votes)
             for c in range(self.num_constituencies+1):
                 for p in range(self.num_parties+1):
                     self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
