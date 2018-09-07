@@ -253,6 +253,8 @@ class Simulation:
         t = float(self.data[ruleset][measure]["sqs"])
         avg = s/n                 if n>0 else 0
         var = (t - s*avg) / (n-1) if n>1 else 0
+        if -0.0000001 < var and var < 0:
+            var = 0
         std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
