@@ -16,28 +16,28 @@ def beta_params(mean, var_param):
     beta = alpha*(1/mean - 1)
     return alpha, beta
 
-def beta_distribution(m_ref_votes, var_param):
+def beta_distribution(base_votes, var_param):
     """
     Generate a set of votes with beta distribution,
-    using 'm_ref_votes' as reference.
+    using 'base_votes' as reference.
     """
-    m_votes = []
-    ref_totals = [sum(c) for c in m_ref_votes]
+    generated_votes = []
+    base_totals = [sum(c) for c in base_votes]
 
-    for c in range(len(m_ref_votes)):
+    for c in range(len(base_votes)):
         s = 0
-        m_votes.append([])
-        for p in range(len(m_ref_votes[c])):
-            mean_beta_distr = m_ref_votes[c][p]/float(ref_totals[c])
+        generated_votes.append([])
+        for p in range(len(base_votes[c])):
+            mean_beta_distr = base_votes[c][p]/float(base_totals[c])
             if 0 < mean_beta_distr and mean_beta_distr < 1:
                 var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
                 alpha, beta = beta_params(mean_beta_distr, var_param)
                 share = betavariate(alpha, beta)
             else:
                 share = mean_beta_distr #either 0 or 1
-            m_votes[c].append(int(share*ref_totals[c]))
+            generated_votes[c].append(int(share*base_totals[c]))
 
-    return m_votes
+    return generated_votes
 
 GENERATING_METHODS = {
     "beta": beta_distribution
