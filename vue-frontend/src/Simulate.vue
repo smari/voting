@@ -22,7 +22,7 @@
     </b-container>
 
     <h2>Reference votes</h2>
-    <p>Reference votes are the votes that will be used as a reference for the statistical distribution in the simulation.</p>
+    <p>Reference votes are the votes that will be used as mean values for the statistical distribution in the simulation.</p>
     <VoteMatrix
       @update-votes="updateVotes"
       @update-adjustment-seats="updateAdjustmentSeats"
