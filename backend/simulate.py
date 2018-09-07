@@ -193,7 +193,7 @@ class Simulation:
         self.xtd_votes = add_totals(self.base_votes)
         self.xtd_vote_shares = find_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
-        self.var_param = std_param
+        self.std_param = std_param
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
@@ -281,7 +281,7 @@ class Simulation:
         """
         gen = GENERATING_METHODS[self.variate]
         while True:
-            votes = gen(self.base_votes, self.var_param)
+            votes = gen(self.base_votes, self.std_param)
             xtd_votes  = add_totals(votes)
             xtd_shares = find_shares(xtd_votes)
             for c in range(self.num_constituencies+1):
@@ -299,7 +299,7 @@ class Simulation:
             for p in range(1+self.num_parties):
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p)
-                var_beta_distr[c].append(self.var_param
+                var_beta_distr[c].append(self.std_param
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
         sim_shares = self.list_data[-1]["sim_shares"]
