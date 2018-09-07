@@ -16,15 +16,19 @@ def beta_params(mean, var_param):
     beta = alpha*(1/mean - 1)
     return alpha, beta
 
-def beta_distribution(base_votes, var_param):
+def beta_distribution(
+    base_votes, #2d - votes for each list,
+    var_param   #distribution parameter in range (0,1)
+):
     """
     Generate a set of votes with beta distribution,
     using 'base_votes' as reference.
     """
-    generated_votes = []
+    assert(0 < var_param and var_param < 1)
     xtd_votes = add_totals(base_votes)
     xtd_shares = find_shares(xtd_votes)
 
+    generated_votes = []
     for c in range(len(base_votes)):
         s = 0
         generated_votes.append([])
