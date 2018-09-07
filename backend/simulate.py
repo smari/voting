@@ -29,6 +29,7 @@ def beta_distribution(base_votes, var_param):
         generated_votes.append([])
         for p in range(len(base_votes[c])):
             mean_beta_distr = base_votes[c][p]/float(base_totals[c])
+            assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
             if 0 < mean_beta_distr and mean_beta_distr < 1:
                 var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
                 alpha, beta = beta_params(mean_beta_distr, var_param)
