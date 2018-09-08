@@ -603,6 +603,24 @@ def simulation_to_xlsx(simulation, filename):
                 col += len(parties)+2
             toprow += len(const_names)+3
 
+        results = simulation.get_results_dict()
+        MEASURES = results["measures"]
+        mkeys = MEASURES.keys()
+        measure_names = [MEASURES[key] for key in mkeys]
+        aggregates = ["avg", "std"]
+        aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
+        measure_table = [
+            [simulation.data[r][measure][aggr] for aggr in aggregates]
+            for measure in mkeys
+        ]
+        draw_block(worksheet, row=toprow, col=9,
+            heading="Summary measures",
+            xheaders=aggregate_names,
+            yheaders=measure_names,
+            matrix=measure_table,
+            cformat=sim_format
+        )
+
 
         # method = ADJUSTMENT_METHODS[method_name]
         # try:
@@ -611,7 +629,7 @@ def simulation_to_xlsx(simulation, filename):
         #         simulation.base_allocations[r]["step_info"]
         #     )
         #     row = toprow
-        #     col = max(10, 2+3*(2+len(parties)))
+        #     col = max(15, 2+3*(2+len(parties)))
         #     worksheet.write_row(row, col, h, cell_format)
         #     for line in data:
         #         row += 1
