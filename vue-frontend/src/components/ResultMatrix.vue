@@ -37,10 +37,10 @@
         <th class="small-12 medium-1 column bottomleft">Total</th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-1 column partyseats">
-            {{ avg[parties.length][partyidx].toFixed(round) }}
+            {{ avg[constituencies.length][partyidx].toFixed(round) }}
           </td>
           <td v-if="stddev" class="small-12 medium-1 column partyseats">
-            {{ stddev[parties.length][partyidx].toFixed(round) }}
+            {{ stddev[constituencies.length][partyidx].toFixed(round) }}
           </td>
         </template>
       </tr>
