@@ -54,18 +54,18 @@ GENERATING_METHOD_NAMES = {
 }
 
 MEASURES = {
-    "entropy":         "Entropy",
-    "entropy_ratio":   "Entropy Ratio",
-    "dev_opt":         "Seat Deviation from Optimal",
-    "dev_law":         "Seat Deviation from Icelandic Law",
-    "dev_ind_const":   "Seat Deviation from Independent Constituencies",
-    "dev_one_const":   "Seat Deviation from Single Constituency",
-    "dev_all_adj":     "Seat Deviation from All Adjustment Seats",
-    "loosemore_hanby": "Loosemore-Hanby Index",
-    "sainte_lague":    "Sainte-Lague minsum Index",
-    "dhondt_min":      "d'Hondt maxmin Index",
-    "dhondt_sum":      "d'Hondt minsum Index",
-    "adj_dev":         "Adjustment seat deviation from constraints",
+    "dev_opt":         "Seat Deviation from allocation by the optimal method",
+    "dev_law":         "Seat Deviation from allocation by Icelandic Law",
+    "adj_dev":         "Seat deviation from adjustment seats earned nationally by each party",
+    "dev_ind_const":   "Seat Deviation from allocation as if all seats were constituency seats",
+    "dev_all_adj":     "Seat Deviation from allocation as if all seats were adjustment seats",
+    # "dev_one_const":   "Seat Deviation from Single Constituency",
+    # "entropy":         "Entropy",
+    "entropy_ratio":   "Relative deviation from optimal solution in entropy (products of all seat values used).",
+    "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
+    "sainte_lague":    "Scaled sum of squared deviation of list seats from the biproportional seat shares (Sainte-Lague)",
+    "dhondt_min":      "Maximum of the mininum seat value used (d'Hondt)",
+    "dhondt_sum":      "Scaled sum of positive deviation of list seats from the biproportional seat shares (d'Hondt)",
 }
 
 LIST_MEASURES = {
@@ -337,7 +337,7 @@ class Simulation:
         opt_results = opt_election.run()
         entropy_ratio = exp(entropy - opt_election.entropy())
         self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
-        self.aggregate_measure(ruleset, "entropy", entropy)
+        # self.aggregate_measure(ruleset, "entropy", entropy)
         return opt_results
 
     def deviation_measures(self, ruleset, votes, results, opt_results):
@@ -346,7 +346,7 @@ class Simulation:
         self.deviation(ruleset, "ind_const", votes, results)
         v_votes = [[sum([c[p] for c in votes]) for p in range(self.num_parties)]]
         v_results = [sum(x) for x in zip(*results)]
-        self.deviation(ruleset, "one_const", v_votes, [v_results])
+        # self.deviation(ruleset, "one_const", v_votes, [v_results])
         self.deviation(ruleset, "all_adj", v_votes, [v_results])
 
     def other_measures(self, ruleset, votes, results, opt_results):
