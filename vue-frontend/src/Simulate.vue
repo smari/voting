@@ -60,32 +60,32 @@
       <b-button size="lg" :href="get_xlsx_url()">Download XLSX file</b-button>
 
       <h3>Constituency seats</h3>
-      <ResultMatrix v-for="(res, idx) in results.data"
+      <ResultMatrix v-for="(ruleset, idx) in results.data"
         :constituencies="constituency_names"
         :parties="parties"
-        :seats="res.list_measures.const_seats.avg"
-        :stddev="res.list_measures.const_seats.std"
-        :title="res.name"
+        :seats="ruleset.list_measures.const_seats.avg"
+        :stddev="ruleset.list_measures.const_seats.std"
+        :title="ruleset.name"
         round="2">
       </ResultMatrix>
 
       <h3>Adjustment seats</h3>
-      <ResultMatrix v-for="(res, idx) in results.data"
+      <ResultMatrix v-for="(ruleset, idx) in results.data"
         :constituencies="constituency_names"
         :parties="parties"
-        :seats="res.list_measures.adj_seats.avg"
-        :stddev="res.list_measures.adj_seats.std"
-        :title="res.name"
+        :seats="ruleset.list_measures.adj_seats.avg"
+        :stddev="ruleset.list_measures.adj_seats.std"
+        :title="ruleset.name"
         round="2">
       </ResultMatrix>
 
       <h3>Total seats</h3>
-      <ResultMatrix v-for="(res, idx) in results.data"
+      <ResultMatrix v-for="(ruleset, idx) in results.data"
         :constituencies="constituency_names"
         :parties="parties"
-        :seats="res.list_measures.total_seats.avg"
-        :stddev="res.list_measures.total_seats.std"
-        :title="res.name"
+        :seats="ruleset.list_measures.total_seats.avg"
+        :stddev="ruleset.list_measures.total_seats.std"
+        :title="ruleset.name"
         round="2">
       </ResultMatrix>
 
