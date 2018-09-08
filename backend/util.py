@@ -525,9 +525,11 @@ def simulation_to_xlsx(simulation, filename):
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat)
 
-    def draw_block(worksheet, row, col, heading, matrix, cformat=cell_format):
-        xheaders = parties
-        yheaders = const_names
+    def draw_block(worksheet, row, col,
+        heading, xheaders, yheaders,
+        matrix,
+        cformat=cell_format
+    ):
         if heading.endswith("shares"):
             cformat = share_format
         worksheet.merge_range(
@@ -591,9 +593,13 @@ def simulation_to_xlsx(simulation, filename):
                 category["heading"], r_format)
             col = 2
             for table in tables:
-                draw_block(worksheet, toprow, col, table["heading"],
-                    data_matrix[category["abbr"]][table["abbr"]],
-                    category["cell_format"])
+                draw_block(worksheet, row=toprow, col=col,
+                    heading=table["heading"],
+                    xheaders=parties,
+                    yheaders=const_names,
+                    matrix=data_matrix[category["abbr"]][table["abbr"]],
+                    cformat=category["cell_format"]
+                )
                 col += len(parties)+2
             toprow += len(const_names)+3
 
