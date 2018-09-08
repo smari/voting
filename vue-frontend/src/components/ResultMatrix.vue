@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <table class="resultmatrix" v-if="avg.length > 0">
+    <table class="resultmatrix" v-if="constituencies.length > 0">
       <tr v-if="title">
         <th class="small-12 medium-1 topleft"></th>
         <th :colspan="stddev?2*parties.length:parties.length">
