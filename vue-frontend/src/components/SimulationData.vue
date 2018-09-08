@@ -23,9 +23,32 @@
         <th class="small-12 medium-2 column methodname">Std. deviation</th>
       </template>
     </tr>
-    <tr v-for="(measure, midx) in measures">
+    <tr>
       <th class="small-12 medium-1 column measurename">
-          {{ measure }}
+        <div>Deviation in number of seats allocated by the tested method versus:</div>
+      </th>
+    </tr>
+    <tr v-for="midx in deviation_measures">
+      <th class="small-12 medium-1 column measurename">
+          {{ measures[midx] }}
+      </th>
+      <template v-for="(ruleset, ridx) in data">
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["avg"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
+        </td>
+      </template>
+    </tr>
+    <tr>
+      <th class="small-12 medium-1 column measurename">
+        <div>Quality indices (generally 0 to 1, the lower the better):</div>
+      </th>
+    </tr>
+    <tr v-for="midx in standardized_measures">
+      <th class="small-12 medium-1 column measurename">
+          {{ measures[midx] }}
       </th>
       <template v-for="(ruleset, ridx) in data">
         <td class="small-12 medium-2 column methoddata">
@@ -41,6 +64,6 @@
 </template>
 <script>
 export default {
-  props: ["testnames", "measures", "methods", "data"]
+  props: ["testnames", "measures", "deviation_measures", "standardized_measures", "methods", "data"]
 }
 </script>

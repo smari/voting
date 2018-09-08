@@ -54,11 +54,11 @@ GENERATING_METHOD_NAMES = {
 }
 
 MEASURES = {
-    "dev_opt":         "Seat Deviation from allocation by the optimal method",
-    "dev_law":         "Seat Deviation from allocation by Icelandic Law",
-    "adj_dev":         "Seat deviation from adjustment seats earned nationally by each party",
-    "dev_ind_const":   "Seat Deviation from allocation as if all seats were constituency seats",
-    "dev_all_adj":     "Seat Deviation from allocation as if all seats were adjustment seats",
+    "dev_opt":         "Allocation by the optimal method",
+    "dev_law":         "Allocation by Icelandic Law",
+    "adj_dev":         "Adjustment seats apportioned nationally",
+    "dev_ind_const":   "Allocation as if all seats were constituency seats",
+    "dev_all_adj":     "Allocation as if all seats were adjustment seats",
     # "dev_one_const":   "Seat Deviation from Single Constituency",
     # "entropy":         "Entropy",
     "entropy_ratio":   "Relative deviation from optimal solution in entropy (products of all seat values used).",
@@ -67,6 +67,23 @@ MEASURES = {
     "dhondt_min":      "Maximum of the mininum seat value used (d'Hondt)",
     "dhondt_sum":      "Scaled sum of positive deviation of list seats from the biproportional seat shares (d'Hondt)",
 }
+
+DEVIATION_MEASURES = [
+    "dev_opt",
+    "dev_law",
+    "adj_dev",
+    "dev_ind_const",
+    "dev_all_adj",
+    # "dev_one_const",
+]
+
+STANDARDIZED_MEASURES = [
+    "entropy_ratio",
+    "loosemore_hanby",
+    "sainte_lague",
+    "dhondt_min",
+    "dhondt_sum",
+]
 
 LIST_MEASURES = {
     "const_seats":   "constituency seats",
@@ -481,6 +498,8 @@ class Simulation:
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": MEASURES,
+            "deviation_measures": DEVIATION_MEASURES,
+            "standardized_measures": STANDARDIZED_MEASURES,
             "list_measures": LIST_MEASURES,
             "vote_measures": VOTE_MEASURES,
             "aggregates": AGGREGATES,
