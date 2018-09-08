@@ -59,8 +59,8 @@ MEASURES = {
     "adj_dev":         "Adjustment seats apportioned nationally",
     "dev_ind_const":   "Allocation as if all seats were constituency seats",
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
-    # "dev_one_const":   "Seat Deviation from Single Constituency",
-    # "entropy":         "Entropy",
+    "dev_one_const":   "Allocation as if all constituencies were combined into one",
+    "entropy":         "Entropy (product of all seat values used)",
     "entropy_ratio":   "Relative entropy deviation from optimal solution",
     "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
     "sainte_lague":    "Scaled sum of squared deviation of list seats from biproportional seat shares (Sainte-Lague)",
@@ -74,7 +74,7 @@ DEVIATION_MEASURES = [
     "adj_dev",
     "dev_ind_const",
     "dev_all_adj",
-    # "dev_one_const",
+    # "dev_one_const", #skipped, because already measured by all_adj (party sums)
 ]
 
 STANDARDIZED_MEASURES = [
@@ -354,7 +354,7 @@ class Simulation:
         opt_results = opt_election.run()
         entropy_deviation_ratio = 1 - exp(entropy - opt_election.entropy())
         self.aggregate_measure(ruleset, "entropy_ratio", entropy_deviation_ratio)
-        # self.aggregate_measure(ruleset, "entropy", entropy)
+        self.aggregate_measure(ruleset, "entropy", entropy)
         return opt_results
 
     def deviation_measures(self, ruleset, votes, results, opt_results):
@@ -363,7 +363,7 @@ class Simulation:
         self.deviation(ruleset, "ind_const", votes, results)
         v_votes = [[sum([c[p] for c in votes]) for p in range(self.num_parties)]]
         v_results = [sum(x) for x in zip(*results)]
-        # self.deviation(ruleset, "one_const", v_votes, [v_results])
+        self.deviation(ruleset, "one_const", v_votes, [v_results])
         self.deviation(ruleset, "all_adj", v_votes, [v_results])
 
     def other_measures(self, ruleset, votes, results, opt_results):
