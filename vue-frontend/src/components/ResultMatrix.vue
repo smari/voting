@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <table class="resultmatrix" v-if="seats.length > 0">
+    <table class="resultmatrix" v-if="avg.length > 0">
       <tr v-if="title">
         <th class="small-12 medium-1 topleft"></th>
         <th :colspan="stddev?2*parties.length:parties.length">
@@ -26,7 +26,7 @@
         </th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-2 column partyseats">
-              {{ seats[conidx][partyidx].toFixed(round) }}
+              {{ avg[conidx][partyidx].toFixed(round) }}
           </td>
           <td v-if="stddev" class="small-12 medium-2 column partyseats">
               {{ stddev[conidx][partyidx].toFixed(round) }}
@@ -37,7 +37,7 @@
         <th class="small-12 medium-1 column bottomleft">Total</th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-1 column partyseats">
-            {{ seats[parties.length][partyidx].toFixed(round) }}
+            {{ avg[parties.length][partyidx].toFixed(round) }}
           </td>
           <td v-if="stddev" class="small-12 medium-1 column partyseats">
             {{ stddev[parties.length][partyidx].toFixed(round) }}
@@ -52,7 +52,7 @@ export default {
   props: {
     "constituencies": { default: [] },
     "parties": { default: [] },
-    "seats": { default: [] },
+    "avg": { default: [] },
     "round": { default: 0 },
     "stddev": { default: false },
     "title": { default: "" },

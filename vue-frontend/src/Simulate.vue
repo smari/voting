@@ -63,7 +63,7 @@
       <ResultMatrix v-for="(ruleset, idx) in results.data"
         :constituencies="constituency_names"
         :parties="parties"
-        :seats="ruleset.list_measures.const_seats.avg"
+        :avg="ruleset.list_measures.const_seats.avg"
         :stddev="ruleset.list_measures.const_seats.std"
         :title="ruleset.name"
         round="2">
@@ -73,7 +73,7 @@
       <ResultMatrix v-for="(ruleset, idx) in results.data"
         :constituencies="constituency_names"
         :parties="parties"
-        :seats="ruleset.list_measures.adj_seats.avg"
+        :avg="ruleset.list_measures.adj_seats.avg"
         :stddev="ruleset.list_measures.adj_seats.std"
         :title="ruleset.name"
         round="2">
@@ -83,7 +83,7 @@
       <ResultMatrix v-for="(ruleset, idx) in results.data"
         :constituencies="constituency_names"
         :parties="parties"
-        :seats="ruleset.list_measures.total_seats.avg"
+        :avg="ruleset.list_measures.total_seats.avg"
         :stddev="ruleset.list_measures.total_seats.std"
         :title="ruleset.name"
         round="2">
