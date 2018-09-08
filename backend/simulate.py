@@ -61,11 +61,11 @@ MEASURES = {
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
     # "dev_one_const":   "Seat Deviation from Single Constituency",
     # "entropy":         "Entropy",
-    "entropy_ratio":   "Relative deviation from optimal solution in entropy (products of all seat values used).",
+    "entropy_ratio":   "Relative entropy deviation from optimal solution",
     "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
-    "sainte_lague":    "Scaled sum of squared deviation of list seats from the biproportional seat shares (Sainte-Lague)",
+    "sainte_lague":    "Scaled sum of squared deviation of list seats from biproportional seat shares (Sainte-Lague)",
     "dhondt_min":      "Maximum of the mininum seat value used (d'Hondt)",
-    "dhondt_sum":      "Scaled sum of positive deviation of list seats from the biproportional seat shares (d'Hondt)",
+    "dhondt_sum":      "Scaled sum of positive deviation of list seats from biproportional seat shares (d'Hondt)",
 }
 
 DEVIATION_MEASURES = [
