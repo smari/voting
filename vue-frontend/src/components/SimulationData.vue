@@ -64,6 +64,13 @@
 </template>
 <script>
 export default {
-  props: ["testnames", "measures", "deviation_measures", "standardized_measures", "methods", "data"]
+  props: [
+    "testnames",
+    "measures",
+    "deviation_measures",
+    "standardized_measures",
+    "methods",
+    "data"
+  ]
 }
 </script>
