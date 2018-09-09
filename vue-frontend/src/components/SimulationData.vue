@@ -29,9 +29,9 @@
       </th>
     </tr>
     <tr v-for="midx in deviation_measures">
-      <th class="small-12 medium-1 column measurename">
+      <td class="small-12 medium-1 column measurename">
           {{ measures[midx] }}
-      </th>
+      </td>
       <template v-for="(ruleset, ridx) in data">
         <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["avg"].toFixed(4) }}
@@ -47,9 +47,9 @@
       </th>
     </tr>
     <tr v-for="midx in standardized_measures">
-      <th class="small-12 medium-1 column measurename">
+      <td class="small-12 medium-1 column measurename">
           {{ measures[midx] }}
-      </th>
+      </td>
       <template v-for="(ruleset, ridx) in data">
         <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["avg"].toFixed(4) }}
