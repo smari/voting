@@ -60,7 +60,9 @@ def load_votes_from_stream(stream, filename):
     res = {}
     rd = []
     if filename.endswith(".csv"):
-        for row in csv.reader(codecs.iterdecode(stream, 'utf-8'), skipinitialspace=True):
+        if isinstance(stream, io.BytesIO):
+            stream = codecs.iterdecode(stream, 'utf-8')
+        for row in csv.reader(stream, skipinitialspace=True):
             rd.append(row)
     elif filename.endswith(".xlsx"):
         book = openpyxl.load_workbook(stream)
