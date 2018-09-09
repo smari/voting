@@ -181,7 +181,7 @@ def check_simulation():
         return jsonify({"error": "Please supply a SID."})
     if data["sid"] not in SIMULATIONS:
         return jsonify({"error": "Please supply a valid SID."})
-    simulation, thread = SIMULATIONS[data["sid"]]
+    simulation, thread, expiry = SIMULATIONS[data["sid"]]
     #if thread.done:
     #    del(SIMULATIONS[data["sid"]])
 
@@ -200,7 +200,7 @@ def stop_simulation():
         return jsonify({"error": "Please supply a SID."})
     if data["sid"] not in SIMULATIONS:
         return jsonify({"error": "Please supply a valid SID."})
-    simulation, thread = SIMULATIONS[data["sid"]]
+    simulation, thread, expiry = SIMULATIONS[data["sid"]]
 
     simulation.terminate = True
     thread.join()
@@ -223,7 +223,7 @@ def get_xlsx():
         return jsonify({"error": "Please supply a valid SID."})
 
     tmpfilename = tempfile.mktemp(prefix='votesim-%s-' % request.args["sid"][:6])
-    simulation, thread = SIMULATIONS[request.args["sid"]]
+    simulation, thread, expiry = SIMULATIONS[request.args["sid"]]
     util.simulation_to_xlsx(simulation, tmpfilename)
     print("%s" % (tmpfilename))
     return send_from_directory(
