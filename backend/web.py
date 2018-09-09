@@ -138,10 +138,12 @@ def run_simulation(sid):
 def cleanup_expired_simulations():
     global SIMULATIONS
     global SIMULATION_IDX
-    for sid, sim in SIMULATIONS.items():
-        if sim[2] > datetime.now():
-            del(SIMULATIONS[sid])
-
+    try:
+        for sid, sim in list(SIMULATIONS.items()):
+            if sim[2] > datetime.now():
+                del(SIMULATIONS[sid])
+    except RuntimeError:
+        pass
 
 @app.route('/api/simulate/', methods=['POST'])
 def start_simulation():
