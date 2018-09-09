@@ -1,6 +1,9 @@
 <template>
   <b-container>
-    <table class="resultmatrix" v-if="constituencies.length > 0">
+    <p>
+      DRASL: {{avg}}
+    </p>
+    <table class="resultmatrix" v-if="avg.length > 0">
       <tr v-if="title">
         <th class="small-12 medium-1 topleft"></th>
         <th :colspan="stddev?2*parties.length:parties.length">
@@ -36,7 +39,10 @@
       <tr>
         <th class="small-12 medium-1 column bottomleft">Total</th>
         <template v-for="(party, partyidx) in parties">
-          <td class="small-12 medium-1 column partyseats">
+          <td v-if="!stddev" class="small-12 medium-1 column partyseats">
+            0
+          </td>
+          <td v-if="stddev" class="small-12 medium-1 column partyseats">
             {{ avg[constituencies.length][partyidx].toFixed(round) }}
           </td>
           <td v-if="stddev" class="small-12 medium-1 column partyseats">
