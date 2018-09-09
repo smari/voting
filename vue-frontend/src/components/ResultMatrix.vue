@@ -1,44 +1,46 @@
 <template>
   <b-container>
-    <table class="resultmatrix" v-if="seats.length > 0">
+    <table class="resultmatrix" v-if="constituencies.length > 0">
       <tr v-if="title">
         <th class="small-12 medium-1 topleft"></th>
-        <th :colspan="variance?2*parties.length:parties.length">
+        <th :colspan="stddev?2*parties.length:parties.length">
           {{title}}
         </th>
       </tr>
       <tr class="parties">
         <th class="small-12 medium-1 topleft"></th>
-        <th :colspan="variance?2:1" v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
+        <th :colspan="stddev?2:1" v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
           {{ parties[partyidx] }}
         </th>
       </tr>
-      <tr v-if="variance" class="parties">
+      <tr v-if="stddev" class="parties">
         <th class="small-12 medium-1 topleft"></th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-1 column partyseats">Average</td>
-          <td class="small-12 medium-1 column partyseats">Variance</td>
-        </template>
-      </tr>
-      <tr>
-        <th class="small-12 medium-1 topleft"></th>
-        <template v-for="(party, partyidx) in parties">
-          <td class="small-12 medium-1 column partyseats">
-            {{ seatssum[partyidx].toFixed(round) }}
-          </td>
-          <td v-if="variance">&nbsp;</td>
+          <td class="small-12 medium-1 column partyseats">Stddev</td>
         </template>
       </tr>
       <tr v-for="(constituency, conidx) in constituencies">
         <th class="small-12 medium-1 column constname">
-            {{ constituencies[conidx] }}
+          {{ constituencies[conidx] }}
         </th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-2 column partyseats">
-              {{ seats[conidx][partyidx].toFixed(round) }}
+            {{ avg[conidx][partyidx].toFixed(round) }}
           </td>
-          <td v-if="variance" class="small-12 medium-2 column partyseats">
-              {{ variance[conidx][partyidx].toFixed(round) }}
+          <td v-if="stddev" class="small-12 medium-2 column partyseats">
+            {{ stddev[conidx][partyidx].toFixed(round) }}
+          </td>
+        </template>
+      </tr>
+      <tr>
+        <th class="small-12 medium-1 column bottomleft">Total</th>
+        <template v-for="(party, partyidx) in parties">
+          <td class="small-12 medium-1 column partyseats">
+            {{ avg[constituencies.length][partyidx].toFixed(round) }}
+          </td>
+          <td v-if="stddev" class="small-12 medium-1 column partyseats">
+            {{ stddev[constituencies.length][partyidx].toFixed(round) }}
           </td>
         </template>
       </tr>
@@ -50,21 +52,10 @@ export default {
   props: {
     "constituencies": { default: [] },
     "parties": { default: [] },
-    "seats": { default: [] },
+    "avg": { default: [] },
     "round": { default: 0 },
-    "variance": { default: false },
+    "stddev": { default: false },
     "title": { default: "" },
-  },
-  computed: {
-    seatssum: function() {
-      let seats = Array(this.parties.length).fill(0);
-      for (let c in this.seats) {
-        seats = this.seats[c].map(function (num, idx) {
-          return seats[idx]+num;
-        });
-      }
-      return seats;
-    }
   }
 }
 </script>

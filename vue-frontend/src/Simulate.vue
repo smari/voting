@@ -22,8 +22,14 @@
     </b-container>
 
     <h2>Reference votes</h2>
-    <p>Reference votes are the votes that will be used as a reference for the statistical distribution in the simulation.</p>
-    <VoteMatrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @server-error="serverError">
+    <p>Reference votes are the votes that will be used as mean values for the statistical distribution in the simulation.</p>
+    <VoteMatrix
+      @update-votes="updateVotes"
+      @update-adjustment-seats="updateAdjustmentSeats"
+      @update-constituency-seats="updateConstituencySeats"
+      @update-parties="updateParties"
+      @update-constituencies="updateConstituencies"
+      @server-error="serverError">
     </VoteMatrix>
 
     <div style="text-align: center; margin-bottom: 0.7em;">
@@ -53,20 +59,44 @@
     <div v-if="results.data.length > 0">
       <b-button size="lg" :href="get_xlsx_url()">Download XLSX file</b-button>
 
-      <h3>Total seats</h3>
-      <ResultMatrix v-for="(res, idx) in results.data" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.total_seats.avg" :variance="res.list_measures.total_seats.var" :title="res.name" round="2">
-      </ResultMatrix>
-
       <h3>Constituency seats</h3>
-      <ResultMatrix v-for="(res, idx) in results.data" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.const_seats.avg" :variance="res.list_measures.const_seats.var" :title="res.name" round="2">
+      <ResultMatrix v-for="(ruleset, idx) in results.data"
+        :constituencies="constituency_names"
+        :parties="parties"
+        :avg="ruleset.list_measures.const_seats.avg"
+        :stddev="ruleset.list_measures.const_seats.std"
+        :title="ruleset.name"
+        round="2">
       </ResultMatrix>
 
       <h3>Adjustment seats</h3>
-      <ResultMatrix v-for="(res, idx) in results.data" :constituencies="constituency_names" :parties="parties" :seats="res.list_measures.adj_seats.avg" :variance="res.list_measures.adj_seats.var" :title="res.name" round="2">
+      <ResultMatrix v-for="(ruleset, idx) in results.data"
+        :constituencies="constituency_names"
+        :parties="parties"
+        :avg="ruleset.list_measures.adj_seats.avg"
+        :stddev="ruleset.list_measures.adj_seats.std"
+        :title="ruleset.name"
+        round="2">
+      </ResultMatrix>
+
+      <h3>Total seats</h3>
+      <ResultMatrix v-for="(ruleset, idx) in results.data"
+        :constituencies="constituency_names"
+        :parties="parties"
+        :avg="ruleset.list_measures.total_seats.avg"
+        :stddev="ruleset.list_measures.total_seats.std"
+        :title="ruleset.name"
+        round="2">
       </ResultMatrix>
 
       <h3>Quality measures</h3>
-      <SimulationData :measures="results.measures" :methods="results.methods" :data="results.data" :testnames="results.testnames">
+      <SimulationData
+        :measures="results.measures"
+        :deviation_measures="results.deviation_measures"
+        :standardized_measures="results.standardized_measures"
+        :methods="results.methods"
+        :data="results.data"
+        :testnames="results.testnames">
       </SimulationData>
     </div>
   </div>

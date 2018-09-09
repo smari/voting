@@ -2,29 +2,51 @@
   <b-form>
     <b-row v-if="rulesidx !== undefined">
       <b-col>
-        <b-form-group label="Name" description="Give this rule set a name.">
-          <b-form-input v-model="rules.election_rules.name" type="text"   class="mb-3"/>
+        <b-form-group
+          label="Name"
+          description="Give this rule set a name.">
+          <b-form-input type="text" class="mb-3"
+            v-model="rules.election_rules.name"/>
         </b-form-group>
       </b-col>
     </b-row>
     <b-row>
       <b-col>
-        <b-form-group label="Primary apportionment divider" description="Which divider rule should be used to allocate constituency seats?">
-          <b-form-select v-model="rules.election_rules.primary_divider" :options="rules.capabilities.divider_rules" class="mb-3"/>
+        <b-form-group
+          label="Divider for allocating constituency seats"
+          description="Which divider rule should be used to allocate constituency seats to lists within each constituency?">
+          <b-form-select class="mb-3"
+            v-model="rules.election_rules.primary_divider"
+            :options="rules.capabilities.divider_rules"/>
         </b-form-group>
-        <b-form-group label="Adjustment determination divider" description="Which divider rule should be used to determine how many adjustment seats a party gets?">
-          <b-form-select v-model="rules.election_rules.adj_determine_divider" :options="rules.capabilities.divider_rules" class="mb-3"/>
+        <b-form-group
+          label="Divider for apportioning adjustment seats"
+          description="Which divider rule should be used to apportion adjustment seats among parties?">
+          <b-form-select class="mb-3"
+            v-model="rules.election_rules.adj_determine_divider"
+            :options="rules.capabilities.divider_rules"/>
         </b-form-group>
-        <b-form-group label="Adjustment apportionment divider" description="Which divider rule should be used to decide adjustment seats?">
-          <b-form-select v-model="rules.election_rules.adj_alloc_divider" :options="rules.capabilities.divider_rules" class="mb-3"/>
+        <b-form-group
+          label="Divider for allocating adjustment seats"
+          description="Which divider rule should be used to allocate adjustment seats to individual lists?">
+          <b-form-select class="mb-3"
+            v-model="rules.election_rules.adj_alloc_divider"
+            :options="rules.capabilities.divider_rules"/>
         </b-form-group>
       </b-col>
       <b-col>
-        <b-form-group label="Adjustment method" description="Which method should be used to allocate adjustment seats?">
-          <b-form-select v-model="rules.election_rules.adjustment_method" :options="rules.capabilities.adjustment_methods" class="mb-3"/>
+        <b-form-group
+          label="Adjustment method"
+          description="Which method should be used to allocate adjustment seats?">
+          <b-form-select class="mb-3"
+            v-model="rules.election_rules.adjustment_method"
+            :options="rules.capabilities.adjustment_methods"/>
         </b-form-group>
-        <b-form-group label="Adjustment threshold" description="What threshold are parties required to reach to qualify for adjustment seats?">
-          <b-form-input type="number" v-model.number="rules.election_rules.adjustment_threshold"/>
+        <b-form-group
+          label="Adjustment threshold"
+          description="What threshold are parties required to reach to qualify for adjustment seats?">
+          <b-form-input type="number"
+            v-model.number="rules.election_rules.adjustment_threshold"/>
         </b-form-group>
       </b-col>
     </b-row>

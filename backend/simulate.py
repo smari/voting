@@ -3,7 +3,7 @@ from rules import Rules
 from math import sqrt, exp
 from random import betavariate
 from copy import copy, deepcopy
-from util import add_totals, matrix_subtraction, find_shares
+from util import add_totals, matrix_subtraction, find_xtd_shares
 
 import voting
 import io
@@ -11,33 +11,39 @@ import json
 from datetime import datetime, timedelta
 
 
-def beta_params(mean, var_param):
-    alpha = mean*(1/var_param**2 - 1)
+def beta_params(mean, std_param):
+    alpha = mean*(1/std_param**2 - 1)
     beta = alpha*(1/mean - 1)
     return alpha, beta
 
-def beta_distribution(m_ref_votes, var_param):
+def beta_distribution(
+    base_votes, #2d - votes for each list,
+    std_param   #distribution parameter in range (0,1)
+):
     """
     Generate a set of votes with beta distribution,
-    using 'm_ref_votes' as reference.
+    using 'base_votes' as reference.
     """
-    m_votes = []
-    ref_totals = [sum(c) for c in m_ref_votes]
+    assert(0 < std_param and std_param < 1)
+    xtd_votes = add_totals(base_votes)
+    xtd_shares = find_xtd_shares(xtd_votes)
 
-    for c in range(len(m_ref_votes)):
+    generated_votes = []
+    for c in range(len(base_votes)):
         s = 0
-        m_votes.append([])
-        for p in range(len(m_ref_votes[c])):
-            mean_beta_distr = m_ref_votes[c][p]/float(ref_totals[c])
-            if mean_beta_distr > 0:
-                var_beta = var_param*mean_beta_distr*(1-mean_beta_distr)
-                alpha, beta = beta_params(mean_beta_distr, var_param)
+        generated_votes.append([])
+        for p in range(len(base_votes[c])):
+            mean_beta_distr = xtd_shares[c][p]
+            assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
+            if 0 < mean_beta_distr and mean_beta_distr < 1:
+                var_beta = std_param*mean_beta_distr*(1-mean_beta_distr)
+                alpha, beta = beta_params(mean_beta_distr, std_param)
                 share = betavariate(alpha, beta)
             else:
-                share = 0
-            m_votes[c].append(int(share*ref_totals[c]))
+                share = mean_beta_distr #either 0 or 1
+            generated_votes[c].append(int(share*xtd_votes[c][-1]))
 
-    return m_votes
+    return generated_votes
 
 GENERATING_METHODS = {
     "beta": beta_distribution
@@ -48,19 +54,36 @@ GENERATING_METHOD_NAMES = {
 }
 
 MEASURES = {
-    "entropy":         "Entropy",
-    "entropy_ratio":   "Entropy Ratio",
-    "dev_opt":         "Seat Deviation from Optimal",
-    "dev_law":         "Seat Deviation from Icelandic Law",
-    "dev_ind_const":   "Seat Deviation from Independent Constituencies",
-    "dev_one_const":   "Seat Deviation from Single Constituency",
-    "dev_all_adj":     "Seat Deviation from All Adjustment Seats",
-    "loosemore_hanby": "Loosemore-Hanby Index",
-    "sainte_lague":    "Sainte-Lague minsum Index",
-    "dhondt_min":      "d'Hondt maxmin Index",
-    "dhondt_sum":      "d'Hondt minsum Index",
-    "adj_dev":         "Adjustment seat deviation from determined",
+    "dev_opt":         "Allocation by the optimal method",
+    "dev_law":         "Allocation by Icelandic Law",
+    "adj_dev":         "Adjustment seats apportioned nationally",
+    "dev_ind_const":   "Allocation as if all seats were constituency seats",
+    "dev_all_adj":     "Allocation as if all seats were adjustment seats",
+    "dev_one_const":   "Allocation as if all constituencies were combined into one",
+    "entropy":         "Entropy (product of all seat values used)",
+    "entropy_ratio":   "Relative entropy deviation from optimal solution",
+    "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
+    "sainte_lague":    "Scaled sum of squared deviation of list seats from biproportional seat shares (Sainte-Lague)",
+    "dhondt_min":      "Maximum of the mininum seat value used (d'Hondt)",
+    "dhondt_sum":      "Scaled sum of positive deviation of list seats from biproportional seat shares (d'Hondt)",
 }
+
+DEVIATION_MEASURES = [
+    "dev_opt",
+    "dev_law",
+    "adj_dev",
+    "dev_ind_const",
+    "dev_all_adj",
+    # "dev_one_const", #skipped, because already measured by all_adj (party sums)
+]
+
+STANDARDIZED_MEASURES = [
+    "entropy_ratio",
+    "loosemore_hanby",
+    "sainte_lague",
+    "dhondt_min",
+    "dhondt_sum",
+]
 
 LIST_MEASURES = {
     "const_seats":   "constituency seats",
@@ -168,7 +191,7 @@ class SimulationRules(Rules):
 
 class Simulation:
     """Simulate a set of elections."""
-    def __init__(self, sim_rules, e_rules, m_votes, var_param=0.1):
+    def __init__(self, sim_rules, e_rules, m_votes, std_param=0.1):
         self.num_total_simulations = sim_rules["simulation_count"]
         self.num_rulesets = len(e_rules)
         self.num_constituencies = len(m_votes)
@@ -185,9 +208,9 @@ class Simulation:
         self.e_rules = e_rules
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
-        self.xtd_vote_shares = find_shares(self.xtd_votes)
+        self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
-        self.var_param = var_param
+        self.std_param = std_param
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
@@ -247,6 +270,8 @@ class Simulation:
         t = float(self.data[ruleset][measure]["sqs"])
         avg = s/n                 if n>0 else 0
         var = (t - s*avg) / (n-1) if n>1 else 0
+        if -0.0000001 < var and var < 0:
+            var = 0
         std = sqrt(var)
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
@@ -259,12 +284,13 @@ class Simulation:
             xtd_total_seats = add_totals(election.run())
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-            xtd_seat_shares = find_shares(xtd_total_seats)
+            xtd_seat_shares = find_xtd_shares(xtd_total_seats)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
                 "xtd_total_seats": xtd_total_seats,
-                "xtd_seat_shares": xtd_seat_shares
+                "xtd_seat_shares": xtd_seat_shares,
+                "step_info": election.adj_seats_info,
             })
 
     def gen_votes(self):
@@ -274,9 +300,9 @@ class Simulation:
         """
         gen = GENERATING_METHODS[self.variate]
         while True:
-            votes = gen(self.base_votes, self.var_param)
+            votes = gen(self.base_votes, self.std_param)
             xtd_votes  = add_totals(votes)
-            xtd_shares = find_shares(xtd_votes)
+            xtd_shares = find_xtd_shares(xtd_votes)
             for c in range(self.num_constituencies+1):
                 for p in range(self.num_parties+1):
                     self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
@@ -292,7 +318,7 @@ class Simulation:
             for p in range(1+self.num_parties):
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p)
-                var_beta_distr[c].append(self.var_param
+                var_beta_distr[c].append(self.std_param
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
         sim_shares = self.list_data[-1]["sim_shares"]
@@ -326,8 +352,8 @@ class Simulation:
         opt_rules = generate_opt_ruleset(self.e_rules[ruleset])
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
-        entropy_ratio = exp(entropy - opt_election.entropy())
-        self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
+        entropy_deviation_ratio = 1 - exp(entropy - opt_election.entropy())
+        self.aggregate_measure(ruleset, "entropy_ratio", entropy_deviation_ratio)
         self.aggregate_measure(ruleset, "entropy", entropy)
         return opt_results
 
@@ -342,10 +368,13 @@ class Simulation:
 
     def other_measures(self, ruleset, votes, results, opt_results):
         bi_seat_shares = self.calculate_bi_seat_shares(ruleset, votes, opt_results)
+        scale = 1.0/sum([
+            1.0/s for c in bi_seat_shares for s in c if s!=0
+        ])
         self.loosemore_hanby(ruleset, results, bi_seat_shares)
-        self.sainte_lague(ruleset, results, bi_seat_shares)
+        self.sainte_lague(ruleset, results, bi_seat_shares, scale)
         self.dhondt_min(ruleset, results, bi_seat_shares)
-        self.dhondt_sum(ruleset, results, bi_seat_shares)
+        self.dhondt_sum(ruleset, results, bi_seat_shares, scale)
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
@@ -395,32 +424,42 @@ class Simulation:
 
     def loosemore_hanby(self, ruleset, results, bi_seat_shares):
         total_seats = sum([sum(c) for c in results])
-        lh = sum([sum([abs(bi_seat_shares[c][p]-results[c][p])
-                    for p in range(self.num_parties)])
-                    for c in range(self.num_constituencies)]) / total_seats
+        scale = 1.0/total_seats
+        lh = sum([
+            abs(bi_seat_shares[c][p]-results[c][p])
+            for p in range(self.num_parties)
+            for c in range(self.num_constituencies)
+        ])
+        lh *= scale
         self.aggregate_measure(ruleset, "loosemore_hanby", lh)
 
-    def sainte_lague(self, ruleset, results, bi_seat_shares):
-        scale = 1
-        stl = sum([sum([(bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
-                    if bi_seat_shares[c][p] != 0 else 0
-                    for p in range(self.num_parties)])
-                    for c in range(self.num_constituencies)]) * scale
+    def sainte_lague(self, ruleset, results, bi_seat_shares, scale):
+        stl = sum([
+            (bi_seat_shares[c][p]-results[c][p])**2/bi_seat_shares[c][p]
+            for p in range(self.num_parties)
+            for c in range(self.num_constituencies)
+            if bi_seat_shares[c][p] != 0
+        ])
+        stl *= scale
         self.aggregate_measure(ruleset, "sainte_lague", stl)
 
     def dhondt_min(self, ruleset, results, bi_seat_shares):
-        dh_min_factors = [bi_seat_shares[c][p]/float(results[c][p])
-                          if results[c][p] != 0 else 10000000000000000
-                          for p in range(self.num_parties)
-                          for c in range(self.num_constituencies)]
-        dh_min = min(dh_min_factors)
+        dh_min = min([
+            bi_seat_shares[c][p]/float(results[c][p])
+            for p in range(self.num_parties)
+            for c in range(self.num_constituencies)
+            if results[c][p] != 0
+        ])
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
-    def dhondt_sum(self, ruleset, results, bi_seat_shares):
-        dh_sum = sum([max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
-                        if bi_seat_shares[c][p] != 0 else 10000000000000000000000
-                        for p in range(self.num_parties)
-                        for c in range(self.num_constituencies)])
+    def dhondt_sum(self, ruleset, results, bi_seat_shares, scale):
+        dh_sum = sum([
+            max(0, bi_seat_shares[c][p]-results[c][p])/bi_seat_shares[c][p]
+            for p in range(self.num_parties)
+            for c in range(self.num_constituencies)
+            if bi_seat_shares[c][p] != 0
+        ])
+        dh_sum *= scale
         self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
 
     def analysis(self):
@@ -459,12 +498,15 @@ class Simulation:
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": MEASURES,
+            "deviation_measures": DEVIATION_MEASURES,
+            "standardized_measures": STANDARDIZED_MEASURES,
             "list_measures": LIST_MEASURES,
             "vote_measures": VOTE_MEASURES,
             "aggregates": AGGREGATES,
             "data": [
                 {
                     "name": self.e_rules[ruleset]["name"],
+                    "method": self.e_rules[ruleset]["adjustment_method"],
                     "measures": self.data[ruleset],
                     "list_measures": self.list_data[ruleset]
                 }

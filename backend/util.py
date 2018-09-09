@@ -74,15 +74,15 @@ def load_votes_from_stream(stream, filename):
     for row in rd: del(row[0])
 
     if rd[0][0].lower() == "cons":
-        res["constituency_seats"] = [row[0] for row in rd[1:]]
+        res["constituency_seats"] = [int(row[0]) for row in rd[1:]]
         for row in rd: del(row[0])
 
     if rd[0][0].lower() == "adj":
-        res["constituency_adjustment_seats"] = [row[0] for row in rd[1:]]
+        res["constituency_adjustment_seats"] = [int(row[0]) for row in rd[1:]]
         for row in rd: del(row[0])
 
     res["parties"] = rd[0]
-    res["votes"] = rd[1:]
+    res["votes"] = [[int(v) for v in row] for row in rd[1:]]
 
     return res
 
@@ -134,8 +134,11 @@ def matrix_subtraction(A, B):
         for i in range(m)
     ]
 
-def find_shares(xtd_table):
-    return [[float(v)/c[-1] for v in c] for c in xtd_table]
+def find_xtd_shares(xtd_table):
+    return [[float(v)/c[-1] if c[-1]!=0 else 0 for v in c] for c in xtd_table]
+
+def find_shares(table):
+    return [[float(v)/sum(c) if sum(c)!=0 else 0 for v in c] for c in table]
 
 def print_table(data, header, labels, output, f_string=None):
     """
@@ -166,8 +169,8 @@ def print_steps_election(election):
     print_table(xtd_votes, header, const_names, out)
 
     print("\nVote shares")
-    shares = find_shares(xtd_votes)
-    print_table(shares, header, const_names, out, "{:.1%}")
+    xtd_shares = find_xtd_shares(xtd_votes)
+    print_table(xtd_shares, header, const_names, out, "{:.1%}")
 
     print("\nConstituency seats")
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
@@ -206,8 +209,8 @@ def print_steps_election(election):
     print_table(xtd_total_seats, header, const_names, out)
 
     print("\nSeat shares")
-    shares = find_shares(xtd_total_seats)
-    print_table(shares, header, const_names, out, "{:.1%}")
+    xtd_shares = find_xtd_shares(xtd_total_seats)
+    print_table(xtd_shares, header, const_names, out, "{:.1%}")
 
 def pretty_print_election(election):
     """Print results of a single election."""
@@ -253,12 +256,12 @@ def election_to_xlsx(election, filename):
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
     xtd_shares = [["{:.1%}".format(s) if s != 0 else None for s in c]
-                for c in find_shares(xtd_votes)]
+                for c in find_xtd_shares(xtd_votes)]
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
     xtd_seat_shares = [["{:.1%}".format(s) for s in c]
-                    for c in find_shares(xtd_total_seats)]
+                    for c in find_xtd_shares(xtd_total_seats)]
 
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
@@ -522,9 +525,11 @@ def simulation_to_xlsx(simulation, filename):
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat)
 
-    def draw_block(worksheet, row, col, heading, matrix, cformat=cell_format):
-        xheaders = parties
-        yheaders = const_names
+    def draw_block(worksheet, row, col,
+        heading, xheaders, yheaders,
+        matrix,
+        cformat=cell_format
+    ):
         if heading.endswith("shares"):
             cformat = share_format
         worksheet.merge_range(
@@ -588,11 +593,49 @@ def simulation_to_xlsx(simulation, filename):
                 category["heading"], r_format)
             col = 2
             for table in tables:
-                draw_block(worksheet, toprow, col, table["heading"],
-                    data_matrix[category["abbr"]][table["abbr"]],
-                    category["cell_format"])
+                draw_block(worksheet, row=toprow, col=col,
+                    heading=table["heading"],
+                    xheaders=parties,
+                    yheaders=const_names,
+                    matrix=data_matrix[category["abbr"]][table["abbr"]],
+                    cformat=category["cell_format"]
+                )
                 col += len(parties)+2
             toprow += len(const_names)+3
+
+        results = simulation.get_results_dict()
+        MEASURES = results["measures"]
+        mkeys = MEASURES.keys()
+        measure_names = [MEASURES[key] for key in mkeys]
+        aggregates = ["avg", "std"]
+        aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
+        measure_table = [
+            [simulation.data[r][measure][aggr] for aggr in aggregates]
+            for measure in mkeys
+        ]
+        draw_block(worksheet, row=toprow, col=9,
+            heading="Summary measures",
+            xheaders=aggregate_names,
+            yheaders=measure_names,
+            matrix=measure_table,
+            cformat=sim_format
+        )
+
+
+        # method = ADJUSTMENT_METHODS[method_name]
+        # try:
+        #     h, data = method.print_seats(
+        #         simulation.e_rules[r],
+        #         simulation.base_allocations[r]["step_info"]
+        #     )
+        #     row = toprow
+        #     col = max(15, 2+3*(2+len(parties)))
+        #     worksheet.write_row(row, col, h, cell_format)
+        #     for line in data:
+        #         row += 1
+        #         worksheet.write_row(row, col, line, cell_format)
+        # except AttributeError:
+        #     pass
 
     workbook.close()
 
