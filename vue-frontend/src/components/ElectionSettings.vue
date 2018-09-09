@@ -46,7 +46,7 @@
           label="Adjustment threshold"
           description="What threshold are parties required to reach to qualify for adjustment seats?">
           <b-input-group append="%">
-            <b-form-input type="number"
+            <b-form-input type="number" min="0" max="100" 
               v-model.number="rules.election_rules.adjustment_threshold"/>
           </b-input-group>
         </b-form-group>
