@@ -70,7 +70,7 @@ class ElectionRules(Rules):
             "adjustment_method": ADJUSTMENT_METHODS.keys(),
         }
         self.range_rules = {
-            "adjustment_threshold": [0.0, 1.0]
+            "adjustment_threshold": [0, 100]
         }
         self.list_rules = [
             "constituency_seats", "constituency_adjustment_seats",
@@ -83,7 +83,7 @@ class ElectionRules(Rules):
         self["primary_divider"] = "dhondt"
         self["adj_determine_divider"] = "dhondt"
         self["adj_alloc_divider"] = "dhondt"
-        self["adjustment_threshold"] = 0.05
+        self["adjustment_threshold"] = 5
         self["adjustment_method"] = "icelandic-law"
         self["constituency_seats"] = []
         self["constituency_adjustment_seats"] = []
@@ -194,7 +194,7 @@ class Election:
         """Eliminate parties that do not reach the adjustment threshold."""
         if self.rules["debug"]:
             print(" + Threshold elimination")
-        threshold = self.rules["adjustment_threshold"]
+        threshold = self.rules["adjustment_threshold"]*0.01
         v_elim_votes = threshold_elimination_totals(self.m_votes, threshold)
         m_elim_votes = threshold_elimination_constituencies(self.m_votes,
                                                             threshold)
@@ -224,7 +224,7 @@ class Election:
             self.v_adjustment_seats,
             self.m_const_seats_alloc,
             gen,
-            self.rules["adjustment_threshold"],
+            self.rules["adjustment_threshold"]*0.01,
             orig_votes=self.m_votes,
             last=self.last)
 
