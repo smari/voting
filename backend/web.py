@@ -129,6 +129,14 @@ def run_simulation(sid):
     SIMULATIONS[sid][1].done = True
 
 
+def cleanup_expired_simulations():
+    global SIMULATIONS
+    global SIMULATION_IDX
+    for sid, sim in SIMULATIONS.iteritems():
+        if sim[2] > datetime.now():
+            del(SIMULATIONS[sid])
+
+
 @app.route('/api/simulate/', methods=['POST'])
 def start_simulation():
     global SIMULATIONS
@@ -146,7 +154,13 @@ def start_simulation():
     if not success:
         return jsonify({"started": False, "error": simulation})
 
-    SIMULATIONS[sid] = [simulation, thread]
+    # Simulation cache expires in 3 hours = 3*3600 = 10800 seconds
+    expires = datetime.now() + timedelta(seconds=10800)
+    SIMULATIONS[sid] = [simulation, thread, expires]
+
+    # Whenever we start a new simulation, we'll clean up any expired
+    #   simulations first:
+    cleanup_expired_simulations()
 
     thread.start()
     return jsonify({"started": True, "sid": sid})
