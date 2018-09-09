@@ -88,7 +88,7 @@ def load_votes_from_stream(stream, filename):
         for row in rd: del(row[0])
 
     num_parties = 0
-    while(rd[0][num_parties]): num_parties += 1
+    while(num_parties < len(rd[0]) and rd[0][num_parties]): num_parties += 1
     res["parties"] = rd[0][:num_parties]
     res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd[1:]]
 
@@ -185,7 +185,7 @@ def print_steps_election(election):
     print_table(xtd_const_seats, header, const_names, out)
 
     print("\nAdjustment seat apportionment")
-    print("Threshold: {:.1%}".format(rules["adjustment_threshold"]))
+    print("Threshold: {:.1%}".format(rules["adjustment_threshold"]*0.01))
     v_votes = election.v_votes
     v_votes.append(sum(election.v_votes))
     v_elim_votes = election.v_votes_eliminated
@@ -318,7 +318,7 @@ def election_to_xlsx(election, filename):
                                 h_format)
     worksheet.merge_range(row, 7, row, 8, "Threshold", h_format)
     worksheet.write(row, 9,
-                    "{:.1%}".format(election.rules["adjustment_threshold"]),
+                    "{:.1%}".format(election.rules["adjustment_threshold"]*0.01),
                     cell_format)
     row += 1
     v_votes = xtd_votes[-1]

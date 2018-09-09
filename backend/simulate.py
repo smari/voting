@@ -549,7 +549,7 @@ def generate_law_ruleset(ruleset):
     ref_rs["primary_divider"] = "dhondt"
     ref_rs["adj_determine_divider"] = "dhondt"
     ref_rs["adj_alloc_divider"] = "dhondt"
-    ref_rs["adjustment_threshold"] = 0.05
+    ref_rs["adjustment_threshold"] = 5
     return ref_rs
 
 def generate_ind_const_ruleset(ruleset):

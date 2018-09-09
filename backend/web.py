@@ -113,7 +113,8 @@ def paste_votes():
         if data["has_parties"]: res["parties"] = res["parties"][1:]
 
     num_parties = 0
-    while(res["parties"][num_parties]): num_parties += 1
+    while(num_parties < len(res["parties"]) and res["parties"][num_parties]):
+        num_parties += 1
     res["parties"] = res["parties"][:num_parties]
 
     res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd]
