@@ -140,7 +140,7 @@ def cleanup_expired_simulations():
     global SIMULATION_IDX
     try:
         for sid, sim in list(SIMULATIONS.items()):
-            if sim[2] > datetime.now():
+            if sim[2] < datetime.now():
                 del(SIMULATIONS[sid])
     except RuntimeError:
         pass
