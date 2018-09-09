@@ -138,7 +138,7 @@ def run_simulation(sid):
 def cleanup_expired_simulations():
     global SIMULATIONS
     global SIMULATION_IDX
-    for sid, sim in SIMULATIONS.iteritems():
+    for sid, sim in SIMULATIONS.items():
         if sim[2] > datetime.now():
             del(SIMULATIONS[sid])
 
