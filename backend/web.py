@@ -103,16 +103,16 @@ def paste_votes():
         if data["has_parties"]: res["parties"] = res["parties"][1:]
 
     if data["has_constituency_seats"]:
-        res["constituency_seats"] = [int(row[0]) for row in rd]
+        res["constituency_seats"] = [int(row[0]) if row[0] else 0 for row in rd]
         for row in rd: del(row[0])
         if data["has_parties"]: res["parties"] = res["parties"][1:]
 
     if data["has_constituency_adjustment_seats"]:
-        res["constituency_adjustment_seats"] = [int(row[0]) for row in rd]
+        res["constituency_adjustment_seats"] = [int(row[0]) if row[0] else 0 for row in rd]
         for row in rd: del(row[0])
         if data["has_parties"]: res["parties"] = res["parties"][1:]
 
-    res["votes"] = [[int(v) for v in row] for row in rd]
+    res["votes"] = [[int(v) if v else 0 for v in row] for row in rd]
 
     return jsonify(res)
 

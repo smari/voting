@@ -74,15 +74,19 @@ def load_votes_from_stream(stream, filename):
     for row in rd: del(row[0])
 
     if rd[0][0].lower() == "cons":
-        res["constituency_seats"] = [int(row[0]) for row in rd[1:]]
+        res["constituency_seats"] = [
+            int(row[0]) if row[0] else 0 for row in rd[1:]
+        ]
         for row in rd: del(row[0])
 
     if rd[0][0].lower() == "adj":
-        res["constituency_adjustment_seats"] = [int(row[0]) for row in rd[1:]]
+        res["constituency_adjustment_seats"] = [
+            int(row[0]) if row[0] else 0 for row in rd[1:]
+        ]
         for row in rd: del(row[0])
 
     res["parties"] = rd[0]
-    res["votes"] = [[int(v) for v in row] for row in rd[1:]]
+    res["votes"] = [[int(v) if v else 0 for v in row] for row in rd[1:]]
 
     return res
 
