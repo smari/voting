@@ -6,6 +6,21 @@
   Hello! This is a voting system simulator. Above, you can choose between two modes: <b><a href="#/election">Single Election</a></b> and <b><a href="#/simulate">Simulate</a></b>.
   </p>
 
+  <h2>About</h2>
+  <p>The aim of this software is to help people understand how certain types of voting systems work under various conditions. It provides tools to calculate election results for certain systems and review various metrics for these systems under simulation.</p>
+  <p>This software is free to use for experimental purposes, and is free/open source software, available from <a href="https://github.com/smari/voting/">Github</a>. If you are using it for commercial or political reasons, please contact us to discuss supporting our project financially.
+  <p>
+    The voting system simulator is made by:
+  </p>
+  <ul>
+    <li>Smári McCarthy (smarim@althingi.is)</li>
+    <li>Þorkell Helgason (thorkellhelga@gmail.com)</li>
+    <li>Martha Guðrún Bjarnadóttir</li>
+    <li>Pétur Ólafur Aðalgeirsson</li>
+    <li>Helgi Hrafn Gunnarsson</li>
+    <li>Bjartur Thorlacius</li>
+  </ul>
+
   <h2>Single Election</h2>
 
   <p>
