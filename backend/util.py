@@ -57,7 +57,6 @@ def load_constituencies(confile):
     return cons
 
 def load_votes_from_stream(stream, filename):
-    res = {}
     rd = []
     if filename.endswith(".csv"):
         if isinstance(stream, io.BytesIO):
@@ -72,27 +71,60 @@ def load_votes_from_stream(stream, filename):
     else:
         return None, None, None
 
-    res["constituencies"] = [row[0] for row in rd[1:]]
-    for row in rd: del(row[0])
+    const_seats_incl = False
+    adj_seats_incl = False
+    expected = 1
+    if rd[0][expected].lower() == "cons":
+        const_seats_incl = True
+        expected += 1
+    if rd[0][expected].lower() == "adj":
+        adj_seats_incl = True
 
-    if rd[0][0].lower() == "cons":
-        res["constituency_seats"] = [
-            int(row[0]) if row[0] else 0 for row in rd[1:]
-        ]
-        for row in rd: del(row[0])
+    return parse_input(
+        input=rd,
+        parties_included=True,
+        const_included=True,
+        const_seats_included=const_seats_incl,
+        adj_seats_included=adj_seats_incl
+    )
 
-    if rd[0][0].lower() == "adj":
-        res["constituency_adjustment_seats"] = [
-            int(row[0]) if row[0] else 0 for row in rd[1:]
-        ]
-        for row in rd: del(row[0])
+def parse_input(
+    input,
+    parties_included,
+    const_included,
+    const_seats_included,
+    adj_seats_included
+):
+    res = {}
+    if parties_included:
+        res["parties"] = input[0]
+        del(input[0])
 
-    num_parties = 0
-    while(num_parties < len(rd[0]) and rd[0][num_parties]): num_parties += 1
-    res["parties"] = rd[0][:num_parties]
-    res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd[1:]]
+    if const_included:
+        res["constituencies"] = [row[0] for row in input]
+        for row in input: del(row[0])
+        if parties_included: res["parties"] = res["parties"][1:]
 
+    if const_seats_included:
+        res["constituency_seats"] = [parsint(row[0]) for row in input]
+        for row in input: del(row[0])
+        if parties_included: res["parties"] = res["parties"][1:]
+
+    if adj_seats_included:
+        res["constituency_adjustment_seats"] = [parsint(row[0]) for row in input]
+        for row in input: del(row[0])
+        if parties_included: res["parties"] = res["parties"][1:]
+
+    res["votes"] = input
+    if parties_included:
+        while not res["parties"][-1]:
+            res["parties"] = res["parties"][:-1]
+        res["votes"] = [row[:len(res["parties"])] for row in res["votes"]]
+    res["votes"] = [[parsint(v) for v in row] for row in res["votes"]]
     return res
+
+def parsint(value):
+    return int(value) if value else 0
 
 
 def load_votes(votefile, consts):

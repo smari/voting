@@ -93,34 +93,13 @@ def paste_votes():
     for row in csv.reader(StringIO(data["csv"]), skipinitialspace=True):
         rd.append(row)
 
-    res = {}
-    if data["has_parties"]:
-        res["parties"] = rd[0]
-        del(rd[0])
-
-    if data["has_constituencies"]:
-        res["constituencies"] = [row[0] for row in rd]
-        for row in rd: del(row[0])
-        if data["has_parties"]: res["parties"] = res["parties"][1:]
-
-    if data["has_constituency_seats"]:
-        res["constituency_seats"] = [int(row[0]) if row[0] else 0 for row in rd]
-        for row in rd: del(row[0])
-        if data["has_parties"]: res["parties"] = res["parties"][1:]
-
-    if data["has_constituency_adjustment_seats"]:
-        res["constituency_adjustment_seats"] = [int(row[0]) if row[0] else 0 for row in rd]
-        for row in rd: del(row[0])
-        if data["has_parties"]: res["parties"] = res["parties"][1:]
-
-    num_parties = 0
-    while(num_parties < len(res["parties"]) and res["parties"][num_parties]):
-        num_parties += 1
-    res["parties"] = res["parties"][:num_parties]
-
-    res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd]
-
-    return jsonify(res)
+    return jsonify(util.parse_input(
+        input=rd,
+        parties_included=data["has_parties"],
+        const_included=data["has_constituencies"],
+        const_seats_included=data["has_constituency_seats"],
+        adj_seats_included=data["has_constituency_adjustment_seats"]
+    ))
 
 
 SIMULATIONS = {}
