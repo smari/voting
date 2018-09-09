@@ -88,7 +88,7 @@ def load_votes_from_stream(stream, filename):
         for row in rd: del(row[0])
 
     num_parties = 0
-    while(rd[0][num_parties]): num_parties += 1
+    while(num_parties < len(rd[0]) and rd[0][num_parties]): num_parties += 1
     res["parties"] = rd[0][:num_parties]
     res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd[1:]]
 
