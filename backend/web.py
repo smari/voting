@@ -112,7 +112,11 @@ def paste_votes():
         for row in rd: del(row[0])
         if data["has_parties"]: res["parties"] = res["parties"][1:]
 
-    res["votes"] = [[int(v) if v else 0 for v in row] for row in rd]
+    num_parties = 0
+    while(res["parties"][num_parties]): num_parties += 1
+    res["parties"] = res["parties"][:num_parties]
+
+    res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd]
 
     return jsonify(res)
 
