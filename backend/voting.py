@@ -4,7 +4,7 @@ This module contains the core voting system logic.
 """
 import json
 from tabulate import tabulate
-from util import load_votes, load_constituencies, entropy
+from util import load_votes, load_constituencies, entropy, add_totals
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
 from rules import Rules
@@ -137,7 +137,7 @@ class Election:
     def get_results_dict(self):
         return {
             "rules": self.rules,
-            "seat_allocations": self.results,
+            "seat_allocations": add_totals(self.results),
         }
 
     def run(self):
