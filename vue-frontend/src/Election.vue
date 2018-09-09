@@ -18,7 +18,11 @@
   <h2>Results</h2>
   <b-container>
     <b-row>
-      <ResultMatrix :constituencies="results.constituencies" :parties="results.parties" :avg="results.seat_allocations" :stddev="false">
+      <ResultMatrix
+        :constituencies="results.constituencies"
+        :parties="results.parties"
+        :values="results.seat_allocations"
+        :stddev="false">
       </ResultMatrix>
     </b-row>
     <b-row>

@@ -1,9 +1,6 @@
 <template>
   <b-container>
-    <p>
-      DRASL: {{avg}}
-    </p>
-    <table class="resultmatrix" v-if="avg.length > 0">
+    <table class="resultmatrix" v-if="values.length > 0">
       <tr v-if="title">
         <th class="small-12 medium-1 topleft"></th>
         <th :colspan="stddev?2*parties.length:parties.length">
@@ -29,7 +26,7 @@
         </th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-2 column partyseats">
-            {{ avg[conidx][partyidx].toFixed(round) }}
+            {{ values[conidx][partyidx].toFixed(round) }}
           </td>
           <td v-if="stddev" class="small-12 medium-2 column partyseats">
             {{ stddev[conidx][partyidx].toFixed(round) }}
@@ -39,11 +36,8 @@
       <tr>
         <th class="small-12 medium-1 column bottomleft">Total</th>
         <template v-for="(party, partyidx) in parties">
-          <td v-if="!stddev" class="small-12 medium-1 column partyseats">
-            0
-          </td>
-          <td v-if="stddev" class="small-12 medium-1 column partyseats">
-            {{ avg[constituencies.length][partyidx].toFixed(round) }}
+          <td class="small-12 medium-1 column partyseats">
+            {{ values[constituencies.length][partyidx].toFixed(round) }}
           </td>
           <td v-if="stddev" class="small-12 medium-1 column partyseats">
             {{ stddev[constituencies.length][partyidx].toFixed(round) }}
@@ -58,7 +52,7 @@ export default {
   props: {
     "constituencies": { default: [] },
     "parties": { default: [] },
-    "avg": { default: [] },
+    "values": { default: [] },
     "round": { default: 0 },
     "stddev": { default: false },
     "title": { default: "" },
