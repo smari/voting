@@ -346,6 +346,7 @@ def election_to_xlsx(election, filename):
         matrix=xtd_shares
     )
     row = startrow + 3 + len(xtd_shares)
+    startrow = startrow + 3 + len(xtd_shares)
     worksheet.merge_range(row, 2, row, 1+len(parties), "Constituency seats",
                                 h_format)
     row += 1
