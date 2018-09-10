@@ -341,8 +341,6 @@ def election_to_xlsx(election, filename):
         matrix=xtd_votes
     )
     startrow += 3 + len(xtd_votes)
-    row = 7 + len(xtd_votes)
-    assert(row == startrow)
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Vote shares", xheaders=parties, yheaders=const_names,
         matrix=xtd_shares
