@@ -352,12 +352,21 @@ def election_to_xlsx(election, filename):
     )
     startrow = startrow + 3 + len(xtd_const_seats)
     row = startrow
-    worksheet.merge_range(row, 2, row, 6, "Adjustment seat apportionment",
-                                h_format)
-    worksheet.merge_range(row, 7, row, 8, "Threshold", h_format)
-    worksheet.write(row, 9,
-                    "{:.1%}".format(election.rules["adjustment_threshold"]*0.01),
-                    cell_format)
+    worksheet.merge_range(
+        startrow, startcol+1,
+        startrow, startcol+5,
+        "Adjustment seat apportionment", h_format
+    )
+    worksheet.merge_range(
+        startrow, startcol+6,
+        startrow, startcol+7,
+        "Threshold", h_format
+    )
+    worksheet.write(
+        startrow, startcol+8,
+        "{:.1%}".format(election.rules["adjustment_threshold"]*0.01),
+        cell_format
+    )
     row += 1
     v_votes = xtd_votes[-1]
     v_elim_votes = election.v_votes_eliminated
