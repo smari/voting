@@ -71,14 +71,9 @@ def load_votes_from_stream(stream, filename):
     else:
         return None, None, None
 
-    const_seats_incl = False
-    adj_seats_incl = False
-    expected = 1
-    if rd[0][expected].lower() == "cons":
-        const_seats_incl = True
-        expected += 1
-    if rd[0][expected].lower() == "adj":
-        adj_seats_incl = True
+    const_seats_incl = rd[0][1].lower() == "cons"
+    expected = 2 if const_seats_incl else 1
+    adj_seats_incl = rd[0][expected].lower() == "adj"
 
     return parse_input(
         input=rd,
