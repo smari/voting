@@ -307,8 +307,11 @@ def election_to_xlsx(election, filename):
     h_format.set_bold()
     h_format.set_font_size(14)
     worksheet.set_column('B:B', 20)
-    worksheet.merge_range(4, 2, 4, 1+len(parties), "Votes",
-                                h_format)
+    worksheet.merge_range(
+        4, 2,
+        4, 1+len(parties),
+        "Votes", h_format
+    )
     worksheet.write(5, 1, 'Constituency', cell_format)
     worksheet.write_row(5, 2, parties, cell_format)
     worksheet.write_column(6, 1, const_names, cell_format)
