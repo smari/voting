@@ -318,11 +318,13 @@ def election_to_xlsx(election, filename):
     worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
     worksheet.write_column(startrow+2, startcol, const_names, cell_format)
     row = 5
+    srow = startrow+2
+    scol = startcol+1
     for c in range(len(xtd_votes)):
         row += 1
         for p in range(len(xtd_votes[c])):
             if xtd_votes[c][p] != 0:
-                worksheet.write(row, p+2, xtd_votes[c][p], cell_format)
+                worksheet.write(srow+c, scol+p, xtd_votes[c][p], cell_format)
     row += 2
     worksheet.merge_range(row, 2, row, 1+len(parties), "Vote shares",
                                 h_format)
