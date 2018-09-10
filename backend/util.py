@@ -346,15 +346,10 @@ def election_to_xlsx(election, filename):
         matrix=xtd_shares
     )
     startrow += 3 + len(xtd_shares)
-    worksheet.merge_range(
-        startrow, startcol+1,
-        startrow, startcol+len(parties),
-        "Constituency seats", h_format
+    draw_block(worksheet, row=startrow, col=startcol,
+        heading="Constituency seats", xheaders=parties, yheaders=const_names,
+        matrix=xtd_const_seats
     )
-    worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
-    worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
-    worksheet.write_column(startrow+2, startcol, const_names, cell_format)
-    write_matrix(worksheet, startrow+2, startcol+1, xtd_const_seats, cell_format)
     row = startrow + 3 + len(xtd_const_seats)
     worksheet.merge_range(row, 2, row, 6, "Adjustment seat apportionment",
                                 h_format)
