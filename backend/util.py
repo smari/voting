@@ -345,11 +345,11 @@ def election_to_xlsx(election, filename):
     assert(row == startrow)
     worksheet.merge_range(row, 2, row, 1+len(parties), "Vote shares",
                                 h_format)
-    row = startrow + 1
     worksheet.write(startrow+1, 1, 'Constituency', cell_format)
     worksheet.write_row(startrow+1, 2, parties[:-1], cell_format)
     worksheet.write_column(startrow+2, 1, const_names, cell_format)
     write_matrix(worksheet, startrow+2, startcol+1, xtd_shares, cell_format)
+    row = startrow + 1
     row += 2 + len(xtd_shares)
     worksheet.merge_range(row, 2, row, 1+len(parties), "Constituency seats",
                                 h_format)
