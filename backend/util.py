@@ -351,6 +351,7 @@ def election_to_xlsx(election, filename):
         matrix=xtd_const_seats
     )
     row = startrow + 3 + len(xtd_const_seats)
+    startrow = startrow + 3 + len(xtd_const_seats)
     worksheet.merge_range(row, 2, row, 6, "Adjustment seat apportionment",
                                 h_format)
     worksheet.merge_range(row, 7, row, 8, "Threshold", h_format)
