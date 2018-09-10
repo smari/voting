@@ -309,10 +309,10 @@ def election_to_xlsx(election, filename):
     worksheet.set_column('B:B', 20)
     worksheet.merge_range(4, 2, 4, 1+len(parties), "Votes",
                                 h_format)
-    worksheet.write('B6', 'Constituency', cell_format)
+    worksheet.write(5, 1, 'Constituency', cell_format)
     worksheet.write_row(5, 2, parties, cell_format)
-    row = 5
     worksheet.write_column(6, 1, const_names, cell_format)
+    row = 5
     for c in range(len(xtd_votes)):
         row += 1
         for p in range(len(xtd_votes[c])):
