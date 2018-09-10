@@ -307,6 +307,18 @@ def election_to_xlsx(election, filename):
     h_format.set_bold()
     h_format.set_font_size(14)
     worksheet.set_column('B:B', 20)
+
+
+
+
+    def write_matrix(worksheet, startrow, startcol, matrix, cformat):
+        for c in range(len(matrix)):
+            for p in range(len(matrix[c])):
+                if matrix[c][p] != 0:
+                    worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                    cformat)
+
+
     startcol=1
     startrow = 4
     worksheet.merge_range(
@@ -317,14 +329,10 @@ def election_to_xlsx(election, filename):
     worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
     worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
     worksheet.write_column(startrow+2, startcol, const_names, cell_format)
+    write_matrix(worksheet, startrow+2, startcol+1, xtd_votes, cell_format)
     row = 5
-    srow = startrow+2
-    scol = startcol+1
     for c in range(len(xtd_votes)):
         row += 1
-        for p in range(len(xtd_votes[c])):
-            if xtd_votes[c][p] != 0:
-                worksheet.write(srow+c, scol+p, xtd_votes[c][p], cell_format)
     row += 2
     worksheet.merge_range(row, 2, row, 1+len(parties), "Vote shares",
                                 h_format)
