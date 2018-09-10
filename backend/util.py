@@ -352,9 +352,9 @@ def election_to_xlsx(election, filename):
         "Constituency seats", h_format
     )
     row = startrow+1
-    worksheet.write(row, 1, 'Constituency', cell_format)
-    worksheet.write_row(row, 2, parties, cell_format)
-    worksheet.write_column(row+1, 1, const_names, cell_format)
+    worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
+    worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
+    worksheet.write_column(startrow+2, startcol, const_names, cell_format)
     for c in range(len(xtd_const_seats)):
         row += 1
         for p in range(len(xtd_const_seats[c])):
