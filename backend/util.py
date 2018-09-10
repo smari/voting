@@ -318,18 +318,29 @@ def election_to_xlsx(election, filename):
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat)
 
+    def draw_block(worksheet, row, col,
+        heading, xheaders, yheaders,
+        matrix,
+        cformat=cell_format
+    ):
+        worksheet.merge_range(
+            row, col+1,
+            row, col+len(xheaders),
+            heading, h_format
+        )
+        worksheet.write(row+1, col, "Constituency", cell_format)
+        worksheet.write_row(row+1, col+1, xheaders, cell_format)
+        worksheet.write_column(row+2, col, yheaders, cell_format)
+        write_matrix(worksheet, row+2, col+1, matrix, cformat)
+
 
     startcol=1
     startrow = 4
-    worksheet.merge_range(
-        startrow, startcol+1,
-        startrow, startcol+len(parties),
-        "Votes", h_format
+    draw_block(worksheet, row=startrow, col=startcol,
+        heading="Votes", xheaders=parties, yheaders=const_names,
+        matrix=xtd_votes
     )
-    worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
-    worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
-    worksheet.write_column(startrow+2, startcol, const_names, cell_format)
-    write_matrix(worksheet, startrow+2, startcol+1, xtd_votes, cell_format)
+    startrow += 3 + len(xtd_votes)
     row = 7 + len(xtd_votes)
     worksheet.merge_range(row, 2, row, 1+len(parties), "Vote shares",
                                 h_format)
