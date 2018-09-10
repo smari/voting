@@ -342,6 +342,7 @@ def election_to_xlsx(election, filename):
     )
     startrow += 3 + len(xtd_votes)
     row = 7 + len(xtd_votes)
+    assert(row == startrow)
     worksheet.merge_range(row, 2, row, 1+len(parties), "Vote shares",
                                 h_format)
     row = row + 1
