@@ -330,10 +330,7 @@ def election_to_xlsx(election, filename):
     worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
     worksheet.write_column(startrow+2, startcol, const_names, cell_format)
     write_matrix(worksheet, startrow+2, startcol+1, xtd_votes, cell_format)
-    row = 5
-    for c in range(len(xtd_votes)):
-        row += 1
-    row += 2
+    row = 7 + len(xtd_votes)
     worksheet.merge_range(row, 2, row, 1+len(parties), "Vote shares",
                                 h_format)
     row += 1
