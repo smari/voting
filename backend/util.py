@@ -370,21 +370,24 @@ def election_to_xlsx(election, filename):
         share_format
     )
     xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
-    xtd_final_vote_shares = find_xtd_shares([xtd_final_votes])[0]
-    v_const_seats = xtd_const_seats[-1]
     row_headers = [
         'Total votes',
         'Votes above threshold',
         'Vote shares above threshold',
         'Constituency seats',
     ]
+    matrix = [
+        xtd_votes[-1],
+        xtd_final_votes,
+        find_xtd_shares([xtd_final_votes])[0],
+        xtd_const_seats[-1],
+    ]
+    formats = [cell_format, cell_format, share_format, cell_format]
     worksheet.write(startrow+1, startcol, 'Party', cell_format)
     worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
     worksheet.write_column(startrow+2, startcol, row_headers, cell_format)
-    worksheet.write_row(startrow+2, startcol+1, xtd_votes[-1], cell_format)
-    worksheet.write_row(startrow+3, startcol+1, xtd_final_votes, cell_format)
-    worksheet.write_row(startrow+4, startcol+1, xtd_final_vote_shares, share_format)
-    worksheet.write_row(startrow+5, startcol+1, v_const_seats, cell_format)
+    for row in range(len(matrix)):
+        worksheet.write_row(startrow+2+row, startcol+1, matrix[row], formats[row])
     row = startrow+7
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
