@@ -393,10 +393,15 @@ def election_to_xlsx(election, filename):
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
-        worksheet.write_row(startrow, 1, h, cell_format)
+        worksheet.merge_range(
+            startrow, startcol+1,
+            startrow, startcol+len(parties),
+            "Step-by-step demonstration", h_format
+        )
+        worksheet.write_row(startrow+1, 1, h, cell_format)
         for i in range(len(data)):
-            worksheet.write_row(startrow+1+i, 1, data[i], cell_format)
-        startrow += 2 + len(data)
+            worksheet.write_row(startrow+2+i, 1, data[i], cell_format)
+        startrow += 3 + len(data)
     except AttributeError:
         pass
     draw_block(worksheet, row=startrow, col=startcol,
