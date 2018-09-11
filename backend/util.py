@@ -395,7 +395,7 @@ def election_to_xlsx(election, filename):
         h, data = method.print_seats(election.rules, election.adj_seats_info)
         worksheet.write_row(startrow, 1, h, cell_format)
         for i in range(len(data)):
-            worksheet.write_row(startrow+i, 1, data[i], cell_format)
+            worksheet.write_row(startrow+1+i, 1, data[i], cell_format)
         startrow += 2 + len(data)
     except AttributeError:
         pass
