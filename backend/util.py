@@ -382,12 +382,9 @@ def election_to_xlsx(election, filename):
     worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
     worksheet.write_column(startrow+2, startcol, row_headers, cell_format)
     worksheet.write_row(startrow+2, startcol+1, xtd_votes[-1], cell_format)
-    for p in range(len(xtd_final_votes)):
-        worksheet.write(startrow+3, startcol+1+p, xtd_final_votes[p], cell_format)
-    for p in range(len(xtd_final_votes)):
-        worksheet.write(startrow+4, startcol+1+p, xtd_final_vote_shares[p], share_format)
-    for p in range(len(v_const_seats)):
-        worksheet.write(startrow+5, startcol+1+p, v_const_seats[p], cell_format)
+    worksheet.write_row(startrow+3, startcol+1, xtd_final_votes, cell_format)
+    worksheet.write_row(startrow+4, startcol+1, xtd_final_vote_shares, share_format)
+    worksheet.write_row(startrow+5, startcol+1, v_const_seats, cell_format)
     row = startrow+7
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
