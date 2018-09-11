@@ -379,7 +379,7 @@ def election_to_xlsx(election, filename):
     worksheet.write(startrow+4, 1, 'Vote shares above threshold', cell_format)
     for p in range(len(v_elim_votes)):
         if v_elim_votes[p] != 0:
-            share = "{:.1%}".format(v_elim_votes[p]/sum(v_elim_votes[:-1]))
+            share = "{:.1%}".format(v_elim_votes[p]/sum(v_elim_votes))
             worksheet.write(startrow+4, p+2, share, cell_format)
     v_elim_seats = []
     for p in range(len(v_elim_votes)-1):
