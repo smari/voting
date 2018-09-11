@@ -405,14 +405,16 @@ def election_to_xlsx(election, filename):
         "Adjustment seats", h_format
     )
     row = startrow+1
-    worksheet.write(row, 1, 'Constituency', cell_format)
-    worksheet.write_row(row, 2, parties, cell_format)
-    worksheet.write_column(row+1, 1, const_names, cell_format)
+    worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
+    worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
+    worksheet.write_column(startrow+2, startcol, const_names, cell_format)
+    srow = startrow+2
+    scol = startcol+1
     for c in range(len(xtd_adj_seats)):
         row += 1
         for p in range(len(xtd_adj_seats[c])):
             if xtd_adj_seats[c][p] != 0:
-                worksheet.write(row, p+2, xtd_adj_seats[c][p], cell_format)
+                worksheet.write(srow+c, scol+p, xtd_adj_seats[c][p], cell_format)
     row += 2
     worksheet.merge_range(row, 2, row, 1+len(parties), "Total seats",
                                 h_format)
