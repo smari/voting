@@ -383,7 +383,7 @@ def election_to_xlsx(election, filename):
     for p in range(len(xtd_final_votes)):
         if xtd_final_votes[p] != 0:
             worksheet.write(startrow+4, p+2, xtd_final_vote_shares[p], share_format)
-    v_const_seats = add_totals([election.v_const_seats_alloc])[0]
+    v_const_seats = xtd_const_seats[-1]
     worksheet.write(startrow+5, 1, 'Constituency seats', cell_format)
     for p in range(len(v_const_seats)):
         if v_const_seats[p] != 0:
