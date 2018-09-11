@@ -370,6 +370,7 @@ def election_to_xlsx(election, filename):
         share_format
     )
     v_final_votes = election.v_votes_eliminated
+    v_final_vote_shares = find_shares([v_final_votes])[0]
     worksheet.write(startrow+1, 1, 'Party', cell_format)
     worksheet.write_row(startrow+1, 2, parties, cell_format)
     worksheet.write(startrow+2, 1, 'Total votes', cell_format)
@@ -381,8 +382,7 @@ def election_to_xlsx(election, filename):
     worksheet.write(startrow+4, 1, 'Vote shares above threshold', cell_format)
     for p in range(len(v_final_votes)):
         if v_final_votes[p] != 0:
-            share = v_final_votes[p]/sum(v_final_votes)
-            worksheet.write(startrow+4, p+2, share, share_format)
+            worksheet.write(startrow+4, p+2, v_final_vote_shares[p], share_format)
     v_elim_seats = []
     for p in range(len(v_final_votes)-1):
         if v_final_votes[p] != 0:
