@@ -420,8 +420,8 @@ def election_to_xlsx(election, filename):
     )
     startrow += 3 + len(xtd_seat_shares)
     row = startrow
-    worksheet.write(row, 1, 'Entropy:', h_format)
-    worksheet.write(row, 2, election.entropy(), cell_format)
+    worksheet.write(startrow, startcol, 'Entropy:', h_format)
+    worksheet.write(startrow, startcol+1, election.entropy(), cell_format)
 
     workbook.close()
 
