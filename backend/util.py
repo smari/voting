@@ -418,7 +418,8 @@ def election_to_xlsx(election, filename):
         heading="Seat shares", xheaders=parties, yheaders=const_names,
         matrix=xtd_seat_shares
     )
-    row = startrow + 3 + len(xtd_seat_shares)
+    startrow += 3 + len(xtd_seat_shares)
+    row = startrow
     worksheet.write(row, 1, 'Entropy:', h_format)
     worksheet.write(row, 2, election.entropy(), cell_format)
 
