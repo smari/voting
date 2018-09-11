@@ -414,8 +414,7 @@ def election_to_xlsx(election, filename):
         startrow, startcol+len(parties),
         "Seat shares", h_format
     )
-    row = startrow
-    row += 1
+    row = startrow+1
     worksheet.write(row, 1, 'Constituency', cell_format)
     worksheet.write_row(row, 2, parties[:-1], cell_format)
     worksheet.write_column(row+1, 1, const_names, cell_format)
