@@ -414,10 +414,7 @@ def election_to_xlsx(election, filename):
     worksheet.write_column(startrow+2, 1, const_names, cell_format)
     srow = startrow+2
     scol = startcol+1
-    for c in range(len(xtd_total_seats)):
-        for p in range(len(xtd_total_seats[c])):
-            if xtd_total_seats[c][p] != 0:
-                worksheet.write(srow+c, scol+p, xtd_total_seats[c][p], cell_format)
+    write_matrix(worksheet, srow, scol, xtd_total_seats, cell_format)
     row = startrow + 3 + len(xtd_total_seats)
     worksheet.merge_range(row, 2, row, 1+len(parties), "Seat shares",
                                 h_format)
