@@ -357,7 +357,7 @@ def election_to_xlsx(election, filename):
         heading="Constituency seats", xheaders=parties, yheaders=const_names,
         matrix=xtd_const_seats
     )
-    startrow = startrow + 3 + len(xtd_const_seats)
+    startrow += 3 + len(xtd_const_seats)
     worksheet.merge_range(
         startrow, startcol+1,
         startrow, startcol+5,
