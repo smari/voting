@@ -362,6 +362,7 @@ def election_to_xlsx(election, filename):
     xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
     row_headers = [
         'Total votes',
+        'Vote shares',
         'Threshold',
         'Votes above threshold',
         'Vote shares above threshold',
@@ -369,12 +370,20 @@ def election_to_xlsx(election, filename):
     ]
     matrix = [
         xtd_votes[-1],
+        xtd_shares[-1],
         [election.rules["adjustment_threshold"]*0.01],
         xtd_final_votes,
         find_xtd_shares([xtd_final_votes])[0],
         xtd_const_seats[-1],
     ]
-    formats = [cell_format, share_format, cell_format, share_format, cell_format]
+    formats = [
+        cell_format,
+        share_format,
+        share_format,
+        cell_format,
+        share_format,
+        cell_format
+    ]
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Adjustment seat apportionment", topleft="Party",
         xheaders=parties, yheaders=row_headers,
