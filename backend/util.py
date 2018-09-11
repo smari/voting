@@ -414,18 +414,16 @@ def election_to_xlsx(election, filename):
         startrow, startcol+len(parties),
         "Seat shares", h_format
     )
-    row = startrow+1
     worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
     worksheet.write_row(startrow+1, startcol+1, parties[:-1], cell_format)
     worksheet.write_column(startrow+2, startcol, const_names, cell_format)
     srow = startrow+2
     scol = startcol+1
     for c in range(len(xtd_seat_shares)):
-        row += 1
         for p in range(len(xtd_seat_shares[c])):
             if xtd_total_seats[c][p] != 0:
                 worksheet.write(srow+c, scol+p, xtd_seat_shares[c][p], share_format)
-    row += 2
+    row = startrow + 3 + len(xtd_seat_shares)
     worksheet.write(row, 1, 'Entropy:', h_format)
     worksheet.write(row, 2, election.entropy(), cell_format)
 
