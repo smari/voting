@@ -366,8 +366,7 @@ def election_to_xlsx(election, filename):
         "{:.1%}".format(election.rules["adjustment_threshold"]*0.01),
         cell_format
     )
-    row = startrow
-    row += 1
+    row = startrow+1
     v_votes = xtd_votes[-1]
     v_elim_votes = election.v_votes_eliminated
     worksheet.write(row, 1, 'Party', cell_format)
