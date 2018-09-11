@@ -295,6 +295,7 @@ def election_to_xlsx(election, filename):
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
     xtd_seat_shares = find_xtd_shares(xtd_total_seats)
+    xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
 
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
@@ -359,7 +360,6 @@ def election_to_xlsx(election, filename):
         matrix=xtd_const_seats
     )
     startrow += 3 + len(xtd_const_seats)
-    xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
     row_headers = [
         'Total votes',
         'Vote shares',
