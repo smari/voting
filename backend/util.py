@@ -371,20 +371,20 @@ def election_to_xlsx(election, filename):
     )
     xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
     xtd_final_vote_shares = find_xtd_shares([xtd_final_votes])[0]
+    v_const_seats = xtd_const_seats[-1]
     worksheet.write(startrow+1, 1, 'Party', cell_format)
     worksheet.write_row(startrow+1, 2, parties, cell_format)
     worksheet.write(startrow+2, 1, 'Total votes', cell_format)
-    worksheet.write_row(startrow+2, 2, xtd_votes[-1], cell_format)
     worksheet.write(startrow+3, 1, 'Votes above threshold', cell_format)
+    worksheet.write(startrow+4, 1, 'Vote shares above threshold', cell_format)
+    worksheet.write(startrow+5, 1, 'Constituency seats', cell_format)
+    worksheet.write_row(startrow+2, 2, xtd_votes[-1], cell_format)
     for p in range(len(xtd_final_votes)):
         if xtd_final_votes[p] != 0:
             worksheet.write(startrow+3, p+2, xtd_final_votes[p], cell_format)
-    worksheet.write(startrow+4, 1, 'Vote shares above threshold', cell_format)
     for p in range(len(xtd_final_votes)):
         if xtd_final_votes[p] != 0:
             worksheet.write(startrow+4, p+2, xtd_final_vote_shares[p], share_format)
-    v_const_seats = xtd_const_seats[-1]
-    worksheet.write(startrow+5, 1, 'Constituency seats', cell_format)
     for p in range(len(v_const_seats)):
         if v_const_seats[p] != 0:
             worksheet.write(startrow+5, p+2, v_const_seats[p], cell_format)
