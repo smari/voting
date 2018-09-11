@@ -351,7 +351,6 @@ def election_to_xlsx(election, filename):
         matrix=xtd_const_seats
     )
     startrow = startrow + 3 + len(xtd_const_seats)
-    row = startrow
     worksheet.merge_range(
         startrow, startcol+1,
         startrow, startcol+5,
@@ -367,6 +366,7 @@ def election_to_xlsx(election, filename):
         "{:.1%}".format(election.rules["adjustment_threshold"]*0.01),
         cell_format
     )
+    row = startrow
     row += 1
     v_votes = xtd_votes[-1]
     v_elim_votes = election.v_votes_eliminated
