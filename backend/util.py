@@ -370,23 +370,23 @@ def election_to_xlsx(election, filename):
         share_format
     )
     v_votes = xtd_votes[-1]
-    v_elim_votes = election.v_votes_eliminated
+    v_final_votes = election.v_votes_eliminated
     worksheet.write(startrow+1, 1, 'Party', cell_format)
     worksheet.write_row(startrow+1, 2, parties, cell_format)
     worksheet.write(startrow+2, 1, 'Total votes', cell_format)
     worksheet.write_row(startrow+2, 2, v_votes, cell_format)
     worksheet.write(startrow+3, 1, 'Votes above threshold', cell_format)
-    for p in range(len(v_elim_votes)):
-        if v_elim_votes[p] != 0:
-            worksheet.write(startrow+3, p+2, v_elim_votes[p], cell_format)
+    for p in range(len(v_final_votes)):
+        if v_final_votes[p] != 0:
+            worksheet.write(startrow+3, p+2, v_final_votes[p], cell_format)
     worksheet.write(startrow+4, 1, 'Vote shares above threshold', cell_format)
-    for p in range(len(v_elim_votes)):
-        if v_elim_votes[p] != 0:
-            share = v_elim_votes[p]/sum(v_elim_votes)
+    for p in range(len(v_final_votes)):
+        if v_final_votes[p] != 0:
+            share = v_final_votes[p]/sum(v_final_votes)
             worksheet.write(startrow+4, p+2, share, share_format)
     v_elim_seats = []
-    for p in range(len(v_elim_votes)-1):
-        if v_elim_votes[p] != 0:
+    for p in range(len(v_final_votes)-1):
+        if v_final_votes[p] != 0:
             v_elim_seats.append(election.v_const_seats_alloc[p])
         else:
             v_elim_seats.append(0)
