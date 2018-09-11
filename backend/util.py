@@ -326,6 +326,7 @@ def election_to_xlsx(election, filename):
     def draw_block(worksheet, row, col,
         heading, xheaders, yheaders,
         matrix,
+        topleft="Constituency",
         cformat=cell_format
     ):
         if heading.endswith("shares"):
@@ -335,7 +336,7 @@ def election_to_xlsx(election, filename):
             row, col+len(xheaders),
             heading, h_format
         )
-        worksheet.write(row+1, col, "Constituency", cell_format)
+        worksheet.write(row+1, col, topleft, cell_format)
         worksheet.write_row(row+1, col+1, xheaders, cell_format)
         worksheet.write_column(row+2, col, yheaders, cell_format)
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
@@ -358,11 +359,6 @@ def election_to_xlsx(election, filename):
         matrix=xtd_const_seats
     )
     startrow += 3 + len(xtd_const_seats)
-    worksheet.merge_range(
-        startrow, startcol+1,
-        startrow, startcol+5,
-        "Adjustment seat apportionment", h_format
-    )
     worksheet.merge_range(
         startrow, startcol+6,
         startrow, startcol+7,
@@ -387,10 +383,11 @@ def election_to_xlsx(election, filename):
         xtd_const_seats[-1],
     ]
     formats = [cell_format, cell_format, share_format, cell_format]
-    worksheet.write(startrow+1, startcol, 'Party', cell_format)
-    worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
-    worksheet.write_column(startrow+2, startcol, row_headers, cell_format)
-    write_matrix(worksheet, startrow+2, startcol+1, matrix, formats)
+    draw_block(worksheet, row=startrow, col=startcol,
+        heading="Adjustment seat apportionment", topleft="Party",
+        xheaders=parties, yheaders=row_headers,
+        matrix=matrix, cformat=formats
+    )
     row = startrow+7
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
