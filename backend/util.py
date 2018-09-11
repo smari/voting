@@ -404,11 +404,11 @@ def election_to_xlsx(election, filename):
         startrow, startcol+len(parties),
         "Adjustment seats", h_format
     )
-    row = startrow+1
     worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
     worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
     worksheet.write_column(startrow+2, startcol, const_names, cell_format)
     write_matrix(worksheet, startrow+2, startcol+1, xtd_adj_seats, cell_format)
+    row = startrow+1
     for c in range(len(xtd_adj_seats)):
         row += 1
     row += 2
