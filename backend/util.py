@@ -290,8 +290,7 @@ def election_to_xlsx(election, filename):
     const_names.append("Total")
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
-    xtd_shares = [[s if s != 0 else None for s in c]
-                for c in find_xtd_shares(xtd_votes)]
+    xtd_shares = find_xtd_shares(xtd_votes)
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
