@@ -295,8 +295,7 @@ def election_to_xlsx(election, filename):
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-    xtd_seat_shares = [[s for s in c]
-                    for c in find_xtd_shares(xtd_total_seats)]
+    xtd_seat_shares = find_xtd_shares(xtd_total_seats)
 
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
