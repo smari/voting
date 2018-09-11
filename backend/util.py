@@ -316,8 +316,12 @@ def election_to_xlsx(election, filename):
         for c in range(len(matrix)):
             for p in range(len(matrix[c])):
                 if matrix[c][p] != 0:
-                    worksheet.write(startrow+c, startcol+p, matrix[c][p],
-                                    cformat)
+                    try:
+                        worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                        cformat[c])
+                    except TypeError:
+                        worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                        cformat)
 
     def draw_block(worksheet, row, col,
         heading, xheaders, yheaders,
@@ -386,10 +390,7 @@ def election_to_xlsx(election, filename):
     worksheet.write(startrow+1, startcol, 'Party', cell_format)
     worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
     worksheet.write_column(startrow+2, startcol, row_headers, cell_format)
-    for row in range(len(matrix)):
-        for p in range(len(matrix[row])):
-            if matrix[row][p] != 0:
-                worksheet.write(startrow+2+row, startcol+1+p, matrix[row][p], formats[row])
+    write_matrix(worksheet, startrow+2, startcol+1, matrix, formats)
     row = startrow+7
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
