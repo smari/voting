@@ -383,17 +383,17 @@ def election_to_xlsx(election, filename):
     for p in range(len(v_final_votes)):
         if v_final_votes[p] != 0:
             worksheet.write(startrow+4, p+2, v_final_vote_shares[p], share_format)
-    v_elim_seats = []
+    v_const_seats = []
     for p in range(len(v_final_votes)):
         if v_final_votes[p] != 0:
-            v_elim_seats.append(election.v_const_seats_alloc[p])
+            v_const_seats.append(election.v_const_seats_alloc[p])
         else:
-            v_elim_seats.append(0)
-    v_elim_seats.append(sum(v_elim_seats))
+            v_const_seats.append(0)
+    v_const_seats.append(sum(v_const_seats))
     worksheet.write(startrow+5, 1, 'Constituency seats', cell_format)
-    for p in range(len(v_elim_seats)):
-        if v_elim_seats[p] != 0:
-            worksheet.write(startrow+5, p+2, v_elim_seats[p], cell_format)
+    for p in range(len(v_const_seats)):
+        if v_const_seats[p] != 0:
+            worksheet.write(startrow+5, p+2, v_const_seats[p], cell_format)
     row = startrow+7
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
