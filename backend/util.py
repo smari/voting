@@ -359,36 +359,28 @@ def election_to_xlsx(election, filename):
         matrix=xtd_const_seats
     )
     startrow += 3 + len(xtd_const_seats)
-    worksheet.merge_range(
-        startrow, startcol+6,
-        startrow, startcol+7,
-        "Threshold", h_format
-    )
-    worksheet.write(
-        startrow, startcol+8,
-        election.rules["adjustment_threshold"]*0.01,
-        share_format
-    )
     xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
     row_headers = [
         'Total votes',
+        'Threshold',
         'Votes above threshold',
         'Vote shares above threshold',
         'Constituency seats',
     ]
     matrix = [
         xtd_votes[-1],
+        [election.rules["adjustment_threshold"]*0.01],
         xtd_final_votes,
         find_xtd_shares([xtd_final_votes])[0],
         xtd_const_seats[-1],
     ]
-    formats = [cell_format, cell_format, share_format, cell_format]
+    formats = [cell_format, share_format, cell_format, share_format, cell_format]
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Adjustment seat apportionment", topleft="Party",
         xheaders=parties, yheaders=row_headers,
         matrix=matrix, cformat=formats
     )
-    row = startrow+7
+    row = startrow + 3 + len(matrix)
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
