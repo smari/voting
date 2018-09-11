@@ -370,21 +370,17 @@ def election_to_xlsx(election, filename):
     v_elim_votes = election.v_votes_eliminated
     worksheet.write(startrow+1, 1, 'Party', cell_format)
     worksheet.write_row(startrow+1, 2, parties, cell_format)
-    row = startrow+2
-    worksheet.write(row, 1, 'Total votes', cell_format)
-    worksheet.write_row(row, 2, v_votes, cell_format)
-    row += 1
-    worksheet.write(row, 1, 'Votes above threshold', cell_format)
+    worksheet.write(startrow+2, 1, 'Total votes', cell_format)
+    worksheet.write_row(startrow+2, 2, v_votes, cell_format)
+    worksheet.write(startrow+3, 1, 'Votes above threshold', cell_format)
     for p in range(len(v_elim_votes)):
         if v_elim_votes[p] != 0:
-            worksheet.write(row, p+2, v_elim_votes[p], cell_format)
-    row += 1
-    worksheet.write(row, 1, 'Vote shares above threshold', cell_format)
+            worksheet.write(startrow+3, p+2, v_elim_votes[p], cell_format)
+    worksheet.write(startrow+4, 1, 'Vote shares above threshold', cell_format)
     for p in range(len(v_elim_votes)):
         if v_elim_votes[p] != 0:
             share = "{:.1%}".format(v_elim_votes[p]/sum(v_elim_votes[:-1]))
-            worksheet.write(row, p+2, share, cell_format)
-    row += 1
+            worksheet.write(startrow+4, p+2, share, cell_format)
     v_elim_seats = []
     for p in range(len(v_elim_votes)-1):
         if v_elim_votes[p] != 0:
@@ -392,11 +388,11 @@ def election_to_xlsx(election, filename):
         else:
             v_elim_seats.append(0)
     v_elim_seats.append(sum(v_elim_seats))
-    worksheet.write(row, 1, 'Constituency seats', cell_format)
+    worksheet.write(startrow+5, 1, 'Constituency seats', cell_format)
     for p in range(len(v_elim_seats)):
         if v_elim_seats[p] != 0:
-            worksheet.write(row, p+2, v_elim_seats[p], cell_format)
-    row += 2
+            worksheet.write(startrow+5, p+2, v_elim_seats[p], cell_format)
+    row = startrow+7
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
