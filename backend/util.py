@@ -389,7 +389,8 @@ def election_to_xlsx(election, filename):
         xheaders=parties, yheaders=row_headers,
         matrix=matrix, cformat=formats
     )
-    row = startrow + 3 + len(matrix)
+    startrow += 3 + len(matrix)
+    row = startrow
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
