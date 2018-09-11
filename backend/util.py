@@ -349,17 +349,17 @@ def election_to_xlsx(election, filename):
         heading="Votes", xheaders=parties, yheaders=const_names,
         matrix=xtd_votes
     )
-    startrow += 3 + len(xtd_votes)
+    startrow += 3 + len(const_names)
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Vote shares", xheaders=parties, yheaders=const_names,
         matrix=xtd_shares
     )
-    startrow += 3 + len(xtd_shares)
+    startrow += 3 + len(const_names)
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Constituency seats", xheaders=parties, yheaders=const_names,
         matrix=xtd_const_seats
     )
-    startrow += 3 + len(xtd_const_seats)
+    startrow += 3 + len(const_names)
     row_headers = [
         'Total votes',
         'Vote shares',
@@ -389,7 +389,7 @@ def election_to_xlsx(election, filename):
         xheaders=parties, yheaders=row_headers,
         matrix=matrix, cformat=formats
     )
-    startrow += 3 + len(matrix)
+    startrow += 3 + len(row_headers)
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
@@ -408,17 +408,17 @@ def election_to_xlsx(election, filename):
         heading="Adjustment seats", xheaders=parties, yheaders=const_names,
         matrix=xtd_adj_seats
     )
-    startrow += 3 + len(xtd_adj_seats)
+    startrow += 3 + len(const_names)
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Total seats", xheaders=parties, yheaders=const_names,
         matrix=xtd_total_seats
     )
-    startrow += 3 + len(xtd_total_seats)
+    startrow += 3 + len(const_names)
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Seat shares", xheaders=parties, yheaders=const_names,
         matrix=xtd_seat_shares
     )
-    startrow += 3 + len(xtd_seat_shares)
+    startrow += 3 + len(const_names)
     worksheet.write(startrow, startcol, 'Entropy:', h_format)
     worksheet.write(startrow, startcol+1, election.entropy(), cell_format)
 
