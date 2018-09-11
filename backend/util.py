@@ -403,7 +403,8 @@ def election_to_xlsx(election, filename):
         heading="Adjustment seats", xheaders=parties, yheaders=const_names,
         matrix=xtd_adj_seats
     )
-    row = startrow + 3 + len(xtd_adj_seats)
+    startrow += 3 + len(xtd_adj_seats)
+    row = startrow
     worksheet.merge_range(row, 2, row, 1+len(parties), "Total seats",
                                 h_format)
     row += 1
