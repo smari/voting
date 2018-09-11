@@ -369,8 +369,8 @@ def election_to_xlsx(election, filename):
     row = startrow+1
     v_votes = xtd_votes[-1]
     v_elim_votes = election.v_votes_eliminated
-    worksheet.write(row, 1, 'Party', cell_format)
-    worksheet.write_row(row, 2, parties, cell_format)
+    worksheet.write(startrow+1, 1, 'Party', cell_format)
+    worksheet.write_row(startrow+1, 2, parties, cell_format)
     row += 1
     worksheet.write(row, 1, 'Total votes', cell_format)
     worksheet.write_row(row, 2, v_votes, cell_format)
