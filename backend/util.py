@@ -290,22 +290,25 @@ def election_to_xlsx(election, filename):
     const_names.append("Total")
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
-    xtd_shares = [["{:.1%}".format(s) if s != 0 else None for s in c]
+    xtd_shares = [[s if s != 0 else None for s in c]
                 for c in find_xtd_shares(xtd_votes)]
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-    xtd_seat_shares = [["{:.1%}".format(s) for s in c]
+    xtd_seat_shares = [[s for s in c]
                     for c in find_xtd_shares(xtd_total_seats)]
 
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
     cell_format = workbook.add_format()
     cell_format.set_align('right')
+    share_format = workbook.add_format()
+    share_format.set_num_format('0.0%')
     h_format = workbook.add_format()
     h_format.set_align('center')
     h_format.set_bold()
     h_format.set_font_size(14)
+
     worksheet.set_column('B:B', 20)
 
 
@@ -323,6 +326,8 @@ def election_to_xlsx(election, filename):
         matrix,
         cformat=cell_format
     ):
+        if heading.endswith("shares"):
+            cformat = share_format
         worksheet.merge_range(
             row, col+1,
             row, col+len(xheaders),
@@ -363,8 +368,8 @@ def election_to_xlsx(election, filename):
     )
     worksheet.write(
         startrow, startcol+8,
-        "{:.1%}".format(election.rules["adjustment_threshold"]*0.01),
-        cell_format
+        election.rules["adjustment_threshold"]*0.01,
+        share_format
     )
     v_votes = xtd_votes[-1]
     v_elim_votes = election.v_votes_eliminated
@@ -379,8 +384,8 @@ def election_to_xlsx(election, filename):
     worksheet.write(startrow+4, 1, 'Vote shares above threshold', cell_format)
     for p in range(len(v_elim_votes)):
         if v_elim_votes[p] != 0:
-            share = "{:.1%}".format(v_elim_votes[p]/sum(v_elim_votes))
-            worksheet.write(startrow+4, p+2, share, cell_format)
+            share = v_elim_votes[p]/sum(v_elim_votes)
+            worksheet.write(startrow+4, p+2, share, share_format)
     v_elim_seats = []
     for p in range(len(v_elim_votes)-1):
         if v_elim_votes[p] != 0:
@@ -437,7 +442,7 @@ def election_to_xlsx(election, filename):
         row += 1
         for p in range(len(xtd_seat_shares[c])):
             if xtd_total_seats[c][p] != 0:
-                worksheet.write(row, p+2, xtd_seat_shares[c][p], cell_format)
+                worksheet.write(row, p+2, xtd_seat_shares[c][p], share_format)
     row += 2
     worksheet.write(row, 1, 'Entropy:', h_format)
     worksheet.write(row, 2, election.entropy(), cell_format)
