@@ -398,9 +398,9 @@ def election_to_xlsx(election, filename):
         for i in range(len(data)):
             row += 1
             worksheet.write_row(startrow+i, 1, data[i], cell_format)
+        row += 2
     except AttributeError:
         pass
-    row += 2
     worksheet.merge_range(row, 2, row, 1+len(parties), "Adjustment seats",
                                 h_format)
     row += 1
