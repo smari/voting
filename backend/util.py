@@ -419,10 +419,7 @@ def election_to_xlsx(election, filename):
     worksheet.write_column(startrow+2, startcol, const_names, cell_format)
     srow = startrow+2
     scol = startcol+1
-    for c in range(len(xtd_seat_shares)):
-        for p in range(len(xtd_seat_shares[c])):
-            if xtd_total_seats[c][p] != 0:
-                worksheet.write(srow+c, scol+p, xtd_seat_shares[c][p], share_format)
+    write_matrix(worksheet, srow, scol, xtd_seat_shares, share_format)
     row = startrow + 3 + len(xtd_seat_shares)
     worksheet.write(row, 1, 'Entropy:', h_format)
     worksheet.write(row, 2, election.entropy(), cell_format)
