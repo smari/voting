@@ -369,12 +369,11 @@ def election_to_xlsx(election, filename):
         election.rules["adjustment_threshold"]*0.01,
         share_format
     )
-    v_votes = xtd_votes[-1]
     v_final_votes = election.v_votes_eliminated
     worksheet.write(startrow+1, 1, 'Party', cell_format)
     worksheet.write_row(startrow+1, 2, parties, cell_format)
     worksheet.write(startrow+2, 1, 'Total votes', cell_format)
-    worksheet.write_row(startrow+2, 2, v_votes, cell_format)
+    worksheet.write_row(startrow+2, 2, xtd_votes[-1], cell_format)
     worksheet.write(startrow+3, 1, 'Votes above threshold', cell_format)
     for p in range(len(v_final_votes)):
         if v_final_votes[p] != 0:
