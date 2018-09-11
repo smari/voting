@@ -390,14 +390,14 @@ def election_to_xlsx(election, filename):
         matrix=matrix, cformat=formats
     )
     startrow += 3 + len(matrix)
-    row = startrow
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
         worksheet.write_row(startrow, 1, h, cell_format)
         for i in range(len(data)):
             worksheet.write_row(startrow+i, 1, data[i], cell_format)
-        row += 2 + len(data)
+        startrow += 2 + len(data)
+        row = startrow
     except AttributeError:
         pass
     worksheet.merge_range(row, 2, row, 1+len(parties), "Adjustment seats",
