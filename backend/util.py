@@ -409,15 +409,10 @@ def election_to_xlsx(election, filename):
         matrix=xtd_total_seats
     )
     startrow += 3 + len(xtd_total_seats)
-    worksheet.merge_range(
-        startrow, startcol+1,
-        startrow, startcol+len(parties),
-        "Seat shares", h_format
+    draw_block(worksheet, row=startrow, col=startcol,
+        heading="Seat shares", xheaders=parties, yheaders=const_names,
+        matrix=xtd_seat_shares
     )
-    worksheet.write(startrow+1, startcol, 'Constituency', cell_format)
-    worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
-    worksheet.write_column(startrow+2, startcol, const_names, cell_format)
-    write_matrix(worksheet, startrow+2, startcol+1, xtd_seat_shares, share_format)
     row = startrow + 3 + len(xtd_seat_shares)
     worksheet.write(row, 1, 'Entropy:', h_format)
     worksheet.write(row, 2, election.entropy(), cell_format)
