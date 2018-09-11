@@ -378,19 +378,19 @@ def election_to_xlsx(election, filename):
         'Vote shares above threshold',
         'Constituency seats',
     ]
-    worksheet.write(startrow+1, 1, 'Party', cell_format)
-    worksheet.write_row(startrow+1, 2, parties, cell_format)
-    worksheet.write_column(startrow+2, 1, row_headers, cell_format)
-    worksheet.write_row(startrow+2, 2, xtd_votes[-1], cell_format)
+    worksheet.write(startrow+1, startcol, 'Party', cell_format)
+    worksheet.write_row(startrow+1, startcol+1, parties, cell_format)
+    worksheet.write_column(startrow+2, startcol, row_headers, cell_format)
+    worksheet.write_row(startrow+2, startcol+1, xtd_votes[-1], cell_format)
     for p in range(len(xtd_final_votes)):
         if xtd_final_votes[p] != 0:
-            worksheet.write(startrow+3, p+2, xtd_final_votes[p], cell_format)
+            worksheet.write(startrow+3, startcol+1+p, xtd_final_votes[p], cell_format)
     for p in range(len(xtd_final_votes)):
         if xtd_final_votes[p] != 0:
-            worksheet.write(startrow+4, p+2, xtd_final_vote_shares[p], share_format)
+            worksheet.write(startrow+4, startcol+1+p, xtd_final_vote_shares[p], share_format)
     for p in range(len(v_const_seats)):
         if v_const_seats[p] != 0:
-            worksheet.write(startrow+5, p+2, v_const_seats[p], cell_format)
+            worksheet.write(startrow+5, startcol+1+p, v_const_seats[p], cell_format)
     row = startrow+7
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
