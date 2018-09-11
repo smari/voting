@@ -385,10 +385,7 @@ def election_to_xlsx(election, filename):
             worksheet.write(startrow+4, p+2, v_final_vote_shares[p], share_format)
     v_const_seats = []
     for p in range(len(v_final_votes)):
-        if v_final_votes[p] != 0:
-            v_const_seats.append(election.v_const_seats_alloc[p])
-        else:
-            v_const_seats.append(0)
+        v_const_seats.append(election.v_const_seats_alloc[p])
     v_const_seats.append(sum(v_const_seats))
     worksheet.write(startrow+5, 1, 'Constituency seats', cell_format)
     for p in range(len(v_const_seats)):
