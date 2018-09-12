@@ -610,8 +610,10 @@ def simulation_to_xlsx(simulation, filename):
             toprow += len(const_names)+3
 
         results = simulation.get_results_dict()
+        DEVIATION_MEASURES = results["deviation_measures"]
+        STANDARDIZED_MEASURES = results["standardized_measures"]
         MEASURES = results["measures"]
-        mkeys = MEASURES.keys()
+        mkeys = DEVIATION_MEASURES + STANDARDIZED_MEASURES
         measure_names = [MEASURES[key] for key in mkeys]
         aggregates = ["avg", "std"]
         aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
