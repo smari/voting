@@ -41,10 +41,8 @@ def serve_index():
 def send_static(path):
     return send_from_directory('static/', path)
 
-@app.route('/api/election/', methods=["POST"])
 def handle_election():
     data = request.get_json(force=True)
-
     rules = voting.ElectionRules()
 
     for k, v in data["rules"].items():
@@ -54,23 +52,32 @@ def handle_election():
         if x in data and data[x]:
             rules[x] = data[x]
         else:
-            return jsonify({"error": "Missing data ('%s')" % x})
+            return {"error": "Missing data ('%s')" % x}
 
     if not "votes" in data:
-        return jsonify({"error": "Votes missing."})
+        return {"error": "Votes missing."}
 
     for const in data["votes"]:
         for party in const:
             if type(party) != int:
-                return jsonify({"error": "Votes must be numbers."})
+                return {"error": "Votes must be numbers."}
 
     try:
         election = voting.Election(rules, data["votes"])
         election.run()
     except ZeroDivisionError:
-        return jsonify({"error": "Need to have more votes."})
+        return {"error": "Need to have more votes."}
     except AssertionError:
-        return jsonify({"error": "The data is malformed."})
+        return {"error": "The data is malformed."}
+
+    return election
+
+@app.route('/api/election/', methods=["POST"])
+def get_election_results():
+    election = handle_election()
+    if type(election)==dict and "error" in election:
+        return jsonify(election)
+
     return jsonify(election.get_results_dict())
 
 
