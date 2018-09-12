@@ -310,9 +310,6 @@ def election_to_xlsx(election, filename):
 
     worksheet.set_column('B:B', 20)
 
-
-
-
     def write_matrix(worksheet, startrow, startcol, matrix, cformat):
         for c in range(len(matrix)):
             for p in range(len(matrix[c])):
@@ -342,24 +339,26 @@ def election_to_xlsx(election, filename):
         worksheet.write_column(row+2, col, yheaders, cell_format)
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
+    tables_before = [
+        {"heading": "Votes",              "matrix": xtd_votes      },
+        {"heading": "Vote shares",        "matrix": xtd_shares     },
+        {"heading": "Constituency seats", "matrix": xtd_const_seats},
+    ]
+    tables_after = [
+        {"heading": "Adjustment seats", "matrix": xtd_adj_seats  },
+        {"heading": "Total seats",      "matrix": xtd_total_seats},
+        {"heading": "Seat shares",      "matrix": xtd_seat_shares},
+    ]
 
-    startcol=1
+    startcol = 1
     startrow = 4
-    draw_block(worksheet, row=startrow, col=startcol,
-        heading="Votes", xheaders=parties, yheaders=const_names,
-        matrix=xtd_votes
-    )
-    startrow += 3 + len(const_names)
-    draw_block(worksheet, row=startrow, col=startcol,
-        heading="Vote shares", xheaders=parties, yheaders=const_names,
-        matrix=xtd_shares
-    )
-    startrow += 3 + len(const_names)
-    draw_block(worksheet, row=startrow, col=startcol,
-        heading="Constituency seats", xheaders=parties, yheaders=const_names,
-        matrix=xtd_const_seats
-    )
-    startrow += 3 + len(const_names)
+    for table in tables_before:
+        draw_block(worksheet, row=startrow, col=startcol,
+            heading=table["heading"], xheaders=parties, yheaders=const_names,
+            matrix=table["matrix"]
+        )
+        startrow += 3 + len(const_names)
+
     row_headers = [
         'Total votes',
         'Vote shares',
@@ -390,6 +389,7 @@ def election_to_xlsx(election, filename):
         matrix=matrix, cformat=formats
     )
     startrow += 3 + len(row_headers)
+
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
@@ -404,21 +404,14 @@ def election_to_xlsx(election, filename):
         startrow += 3 + len(data)
     except AttributeError:
         pass
-    draw_block(worksheet, row=startrow, col=startcol,
-        heading="Adjustment seats", xheaders=parties, yheaders=const_names,
-        matrix=xtd_adj_seats
-    )
-    startrow += 3 + len(const_names)
-    draw_block(worksheet, row=startrow, col=startcol,
-        heading="Total seats", xheaders=parties, yheaders=const_names,
-        matrix=xtd_total_seats
-    )
-    startrow += 3 + len(const_names)
-    draw_block(worksheet, row=startrow, col=startcol,
-        heading="Seat shares", xheaders=parties, yheaders=const_names,
-        matrix=xtd_seat_shares
-    )
-    startrow += 3 + len(const_names)
+
+    for table in tables_after:
+        draw_block(worksheet, row=startrow, col=startcol,
+            heading=table["heading"], xheaders=parties, yheaders=const_names,
+            matrix=table["matrix"]
+        )
+        startrow += 3 + len(const_names)
+
     worksheet.write(startrow, startcol, 'Entropy:', h_format)
     worksheet.write(startrow, startcol+1, election.entropy(), cell_format)
 
