@@ -16,6 +16,7 @@
   </b-container>
 
   <h2>Results</h2>
+  <b-button size="lg" @click="get_xlsx">Download XLSX file</b-button>
   <b-container>
     <b-row>
       <ResultMatrix
