@@ -12,6 +12,16 @@
             <b-form-select v-model="rules.simulation_rules.gen_method" :options="rules.capabilities.generating_methods" class="mb-3"/>
           </b-form-group>
         </b-col>
+        <b-col>
+          <b-form-group
+            label="Distribution parameter"
+            description="What parameter should be used for the standard deviation of the distribution?">
+            <b-input-group append="%">
+              <b-form-input type="number" min="1" max="99"
+                v-model.number="distribution_parameter"/>
+            </b-input-group>
+          </b-form-group>
+        </b-col>
       </b-row>
     </b-form>
   </b-container>
@@ -23,6 +33,7 @@ export default {
     return {
       doneCreating: false,
       rules: { capabilities: {}, simulation_rules: {} },
+      distribution_parameter: 0,
     }
   },
   watch: {
@@ -33,11 +44,20 @@ export default {
         }
       },
       deep: true
+    },
+    'distribution_parameter': {
+      handler: function (val, oldVal) {
+        if (this.doneCreating) {
+          this.$emit('update-parameter', val);
+        }
+      },
+      deep: true
     }
   },
   created: function() {
     this.$http.get('/api/capabilities').then(response => {
       this.rules = response.body;
+      this.distribution_parameter = 10;
       this.doneCreating = true;
     }, response => {
       this.serverError = true;

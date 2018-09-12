@@ -4,7 +4,9 @@
 
     <h2>Settings</h2>
     <h3>Simulation settings</h3>
-    <SimulationSettings @update-rules="updateSimulationRules">
+    <SimulationSettings
+      @update-rules="updateSimulationRules"
+      @update-parameter="updateDistributionParameter">
     </SimulationSettings>
 
     <h3>Simulate elections</h3>
@@ -124,6 +126,7 @@ export default {
         waitingForData: false,
         error: false,
       },
+      distribution_parameter: 0,
       constituency_names: [],
       parties: [],
       constituency_seats: [],
@@ -169,6 +172,9 @@ export default {
     },
     updateSimulationRules: function(rules) {
       this.simulation_rules = rules;
+    },
+    updateDistributionParameter: function(parameter) {
+      this.distribution_parameter = parameter
     },
     updateVotes: function(votes) {
       this.ref_votes = votes;
@@ -251,6 +257,7 @@ export default {
           ref_votes: this.ref_votes,
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
+          std_param: this.distribution_parameter,
           parties: this.parties,
           constituency_names: this.constituency_names,
           constituency_seats: this.constituency_seats,
