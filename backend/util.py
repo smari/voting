@@ -627,22 +627,6 @@ def simulation_to_xlsx(simulation, filename):
             cformat=sim_format
         )
 
-
-        # method = ADJUSTMENT_METHODS[method_name]
-        # try:
-        #     h, data = method.print_seats(
-        #         simulation.e_rules[r],
-        #         simulation.base_allocations[r]["step_info"]
-        #     )
-        #     row = toprow
-        #     col = max(15, 2+3*(2+len(parties)))
-        #     worksheet.write_row(row, col, h, cell_format)
-        #     for line in data:
-        #         row += 1
-        #         worksheet.write_row(row, col, line, cell_format)
-        # except AttributeError:
-        #     pass
-
     workbook.close()
 
 ADJUSTMENT_METHODS = {
