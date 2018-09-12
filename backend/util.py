@@ -538,6 +538,8 @@ def simulation_to_xlsx(simulation, filename):
     ):
         if heading.endswith("shares"):
             cformat = share_format
+        if heading == "Votes":
+            cformat = base_format
         worksheet.merge_range(
             row, col, row, col+len(xheaders), heading, h_format)
         worksheet.write_row(row+1, col+1, xheaders, cell_format)
