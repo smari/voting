@@ -295,7 +295,9 @@ def election_to_xlsx(election, filename):
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
     xtd_seat_shares = find_xtd_shares(xtd_total_seats)
+    threshold = 0.01*election.rules["adjustment_threshold"]
     xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
+    xtd_final_shares = find_xtd_shares([xtd_final_votes])[0]
 
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
@@ -339,19 +341,13 @@ def election_to_xlsx(election, filename):
         worksheet.write_column(row+2, col, yheaders, cell_format)
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
+    startcol = 1
+    startrow = 4
     tables_before = [
         {"heading": "Votes",              "matrix": xtd_votes      },
         {"heading": "Vote shares",        "matrix": xtd_shares     },
         {"heading": "Constituency seats", "matrix": xtd_const_seats},
     ]
-    tables_after = [
-        {"heading": "Adjustment seats", "matrix": xtd_adj_seats  },
-        {"heading": "Total seats",      "matrix": xtd_total_seats},
-        {"heading": "Seat shares",      "matrix": xtd_seat_shares},
-    ]
-
-    startcol = 1
-    startrow = 4
     for table in tables_before:
         draw_block(worksheet, row=startrow, col=startcol,
             heading=table["heading"], xheaders=parties, yheaders=const_names,
@@ -359,30 +355,13 @@ def election_to_xlsx(election, filename):
         )
         startrow += 3 + len(const_names)
 
-    row_headers = [
-        'Total votes',
-        'Vote shares',
-        'Threshold',
-        'Votes above threshold',
-        'Vote shares above threshold',
-        'Constituency seats',
-    ]
-    matrix = [
-        xtd_votes[-1],
-        xtd_shares[-1],
-        [election.rules["adjustment_threshold"]*0.01],
-        xtd_final_votes,
-        find_xtd_shares([xtd_final_votes])[0],
-        xtd_const_seats[-1],
-    ]
-    formats = [
-        cell_format,
-        share_format,
-        share_format,
-        cell_format,
-        share_format,
-        cell_format
-    ]
+    row_headers = ['Total votes', 'Vote shares', 'Threshold',
+                   'Votes above threshold',
+                   'Vote shares above threshold', 'Constituency seats']
+    matrix = [xtd_votes[-1],   xtd_shares[-1],   [threshold],
+              xtd_final_votes, xtd_final_shares, xtd_const_seats[-1]]
+    formats = [cell_format, share_format, share_format,
+               cell_format, share_format, cell_format]
     draw_block(worksheet, row=startrow, col=startcol,
         heading="Adjustment seat apportionment", topleft="Party",
         xheaders=parties, yheaders=row_headers,
@@ -405,6 +384,11 @@ def election_to_xlsx(election, filename):
     except AttributeError:
         pass
 
+    tables_after = [
+        {"heading": "Adjustment seats", "matrix": xtd_adj_seats  },
+        {"heading": "Total seats",      "matrix": xtd_total_seats},
+        {"heading": "Seat shares",      "matrix": xtd_seat_shares},
+    ]
     for table in tables_after:
         draw_block(worksheet, row=startrow, col=startcol,
             heading=table["heading"], xheaders=parties, yheaders=const_names,
