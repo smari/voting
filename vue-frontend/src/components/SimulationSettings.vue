@@ -15,9 +15,9 @@
         <b-col>
           <b-form-group
             label="Distribution parameter"
-            description="What parameter should be used for the standard deviation of the distribution?">
+            description="What parameter should be used for the standard deviation of the distribution? (must be greater than 0% and should be no more than 50%)">
             <b-input-group append="%">
-              <b-form-input type="number" min="1" max="99"
+              <b-form-input type="number" min="1" max="50"
                 v-model.number="distribution_parameter"/>
             </b-input-group>
           </b-form-group>
