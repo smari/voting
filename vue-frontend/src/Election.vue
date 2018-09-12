@@ -134,6 +134,25 @@ export default {
           this.server.error = true;
           this.server.waitingForData = false;
         });
+    },
+
+    get_xlsx: function() {
+      this.$http.post('/api/election/getxlsx/', {
+        votes: this.votes,
+        rules: this.rules,
+        parties: this.parties,
+        constituency_names: this.constituency_names,
+        constituency_seats: this.constituency_seats,
+        constituency_adjustment_seats: this.constituency_adjustment_seats
+      }, {responseType: 'blob'}).then(response => {
+        let blob = new Blob([response.body], {type: 'file'})
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = 'election.xlsx'
+        link.click()
+      }, response => {
+        this.server.error = true;
+      })
     }
   },
 }
