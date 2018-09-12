@@ -80,6 +80,21 @@ def get_election_results():
 
     return jsonify(election.get_results_dict())
 
+@app.route('/api/election/getxlsx/', methods=['POST'])
+def get_election_excel():
+    election = handle_election()
+    if type(election)==dict and "error" in election:
+        return jsonify(election)
+
+    tmpfilename = tempfile.mktemp(prefix='election-')
+    util.election_to_xlsx(election, tmpfilename)
+    print("%s" % (tmpfilename))
+    return send_from_directory(
+        directory=os.path.dirname(tmpfilename),
+        filename=os.path.basename(tmpfilename),
+        attachment_filename="election.xlsx",
+        as_attachment=True
+    )
 
 @app.route('/api/votes/upload/', methods=['POST'])
 def upload_votes():
