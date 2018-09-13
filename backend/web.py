@@ -266,11 +266,11 @@ def set_up_simulation():
 
     std_param = 0.1
     if "std_param" in data:
-        if data["std_param"] <= 0:
-            return False, "Distribution parameter must be greater than 0%."
-        if data["std_param"] > 50:
-            return False, "Distribution parameter should be no more than 50%."
-        std_param = 0.01*data["std_param"]
+        std_param = data["std_param"]
+        if std_param <= 0:
+            return False, "Distribution parameter must be greater than 0."
+        if std_param > 0.5:
+            return False, "Distribution parameter should be no more than 0.5."
 
     simulation_rules = sim.SimulationRules()
 

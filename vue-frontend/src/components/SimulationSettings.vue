@@ -15,9 +15,9 @@
         <b-col>
           <b-form-group
             label="Distribution parameter"
-            description="What parameter should be used for the standard deviation of the distribution? (must be greater than 0% and should be no more than 50%)">
-            <b-input-group append="%">
-              <b-form-input type="number" min="1" max="50"
+            description="What parameter should be used for the standard deviation of the distribution? (must be greater than 0 and should be no more than 0.5)">
+            <b-input-group>
+              <b-form-input type="text"
                 v-model.number="distribution_parameter"/>
             </b-input-group>
           </b-form-group>
@@ -57,7 +57,7 @@ export default {
   created: function() {
     this.$http.get('/api/capabilities').then(response => {
       this.rules = response.body;
-      this.distribution_parameter = 10;
+      this.distribution_parameter = 0.1;
       this.doneCreating = true;
     }, response => {
       this.serverError = true;
