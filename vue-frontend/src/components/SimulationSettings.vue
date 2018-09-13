@@ -15,7 +15,7 @@
         <b-col>
           <b-form-group
             label="Distribution parameter"
-            description="What parameter should be used for the standard deviation of the distribution? (must be greater than 0 and should be no more than 0.5)">
+            description="What parameter should be used for the standard deviation of the distribution? (must be greater than 0 and less than 0.5)">
             <b-input-group>
               <b-form-input type="text"
                 v-model.number="distribution_parameter"/>
