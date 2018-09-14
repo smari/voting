@@ -146,9 +146,9 @@ class ElectionRules(Rules):
 class Election:
     """A single election."""
     def __init__(self, rules, votes=None):
-        self.no_constituencies = len(rules["constituency_adjustment_seats"])
-        assert(len(rules["constituency_seats"]) == self.no_constituencies)
-        assert(len(rules["constituency_names"]) == self.no_constituencies)
+        self.num_constituencies = len(rules["constituency_adjustment_seats"])
+        assert(len(rules["constituency_seats"]) == self.num_constituencies)
+        assert(len(rules["constituency_names"]) == self.num_constituencies)
         self.rules = rules
         self.set_votes(votes)
 
@@ -156,7 +156,7 @@ class Election:
         return entropy(self.m_votes, self.results, self.gen)
 
     def set_votes(self, votes):
-        assert(len(votes) == self.no_constituencies)
+        assert(len(votes) == self.num_constituencies)
         assert(all([len(x) == len(self.rules["parties"])
                     for x in votes]))
         self.m_votes = votes

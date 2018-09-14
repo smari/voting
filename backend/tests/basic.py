@@ -3,6 +3,7 @@ import unittest
 from voting import apportion1d, dhondt_gen, sainte_lague_gen
 from voting import ElectionRules, Election
 from rules import Rules
+from util import add_totals
 
 class TestMaxEntropy(unittest.TestCase):
 
@@ -48,7 +49,7 @@ class TestMaxEntropy(unittest.TestCase):
         res = election.get_results_dict()
         print(res)
         self.assertEqual(res["rules"], rules)
-        self.assertEqual(res["seat_allocations"], [[2, 1], [3, 2]])
+        self.assertEqual(res["seat_allocations"], add_totals([[2, 1], [3, 2]]))
 
 
 class TestRules(unittest.TestCase):

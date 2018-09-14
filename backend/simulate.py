@@ -254,6 +254,8 @@ class Simulation:
         t = float(self.list_data[ruleset][measure]["sqs"][const][party])
         avg = s/n                 if n>0 else 0
         var = (t - s*avg) / (n-1) if n>1 else 0
+        if -0.0000001 < var and var < 0:
+            var = 0
         std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var

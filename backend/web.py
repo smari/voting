@@ -41,10 +41,8 @@ def serve_index():
 def send_static(path):
     return send_from_directory('static/', path)
 
-@app.route('/api/election/', methods=["POST"])
 def handle_election():
     data = request.get_json(force=True)
-
     rules = voting.ElectionRules()
 
     for k, v in data["rules"].items():
@@ -54,25 +52,49 @@ def handle_election():
         if x in data and data[x]:
             rules[x] = data[x]
         else:
-            return jsonify({"error": "Missing data ('%s')" % x})
+            return {"error": "Missing data ('%s')" % x}
 
     if not "votes" in data:
-        return jsonify({"error": "Votes missing."})
+        return {"error": "Votes missing."}
 
     for const in data["votes"]:
         for party in const:
             if type(party) != int:
-                return jsonify({"error": "Votes must be numbers."})
+                return {"error": "Votes must be numbers."}
 
     try:
         election = voting.Election(rules, data["votes"])
         election.run()
     except ZeroDivisionError:
-        return jsonify({"error": "Need to have more votes."})
+        return {"error": "Need to have more votes."}
     except AssertionError:
-        return jsonify({"error": "The data is malformed."})
+        return {"error": "The data is malformed."}
+
+    return election
+
+@app.route('/api/election/', methods=["POST"])
+def get_election_results():
+    election = handle_election()
+    if type(election)==dict and "error" in election:
+        return jsonify(election)
+
     return jsonify(election.get_results_dict())
 
+@app.route('/api/election/getxlsx/', methods=['POST'])
+def get_election_excel():
+    election = handle_election()
+    if type(election)==dict and "error" in election:
+        return jsonify(election)
+
+    tmpfilename = tempfile.mktemp(prefix='election-')
+    util.election_to_xlsx(election, tmpfilename)
+    print("%s" % (tmpfilename))
+    return send_from_directory(
+        directory=os.path.dirname(tmpfilename),
+        filename=os.path.basename(tmpfilename),
+        attachment_filename="election.xlsx",
+        as_attachment=True
+    )
 
 @app.route('/api/votes/upload/', methods=['POST'])
 def upload_votes():
@@ -93,34 +115,13 @@ def paste_votes():
     for row in csv.reader(StringIO(data["csv"]), skipinitialspace=True):
         rd.append(row)
 
-    res = {}
-    if data["has_parties"]:
-        res["parties"] = rd[0]
-        del(rd[0])
-
-    if data["has_constituencies"]:
-        res["constituencies"] = [row[0] for row in rd]
-        for row in rd: del(row[0])
-        if data["has_parties"]: res["parties"] = res["parties"][1:]
-
-    if data["has_constituency_seats"]:
-        res["constituency_seats"] = [int(row[0]) if row[0] else 0 for row in rd]
-        for row in rd: del(row[0])
-        if data["has_parties"]: res["parties"] = res["parties"][1:]
-
-    if data["has_constituency_adjustment_seats"]:
-        res["constituency_adjustment_seats"] = [int(row[0]) if row[0] else 0 for row in rd]
-        for row in rd: del(row[0])
-        if data["has_parties"]: res["parties"] = res["parties"][1:]
-
-    num_parties = 0
-    while(num_parties < len(res["parties"]) and res["parties"][num_parties]):
-        num_parties += 1
-    res["parties"] = res["parties"][:num_parties]
-
-    res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd]
-
-    return jsonify(res)
+    return jsonify(util.parse_input(
+        input=rd,
+        parties_included=data["has_parties"],
+        const_included=data["has_constituencies"],
+        const_seats_included=data["has_constituency_seats"],
+        adj_seats_included=data["has_constituency_adjustment_seats"]
+    ))
 
 
 SIMULATIONS = {}
@@ -263,13 +264,22 @@ def set_up_simulation():
             if type(party) != int:
                 return False, "Votes must be numbers."
 
+    std_param = 0.1
+    if "std_param" in data:
+        std_param = data["std_param"]
+        if std_param <= 0:
+            return False, "Distribution parameter must be greater than 0."
+        if std_param >= 0.5:
+            return False, "Distribution parameter must be less than 0.5."
+
     simulation_rules = sim.SimulationRules()
 
     for k, v in data["simulation_rules"].items():
         simulation_rules[k] = v
 
     try:
-        simulation = sim.Simulation(simulation_rules, rulesets, data["ref_votes"])
+        simulation = sim.Simulation(
+            simulation_rules, rulesets, data["ref_votes"], std_param)
     except ZeroDivisionError:
         return False, "Need to have more votes."
 

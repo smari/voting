@@ -57,7 +57,6 @@ def load_constituencies(confile):
     return cons
 
 def load_votes_from_stream(stream, filename):
-    res = {}
     rd = []
     if filename.endswith(".csv"):
         if isinstance(stream, io.BytesIO):
@@ -72,27 +71,55 @@ def load_votes_from_stream(stream, filename):
     else:
         return None, None, None
 
-    res["constituencies"] = [row[0] for row in rd[1:]]
-    for row in rd: del(row[0])
+    const_seats_incl = rd[0][1].lower() == "cons"
+    expected = 2 if const_seats_incl else 1
+    adj_seats_incl = rd[0][expected].lower() == "adj"
 
-    if rd[0][0].lower() == "cons":
-        res["constituency_seats"] = [
-            int(row[0]) if row[0] else 0 for row in rd[1:]
-        ]
-        for row in rd: del(row[0])
+    return parse_input(
+        input=rd,
+        parties_included=True,
+        const_included=True,
+        const_seats_included=const_seats_incl,
+        adj_seats_included=adj_seats_incl
+    )
 
-    if rd[0][0].lower() == "adj":
-        res["constituency_adjustment_seats"] = [
-            int(row[0]) if row[0] else 0 for row in rd[1:]
-        ]
-        for row in rd: del(row[0])
+def parse_input(
+    input,
+    parties_included,
+    const_included,
+    const_seats_included,
+    adj_seats_included
+):
+    res = {}
+    if parties_included:
+        res["parties"] = input[0]
+        del(input[0])
 
-    num_parties = 0
-    while(num_parties < len(rd[0]) and rd[0][num_parties]): num_parties += 1
-    res["parties"] = rd[0][:num_parties]
-    res["votes"] = [[int(v) if v else 0 for v in row[:num_parties]] for row in rd[1:]]
+    if const_included:
+        res["constituencies"] = [row[0] for row in input]
+        for row in input: del(row[0])
+        if parties_included: res["parties"] = res["parties"][1:]
 
+    if const_seats_included:
+        res["constituency_seats"] = [parsint(row[0]) for row in input]
+        for row in input: del(row[0])
+        if parties_included: res["parties"] = res["parties"][1:]
+
+    if adj_seats_included:
+        res["constituency_adjustment_seats"] = [parsint(row[0]) for row in input]
+        for row in input: del(row[0])
+        if parties_included: res["parties"] = res["parties"][1:]
+
+    res["votes"] = input
+    if parties_included:
+        while not res["parties"][-1]:
+            res["parties"] = res["parties"][:-1]
+        res["votes"] = [row[:len(res["parties"])] for row in res["votes"]]
+    res["votes"] = [[parsint(v) for v in row] for row in res["votes"]]
     return res
+
+def parsint(value):
+    return int(value) if value else 0
 
 
 def load_votes(votefile, consts):
@@ -263,143 +290,114 @@ def election_to_xlsx(election, filename):
     const_names.append("Total")
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
-    xtd_shares = [["{:.1%}".format(s) if s != 0 else None for s in c]
-                for c in find_xtd_shares(xtd_votes)]
+    xtd_shares = find_xtd_shares(xtd_votes)
     xtd_const_seats = add_totals(election.m_const_seats_alloc)
     xtd_total_seats = add_totals(election.results)
     xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
-    xtd_seat_shares = [["{:.1%}".format(s) for s in c]
-                    for c in find_xtd_shares(xtd_total_seats)]
+    xtd_seat_shares = find_xtd_shares(xtd_total_seats)
+    threshold = 0.01*election.rules["adjustment_threshold"]
+    xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
+    xtd_final_shares = find_xtd_shares([xtd_final_votes])[0]
 
     workbook = xlsxwriter.Workbook(filename)
     worksheet = workbook.add_worksheet()
     cell_format = workbook.add_format()
     cell_format.set_align('right')
+    share_format = workbook.add_format()
+    share_format.set_num_format('0.0%')
     h_format = workbook.add_format()
     h_format.set_align('center')
     h_format.set_bold()
     h_format.set_font_size(14)
+
     worksheet.set_column('B:B', 20)
-    worksheet.merge_range(4, 2, 4, 1+len(parties), "Votes",
-                                h_format)
-    worksheet.write('B6', 'Constituency', cell_format)
-    worksheet.write_row(5, 2, parties, cell_format)
-    row = 5
-    worksheet.write_column(6, 1, const_names, cell_format)
-    for c in range(len(xtd_votes)):
-        row += 1
-        for p in range(len(xtd_votes[c])):
-            if xtd_votes[c][p] != 0:
-                worksheet.write(row, p+2, xtd_votes[c][p], cell_format)
-    row += 2
-    worksheet.merge_range(row, 2, row, 1+len(parties), "Vote shares",
-                                h_format)
-    row += 1
-    worksheet.write(row, 1, 'Constituency', cell_format)
-    worksheet.write_row(row, 2, parties[:-1], cell_format)
-    worksheet.write_column(row+1, 1, const_names, cell_format)
-    for c in range(len(xtd_shares)):
-        row += 1
-        worksheet.write_row(row, 2, xtd_shares[c], cell_format)
-    row += 2
-    worksheet.merge_range(row, 2, row, 1+len(parties), "Constituency seats",
-                                h_format)
-    row += 1
-    worksheet.write(row, 1, 'Constituency', cell_format)
-    worksheet.write_row(row, 2, parties, cell_format)
-    worksheet.write_column(row+1, 1, const_names, cell_format)
-    for c in range(len(xtd_const_seats)):
-        row += 1
-        for p in range(len(xtd_const_seats[c])):
-            if xtd_const_seats[c][p] != 0:
-                worksheet.write(row, p+2, xtd_const_seats[c][p], cell_format)
-    row += 2
-    worksheet.merge_range(row, 2, row, 6, "Adjustment seat apportionment",
-                                h_format)
-    worksheet.merge_range(row, 7, row, 8, "Threshold", h_format)
-    worksheet.write(row, 9,
-                    "{:.1%}".format(election.rules["adjustment_threshold"]*0.01),
-                    cell_format)
-    row += 1
-    v_votes = xtd_votes[-1]
-    v_elim_votes = election.v_votes_eliminated
-    worksheet.write(row, 1, 'Party', cell_format)
-    worksheet.write_row(row, 2, parties, cell_format)
-    row += 1
-    worksheet.write(row, 1, 'Total votes', cell_format)
-    worksheet.write_row(row, 2, v_votes, cell_format)
-    row += 1
-    worksheet.write(row, 1, 'Votes above threshold', cell_format)
-    for p in range(len(v_elim_votes)):
-        if v_elim_votes[p] != 0:
-            worksheet.write(row, p+2, v_elim_votes[p], cell_format)
-    row += 1
-    worksheet.write(row, 1, 'Vote shares above threshold', cell_format)
-    for p in range(len(v_elim_votes)):
-        if v_elim_votes[p] != 0:
-            share = "{:.1%}".format(v_elim_votes[p]/sum(v_elim_votes[:-1]))
-            worksheet.write(row, p+2, share, cell_format)
-    row += 1
-    v_elim_seats = []
-    for p in range(len(v_elim_votes)-1):
-        if v_elim_votes[p] != 0:
-            v_elim_seats.append(election.v_const_seats_alloc[p])
-        else:
-            v_elim_seats.append(0)
-    v_elim_seats.append(sum(v_elim_seats))
-    worksheet.write(row, 1, 'Constituency seats', cell_format)
-    for p in range(len(v_elim_seats)):
-        if v_elim_seats[p] != 0:
-            worksheet.write(row, p+2, v_elim_seats[p], cell_format)
-    row += 2
+
+    def write_matrix(worksheet, startrow, startcol, matrix, cformat):
+        for c in range(len(matrix)):
+            for p in range(len(matrix[c])):
+                if matrix[c][p] != 0:
+                    try:
+                        worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                        cformat[c])
+                    except TypeError:
+                        worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                        cformat)
+
+    def draw_block(worksheet, row, col,
+        heading, xheaders, yheaders,
+        matrix,
+        topleft="Constituency",
+        cformat=cell_format
+    ):
+        if heading.endswith("shares"):
+            cformat = share_format
+        worksheet.merge_range(
+            row, col+1,
+            row, col+len(xheaders),
+            heading, h_format
+        )
+        worksheet.write(row+1, col, topleft, cell_format)
+        worksheet.write_row(row+1, col+1, xheaders, cell_format)
+        worksheet.write_column(row+2, col, yheaders, cell_format)
+        write_matrix(worksheet, row+2, col+1, matrix, cformat)
+
+    startcol = 1
+    startrow = 4
+    tables_before = [
+        {"heading": "Votes",              "matrix": xtd_votes      },
+        {"heading": "Vote shares",        "matrix": xtd_shares     },
+        {"heading": "Constituency seats", "matrix": xtd_const_seats},
+    ]
+    for table in tables_before:
+        draw_block(worksheet, row=startrow, col=startcol,
+            heading=table["heading"], xheaders=parties, yheaders=const_names,
+            matrix=table["matrix"]
+        )
+        startrow += 3 + len(const_names)
+
+    row_headers = ['Total votes', 'Vote shares', 'Threshold',
+                   'Votes above threshold',
+                   'Vote shares above threshold', 'Constituency seats']
+    matrix = [xtd_votes[-1],   xtd_shares[-1],   [threshold],
+              xtd_final_votes, xtd_final_shares, xtd_const_seats[-1]]
+    formats = [cell_format, share_format, share_format,
+               cell_format, share_format, cell_format]
+    draw_block(worksheet, row=startrow, col=startcol,
+        heading="Adjustment seat apportionment", topleft="Party",
+        xheaders=parties, yheaders=row_headers,
+        matrix=matrix, cformat=formats
+    )
+    startrow += 3 + len(row_headers)
+
     method = ADJUSTMENT_METHODS[election.rules["adjustment_method"]]
     try:
         h, data = method.print_seats(election.rules, election.adj_seats_info)
-        worksheet.write_row(row, 1, h, cell_format)
+        worksheet.merge_range(
+            startrow, startcol+1,
+            startrow, startcol+len(parties),
+            "Step-by-step demonstration", h_format
+        )
+        worksheet.write_row(startrow+1, 1, h, cell_format)
         for i in range(len(data)):
-            row += 1
-            worksheet.write_row(row, 1, data[i], cell_format)
+            worksheet.write_row(startrow+2+i, 1, data[i], cell_format)
+        startrow += 3 + len(data)
     except AttributeError:
         pass
-    row += 2
-    worksheet.merge_range(row, 2, row, 1+len(parties), "Adjustment seats",
-                                h_format)
-    row += 1
-    worksheet.write(row, 1, 'Constituency', cell_format)
-    worksheet.write_row(row, 2, parties, cell_format)
-    worksheet.write_column(row+1, 1, const_names, cell_format)
-    for c in range(len(xtd_adj_seats)):
-        row += 1
-        for p in range(len(xtd_adj_seats[c])):
-            if xtd_adj_seats[c][p] != 0:
-                worksheet.write(row, p+2, xtd_adj_seats[c][p], cell_format)
-    row += 2
-    worksheet.merge_range(row, 2, row, 1+len(parties), "Total seats",
-                                h_format)
-    row += 1
-    worksheet.write(row, 1, 'Constituency', cell_format)
-    worksheet.write_row(row, 2, parties, cell_format)
-    worksheet.write_column(row+1, 1, const_names, cell_format)
-    for c in range(len(xtd_total_seats)):
-        row += 1
-        for p in range(len(xtd_total_seats[c])):
-            if xtd_total_seats[c][p] != 0:
-                worksheet.write(row, p+2, xtd_total_seats[c][p], cell_format)
-    row += 2
-    worksheet.merge_range(row, 2, row, 1+len(parties), "Seat shares",
-                                h_format)
-    row += 1
-    worksheet.write(row, 1, 'Constituency', cell_format)
-    worksheet.write_row(row, 2, parties[:-1], cell_format)
-    worksheet.write_column(row+1, 1, const_names, cell_format)
-    for c in range(len(xtd_seat_shares)):
-        row += 1
-        for p in range(len(xtd_seat_shares[c])):
-            if xtd_total_seats[c][p] != 0:
-                worksheet.write(row, p+2, xtd_seat_shares[c][p], cell_format)
-    row += 2
-    worksheet.write(row, 1, 'Entropy:', h_format)
-    worksheet.write(row, 2, election.entropy(), cell_format)
+
+    tables_after = [
+        {"heading": "Adjustment seats", "matrix": xtd_adj_seats  },
+        {"heading": "Total seats",      "matrix": xtd_total_seats},
+        {"heading": "Seat shares",      "matrix": xtd_seat_shares},
+    ]
+    for table in tables_after:
+        draw_block(worksheet, row=startrow, col=startcol,
+            heading=table["heading"], xheaders=parties, yheaders=const_names,
+            matrix=table["matrix"]
+        )
+        startrow += 3 + len(const_names)
+
+    worksheet.write(startrow, startcol, 'Entropy:', h_format)
+    worksheet.write(startrow, startcol+1, election.entropy(), cell_format)
 
     workbook.close()
 
@@ -540,6 +538,8 @@ def simulation_to_xlsx(simulation, filename):
     ):
         if heading.endswith("shares"):
             cformat = share_format
+        if heading == "Votes":
+            cformat = base_format
         worksheet.merge_range(
             row, col, row, col+len(xheaders), heading, h_format)
         worksheet.write_row(row+1, col+1, xheaders, cell_format)
@@ -612,8 +612,10 @@ def simulation_to_xlsx(simulation, filename):
             toprow += len(const_names)+3
 
         results = simulation.get_results_dict()
+        DEVIATION_MEASURES = results["deviation_measures"]
+        STANDARDIZED_MEASURES = results["standardized_measures"]
         MEASURES = results["measures"]
-        mkeys = MEASURES.keys()
+        mkeys = DEVIATION_MEASURES + STANDARDIZED_MEASURES
         measure_names = [MEASURES[key] for key in mkeys]
         aggregates = ["avg", "std"]
         aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
@@ -628,22 +630,6 @@ def simulation_to_xlsx(simulation, filename):
             matrix=measure_table,
             cformat=sim_format
         )
-
-
-        # method = ADJUSTMENT_METHODS[method_name]
-        # try:
-        #     h, data = method.print_seats(
-        #         simulation.e_rules[r],
-        #         simulation.base_allocations[r]["step_info"]
-        #     )
-        #     row = toprow
-        #     col = max(15, 2+3*(2+len(parties)))
-        #     worksheet.write_row(row, col, h, cell_format)
-        #     for line in data:
-        #         row += 1
-        #         worksheet.write_row(row, col, line, cell_format)
-        # except AttributeError:
-        #     pass
 
     workbook.close()
 
