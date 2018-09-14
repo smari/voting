@@ -63,5 +63,10 @@
     <b-button :size="lg" href="#/simulate">Run a simulation</b-button>
   </div>
 
+  <h2>Documentation</h2>
+  <ul>
+    <li><a href="https://github.com/smari/voting/raw/master/doc/2018-09-10-kosningakerfishermir-kynning.pdf">Presentation at Reykjavík University 2018-09-10. (In Icelandic)</a></li>
+  </ul>
+
 </b-container>
 </template>
