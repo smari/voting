@@ -11,8 +11,8 @@ import json
 from datetime import datetime, timedelta
 
 
-def beta_params(mean, std_param):
-    weight = 1/std_param**2 - 1
+def beta_params(mean, deviation_param):
+    weight = 1/deviation_param**2 - 1
     alpha = weight*mean
     beta = weight*(1-mean)
     return alpha, beta
