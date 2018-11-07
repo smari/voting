@@ -58,7 +58,6 @@ def beta_distribution(
             mean_beta_distr = xtd_shares[c][p]
             assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
             if 0 < mean_beta_distr and mean_beta_distr < 1:
-                var_beta = std_param*mean_beta_distr*(1-mean_beta_distr)
                 alpha, beta = beta_params(mean_beta_distr, std_param)
                 share = betavariate(alpha, beta)
             else:
