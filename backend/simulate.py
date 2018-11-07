@@ -11,10 +11,8 @@ import json
 from datetime import datetime, timedelta
 
 
-def beta_params(mean, deviation_param):
+def beta_params(mean, stability_parameter):
     assert(0<mean and mean<1)
-    assert(0<deviation_param and deviation_param<1)
-    stability_parameter = 1.0/deviation_param**2
     assert(1<stability_parameter)
 
     #make sure alpha and beta >1 to ensure nice probability distribution
@@ -47,6 +45,9 @@ def beta_distribution(
     using 'base_votes' as reference.
     """
     assert(0 < std_param and std_param < 1)
+    stab_param = 1.0/std_param**2
+    assert(1<stab_param)
+
     xtd_votes = add_totals(base_votes)
     xtd_shares = find_xtd_shares(xtd_votes)
 
@@ -58,7 +59,7 @@ def beta_distribution(
             mean_beta_distr = xtd_shares[c][p]
             assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
             if 0 < mean_beta_distr and mean_beta_distr < 1:
-                alpha, beta = beta_params(mean_beta_distr, std_param)
+                alpha, beta = beta_params(mean_beta_distr, stab_param)
                 share = betavariate(alpha, beta)
             else:
                 share = mean_beta_distr #either 0 or 1
