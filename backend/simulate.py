@@ -17,7 +17,6 @@ def beta_params(mean, deviation_param):
     lower_mean = mean if mean<=0.5 else 1-mean
     assert(0<lower_mean and lower_mean<=0.5)
     lifting_factor = 1 + 1.0/lower_mean
-    assert(lifting_factor>=3)
     weight = lifting_factor/deviation_param**2 - 1
     alpha = weight*mean
     beta = weight*(1-mean)
