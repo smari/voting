@@ -25,6 +25,7 @@ def beta_params(mean, deviation_param):
     beta = (1-mean)*weight
     assert(alpha>1)
     assert(beta>1)
+    assert(weight == alpha+beta)
     return alpha, beta
 
 def beta_distribution(
