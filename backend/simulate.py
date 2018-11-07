@@ -230,7 +230,6 @@ class Simulation:
         self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
         self.stbl_param = stbl_param
-        self.std_param = 1/sqrt(self.stbl_param)
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
@@ -340,7 +339,7 @@ class Simulation:
             for p in range(1+self.num_parties):
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p)
-                var_beta_distr[c].append(self.std_param
+                var_beta_distr[c].append(1/sqrt(self.stbl_param)
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
         sim_shares = self.list_data[-1]["sim_shares"]
