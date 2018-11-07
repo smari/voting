@@ -277,9 +277,11 @@ def set_up_simulation():
     for k, v in data["simulation_rules"].items():
         simulation_rules[k] = v
 
+    stability_parameter = 1.0/std_param**2
+
     try:
         simulation = sim.Simulation(
-            simulation_rules, rulesets, data["ref_votes"], std_param)
+            simulation_rules, rulesets, data["ref_votes"], stability_parameter)
     except ZeroDivisionError:
         return False, "Need to have more votes."
 
