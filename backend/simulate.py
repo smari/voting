@@ -21,8 +21,8 @@ def beta_params(mean, deviation_param):
     assert(0<lower_mean and lower_mean<=0.5)
     lifting_factor = 1 + 1.0/lower_mean
     weight = lifting_factor*stability_parameter - 1
-    alpha = weight*mean
-    beta = weight*(1-mean)
+    alpha = mean*weight
+    beta = (1-mean)*weight
     assert(alpha>1)
     assert(beta>1)
     return alpha, beta
