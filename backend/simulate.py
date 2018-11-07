@@ -14,6 +14,8 @@ from datetime import datetime, timedelta
 def beta_params(mean, deviation_param):
     assert(0<mean and mean<1)
     #TODO: make sure alpha and beta >=1 to ensure nice probability distribution
+    lower_mean = mean if mean<=0.5 else 1-mean
+    assert(0<lower_mean and lower_mean<=0.5)
     weight = 1/deviation_param**2 - 1
     alpha = weight*mean
     beta = weight*(1-mean)
