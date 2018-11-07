@@ -229,8 +229,8 @@ class Simulation:
         self.xtd_votes = add_totals(self.base_votes)
         self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
-        self.std_param = 1/sqrt(stbl_param)
         self.stbl_param = stbl_param
+        self.std_param = 1/sqrt(self.stbl_param)
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
