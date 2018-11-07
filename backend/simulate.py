@@ -12,7 +12,8 @@ from datetime import datetime, timedelta
 
 
 def beta_params(mean, std_param):
-    alpha = mean*(1/std_param**2 - 1)
+    weight = 1/std_param**2 - 1
+    alpha = mean*weight
     beta = alpha*(1/mean - 1)
     return alpha, beta
 
