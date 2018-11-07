@@ -23,9 +23,9 @@ def beta_params(mean, deviation_param):
     weight = lifting_factor*stability_parameter - 1
     alpha = mean*weight
     beta = (1-mean)*weight
+    #note that weight=alpha+beta
     assert(alpha>1)
     assert(beta>1)
-    assert(weight == alpha+beta)
     return alpha, beta
 
 def beta_distribution(
