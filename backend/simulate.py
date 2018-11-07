@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 
 
 def beta_params(mean, deviation_param):
+    assert(0<mean and mean<1)
     weight = 1/deviation_param**2 - 1
     alpha = weight*mean
     beta = weight*(1-mean)
