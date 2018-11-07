@@ -38,16 +38,13 @@ def beta_params(mean, stability_parameter):
 
 def beta_distribution(
     base_votes, #2d - votes for each list,
-    std_param   #distribution parameter in range (0,1)
+    stab_param  #stability parameter in range (1,->)
 ):
     """
     Generate a set of votes with beta distribution,
     using 'base_votes' as reference.
     """
-    assert(0 < std_param and std_param < 1)
-    stab_param = 1.0/std_param**2
     assert(1<stab_param)
-
     xtd_votes = add_totals(base_votes)
     xtd_shares = find_xtd_shares(xtd_votes)
 
@@ -233,6 +230,7 @@ class Simulation:
         self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
         self.std_param = std_param
+        self.stbl_param = 1.0/std_param**2
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
@@ -324,7 +322,7 @@ class Simulation:
         """
         gen = GENERATING_METHODS[self.variate]
         while True:
-            votes = gen(self.base_votes, self.std_param)
+            votes = gen(self.base_votes, self.stbl_param)
             xtd_votes  = add_totals(votes)
             xtd_shares = find_xtd_shares(xtd_votes)
             for c in range(self.num_constituencies+1):
