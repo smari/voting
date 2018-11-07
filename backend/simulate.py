@@ -12,10 +12,10 @@ from datetime import datetime, timedelta
 
 
 def beta_params(mean, deviation_param):
+    assert(0<mean and mean<1)
     assert(0<deviation_param and deviation_param<1)
     stability_parameter = 1.0/deviation_param**2
     assert(1<stability_parameter)
-    assert(0<mean and mean<1)
     #make sure alpha and beta >1 to ensure nice probability distribution
     lower_mean = mean if mean<=0.5 else 1-mean
     assert(0<lower_mean and lower_mean<=0.5)
