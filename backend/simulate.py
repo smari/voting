@@ -16,11 +16,21 @@ def beta_params(mean, deviation_param):
     assert(0<deviation_param and deviation_param<1)
     stability_parameter = 1.0/deviation_param**2
     assert(1<stability_parameter)
+
     #make sure alpha and beta >1 to ensure nice probability distribution
     lower_mean = mean if mean<=0.5 else 1-mean
     assert(0<lower_mean and lower_mean<=0.5)
+
     lifting_factor = 1 + 1.0/lower_mean
+    assert(lifting_factor>=3)
+    assert(lifting_factor >= 1+1/mean)
+    assert(lifting_factor >= 1+1/(1-mean))
+
     weight = lifting_factor*stability_parameter - 1
+    assert(weight>2)
+    assert(weight > 1/mean)
+    assert(weight > 1/(1-mean))
+
     alpha = mean*weight
     beta = (1-mean)*weight
     #note that weight=alpha+beta
