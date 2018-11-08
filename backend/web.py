@@ -264,20 +264,16 @@ def set_up_simulation():
             if type(party) != int:
                 return False, "Votes must be numbers."
 
-    std_param = 0.1
-    if "std_param" in data:
-        std_param = data["std_param"]
-        if std_param <= 0:
-            return False, "Distribution parameter must be greater than 0."
-        if std_param >= 0.5:
-            return False, "Distribution parameter must be less than 0.5."
+    stability_parameter = 100
+    if "stbl_param" in data:
+        stability_parameter = data["stbl_param"]
+        if stability_parameter <= 1:
+            return False, "Stability parameter must be greater than 1."
 
     simulation_rules = sim.SimulationRules()
 
     for k, v in data["simulation_rules"].items():
         simulation_rules[k] = v
-
-    stability_parameter = 1.0/std_param**2
 
     try:
         simulation = sim.Simulation(
