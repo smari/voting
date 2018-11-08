@@ -38,13 +38,13 @@ def beta_params(mean, stability_parameter):
 
 def beta_distribution(
     base_votes, #2d - votes for each list,
-    stab_param  #stability parameter in range (1,->)
+    stbl_param  #stability parameter in range (1,->)
 ):
     """
     Generate a set of votes with beta distribution,
     using 'base_votes' as reference.
     """
-    assert(1<stab_param)
+    assert(1<stbl_param)
     xtd_votes = add_totals(base_votes)
     xtd_shares = find_xtd_shares(xtd_votes)
 
@@ -56,7 +56,7 @@ def beta_distribution(
             mean_beta_distr = xtd_shares[c][p]
             assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
             if 0 < mean_beta_distr and mean_beta_distr < 1:
-                alpha, beta = beta_params(mean_beta_distr, stab_param)
+                alpha, beta = beta_params(mean_beta_distr, stbl_param)
                 share = betavariate(alpha, beta)
             else:
                 share = mean_beta_distr #either 0 or 1
