@@ -11,20 +11,40 @@ import json
 from datetime import datetime, timedelta
 
 
-def beta_params(mean, std_param):
-    alpha = mean*(1/std_param**2 - 1)
-    beta = alpha*(1/mean - 1)
+def beta_params(mean, stability_parameter):
+    assert(0<mean and mean<1)
+    assert(1<stability_parameter)
+
+    #make sure alpha and beta >1 to ensure nice probability distribution
+    lower_mean = mean if mean<=0.5 else 1-mean
+    assert(0<lower_mean and lower_mean<=0.5)
+
+    lifting_factor = 1 + 1.0/lower_mean
+    assert(lifting_factor>=3)
+    assert(lifting_factor >= 1+1/mean)
+    assert(lifting_factor >= 1+1/(1-mean))
+
+    weight = lifting_factor*stability_parameter - 1
+    assert(weight>2)
+    assert(weight > 1/mean)
+    assert(weight > 1/(1-mean))
+
+    alpha = mean*weight
+    beta = (1-mean)*weight
+    #note that weight=alpha+beta
+    assert(alpha>1)
+    assert(beta>1)
     return alpha, beta
 
 def beta_distribution(
     base_votes, #2d - votes for each list,
-    std_param   #distribution parameter in range (0,1)
+    stbl_param  #stability parameter in range (1,->)
 ):
     """
     Generate a set of votes with beta distribution,
     using 'base_votes' as reference.
     """
-    assert(0 < std_param and std_param < 1)
+    assert(1<stbl_param)
     xtd_votes = add_totals(base_votes)
     xtd_shares = find_xtd_shares(xtd_votes)
 
@@ -36,8 +56,7 @@ def beta_distribution(
             mean_beta_distr = xtd_shares[c][p]
             assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
             if 0 < mean_beta_distr and mean_beta_distr < 1:
-                var_beta = std_param*mean_beta_distr*(1-mean_beta_distr)
-                alpha, beta = beta_params(mean_beta_distr, std_param)
+                alpha, beta = beta_params(mean_beta_distr, stbl_param)
                 share = betavariate(alpha, beta)
             else:
                 share = mean_beta_distr #either 0 or 1
@@ -191,7 +210,7 @@ class SimulationRules(Rules):
 
 class Simulation:
     """Simulate a set of elections."""
-    def __init__(self, sim_rules, e_rules, m_votes, std_param=0.1):
+    def __init__(self, sim_rules, e_rules, m_votes, stbl_param=100):
         self.num_total_simulations = sim_rules["simulation_count"]
         self.num_rulesets = len(e_rules)
         self.num_constituencies = len(m_votes)
@@ -210,7 +229,7 @@ class Simulation:
         self.xtd_votes = add_totals(self.base_votes)
         self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
         self.variate = self.sim_rules["gen_method"]
-        self.std_param = std_param
+        self.stbl_param = stbl_param
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
@@ -302,7 +321,7 @@ class Simulation:
         """
         gen = GENERATING_METHODS[self.variate]
         while True:
-            votes = gen(self.base_votes, self.std_param)
+            votes = gen(self.base_votes, self.stbl_param)
             xtd_votes  = add_totals(votes)
             xtd_shares = find_xtd_shares(xtd_votes)
             for c in range(self.num_constituencies+1):
@@ -320,7 +339,7 @@ class Simulation:
             for p in range(1+self.num_parties):
                 for measure in VOTE_MEASURES.keys():
                     self.analyze_list(-1, measure, c, p)
-                var_beta_distr[c].append(self.std_param
+                var_beta_distr[c].append(1/sqrt(self.stbl_param)
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
         sim_shares = self.list_data[-1]["sim_shares"]

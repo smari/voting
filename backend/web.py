@@ -264,13 +264,11 @@ def set_up_simulation():
             if type(party) != int:
                 return False, "Votes must be numbers."
 
-    std_param = 0.1
-    if "std_param" in data:
-        std_param = data["std_param"]
-        if std_param <= 0:
-            return False, "Distribution parameter must be greater than 0."
-        if std_param >= 0.5:
-            return False, "Distribution parameter must be less than 0.5."
+    stability_parameter = 100
+    if "stbl_param" in data:
+        stability_parameter = data["stbl_param"]
+        if stability_parameter <= 1:
+            return False, "Stability parameter must be greater than 1."
 
     simulation_rules = sim.SimulationRules()
 
@@ -279,7 +277,7 @@ def set_up_simulation():
 
     try:
         simulation = sim.Simulation(
-            simulation_rules, rulesets, data["ref_votes"], std_param)
+            simulation_rules, rulesets, data["ref_votes"], stability_parameter)
     except ZeroDivisionError:
         return False, "Need to have more votes."
 

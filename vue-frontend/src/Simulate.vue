@@ -257,7 +257,7 @@ export default {
           ref_votes: this.ref_votes,
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
-          std_param: this.distribution_parameter,
+          stbl_param: this.distribution_parameter,
           parties: this.parties,
           constituency_names: this.constituency_names,
           constituency_seats: this.constituency_seats,
