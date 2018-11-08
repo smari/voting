@@ -8,7 +8,7 @@
           </b-form-group>
         </b-col>
         <b-col>
-          <b-form-group label="Generating method" description="Which method should be used to generate votes?">
+          <b-form-group label="Generating method" description="Which method should be used to generate random votes?">
             <b-form-select v-model="rules.simulation_rules.gen_method" :options="rules.capabilities.generating_methods" class="mb-3"/>
           </b-form-group>
         </b-col>
