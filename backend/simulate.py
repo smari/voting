@@ -109,11 +109,11 @@ LIST_MEASURES = {
     "adj_seats":     "adjustment seats",
     "total_seats":   "constituency and adjustment seats combined",
     "seat_shares":   "total seats scaled to a total of 1 for each constituency",
-    "dev_opt":       "deviation from optimal solution",
-    "dev_law":       "deviation from official law method",
-    "dev_ind_const": "deviation from Independent Constituencies",
-    "dev_one_const": "deviation from Single Constituency",
-    "dev_all_adj":   "deviation from All Adjustment Seats"
+    # "dev_opt":       "deviation from optimal solution",
+    # "dev_law":       "deviation from official law method",
+    # "dev_ind_const": "deviation from Independent Constituencies",
+    # "dev_one_const": "deviation from Single Constituency",
+    # "dev_all_adj":   "deviation from All Adjustment Seats"
 }
 
 VOTE_MEASURES = {
