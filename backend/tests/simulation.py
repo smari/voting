@@ -82,3 +82,24 @@ class SimulationTest(TestCase):
             self.assertEqual(measures[m]['cnt'], 1)
             self.assertEqual(measures[m]['var'], 0)
             self.assertEqual(measures[m]['std'], 0)
+
+    def test_simulate(self):
+        #Arrange
+        self.s_rules["simulation_count"] = 100
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, 100)
+        #Act
+        sim.simulate()
+        #Assert
+        result = sim.get_results_dict()
+        vote_data = result['vote_data']['sim_votes']
+        list_measures = result['data'][0]['list_measures']
+        for const in range(sim.num_constituencies):
+            for party in range(sim.num_parties):
+                self.assertGreater(vote_data['sum'][const][party], 0)
+                self.assertGreater(vote_data['avg'][const][party], 0)
+                self.assertEqual(vote_data['cnt'][const][party], 100)
+                for m in simulate.LIST_MEASURES.keys():
+                    self.assertEqual(list_measures[m]['cnt'][const][party], 100)
+        measures = result['data'][0]['measures']
+        for m in simulate.MEASURES.keys():
+            self.assertEqual(measures[m]['cnt'], 100)
