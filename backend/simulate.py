@@ -505,6 +505,8 @@ class Simulation:
     def simulate(self):
         """Simulate many elections."""
         gen = self.gen_votes()
+        if self.num_total_simulations == 0:
+            self.collect_measures(self.base_votes)
         for i in range(self.num_total_simulations):
             round_start = datetime.now()
             if self.terminate:
