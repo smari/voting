@@ -24,6 +24,6 @@ class TestEntropy(unittest.TestCase):
 
     def test_entropy_depenency_on_divisor(self):
         sl_entropy = entropy(self.votes, self.election.results, sainte_lague_gen)
-        dh_entropy = self.election.entropy()
-        self.assertNotEqual(sl_entropy, dh_entropy)
+        dhondt_entropy = self.election.entropy()
+        self.assertNotEqual(sl_entropy, dhondt_entropy)
         self.assertEqual(round(sl_entropy, 2), 41.22)
