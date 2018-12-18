@@ -322,7 +322,6 @@ class Simulation:
         gen = GENERATING_METHODS[self.variate]
         while True:
             votes = gen(self.base_votes, self.stbl_param)
-            self.collect_votes(votes)
             yield votes
 
     def test_generated(self):
@@ -511,6 +510,7 @@ class Simulation:
                 break
             self.iteration = i + 1
             votes = next(gen)
+            self.collect_votes(votes)
             self.collect_measures(votes)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
