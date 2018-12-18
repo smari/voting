@@ -350,6 +350,7 @@ class Simulation:
                 self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
 
     def collect_measures(self, votes):
+        self.collect_votes(votes)
         for ruleset in range(self.num_rulesets):
             election = voting.Election(self.e_rules[ruleset], votes)
             results = election.run()
@@ -510,7 +511,6 @@ class Simulation:
                 break
             self.iteration = i + 1
             votes = next(gen)
-            self.collect_votes(votes)
             self.collect_measures(votes)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
