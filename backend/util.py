@@ -19,7 +19,7 @@ from methods import pure_vote_ratios
 
 #??????
 def random_id(length=8):
-    chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'
+    chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
     s = "".join(random.sample(chars, length))
     return s
 
