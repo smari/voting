@@ -21,3 +21,12 @@ class TestEntropy(unittest.TestCase):
 
     def test_entropy_calculation(self):
         self.assertEqual(round(self.election.entropy(), 2), 42.95)
+
+    def test_entropy_depenency_on_divisor(self):
+        sl_rules = ElectionRules()
+        sl_rules["adj_alloc_divider"] = "sainte-lague"
+        sl = sl_rules.get_generator("adj_alloc_divider")
+        sl_entropy = entropy(self.votes, self.election.results, sl)
+        dh_entropy = self.election.entropy()
+        self.assertNotEqual(sl_entropy, dh_entropy)
+        self.assertEqual(round(sl_entropy, 2), 41.22)
