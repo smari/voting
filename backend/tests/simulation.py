@@ -56,6 +56,37 @@ class SimulationTest(TestCase):
 
         # Verify that µ=0.5±2%
 
+    def test_simulate_not_at_all(self):
+        #Arrange
+        self.s_rules["simulation_count"] = 0
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, 100)
+        #Act
+        sim.simulate()
+        #Assert
+        result = sim.get_results_dict()
+        vote_data = result['vote_data']['sim_votes']
+        list_measures = result['data'][0]['list_measures']
+        for const in range(sim.num_constituencies):
+            for party in range(sim.num_parties):
+                self.assertEqual(
+                    vote_data['sum'][const][party], self.votes[const][party]
+                )
+                self.assertEqual(
+                    vote_data['avg'][const][party], self.votes[const][party]
+                )
+                self.assertEqual(vote_data['cnt'][const][party], 1)
+                self.assertEqual(vote_data['var'][const][party], 0)
+                self.assertEqual(vote_data['std'][const][party], 0)
+                for m in simulate.LIST_MEASURES.keys():
+                    self.assertEqual(list_measures[m]['cnt'][const][party], 1)
+                    self.assertEqual(list_measures[m]['var'][const][party], 0)
+                    self.assertEqual(list_measures[m]['std'][const][party], 0)
+        measures = result['data'][0]['measures']
+        for m in simulate.MEASURES.keys():
+            self.assertEqual(measures[m]['cnt'], 1)
+            self.assertEqual(measures[m]['var'], 0)
+            self.assertEqual(measures[m]['std'], 0)
+
     def test_simulate_once(self):
         #Arrange
         self.s_rules["simulation_count"] = 1
