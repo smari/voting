@@ -84,5 +84,3 @@ class TestBasicAllocation(unittest.TestCase):
         election = Election(rules, votes)
         election.run()
         self.assertEqual(election.results, [[1, 1, 0], [1, 0, 1]])
-
-
