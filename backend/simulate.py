@@ -348,6 +348,13 @@ class Simulation:
             "err_var": error(sim_shares["var"], var_beta_distr)
         }
 
+    def collect_measures(self, votes):
+        for ruleset in range(self.num_rulesets):
+            election = voting.Election(self.e_rules[ruleset], votes)
+            results = election.run()
+            self.collect_list_measures(ruleset, results, election)
+            self.collect_general_measures(ruleset, votes, results, election)
+
     def collect_list_measures(self, ruleset, results, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
         total_seats_alloc = add_totals(results)
@@ -502,11 +509,7 @@ class Simulation:
                 break
             self.iteration = i + 1
             votes = next(gen)
-            for ruleset in range(self.num_rulesets):
-                election = voting.Election(self.e_rules[ruleset], votes)
-                results = election.run()
-                self.collect_list_measures(ruleset, results, election)
-                self.collect_general_measures(ruleset, votes, results, election)
+            self.collect_measures(votes)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
         self.analysis()
