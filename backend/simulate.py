@@ -109,11 +109,11 @@ LIST_MEASURES = {
     "adj_seats":     "adjustment seats",
     "total_seats":   "constituency and adjustment seats combined",
     "seat_shares":   "total seats scaled to a total of 1 for each constituency",
-    "dev_opt":       "deviation from optimal solution",
-    "dev_law":       "deviation from official law method",
-    "dev_ind_const": "deviation from Independent Constituencies",
-    "dev_one_const": "deviation from Single Constituency",
-    "dev_all_adj":   "deviation from All Adjustment Seats"
+    # "dev_opt":       "deviation from optimal solution",
+    # "dev_law":       "deviation from official law method",
+    # "dev_ind_const": "deviation from Independent Constituencies",
+    # "dev_one_const": "deviation from Single Constituency",
+    # "dev_all_adj":   "deviation from All Adjustment Seats"
 }
 
 VOTE_MEASURES = {
@@ -322,13 +322,6 @@ class Simulation:
         gen = GENERATING_METHODS[self.variate]
         while True:
             votes = gen(self.base_votes, self.stbl_param)
-            xtd_votes  = add_totals(votes)
-            xtd_shares = find_xtd_shares(xtd_votes)
-            for c in range(self.num_constituencies+1):
-                for p in range(self.num_parties+1):
-                    self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
-                    self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
-
             yield votes
 
     def test_generated(self):
@@ -347,6 +340,22 @@ class Simulation:
             "err_avg": error(sim_shares["avg"], self.xtd_vote_shares),
             "err_var": error(sim_shares["var"], var_beta_distr)
         }
+
+    def collect_votes(self, votes):
+        xtd_votes  = add_totals(votes)
+        xtd_shares = find_xtd_shares(xtd_votes)
+        for c in range(self.num_constituencies+1):
+            for p in range(self.num_parties+1):
+                self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
+                self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
+
+    def collect_measures(self, votes):
+        self.collect_votes(votes)
+        for ruleset in range(self.num_rulesets):
+            election = voting.Election(self.e_rules[ruleset], votes)
+            results = election.run()
+            self.collect_list_measures(ruleset, results, election)
+            self.collect_general_measures(ruleset, votes, results, election)
 
     def collect_list_measures(self, ruleset, results, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
@@ -496,17 +505,15 @@ class Simulation:
     def simulate(self):
         """Simulate many elections."""
         gen = self.gen_votes()
+        if self.num_total_simulations == 0:
+            self.collect_measures(self.base_votes)
         for i in range(self.num_total_simulations):
             round_start = datetime.now()
             if self.terminate:
                 break
             self.iteration = i + 1
             votes = next(gen)
-            for ruleset in range(self.num_rulesets):
-                election = voting.Election(self.e_rules[ruleset], votes)
-                results = election.run()
-                self.collect_list_measures(ruleset, results, election)
-                self.collect_general_measures(ruleset, votes, results, election)
+            self.collect_measures(votes)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
         self.analysis()
