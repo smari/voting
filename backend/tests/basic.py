@@ -21,21 +21,6 @@ class TestMaxEntropy(unittest.TestCase):
         res = apportion1d(votes, num_seats, prior_allocations, sainte_lague_gen)
         self.assertEqual(res[0], [3, 2])
 
-    def test_max_entropy_calculation(self):
-        rules = ElectionRules()
-        rules["debug"] = True
-        rules["show_entropy"] = True
-        rules["parties"] = ["A", "B"]
-        rules["adjustment_method"] = "alternating-scaling"
-        rules["constituency_names"] = ["I", "II"]
-        rules["constituency_seats"] = [2, 3]
-        rules["constituency_adjustment_seats"] = [1, 2]
-        votes = [[500, 400],[300, 200]]
-        election = Election(rules, votes)
-        election.run()
-        self.assertEqual(round(election.entropy(), 2), 42.95)
-
-
     def test_get_results(self):
         rules = ElectionRules()
         rules["parties"] = ["A", "B"]
