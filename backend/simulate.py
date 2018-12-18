@@ -322,13 +322,7 @@ class Simulation:
         gen = GENERATING_METHODS[self.variate]
         while True:
             votes = gen(self.base_votes, self.stbl_param)
-            xtd_votes  = add_totals(votes)
-            xtd_shares = find_xtd_shares(xtd_votes)
-            for c in range(self.num_constituencies+1):
-                for p in range(self.num_parties+1):
-                    self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
-                    self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
-
+            self.collect_votes(votes)
             yield votes
 
     def test_generated(self):
@@ -347,6 +341,14 @@ class Simulation:
             "err_avg": error(sim_shares["avg"], self.xtd_vote_shares),
             "err_var": error(sim_shares["var"], var_beta_distr)
         }
+
+    def collect_votes(self, votes):
+        xtd_votes  = add_totals(votes)
+        xtd_shares = find_xtd_shares(xtd_votes)
+        for c in range(self.num_constituencies+1):
+            for p in range(self.num_parties+1):
+                self.aggregate_list(-1, "sim_votes", c, p, xtd_votes[c][p])
+                self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
 
     def collect_measures(self, votes):
         for ruleset in range(self.num_rulesets):
