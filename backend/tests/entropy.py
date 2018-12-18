@@ -2,8 +2,7 @@ import unittest
 
 from voting import dhondt_gen, sainte_lague_gen
 from voting import ElectionRules, Election
-from rules import Rules
-from util import add_totals, entropy
+from util import entropy
 
 class TestEntropy(unittest.TestCase):
     def setUp(self):
