@@ -3,6 +3,7 @@
 This module contains the core voting system logic.
 """
 import json
+import math
 from tabulate import tabulate
 from util import load_votes, load_constituencies, entropy, add_totals
 from apportion import apportion1d, threshold_elimination_totals, \
@@ -65,7 +66,7 @@ def huntington_hill_gen():
     yield 10000000000
     while True:
         n += 1
-        yield sqrt(n*(n+1))
+        yield math.sqrt(n*(n+1))
 
 DIVIDER_RULES = {
     "dhondt": dhondt_gen,
