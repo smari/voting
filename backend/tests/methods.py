@@ -57,6 +57,19 @@ class TestAdjustmentMethods(TestCase):
                                    [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_alternating_scaling_lague(self):
+        self.rules["primary_divider"] = "sainte-lague"
+        self.rules["adj_determine_divider"] = "sainte-lague"
+        self.rules["adj_alloc_divider"] = "sainte-lague"
+        self.rules["adjustment_method"] = "alternating-scaling"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,3,3,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [0,4,3,0,0,0,0,0,0,0,0,1,0,1,1],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_alternating_scaling_6c(self):
         self.rules_6c["adjustment_method"] = "alternating-scaling"
         election = voting.Election(self.rules_6c, self.votes)
