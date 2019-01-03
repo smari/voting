@@ -17,7 +17,7 @@ class AdjustmentMethodsTestMeta(type):
         def fn(self):
             rules = voting.ElectionRules()
 
-            votes_file = "../data/elections/iceland_landskjorstjorn_2013.csv"
+            votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
             const_file = "../data/constituencies/constituencies_iceland_2013.csv"
             rules["constituencies"] = const_file
             parties, votes = util.load_votes(votes_file, rules["constituencies"])
@@ -37,7 +37,7 @@ class TestAdjustmentMethods(TestCase):
     def setUp(self):
         self.rules = voting.ElectionRules()
         self.rules_6c = voting.ElectionRules()
-        votes_file = "../data/elections/iceland_landskjorstjorn_2013.csv"
+        votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
         const_file = "../data/constituencies/constituencies_iceland_2013.csv"
         const_file_6c = "../data/constituencies/iceland_2013_6x6.xlsx"
         self.rules["constituencies"] = const_file
@@ -255,7 +255,7 @@ class DividerRulesTest(TestCase):
 
     def setUp(self):
         self.rules = voting.ElectionRules()
-        votes_file = "../data/elections/iceland_landskjorstjorn_2013.csv"
+        votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
         const_file = "../data/constituencies/constituencies_iceland_2013.csv"
         self.rules["constituencies"] = const_file
         parties, votes = util.load_votes(votes_file, self.rules["constituencies"])
