@@ -17,7 +17,7 @@ class AdjustmentMethodsTestMeta(type):
         def fn(self):
             rules = voting.ElectionRules()
 
-            votes_file = "../data/elections/iceland_landskjorstjorn_2013.csv"
+            votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
             const_file = "../data/constituencies/constituencies_iceland_2013.csv"
             rules["constituencies"] = const_file
             parties, votes = util.load_votes(votes_file, rules["constituencies"])
@@ -37,7 +37,7 @@ class TestAdjustmentMethods(TestCase):
     def setUp(self):
         self.rules = voting.ElectionRules()
         self.rules_6c = voting.ElectionRules()
-        votes_file = "../data/elections/iceland_landskjorstjorn_2013.csv"
+        votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
         const_file = "../data/constituencies/constituencies_iceland_2013.csv"
         const_file_6c = "../data/constituencies/iceland_2013_6x6.xlsx"
         self.rules["constituencies"] = const_file
@@ -54,6 +54,19 @@ class TestAdjustmentMethods(TestCase):
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
                                    [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_alternating_scaling_lague(self):
+        self.rules["primary_divider"] = "sainte-lague"
+        self.rules["adj_determine_divider"] = "sainte-lague"
+        self.rules["adj_alloc_divider"] = "sainte-lague"
+        self.rules["adjustment_method"] = "alternating-scaling"
+        election = voting.Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,3,3,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [0,4,3,0,0,0,0,0,0,0,0,1,0,1,1],
                                    [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
@@ -242,7 +255,7 @@ class DividerRulesTest(TestCase):
 
     def setUp(self):
         self.rules = voting.ElectionRules()
-        votes_file = "../data/elections/iceland_landskjorstjorn_2013.csv"
+        votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
         const_file = "../data/constituencies/constituencies_iceland_2013.csv"
         self.rules["constituencies"] = const_file
         parties, votes = util.load_votes(votes_file, self.rules["constituencies"])
