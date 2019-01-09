@@ -148,8 +148,10 @@ def error(avg, ref):
 
 def dev(results, ref):
     """Calculate seat deviation of results compared to reference results."""
+    assert(len(results) == len(ref))
     d = 0
     for c in range(len(results)):
+        assert(len(results[c]) == len(ref[c]))
         for p in range(len(results[c])):
             d += abs(results[c][p] - ref[c][p])
     return d
