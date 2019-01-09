@@ -18,6 +18,7 @@ class TestElectionRules(TestCase):
         self.rules["adj_determine_divider"] = "nordic"
         self.rules["adj_alloc_divider"] = "nordic"
         self.rules["adjustment_threshold"] = 4
+        self.rules["parties"] = ["A", "B"]
         self.rules["constituency_names"] = ["I", "II"]
         self.rules["constituency_seats"] = [2, 3]
         self.rules["constituency_adjustment_seats"] = [1, 2]
@@ -30,6 +31,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(opt["adj_determine_divider"], "nordic")
         self.assertEqual(opt["adj_alloc_divider"], "nordic")
         self.assertEqual(opt["adjustment_threshold"], 4)
+        self.assertEqual(opt["parties"], ["A", "B"])
         self.assertEqual(opt["constituency_names"], ["I", "II"])
         self.assertEqual(opt["constituency_seats"], [2, 3])
         self.assertEqual(opt["constituency_adjustment_seats"], [1, 2])
@@ -41,6 +43,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(law["adj_determine_divider"], "dhondt")
         self.assertEqual(law["adj_alloc_divider"], "dhondt")
         self.assertEqual(law["adjustment_threshold"], 5)
+        self.assertEqual(law["parties"], ["A", "B"])
         self.assertEqual(law["constituency_names"], ["I", "II"])
         self.assertEqual(law["constituency_seats"], [2, 3])
         self.assertEqual(law["constituency_adjustment_seats"], [1, 2])
@@ -52,6 +55,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(ind_const["adj_determine_divider"], "nordic")
         self.assertEqual(ind_const["adj_alloc_divider"], "nordic")
         self.assertEqual(ind_const["adjustment_threshold"], 4)
+        self.assertEqual(ind_const["parties"], ["A", "B"])
         self.assertEqual(ind_const["constituency_names"], ["I", "II"])
         self.assertEqual(ind_const["constituency_seats"], [3, 5])
         self.assertEqual(ind_const["constituency_adjustment_seats"], [0, 0])
@@ -63,6 +67,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(one_const["adj_determine_divider"], "nordic")
         self.assertEqual(one_const["adj_alloc_divider"], "nordic")
         self.assertEqual(one_const["adjustment_threshold"], 4)
+        self.assertEqual(one_const["parties"], ["A", "B"])
         self.assertEqual(one_const["constituency_names"], ["All"])
         self.assertEqual(one_const["constituency_seats"], [5])
         self.assertEqual(one_const["constituency_adjustment_seats"], [3])
@@ -74,6 +79,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(all_adj["adj_determine_divider"], "nordic")
         self.assertEqual(all_adj["adj_alloc_divider"], "nordic")
         self.assertEqual(all_adj["adjustment_threshold"], 4)
+        self.assertEqual(all_adj["parties"], ["A", "B"])
         self.assertEqual(all_adj["constituency_names"], ["I", "II"])
         self.assertEqual(all_adj["constituency_seats"], [0, 0])
         self.assertEqual(all_adj["constituency_adjustment_seats"], [3, 5])
