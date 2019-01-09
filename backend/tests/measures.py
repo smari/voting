@@ -25,8 +25,7 @@ class MeasureTest(TestCase):
         #Arrange
         election = voting.Election(self.e_rules, self.votes)
         comparison_rules = simulate.generate_all_adj_ruleset(self.e_rules)
-        v_votes = [sum(x) for x in zip(*self.votes)]
-        comparison_election = voting.Election(comparison_rules, [v_votes])
+        comparison_election = voting.Election(comparison_rules, self.votes)
         sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes)
 
         #Act
@@ -43,10 +42,10 @@ class MeasureTest(TestCase):
         self.assertEqual(base_results,       [[0, 1],
                                               [0, 1],
                                               [0, 1]])
-        base_totals = [sum(x) for x in zip(*base_results)]
-        self.assertEqual(base_totals,         [0, 3])
-        self.assertEqual(comparison_results, [[1, 2]])
-        deviation = simulate.dev([base_totals], comparison_results)
+        self.assertEqual(comparison_results, [[1, 0],
+                                              [0, 1],
+                                              [0, 1]])
+        deviation = simulate.dev(base_results, comparison_results)
         self.assertEqual(deviation, 2)
 
         measures = sim_result['data'][0]['measures']

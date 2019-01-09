@@ -393,10 +393,10 @@ class Simulation:
         self.deviation(ruleset, "opt", None, results, opt_results)
         self.deviation(ruleset, "law", votes, results)
         self.deviation(ruleset, "ind_const", votes, results)
+        self.deviation(ruleset, "all_adj", votes, results)
         v_votes = [[sum([c[p] for c in votes]) for p in range(self.num_parties)]]
         v_results = [sum(x) for x in zip(*results)]
         self.deviation(ruleset, "one_const", v_votes, [v_results])
-        self.deviation(ruleset, "all_adj", v_votes, [v_results])
 
     def other_measures(self, ruleset, votes, results, opt_results):
         bi_seat_shares = self.calculate_bi_seat_shares(ruleset, votes, opt_results)
@@ -603,11 +603,12 @@ def generate_one_const_ruleset(ruleset):
 def generate_all_adj_ruleset(ruleset):
     ref_rs = voting.ElectionRules()
     ref_rs.update(ruleset)
-    ref_rs["constituency_names"] = ["All"]
-    ref_rs["constituency_seats"] = [0]
+    n = len(ruleset["constituency_names"])
+    ref_rs["constituency_seats"] = [0 for c in range(n)]
     ref_rs["constituency_adjustment_seats"] \
-        = [sum(ruleset["constituency_seats"]) \
-           + sum(ruleset["constituency_adjustment_seats"])]
+        = [ruleset["constituency_seats"][c] \
+           + ruleset["constituency_adjustment_seats"][c]
+           for c in range(n)]
     return ref_rs
 
 def run_script_simulation(rules):
