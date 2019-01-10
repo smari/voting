@@ -11,6 +11,11 @@ import util
 class MeasureTest(TestCase):
     def setUp(self):
         self.e_rules = voting.ElectionRules()
+        self.s_rules = simulate.SimulationRules()
+        self.s_rules["simulation_count"] = 0
+
+    def test_all_adj(self):
+        #Arrange
         self.e_rules["constituency_names"]            = ["I", "II", "III"]
         self.e_rules["constituency_seats"]            = [ 1,    1,     1 ]
         self.e_rules["constituency_adjustment_seats"] = [ 0,    0,     0 ]
@@ -18,11 +23,6 @@ class MeasureTest(TestCase):
         self.votes =             [[500, 600],
                                   [200, 400],
                                   [350, 450]]
-        self.s_rules = simulate.SimulationRules()
-        self.s_rules["simulation_count"] = 0
-
-    def test_all_adj(self):
-        #Arrange
         election = voting.Election(self.e_rules, self.votes)
         comparison_rules = simulate.generate_all_adj_ruleset(self.e_rules)
         comparison_election = voting.Election(comparison_rules, self.votes)
