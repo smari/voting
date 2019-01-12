@@ -134,3 +134,4 @@ class SimulationTest(TestCase):
         measures = result['data'][0]['measures']
         for m in simulate.MEASURES.keys():
             self.assertEqual(measures[m]['cnt'], 100)
+        self.assertEqual(result['time_data']['cnt'], 100)

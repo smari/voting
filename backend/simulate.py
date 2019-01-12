@@ -254,6 +254,9 @@ class Simulation:
                         self.list_data[ruleset][measure][aggr].append([0]*(self.num_parties+1))
 
         self.data.append({})
+        self.data[-1]["time"] = {}
+        for aggr in AGGREGATES.keys():
+            self.data[-1]["time"][aggr] = 0
         self.list_data.append({})
         for measure in VOTE_MEASURES.keys():
             self.list_data[-1][measure] = {}
@@ -503,6 +506,7 @@ class Simulation:
                 for p in range(1+self.num_parties):
                     for measure in LIST_MEASURES.keys():
                         self.analyze_list(ruleset, measure, c, p)
+        self.analyze_measure(-1, "time")
 
     def simulate(self):
         """Simulate many elections."""
@@ -518,6 +522,7 @@ class Simulation:
             self.collect_measures(votes)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
+            self.aggregate_measure(-1, "time", self.iteration_time.total_seconds())
         self.analysis()
         self.test_generated()
 
@@ -542,7 +547,8 @@ class Simulation:
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": self.list_data[-1]
+            "vote_data": self.list_data[-1],
+            "time_data": self.data[-1]["time"]
         }
 
 def generate_comparison_rules(ruleset, option="all"):
