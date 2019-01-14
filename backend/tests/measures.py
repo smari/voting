@@ -16,6 +16,7 @@ class MeasureTest(TestCase):
 
     def test_all_adj(self):
         #Arrange
+        self.e_rules["adjustment_method"] = "icelandic-law"
         self.e_rules["constituency_names"]            = ["I", "II", "III"]
         self.e_rules["constituency_seats"]            = [ 1,    1,     1 ]
         self.e_rules["constituency_adjustment_seats"] = [ 0,    0,     0 ]
@@ -53,6 +54,7 @@ class MeasureTest(TestCase):
 
     def test_adj_dev(self):
         #Arrange
+        self.e_rules["adjustment_method"] = "icelandic-law"
         self.e_rules["constituency_names"]            = ["I", "II"]
         self.e_rules["constituency_seats"]            = [ 1,    1 ]
         self.e_rules["constituency_adjustment_seats"] = [ 1,    1 ]
