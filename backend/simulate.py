@@ -287,7 +287,7 @@ class Simulation:
             std = sqrt(var)
         except ValueError:
             logger.error(f'Error calculating square root of: {var}')
-
+            raise
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
