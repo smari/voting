@@ -47,7 +47,12 @@
         <span v-if="!simulation_done">{{iteration_time}}s/iter</span>
       </b-col>
       <b-col cols="8">
-        <b-progress :value="current_iteration" :max="simulation_rules.simulation_count" show-value animated></b-progress>
+        <b-progress
+          :value="current_iteration"
+          :max="simulation_rules.simulation_count"
+          :animated="!simulation_done"
+          :variant="simulation_done ? 'success':'primary'"
+          show-value></b-progress>
       </b-col>
       <b-col cols="2">
 
