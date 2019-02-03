@@ -63,7 +63,7 @@
 
       <h3>Constituency seats</h3>
       <ResultMatrix v-for="(ruleset, idx) in results.data"
-        :key="idx"
+        :key="'const-seats-' + idx"
         :constituencies="constituency_names"
         :parties="parties"
         :values="ruleset.list_measures.const_seats.avg"
@@ -74,7 +74,7 @@
 
       <h3>Adjustment seats</h3>
       <ResultMatrix v-for="(ruleset, idx) in results.data"
-        :key="idx"
+        :key="'adj-seats-' + idx"
         :constituencies="constituency_names"
         :parties="parties"
         :values="ruleset.list_measures.adj_seats.avg"
@@ -85,7 +85,7 @@
 
       <h3>Total seats</h3>
       <ResultMatrix v-for="(ruleset, idx) in results.data"
-        :key="idx"
+        :key="'total-seats-' + idx"
         :constituencies="constituency_names"
         :parties="parties"
         :values="ruleset.list_measures.total_seats.avg"
