@@ -11,10 +11,7 @@ import io
 import json
 from datetime import datetime, timedelta
 
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
-logger.addHandler(handler)
+logging.basicConfig(filename='logs/simulate.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 def beta_params(mean, stability_parameter):
     assert(0<mean and mean<1)
@@ -283,11 +280,13 @@ class Simulation:
         if -0.0000001 < var and var < 0:
             var = 0
 
+        # TODO: remove when resolved.
         try:
             std = sqrt(var)
         except ValueError:
-            logger.error(f'Error calculating square root of: {var}')
+            logging.error(f'Error calculating square root of: {var}')
             raise
+
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
