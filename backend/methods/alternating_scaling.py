@@ -43,7 +43,7 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
         num_total_seats = v_party_seats[party_id]
         pm = party_multiplier = party_multipliers[party_id]
 
-        v_scaled_votes = [a/(b*pm) if b != 0 else 0
+        v_scaled_votes = [a/(b*pm) if b*pm != 0 else 0
                           for a, b in zip(v_votes, const_multipliers)]
 
         v_priors = [const_alloc[party_id] for const_alloc in m_allocations]
