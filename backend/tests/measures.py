@@ -87,4 +87,4 @@ class MeasureTest(TestCase):
         self.assertEqual(deviation, 2)
 
         measures = sim_result['data'][0]['measures']
-        self.assertEqual(measures['dev_all_adj']['avg'], deviation)
+        self.assertEqual(measures['adj_dev']['avg'], deviation)
