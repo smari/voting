@@ -73,7 +73,7 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
                                     party_multipliers)
             const_multipliers[c] *= mul
             c_muls.append(mul)
-        const_done = all([round(x, 5) == 1.0 or x == 500000 for x in c_muls])
+        const_done = all([round(x, 5) == 1.0 for x in c_muls])
 
         # Party step:
         p_muls = []
@@ -84,7 +84,7 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
                 mul = party_step(vp, p, const_multipliers, party_multipliers)
             party_multipliers[p] *= mul
             p_muls.append(mul)
-        party_done = all([round(x, 5) == 1.0 or x == 500000 for x in p_muls])
+        party_done = all([round(x, 5) == 1.0 for x in p_muls])
 
         step += 1
 
