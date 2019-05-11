@@ -1,4 +1,5 @@
 # from voting import Election, SIMULATION_VARIATES
+import logging
 from rules import Rules
 from math import sqrt, exp
 from random import betavariate
@@ -10,6 +11,7 @@ import io
 import json
 from datetime import datetime, timedelta
 
+logging.basicConfig(filename='logs/simulate.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 def beta_params(mean, stability_parameter):
     assert(0<mean and mean<1)
@@ -277,7 +279,14 @@ class Simulation:
         var = (t - s*avg) / (n-1) if n>1 else 0
         if -0.0000001 < var and var < 0:
             var = 0
-        std = sqrt(var)
+
+        # TODO: remove when resolved.
+        try:
+            std = sqrt(var)
+        except ValueError:
+            logging.error(f'Error calculating square root of: {var}')
+            raise
+
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
