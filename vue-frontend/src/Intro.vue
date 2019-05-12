@@ -34,7 +34,7 @@
   </p>
 
   <div style="text-align: center;">
-    <b-button :size="lg" href="#/election">Run a single election</b-button>
+    <b-button size="lg" href="#/election">Run a single election</b-button>
   </div>
 
   <h2>Simulate</h2>
@@ -60,7 +60,7 @@
   </p>
 
   <div style="text-align: center;">
-    <b-button :size="lg" href="#/simulate">Run a simulation</b-button>
+    <b-button size="lg" href="#/simulate">Run a simulation</b-button>
   </div>
 
   <h2>Documentation</h2>
