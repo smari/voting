@@ -125,6 +125,8 @@ VOTE_MEASURES = {
 
 AGGREGATES = {
     "cnt": "number of elements",
+    "max": "highest value",
+    "min": "lowest value",
     "sum": "sum of elements",
     "sqs": "sum of squares",
     "avg": "average",
@@ -273,6 +275,15 @@ class Simulation:
         self.list_data[ruleset][measure]["cnt"][const][party] += 1
         self.list_data[ruleset][measure]["sum"][const][party] += value
         self.list_data[ruleset][measure]["sqs"][const][party] += value**2
+        if (self.list_data[ruleset][measure]["cnt"][const][party] > 1):
+            if (value > self.list_data[ruleset][measure]["max"][const][party]):
+                self.list_data[ruleset][measure]["max"][const][party] = value
+            if (value < self.list_data[ruleset][measure]["min"][const][party]):
+                self.list_data[ruleset][measure]["min"][const][party] = value
+        else:
+            self.list_data[ruleset][measure]["max"][const][party] = value
+            self.list_data[ruleset][measure]["min"][const][party] = value
+
 
     def analyze_list(self, ruleset, measure, const, party):
         n = float(self.list_data[ruleset][measure]["cnt"][const][party])
@@ -298,6 +309,14 @@ class Simulation:
         self.data[ruleset][measure]["cnt"] += 1
         self.data[ruleset][measure]["sum"] += value
         self.data[ruleset][measure]["sqs"] += value**2
+        if (self.data[ruleset][measure]["cnt"] > 1):
+            if (value > self.data[ruleset][measure]["max"]):
+                self.data[ruleset][measure]["max"] = value
+            if (value < self.data[ruleset][measure]["min"]):
+                self.data[ruleset][measure]["min"] = value
+        else:
+            self.data[ruleset][measure]["max"] = value
+            self.data[ruleset][measure]["min"] = value
 
     def analyze_measure(self, ruleset, measure):
         n = float(self.data[ruleset][measure]["cnt"])
