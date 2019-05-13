@@ -74,6 +74,12 @@ class SimulationTest(TestCase):
                 self.assertEqual(
                     vote_data['avg'][const][party], self.votes[const][party]
                 )
+                self.assertEqual(
+                    vote_data['max'][const][party], self.votes[const][party]
+                )
+                self.assertEqual(
+                    vote_data['min'][const][party], self.votes[const][party]
+                )
                 self.assertEqual(vote_data['cnt'][const][party], 1)
                 self.assertEqual(vote_data['var'][const][party], 0)
                 self.assertEqual(vote_data['std'][const][party], 0)
@@ -101,6 +107,8 @@ class SimulationTest(TestCase):
             for party in range(sim.num_parties):
                 self.assertGreater(vote_data['sum'][const][party], 0)
                 self.assertGreater(vote_data['avg'][const][party], 0)
+                self.assertGreater(vote_data['max'][const][party], 0)
+                self.assertGreater(vote_data['min'][const][party], 0)
                 self.assertEqual(vote_data['cnt'][const][party], 1)
                 self.assertEqual(vote_data['var'][const][party], 0)
                 self.assertEqual(vote_data['std'][const][party], 0)
@@ -128,6 +136,8 @@ class SimulationTest(TestCase):
             for party in range(sim.num_parties):
                 self.assertGreater(vote_data['sum'][const][party], 0)
                 self.assertGreater(vote_data['avg'][const][party], 0)
+                self.assertGreater(vote_data['max'][const][party], 0)
+                self.assertGreater(vote_data['min'][const][party], 0)
                 self.assertEqual(vote_data['cnt'][const][party], 100)
                 for m in simulate.LIST_MEASURES.keys():
                     self.assertEqual(list_measures[m]['cnt'][const][party], 100)
