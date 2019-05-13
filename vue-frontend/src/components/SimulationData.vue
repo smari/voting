@@ -7,13 +7,13 @@
     <tr class="methods">
       <th class="small-12 medium-1 topleft">
       </th>
-      <th colspan="2" v-for="(ruleset, idx) in data" class="small-12 medium-1 column methodname">
+      <th colspan="4" v-for="(ruleset, idx) in data" class="small-12 medium-1 column methodname">
         <div>{{ ruleset.name }}</div>
       </th>
     </tr>
     <tr>
       <th class="small-12 medium-1 column measurename">Adjustment method</th>
-      <td colspan="2" class="small-12 medium-2 column methoddata"
+      <td colspan="4" class="small-12 medium-2 column methoddata"
         v-for="(ruleset, idx) in data">{{ruleset.method}}</td>
     </tr>
     <tr>
@@ -21,6 +21,8 @@
       <template v-for="(ruleset, ridx) in data">
         <th class="small-12 medium-2 column methodname">Average</th>
         <th class="small-12 medium-2 column methodname">Std. deviation</th>
+        <th class="small-12 medium-2 column methodname">Min</th>
+        <th class="small-12 medium-2 column methodname">Max</th>
       </template>
     </tr>
     <tr>
@@ -39,6 +41,12 @@
         <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
         </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["min"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["max"].toFixed(4) }}
+        </td>
       </template>
     </tr>
     <tr>
@@ -56,6 +64,12 @@
         </td>
         <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["min"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["max"].toFixed(4) }}
         </td>
       </template>
     </tr>
