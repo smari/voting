@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+<b-container fluid>
   <b-alert :show="methods.length == 0">
     Run simulation to get results.
   </b-alert>
