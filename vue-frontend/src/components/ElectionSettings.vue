@@ -4,7 +4,7 @@
       <b-col>
         <b-form-group
           label="Name"
-          description="Give this rule set a name.">
+          description="Give this electoral system a name.">
           <b-form-input type="text" class="mb-3"
             v-model="rules.election_rules.name"/>
         </b-form-group>

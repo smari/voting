@@ -10,7 +10,7 @@
     </SimulationSettings>
 
     <h3>Simulate elections</h3>
-    <b-button @click="addElectionRules">Add election ruleset</b-button>
+    <b-button @click="addElectionRules">Add electoral system</b-button>
     <b-container v-for="(rules, rulesidx) in election_rules" :key="rulesidx" class="ruleset">
       <b-row>
         <b-col cols="10">
@@ -18,7 +18,7 @@
           </ElectionSettings>
         </b-col>
         <b-col>
-          <b-button @click="deleteElectionRules(rulesidx)">Delete this ruleset</b-button>
+          <b-button @click="deleteElectionRules(rulesidx)">Delete this system</b-button>
         </b-col>
       </b-row>
     </b-container>
