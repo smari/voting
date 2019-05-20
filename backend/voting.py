@@ -2,15 +2,13 @@
 """
 This module contains the core voting system logic.
 """
-import json
 import math
 from tabulate import tabulate
-from util import load_votes, load_constituencies, entropy, add_totals
+from util import load_constituencies, entropy, add_totals
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
 from rules import Rules
 from methods import *
-import io
 
 from methods.var_alt_scal import *
 from methods.alternating_scaling import *
