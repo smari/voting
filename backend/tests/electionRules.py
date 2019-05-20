@@ -12,7 +12,6 @@ class TestElectionRules(TestCase):
 
     def setUp(self):
         self.rules = ElectionRules()
-        self.rules["parties"] = ["A", "B"]
         self.rules["adjustment_method"] = "norwegian-law"
         self.rules["primary_divider"] = "nordic"
         self.rules["adj_determine_divider"] = "nordic"
