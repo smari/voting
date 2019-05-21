@@ -3,7 +3,9 @@
     <b-form>
       <b-row>
         <b-col>
-          <b-form-group label="Number of simulations" description="How many simulations should be run?">
+          <b-form-group
+            label="Number of simulations"
+            description="How many simulations should be run? Select 0 to use only reference data instead of any simulated data.">
             <b-form-input type="number" v-model.number="rules.simulation_rules.simulation_count" min="2"/>
           </b-form-group>
         </b-col>

@@ -85,7 +85,7 @@ MEASURES = {
     "entropy_ratio":   "Relative entropy deviation from optimal solution",
     "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
     "sainte_lague":    "Scaled sum of squared deviation of list seats from biproportional seat shares (Sainte-Lague)",
-    "dhondt_min":      "Maximum of the mininum seat value used (d'Hondt)",
+    "dhondt_min":      "Mininum seat value used (d'Hondt)",
     "dhondt_sum":      "Scaled sum of positive deviation of list seats from biproportional seat shares (d'Hondt)",
 }
 
@@ -125,6 +125,8 @@ VOTE_MEASURES = {
 
 AGGREGATES = {
     "cnt": "number of elements",
+    "max": "highest value",
+    "min": "lowest value",
     "sum": "sum of elements",
     "sqs": "sum of squares",
     "avg": "average",
@@ -256,6 +258,9 @@ class Simulation:
                         self.list_data[ruleset][measure][aggr].append([0]*(self.num_parties+1))
 
         self.data.append({})
+        self.data[-1]["time"] = {}
+        for aggr in AGGREGATES.keys():
+            self.data[-1]["time"][aggr] = 0
         self.list_data.append({})
         for measure in VOTE_MEASURES.keys():
             self.list_data[-1][measure] = {}
@@ -270,6 +275,15 @@ class Simulation:
         self.list_data[ruleset][measure]["cnt"][const][party] += 1
         self.list_data[ruleset][measure]["sum"][const][party] += value
         self.list_data[ruleset][measure]["sqs"][const][party] += value**2
+        if (self.list_data[ruleset][measure]["cnt"][const][party] > 1):
+            if (value > self.list_data[ruleset][measure]["max"][const][party]):
+                self.list_data[ruleset][measure]["max"][const][party] = value
+            if (value < self.list_data[ruleset][measure]["min"][const][party]):
+                self.list_data[ruleset][measure]["min"][const][party] = value
+        else:
+            self.list_data[ruleset][measure]["max"][const][party] = value
+            self.list_data[ruleset][measure]["min"][const][party] = value
+
 
     def analyze_list(self, ruleset, measure, const, party):
         n = float(self.list_data[ruleset][measure]["cnt"][const][party])
@@ -295,6 +309,14 @@ class Simulation:
         self.data[ruleset][measure]["cnt"] += 1
         self.data[ruleset][measure]["sum"] += value
         self.data[ruleset][measure]["sqs"] += value**2
+        if (self.data[ruleset][measure]["cnt"] > 1):
+            if (value > self.data[ruleset][measure]["max"]):
+                self.data[ruleset][measure]["max"] = value
+            if (value < self.data[ruleset][measure]["min"]):
+                self.data[ruleset][measure]["min"] = value
+        else:
+            self.data[ruleset][measure]["max"] = value
+            self.data[ruleset][measure]["min"] = value
 
     def analyze_measure(self, ruleset, measure):
         n = float(self.data[ruleset][measure]["cnt"])
@@ -512,6 +534,7 @@ class Simulation:
                 for p in range(1+self.num_parties):
                     for measure in LIST_MEASURES.keys():
                         self.analyze_list(ruleset, measure, c, p)
+        self.analyze_measure(-1, "time")
 
     def simulate(self):
         """Simulate many elections."""
@@ -527,6 +550,7 @@ class Simulation:
             self.collect_measures(votes)
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
+            self.aggregate_measure(-1, "time", self.iteration_time.total_seconds())
         self.analysis()
         self.test_generated()
 
@@ -551,7 +575,8 @@ class Simulation:
                 }
                 for ruleset in range(self.num_rulesets)
             ],
-            "vote_data": self.list_data[-1]
+            "vote_data": self.list_data[-1],
+            "time_data": self.data[-1]["time"]
         }
 
 def generate_comparison_rules(ruleset, option="all"):

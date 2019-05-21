@@ -4,7 +4,7 @@
       <b-col>
         <b-form-group
           label="Name"
-          description="Give this rule set a name.">
+          description="Give this electoral system a name.">
           <b-form-input type="text" class="mb-3"
             v-model="rules.election_rules.name"/>
         </b-form-group>
@@ -13,22 +13,22 @@
     <b-row>
       <b-col>
         <b-form-group
-          label="Divider for allocating constituency seats"
-          description="Which divider rule should be used to allocate constituency seats to lists within each constituency?">
+          label="Division rule for allocating constituency seats"
+          description="Which division rule should be used to allocate constituency seats to lists within each constituency?">
           <b-form-select class="mb-3"
             v-model="rules.election_rules.primary_divider"
             :options="rules.capabilities.divider_rules"/>
         </b-form-group>
         <b-form-group
-          label="Divider for apportioning adjustment seats"
-          description="Which divider rule should be used to apportion adjustment seats among parties?">
+          label="Division rule for apportioning adjustment seats"
+          description="Which division rule should be used to apportion adjustment seats among parties?">
           <b-form-select class="mb-3"
             v-model="rules.election_rules.adj_determine_divider"
             :options="rules.capabilities.divider_rules"/>
         </b-form-group>
         <b-form-group
-          label="Divider for allocating adjustment seats"
-          description="Which divider rule should be used to allocate adjustment seats to individual lists?">
+          label="Division rule for allocating adjustment seats"
+          description="Which division rule should be used to allocate adjustment seats to individual lists?">
           <b-form-select class="mb-3"
             v-model="rules.election_rules.adj_alloc_divider"
             :options="rules.capabilities.divider_rules"/>

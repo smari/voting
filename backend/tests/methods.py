@@ -4,6 +4,8 @@ import logging
 import voting
 import util
 
+from methods.alternating_scaling import *
+
 
 class AdjustmentMethodsTestMeta(type):
     def __new__(cls, name, bases, attrs):
@@ -46,6 +48,38 @@ class TestAdjustmentMethods(TestCase):
         self.rules["parties"] = parties
         self.rules_6c["parties"] = parties
         self.votes = votes
+
+    def test_alternating_scaling_small(self):
+        results, _ = alternating_scaling(
+            m_votes=[[1500,    0],
+                     [   0, 5000]],
+            v_total_seats=             [2,
+                                        2],
+            v_party_seats=       [1,3],
+            m_prior_allocations=[[1,0],
+                                 [0,1]],
+            divisor_gen=voting.dhondt_gen,
+            threshold=0.05
+        )
+        self.assertNotEqual(results, [[2,0],
+                                      [1,1]])
+        self.assertEqual(results, [[2,0],
+                                   [0,2]])
+
+    def test_alternating_scaling_diverging(self):
+        results, _ = alternating_scaling(
+            m_votes=[[1500,    0],
+                     [   0, 5000]],
+            v_total_seats=             [2,
+                                        2],
+            v_party_seats=       [1,3],
+            m_prior_allocations=[[1,0],
+                                 [0,2]],
+            divisor_gen=voting.dhondt_gen,
+            threshold=0.05
+        )
+        self.assertEqual(results, [[2,0],
+                                   [0,2]])
 
     def test_alternating_scaling(self):
         self.rules["adjustment_method"] = "alternating-scaling"

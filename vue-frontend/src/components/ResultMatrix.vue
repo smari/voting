@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <b-container fluid>
     <table class="resultmatrix" v-if="values.length > 0">
       <tr v-if="title">
         <th class="small-12 medium-1 topleft"></th>
