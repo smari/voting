@@ -3,18 +3,21 @@ from flask_cors import CORS
 import threading
 import random
 import os.path
-import voting
 import tempfile
 from datetime import datetime, timedelta
-import simulate as sim
 from hashlib import sha256
 import json
-import util
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
 import csv
+
+import dictionaries
+import election_rules
+import util
+import voting
+import simulate as sim
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -43,7 +46,7 @@ def send_static(path):
 
 def handle_election():
     data = request.get_json(force=True)
-    rules = voting.ElectionRules()
+    rules = election_rules.ElectionRules()
 
     for k, v in data["rules"].items():
         rules[k] = v
@@ -240,7 +243,7 @@ def set_up_simulation():
     rulesets = []
 
     for rs in data["election_rules"]:
-        election_rules = voting.ElectionRules()
+        election_rules = election_rules.ElectionRules()
 
         print(data["election_rules"])
         print(rs)
@@ -317,11 +320,11 @@ def get_preset():
 
 def get_capabilities_dict():
     return {
-        "election_rules": voting.ElectionRules(),
+        "election_rules": election_rules.ElectionRules(),
         "simulation_rules": sim.SimulationRules(),
         "capabilities": {
-            "divider_rules": voting.DIVIDER_RULE_NAMES,
-            "adjustment_methods": voting.ADJUSTMENT_METHOD_NAMES,
+            "divider_rules": dictionaries.DIVIDER_RULE_NAMES,
+            "adjustment_methods": dictionaries.ADJUSTMENT_METHOD_NAMES,
             "generating_methods": sim.GENERATING_METHOD_NAMES
         },
     }
