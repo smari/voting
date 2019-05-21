@@ -325,7 +325,7 @@ def get_capabilities_dict():
         "capabilities": {
             "divider_rules": dictionaries.DIVIDER_RULE_NAMES,
             "adjustment_methods": dictionaries.ADJUSTMENT_METHOD_NAMES,
-            "generating_methods": sim.GENERATING_METHOD_NAMES
+            "generating_methods": dictionaries.GENERATING_METHOD_NAMES
         },
     }
 

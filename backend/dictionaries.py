@@ -14,6 +14,7 @@ from methods.pure_vote_ratios import pure_vote_ratios_apportionment
 from methods.opt_entropy import opt_entropy
 from methods.switching import switching
 
+from distributions.beta_distribution import beta_distribution
 
 DIVIDER_RULES = {
     "dhondt": dhondt_gen,
@@ -55,4 +56,11 @@ ADJUSTMENT_METHOD_NAMES = {
     "norwegian-icelandic": "Norwegian-Icelandic variant",
     "switching": "Switching Method",
     "pure-vote-ratios": "Pure Vote Ratios"
+}
+
+GENERATING_METHODS = {
+    "beta": beta_distribution
+}
+GENERATING_METHOD_NAMES = {
+    "beta": "Beta distribution"
 }

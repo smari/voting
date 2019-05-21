@@ -8,18 +8,10 @@ from copy import copy, deepcopy
 
 from util import add_totals, matrix_subtraction, find_xtd_shares
 from rules import Rules
-from distributions.beta_distribution import beta_distribution
+from dictionaries import GENERATING_METHODS
 import voting
 
 logging.basicConfig(filename='logs/simulate.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-
-GENERATING_METHODS = {
-    "beta": beta_distribution
-}
-
-GENERATING_METHOD_NAMES = {
-    "beta": "Beta distribution"
-}
 
 MEASURES = {
     "dev_opt":         "Allocation by the optimal method",
