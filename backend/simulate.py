@@ -9,69 +9,11 @@ from copy import copy, deepcopy
 from util import add_totals, matrix_subtraction, find_xtd_shares
 from rules import Rules
 from dictionaries import GENERATING_METHODS
+from dictionaries import MEASURES, DEVIATION_MEASURES, STANDARDIZED_MEASURES, \
+    LIST_MEASURES, VOTE_MEASURES, AGGREGATES
 import voting
 
 logging.basicConfig(filename='logs/simulate.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-
-MEASURES = {
-    "dev_opt":         "Allocation by the optimal method",
-    "dev_law":         "Allocation by Icelandic Law",
-    "adj_dev":         "Adjustment seats apportioned nationally",
-    "dev_ind_const":   "Allocation as if all seats were constituency seats",
-    "dev_all_adj":     "Allocation as if all seats were adjustment seats",
-    "dev_one_const":   "Allocation as if all constituencies were combined into one",
-    "entropy":         "Entropy (product of all seat values used)",
-    "entropy_ratio":   "Relative entropy deviation from optimal solution",
-    "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
-    "sainte_lague":    "Scaled sum of squared deviation of list seats from biproportional seat shares (Sainte-Lague)",
-    "dhondt_min":      "Mininum seat value used (d'Hondt)",
-    "dhondt_sum":      "Scaled sum of positive deviation of list seats from biproportional seat shares (d'Hondt)",
-}
-
-DEVIATION_MEASURES = [
-    "dev_opt",
-    "dev_law",
-    "adj_dev",
-    "dev_ind_const",
-    "dev_all_adj",
-    # "dev_one_const", #skipped, because already measured by all_adj (party sums)
-]
-
-STANDARDIZED_MEASURES = [
-    "entropy_ratio",
-    "loosemore_hanby",
-    "sainte_lague",
-    "dhondt_min",
-    "dhondt_sum",
-]
-
-LIST_MEASURES = {
-    "const_seats":   "constituency seats",
-    "adj_seats":     "adjustment seats",
-    "total_seats":   "constituency and adjustment seats combined",
-    "seat_shares":   "total seats scaled to a total of 1 for each constituency",
-    # "dev_opt":       "deviation from optimal solution",
-    # "dev_law":       "deviation from official law method",
-    # "dev_ind_const": "deviation from Independent Constituencies",
-    # "dev_one_const": "deviation from Single Constituency",
-    # "dev_all_adj":   "deviation from All Adjustment Seats"
-}
-
-VOTE_MEASURES = {
-    "sim_votes":  "votes in simulations",
-    "sim_shares": "shares in simulations",
-}
-
-AGGREGATES = {
-    "cnt": "number of elements",
-    "max": "highest value",
-    "min": "lowest value",
-    "sum": "sum of elements",
-    "sqs": "sum of squares",
-    "avg": "average",
-    "var": "variance",
-    "std": "standard deviation"
-}
 
 def error(avg, ref):
     """
