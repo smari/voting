@@ -1,5 +1,6 @@
 
 import json
+from copy import copy
 
 from rules import Rules
 from util import load_constituencies
@@ -61,3 +62,71 @@ class ElectionRules(Rules):
             return DIVIDER_RULES[method]
         else:
             raise ValueError("%s is not a known divider" % div)
+
+
+
+    def generate_comparison_rules(self, option="all"):
+        if option == "opt":
+            return self.generate_opt_ruleset()
+        if option == "law":
+            return self.generate_law_ruleset()
+        if option == "ind_const":
+            return self.generate_ind_const_ruleset()
+        if option == "one_const":
+            return self.generate_one_const_ruleset()
+        if option == "all_adj":
+            return self.generate_all_adj_ruleset()
+        if option == "all":
+            return {
+                "opt":       self.generate_opt_ruleset(),
+                "law":       self.generate_law_ruleset(),
+                "ind_const": self.generate_ind_const_ruleset(),
+                "one_const": self.generate_one_const_ruleset(),
+                "all_adj":   self.generate_all_adj_ruleset()
+            }
+        return None
+
+    def generate_opt_ruleset(self):
+        ref_rs = ElectionRules()
+        ref_rs.update(self)
+        ref_rs["adjustment_method"] = "alternating-scaling"
+        return ref_rs
+
+    def generate_law_ruleset(self):
+        ref_rs = ElectionRules()
+        ref_rs.update(self)
+        ref_rs["adjustment_method"] = "icelandic-law"
+        ref_rs["primary_divider"] = "dhondt"
+        ref_rs["adj_determine_divider"] = "dhondt"
+        ref_rs["adj_alloc_divider"] = "dhondt"
+        ref_rs["adjustment_threshold"] = 5
+        return ref_rs
+
+    def generate_ind_const_ruleset(self):
+        ref_rs = ElectionRules()
+        ref_rs.update(self)
+        ref_rs["constituency_seats"] = copy(self["constituency_seats"])
+        ref_rs["constituency_adjustment_seats"] = []
+        for i in range(len(self["constituency_seats"])):
+            ref_rs["constituency_seats"][i] += self["constituency_adjustment_seats"][i]
+            ref_rs["constituency_adjustment_seats"].append(0)
+        return ref_rs
+
+    def generate_one_const_ruleset(self):
+        ref_rs = ElectionRules()
+        ref_rs.update(self)
+        ref_rs["constituency_seats"] = [sum(self["constituency_seats"])]
+        ref_rs["constituency_adjustment_seats"] = [sum(self["constituency_adjustment_seats"])]
+        ref_rs["constituency_names"] = ["All"]
+        return ref_rs
+
+    def generate_all_adj_ruleset(self):
+        ref_rs = ElectionRules()
+        ref_rs.update(self)
+        n = len(self["constituency_names"])
+        ref_rs["constituency_seats"] = [0 for c in range(n)]
+        ref_rs["constituency_adjustment_seats"] \
+            = [self["constituency_seats"][c] \
+               + self["constituency_adjustment_seats"][c]
+               for c in range(n)]
+        return ref_rs

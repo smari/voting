@@ -293,7 +293,7 @@ class Simulation:
         self.other_measures(ruleset, votes, results, opt_results)
 
     def entropy(self, ruleset, votes, entropy):
-        opt_rules = generate_opt_ruleset(self.e_rules[ruleset])
+        opt_rules = self.e_rules[ruleset].generate_opt_ruleset()
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
         entropy_deviation_ratio = 1 - exp(entropy - opt_election.entropy())
@@ -322,7 +322,7 @@ class Simulation:
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
-            rules = generate_comparison_rules(self.e_rules[ruleset], option)
+            rules = self.e_rules[ruleset].generate_comparison_rules(option)
             results = voting.Election(rules, votes).run()
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
@@ -459,72 +459,6 @@ class Simulation:
             "vote_data": self.list_data[-1],
             "time_data": self.data[-1]["time"]
         }
-
-def generate_comparison_rules(ruleset, option="all"):
-    if option == "opt":
-        return generate_opt_ruleset(ruleset)
-    if option == "law":
-        return generate_law_ruleset(ruleset)
-    if option == "ind_const":
-        return generate_ind_const_ruleset(ruleset)
-    if option == "one_const":
-        return generate_one_const_ruleset(ruleset)
-    if option == "all_adj":
-        return generate_all_adj_ruleset(ruleset)
-    if option == "all":
-        return {
-            "opt":       generate_opt_ruleset(ruleset),
-            "law":       generate_law_ruleset(ruleset),
-            "ind_const": generate_ind_const_ruleset(ruleset),
-            "one_const": generate_one_const_ruleset(ruleset),
-            "all_adj":   generate_all_adj_ruleset(ruleset)
-        }
-    return None
-
-def generate_opt_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["adjustment_method"] = "alternating-scaling"
-    return ref_rs
-
-def generate_law_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["adjustment_method"] = "icelandic-law"
-    ref_rs["primary_divider"] = "dhondt"
-    ref_rs["adj_determine_divider"] = "dhondt"
-    ref_rs["adj_alloc_divider"] = "dhondt"
-    ref_rs["adjustment_threshold"] = 5
-    return ref_rs
-
-def generate_ind_const_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["constituency_seats"] = copy(ruleset["constituency_seats"])
-    ref_rs["constituency_adjustment_seats"] = []
-    for i in range(len(ruleset["constituency_seats"])):
-        ref_rs["constituency_seats"][i] += ruleset["constituency_adjustment_seats"][i]
-        ref_rs["constituency_adjustment_seats"].append(0)
-    return ref_rs
-
-def generate_one_const_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["constituency_seats"] = [sum(ruleset["constituency_seats"])]
-    ref_rs["constituency_adjustment_seats"] = [sum(ruleset["constituency_adjustment_seats"])]
-    ref_rs["constituency_names"] = ["All"]
-    return ref_rs
-
-def generate_all_adj_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    n = len(ruleset["constituency_names"])
-    ref_rs["constituency_seats"] = [0 for c in range(n)]
-    ref_rs["constituency_adjustment_seats"] \
-        = [ruleset["constituency_seats"][c] \
-           + ruleset["constituency_adjustment_seats"][c]
-           for c in range(n)]
-    return ref_rs
 
 def run_script_simulation(rules):
     srs = SimulationRules()
