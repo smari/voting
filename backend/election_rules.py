@@ -3,8 +3,8 @@ import json
 
 from rules import Rules
 from util import load_constituencies
-from dictionaries import DIVIDER_RULES, DIVIDER_RULE_NAMES
-from dictionaries import ADJUSTMENT_METHODS, ADJUSTMENT_METHOD_NAMES
+from dictionaries import DIVIDER_RULES
+from dictionaries import ADJUSTMENT_METHODS
 
 class ElectionRules(Rules):
     """A set of rules for an election to follow."""

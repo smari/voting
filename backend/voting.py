@@ -8,9 +8,7 @@ from util import entropy, add_totals
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
 from election_rules import ElectionRules
-from dictionaries import ADJUSTMENT_METHODS, ADJUSTMENT_METHOD_NAMES
-from division_rules import dhondt_gen, sainte_lague_gen, \
-    nordic_sainte_lague_gen, imperiali_gen, danish_gen, huntington_hill_gen
+from dictionaries import ADJUSTMENT_METHODS
 
 class Election:
     """A single election."""

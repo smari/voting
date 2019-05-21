@@ -14,7 +14,7 @@ except ImportError:
 import csv
 
 import dictionaries
-import election_rules
+from election_rules import ElectionRules
 import util
 import voting
 import simulate as sim
@@ -46,7 +46,7 @@ def send_static(path):
 
 def handle_election():
     data = request.get_json(force=True)
-    rules = election_rules.ElectionRules()
+    rules = ElectionRules()
 
     for k, v in data["rules"].items():
         rules[k] = v
@@ -243,7 +243,7 @@ def set_up_simulation():
     rulesets = []
 
     for rs in data["election_rules"]:
-        election_rules = election_rules.ElectionRules()
+        election_rules = ElectionRules()
 
         print(data["election_rules"])
         print(rs)
@@ -320,7 +320,7 @@ def get_preset():
 
 def get_capabilities_dict():
     return {
-        "election_rules": election_rules.ElectionRules(),
+        "election_rules": ElectionRules(),
         "simulation_rules": sim.SimulationRules(),
         "capabilities": {
             "divider_rules": dictionaries.DIVIDER_RULE_NAMES,

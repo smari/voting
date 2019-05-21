@@ -1,8 +1,10 @@
 from unittest import TestCase
 
 import logging
-import voting
 import util
+import division_rules
+from election_rules import ElectionRules
+from voting import Election
 
 from methods.alternating_scaling import *
 
@@ -17,7 +19,7 @@ class AdjustmentMethodsTestMeta(type):
     @classmethod
     def gen(cls, method):
         def fn(self):
-            rules = voting.ElectionRules()
+            rules = ElectionRules()
 
             votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
             const_file = "../data/constituencies/constituencies_iceland_2013.csv"
@@ -26,7 +28,7 @@ class AdjustmentMethodsTestMeta(type):
             rules["parties"] = parties
 
             rules["adjustment_method"] = method
-            election = voting.Election(rules, votes)
+            election = Election(rules, votes)
             election.run()
 
         return fn
@@ -37,8 +39,8 @@ class AdjustmentMethodsTest(TestCase):
 
 class TestAdjustmentMethods(TestCase):
     def setUp(self):
-        self.rules = voting.ElectionRules()
-        self.rules_6c = voting.ElectionRules()
+        self.rules = ElectionRules()
+        self.rules_6c = ElectionRules()
         votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
         const_file = "../data/constituencies/constituencies_iceland_2013.csv"
         const_file_6c = "../data/constituencies/iceland_2013_6x6.xlsx"
@@ -58,7 +60,7 @@ class TestAdjustmentMethods(TestCase):
             v_party_seats=       [1,3],
             m_prior_allocations=[[1,0],
                                  [0,1]],
-            divisor_gen=voting.dhondt_gen,
+            divisor_gen=division_rules.dhondt_gen,
             threshold=0.05
         )
         self.assertNotEqual(results, [[2,0],
@@ -75,7 +77,7 @@ class TestAdjustmentMethods(TestCase):
             v_party_seats=       [1,3],
             m_prior_allocations=[[1,0],
                                  [0,2]],
-            divisor_gen=voting.dhondt_gen,
+            divisor_gen=division_rules.dhondt_gen,
             threshold=0.05
         )
         self.assertEqual(results, [[2,0],
@@ -83,7 +85,7 @@ class TestAdjustmentMethods(TestCase):
 
     def test_alternating_scaling(self):
         self.rules["adjustment_method"] = "alternating-scaling"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -96,7 +98,7 @@ class TestAdjustmentMethods(TestCase):
         self.rules["adj_determine_divider"] = "sainte-lague"
         self.rules["adj_alloc_divider"] = "sainte-lague"
         self.rules["adjustment_method"] = "alternating-scaling"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,3,3,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -106,7 +108,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_alternating_scaling_6c(self):
         self.rules_6c["adjustment_method"] = "alternating-scaling"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,3,3,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -116,7 +118,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_var_alt_scal(self):
         self.rules["adjustment_method"] = "var-alt-scal"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -126,7 +128,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_var_alt_scal_6c(self):
         self.rules_6c["adjustment_method"] = "var-alt-scal"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,3,3,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -136,7 +138,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_icelandic_law(self):
         self.rules["adjustment_method"] = "icelandic-law"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -146,7 +148,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_icelandic_law_6c(self):
         self.rules_6c["adjustment_method"] = "icelandic-law"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -156,7 +158,7 @@ class TestAdjustmentMethods(TestCase):
                                    [2,1,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_switching(self):
         self.rules["adjustment_method"] = "switching"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -166,7 +168,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_switching_6c(self):
         self.rules_6c["adjustment_method"] = "switching"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -176,12 +178,12 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_monge(self):
         self.rules["adjustment_method"] = "monge"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(0, 0)
     def test_nearest_neighbor(self):
         self.rules["adjustment_method"] = "nearest-neighbor"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [0,4,3,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -191,7 +193,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_nearest_neighbor_6c(self):
         self.rules_6c["adjustment_method"] = "nearest-neighbor"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,0,1],
                                    [1,3,2,0,0,0,0,0,0,0,0,1,0,3,0],
@@ -201,7 +203,7 @@ class TestAdjustmentMethods(TestCase):
                                    [2,1,2,0,0,0,0,0,0,0,0,2,0,3,1]])
     def test_norwegian_icelandic(self):
         self.rules["adjustment_method"] = "norwegian-icelandic"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -211,7 +213,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_norwegian_icelandic_6c(self):
         self.rules_6c["adjustment_method"] = "norwegian-icelandic"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [0,4,3,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -221,7 +223,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_relative_superiority(self):
         self.rules["adjustment_method"] = "relative-superiority"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -231,7 +233,7 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_relative_superiority_6c(self):
         self.rules_6c["adjustment_method"] = "relative-superiority"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[0,3,3,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -244,7 +246,7 @@ class TestAdjustmentMethods(TestCase):
         self.rules["primary_divider"] = "nordic"
         self.rules["adj_determine_divider"] = "dhondt"
         self.rules["adj_alloc_divider"] = "sainte-lague"
-        election = voting.Election(self.rules, self.votes)
+        election = Election(self.rules, self.votes)
         results = election.run()
         self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -257,7 +259,7 @@ class TestAdjustmentMethods(TestCase):
         self.rules_6c["primary_divider"] = "nordic"
         self.rules_6c["adj_determine_divider"] = "dhondt"
         self.rules_6c["adj_alloc_divider"] = "sainte-lague"
-        election = voting.Election(self.rules_6c, self.votes)
+        election = Election(self.rules_6c, self.votes)
         results = election.run()
         self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
@@ -268,7 +270,7 @@ class TestAdjustmentMethods(TestCase):
 
 class DividerRulesTestMeta(type):
     def __new__(cls, name, bases, attrs):
-        for rule in voting.DIVIDER_RULES.keys():
+        for rule in division_rules.DIVIDER_RULES.keys():
             attrs['test_%s' % rule] = cls.gen(rule)
 
         return super(DividerRulesTestMeta, cls).__new__(cls, name, bases, attrs)
@@ -278,7 +280,7 @@ class DividerRulesTestMeta(type):
         def fn(self):
             self.rules["primary_divider"] = rule
             self.rules["adjustment_divider"] = rule
-            election = voting.Election(self.rules, self.votes)
+            election = Election(self.rules, self.votes)
             election.run()
 
         return fn
@@ -288,7 +290,7 @@ class DividerRulesTest(TestCase):
     __metaclass__ = DividerRulesTestMeta
 
     def setUp(self):
-        self.rules = voting.ElectionRules()
+        self.rules = ElectionRules()
         votes_file = "../data/elections/iceland_2013_landskjorstjorn.csv"
         const_file = "../data/constituencies/constituencies_iceland_2013.csv"
         self.rules["constituencies"] = const_file
