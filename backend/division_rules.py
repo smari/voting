@@ -1,9 +1,6 @@
 
 import math
 
-
-
-
 def dhondt_gen():
     """Generate a d'Hondt divider sequence: 1, 2, 3..."""
     n = 1.0

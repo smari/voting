@@ -9,23 +9,9 @@ from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
 from rules import Rules
 from dictionaries import DIVIDER_RULES, DIVIDER_RULE_NAMES
+from dictionaries import ADJUSTMENT_METHODS, ADJUSTMENT_METHOD_NAMES
 from division_rules import dhondt_gen, sainte_lague_gen, \
     nordic_sainte_lague_gen, imperiali_gen, danish_gen, huntington_hill_gen
-
-from methods import *
-
-from methods.var_alt_scal import *
-from methods.alternating_scaling import *
-from methods.icelandic_law import *
-from methods.monge import *
-from methods.nearest_neighbor import *
-from methods.relative_superiority import *
-from methods.norwegian_law import *
-from methods.norwegian_icelandic import *
-from methods.pure_vote_ratios import *
-from methods.opt_entropy import opt_entropy
-from methods.switching import *
-
 
 class ElectionRules(Rules):
     """A set of rules for an election to follow."""
@@ -208,34 +194,6 @@ class Election:
 
         if self.rules["show_entropy"]:
             print("\nEntropy: %s" % self.entropy())
-
-
-ADJUSTMENT_METHODS = {
-    "var-alt-scal": var_alt_scal,
-    "alternating-scaling": alternating_scaling,
-    "relative-superiority": relative_superiority,
-    "nearest-neighbor": nearest_neighbor,
-    "monge": monge,
-    "icelandic-law": icelandic_apportionment,
-    "norwegian-law": norwegian_apportionment,
-    "norwegian-icelandic": norw_ice_apportionment,
-    "opt-entropy": opt_entropy,
-    "switching": switching,
-    "pure-vote-ratios": pure_vote_ratios_apportionment,
-}
-
-ADJUSTMENT_METHOD_NAMES = {
-    "alternating-scaling": "Alternating-Scaling Method",
-    "relative-superiority": "Relative Superiority Method",
-    "nearest-neighbor": "Nearest Neighbor Method",
-    "monge": "Monge algorithm",
-    "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
-    "norwegian-law": "Norwegian law",
-    "norwegian-icelandic": "Norwegian-Icelandic variant",
-    "switching": "Switching Method",
-    "pure-vote-ratios": "Pure Vote Ratios"
-}
-
 
 
 def run_script_election(rules):
