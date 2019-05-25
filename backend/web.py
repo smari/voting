@@ -14,7 +14,7 @@ except ImportError:
 import csv
 
 import dictionaries
-from election_rules import ElectionRules
+from electionRules import ElectionRules
 import util
 import voting
 import simulate as sim

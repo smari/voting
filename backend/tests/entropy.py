@@ -1,7 +1,7 @@
 import unittest
 
 from division_rules import dhondt_gen, sainte_lague_gen
-from election_rules import ElectionRules
+from electionRules import ElectionRules
 from voting import Election
 from util import entropy
 

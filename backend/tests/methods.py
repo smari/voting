@@ -3,7 +3,7 @@ from unittest import TestCase
 import logging
 import util
 import division_rules
-from election_rules import ElectionRules
+from electionRules import ElectionRules
 from voting import Election
 
 from methods.alternating_scaling import *

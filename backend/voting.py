@@ -7,7 +7,7 @@ from tabulate import tabulate
 from util import entropy, add_totals
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
-from election_rules import ElectionRules
+from electionRules import ElectionRules
 from dictionaries import ADJUSTMENT_METHODS
 
 class Election:

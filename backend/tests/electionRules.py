@@ -1,7 +1,7 @@
 # coding:utf-8
 from unittest import TestCase
 
-from election_rules import ElectionRules
+from electionRules import ElectionRules
 
 class TestElectionRules(TestCase):
 
