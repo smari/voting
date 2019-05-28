@@ -7,6 +7,7 @@ from math import sqrt, exp
 from copy import copy, deepcopy
 
 from util import add_totals, matrix_subtraction, find_xtd_shares
+from excel_util import simulation_to_xlsx
 from rules import Rules
 from dictionaries import GENERATING_METHODS
 from dictionaries import MEASURES, DEVIATION_MEASURES, STANDARDIZED_MEASURES, \
@@ -459,6 +460,9 @@ class Simulation:
             "vote_data": self.list_data[-1],
             "time_data": self.data[-1]["time"]
         }
+
+    def to_xlsx(self, filename):
+        simulation_to_xlsx(self, filename)
 
 def run_script_simulation(rules):
     srs = SimulationRules()

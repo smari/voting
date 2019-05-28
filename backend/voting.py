@@ -5,6 +5,7 @@ This module contains the core voting system logic.
 from tabulate import tabulate
 
 from util import entropy, add_totals
+from excel_util import election_to_xlsx
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
 from electionRules import ElectionRules
@@ -134,6 +135,9 @@ class Election:
 
         if self.rules["show_entropy"]:
             print("\nEntropy: %s" % self.entropy())
+
+    def to_xlsx(self, filename):
+        election_to_xlsx(self, filename)
 
 
 def run_script_election(rules):

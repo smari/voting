@@ -16,7 +16,6 @@ import csv
 import dictionaries
 from electionRules import ElectionRules
 import util
-import excel_util
 import voting
 import simulate as sim
 
@@ -91,7 +90,7 @@ def get_election_excel():
         return jsonify(election)
 
     tmpfilename = tempfile.mktemp(prefix='election-')
-    excel_util.election_to_xlsx(election, tmpfilename)
+    election.to_xlsx(tmpfilename)
     print("%s" % (tmpfilename))
     return send_from_directory(
         directory=os.path.dirname(tmpfilename),
@@ -229,7 +228,7 @@ def get_xlsx():
 
     tmpfilename = tempfile.mktemp(prefix='votesim-%s-' % request.args["sid"][:6])
     simulation, thread, expiry = SIMULATIONS[request.args["sid"]]
-    excel_util.simulation_to_xlsx(simulation, tmpfilename)
+    simulation.to_xlsx(tmpfilename)
     print("%s" % (tmpfilename))
     return send_from_directory(
         directory=os.path.dirname(tmpfilename),
