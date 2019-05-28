@@ -1,7 +1,7 @@
 
 from random import betavariate
 
-from util import add_totals, find_xtd_shares
+from table_util import add_totals, find_xtd_shares
 
 
 def beta_distribution(

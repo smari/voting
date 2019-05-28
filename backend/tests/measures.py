@@ -5,7 +5,7 @@ from random import uniform
 import logging
 import simulate
 import voting
-import util
+from table_util import add_totals
 
 
 class MeasureTest(TestCase):
@@ -38,7 +38,7 @@ class MeasureTest(TestCase):
         #Assert
         list_measures = sim_result['data'][0]['list_measures']
         self.assertEqual(list_measures["total_seats"]['avg'],
-                         util.add_totals(base_results))
+                         add_totals(base_results))
 
         self.assertEqual(base_results,       [[0, 1],
                                               [0, 1],
@@ -76,7 +76,7 @@ class MeasureTest(TestCase):
         #Assert
         list_measures = sim_result['data'][0]['list_measures']
         self.assertEqual(list_measures["total_seats"]['avg'],
-                         util.add_totals(base_results))
+                         add_totals(base_results))
 
         self.assertEqual(base_results,       [[2, 0],
                                               [0, 2]])

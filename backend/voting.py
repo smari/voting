@@ -4,7 +4,7 @@ This module contains the core voting system logic.
 """
 from tabulate import tabulate
 
-from util import entropy, add_totals
+from table_util import entropy, add_totals
 from excel_util import election_to_xlsx
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies

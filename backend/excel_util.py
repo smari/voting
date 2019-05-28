@@ -1,8 +1,8 @@
 
 import xlsxwriter
 
-from util import add_totals, find_xtd_shares, matrix_subtraction, \
-    ADJUSTMENT_METHODS
+from util import ADJUSTMENT_METHODS
+from table_util import matrix_subtraction, add_totals, find_xtd_shares
 
 
 

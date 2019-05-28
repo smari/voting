@@ -3,7 +3,7 @@ import unittest
 from division_rules import dhondt_gen, sainte_lague_gen
 from electionRules import ElectionRules
 from voting import Election
-from util import entropy
+from table_util import entropy
 
 class TestEntropy(unittest.TestCase):
     def setUp(self):

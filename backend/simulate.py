@@ -1,12 +1,11 @@
 # from voting import Election, SIMULATION_VARIATES
 import logging
-import io
 import json
 from datetime import datetime, timedelta
 from math import sqrt, exp
 from copy import copy, deepcopy
 
-from util import add_totals, matrix_subtraction, find_xtd_shares
+from table_util import matrix_subtraction, add_totals, find_xtd_shares
 from excel_util import simulation_to_xlsx
 from rules import Rules
 from dictionaries import GENERATING_METHODS

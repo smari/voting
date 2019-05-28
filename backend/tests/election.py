@@ -1,7 +1,7 @@
 import unittest
 
 from voting import ElectionRules, Election
-from util import add_totals
+from table_util import add_totals
 
 class TestElection(unittest.TestCase):
 
