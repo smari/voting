@@ -5,7 +5,7 @@ from random import uniform
 import logging
 import simulate
 import voting
-import util
+from table_util import add_totals
 
 
 class MeasureTest(TestCase):
@@ -25,7 +25,7 @@ class MeasureTest(TestCase):
                                   [200, 400],
                                   [350, 450]]
         election = voting.Election(self.e_rules, self.votes)
-        comparison_rules = simulate.generate_all_adj_ruleset(self.e_rules)
+        comparison_rules = self.e_rules.generate_all_adj_ruleset()
         comparison_election = voting.Election(comparison_rules, self.votes)
         sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes)
 
@@ -38,7 +38,7 @@ class MeasureTest(TestCase):
         #Assert
         list_measures = sim_result['data'][0]['list_measures']
         self.assertEqual(list_measures["total_seats"]['avg'],
-                         util.add_totals(base_results))
+                         add_totals(base_results))
 
         self.assertEqual(base_results,       [[0, 1],
                                               [0, 1],
@@ -62,7 +62,7 @@ class MeasureTest(TestCase):
         self.votes =             [[1500, 0],
                                   [0, 5000]]
         election = voting.Election(self.e_rules, self.votes)
-        comparison_rules = simulate.generate_one_const_ruleset(self.e_rules)
+        comparison_rules = self.e_rules.generate_one_const_ruleset()
         v_votes = [sum(x) for x in zip(*self.votes)]
         comparison_election = voting.Election(comparison_rules, [v_votes])
         sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes)
@@ -76,7 +76,7 @@ class MeasureTest(TestCase):
         #Assert
         list_measures = sim_result['data'][0]['list_measures']
         self.assertEqual(list_measures["total_seats"]['avg'],
-                         util.add_totals(base_results))
+                         add_totals(base_results))
 
         self.assertEqual(base_results,       [[2, 0],
                                               [0, 2]])

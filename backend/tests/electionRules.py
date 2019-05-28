@@ -1,18 +1,12 @@
 # coding:utf-8
 from unittest import TestCase
 
-from voting import ElectionRules
-from simulate import generate_opt_ruleset
-from simulate import generate_law_ruleset
-from simulate import generate_ind_const_ruleset
-from simulate import generate_one_const_ruleset
-from simulate import generate_all_adj_ruleset
+from electionRules import ElectionRules
 
 class TestElectionRules(TestCase):
 
     def setUp(self):
         self.rules = ElectionRules()
-        self.rules["parties"] = ["A", "B"]
         self.rules["adjustment_method"] = "norwegian-law"
         self.rules["primary_divider"] = "nordic"
         self.rules["adj_determine_divider"] = "nordic"
@@ -25,7 +19,7 @@ class TestElectionRules(TestCase):
         #self.votes = [[500, 400],[300, 200]]
 
     def test_generate_opt_ruleset(self):
-        opt = generate_opt_ruleset(self.rules)
+        opt = self.rules.generate_opt_ruleset()
         self.assertEqual(opt["adjustment_method"], "alternating-scaling")
         self.assertEqual(opt["primary_divider"], "nordic")
         self.assertEqual(opt["adj_determine_divider"], "nordic")
@@ -37,7 +31,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(opt["constituency_adjustment_seats"], [1, 2])
 
     def test_generate_law_ruleset(self):
-        law = generate_law_ruleset(self.rules)
+        law = self.rules.generate_law_ruleset()
         self.assertEqual(law["adjustment_method"], "icelandic-law")
         self.assertEqual(law["primary_divider"], "dhondt")
         self.assertEqual(law["adj_determine_divider"], "dhondt")
@@ -49,7 +43,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(law["constituency_adjustment_seats"], [1, 2])
 
     def test_generate_ind_const_ruleset(self):
-        ind_const = generate_ind_const_ruleset(self.rules)
+        ind_const = self.rules.generate_ind_const_ruleset()
         self.assertEqual(ind_const["adjustment_method"], "norwegian-law")
         self.assertEqual(ind_const["primary_divider"], "nordic")
         self.assertEqual(ind_const["adj_determine_divider"], "nordic")
@@ -61,7 +55,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(ind_const["constituency_adjustment_seats"], [0, 0])
 
     def test_generate_one_const_ruleset(self):
-        one_const = generate_one_const_ruleset(self.rules)
+        one_const = self.rules.generate_one_const_ruleset()
         self.assertEqual(one_const["adjustment_method"], "norwegian-law")
         self.assertEqual(one_const["primary_divider"], "nordic")
         self.assertEqual(one_const["adj_determine_divider"], "nordic")
@@ -73,7 +67,7 @@ class TestElectionRules(TestCase):
         self.assertEqual(one_const["constituency_adjustment_seats"], [3])
 
     def test_generate_all_adj_ruleset(self):
-        all_adj = generate_all_adj_ruleset(self.rules)
+        all_adj = self.rules.generate_all_adj_ruleset()
         self.assertEqual(all_adj["adjustment_method"], "norwegian-law")
         self.assertEqual(all_adj["primary_divider"], "nordic")
         self.assertEqual(all_adj["adj_determine_divider"], "nordic")

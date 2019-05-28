@@ -1,138 +1,19 @@
 # from voting import Election, SIMULATION_VARIATES
 import logging
-from rules import Rules
-from math import sqrt, exp
-from random import betavariate
-from copy import copy, deepcopy
-from util import add_totals, matrix_subtraction, find_xtd_shares
-
-import voting
-import io
 import json
 from datetime import datetime, timedelta
+from math import sqrt, exp
+from copy import copy, deepcopy
+
+from table_util import matrix_subtraction, add_totals, find_xtd_shares
+from excel_util import simulation_to_xlsx
+from rules import Rules
+from dictionaries import GENERATING_METHODS
+from dictionaries import MEASURES, DEVIATION_MEASURES, STANDARDIZED_MEASURES, \
+    LIST_MEASURES, VOTE_MEASURES, AGGREGATES
+import voting
 
 logging.basicConfig(filename='logs/simulate.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-
-def beta_params(mean, stability_parameter):
-    assert(0<mean and mean<1)
-    assert(1<stability_parameter)
-
-    #make sure alpha and beta >1 to ensure nice probability distribution
-    lower_mean = mean if mean<=0.5 else 1-mean
-    assert(0<lower_mean and lower_mean<=0.5)
-
-    lifting_factor = 1 + 1.0/lower_mean
-    assert(lifting_factor>=3)
-    assert(lifting_factor >= 1+1/mean)
-    assert(lifting_factor >= 1+1/(1-mean))
-
-    weight = lifting_factor*stability_parameter - 1
-    assert(weight>2)
-    assert(weight > 1/mean)
-    assert(weight > 1/(1-mean))
-
-    alpha = mean*weight
-    beta = (1-mean)*weight
-    #note that weight=alpha+beta
-    assert(alpha>1)
-    assert(beta>1)
-    return alpha, beta
-
-def beta_distribution(
-    base_votes, #2d - votes for each list,
-    stbl_param  #stability parameter in range (1,->)
-):
-    """
-    Generate a set of votes with beta distribution,
-    using 'base_votes' as reference.
-    """
-    assert(1<stbl_param)
-    xtd_votes = add_totals(base_votes)
-    xtd_shares = find_xtd_shares(xtd_votes)
-
-    generated_votes = []
-    for c in range(len(base_votes)):
-        s = 0
-        generated_votes.append([])
-        for p in range(len(base_votes[c])):
-            mean_beta_distr = xtd_shares[c][p]
-            assert(0 <= mean_beta_distr and mean_beta_distr <= 1)
-            if 0 < mean_beta_distr and mean_beta_distr < 1:
-                alpha, beta = beta_params(mean_beta_distr, stbl_param)
-                share = betavariate(alpha, beta)
-            else:
-                share = mean_beta_distr #either 0 or 1
-            generated_votes[c].append(int(share*xtd_votes[c][-1]))
-
-    return generated_votes
-
-GENERATING_METHODS = {
-    "beta": beta_distribution
-}
-
-GENERATING_METHOD_NAMES = {
-    "beta": "Beta distribution"
-}
-
-MEASURES = {
-    "dev_opt":         "Allocation by the optimal method",
-    "dev_law":         "Allocation by Icelandic Law",
-    "adj_dev":         "Adjustment seats apportioned nationally",
-    "dev_ind_const":   "Allocation as if all seats were constituency seats",
-    "dev_all_adj":     "Allocation as if all seats were adjustment seats",
-    "dev_one_const":   "Allocation as if all constituencies were combined into one",
-    "entropy":         "Entropy (product of all seat values used)",
-    "entropy_ratio":   "Relative entropy deviation from optimal solution",
-    "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
-    "sainte_lague":    "Scaled sum of squared deviation of list seats from biproportional seat shares (Sainte-Lague)",
-    "dhondt_min":      "Mininum seat value used (d'Hondt)",
-    "dhondt_sum":      "Scaled sum of positive deviation of list seats from biproportional seat shares (d'Hondt)",
-}
-
-DEVIATION_MEASURES = [
-    "dev_opt",
-    "dev_law",
-    "adj_dev",
-    "dev_ind_const",
-    "dev_all_adj",
-    # "dev_one_const", #skipped, because already measured by all_adj (party sums)
-]
-
-STANDARDIZED_MEASURES = [
-    "entropy_ratio",
-    "loosemore_hanby",
-    "sainte_lague",
-    "dhondt_min",
-    "dhondt_sum",
-]
-
-LIST_MEASURES = {
-    "const_seats":   "constituency seats",
-    "adj_seats":     "adjustment seats",
-    "total_seats":   "constituency and adjustment seats combined",
-    "seat_shares":   "total seats scaled to a total of 1 for each constituency",
-    # "dev_opt":       "deviation from optimal solution",
-    # "dev_law":       "deviation from official law method",
-    # "dev_ind_const": "deviation from Independent Constituencies",
-    # "dev_one_const": "deviation from Single Constituency",
-    # "dev_all_adj":   "deviation from All Adjustment Seats"
-}
-
-VOTE_MEASURES = {
-    "sim_votes":  "votes in simulations",
-    "sim_shares": "shares in simulations",
-}
-
-AGGREGATES = {
-    "cnt": "number of elements",
-    "max": "highest value",
-    "min": "lowest value",
-    "sum": "sum of elements",
-    "sqs": "sum of squares",
-    "avg": "average",
-    "var": "variance",
-    "std": "standard deviation"
-}
 
 def error(avg, ref):
     """
@@ -412,7 +293,7 @@ class Simulation:
         self.other_measures(ruleset, votes, results, opt_results)
 
     def entropy(self, ruleset, votes, entropy):
-        opt_rules = generate_opt_ruleset(self.e_rules[ruleset])
+        opt_rules = self.e_rules[ruleset].generate_opt_ruleset()
         opt_election = voting.Election(opt_rules, votes)
         opt_results = opt_election.run()
         entropy_deviation_ratio = 1 - exp(entropy - opt_election.entropy())
@@ -441,7 +322,7 @@ class Simulation:
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
-            rules = generate_comparison_rules(self.e_rules[ruleset], option)
+            rules = self.e_rules[ruleset].generate_comparison_rules(option)
             results = voting.Election(rules, votes).run()
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
@@ -579,71 +460,8 @@ class Simulation:
             "time_data": self.data[-1]["time"]
         }
 
-def generate_comparison_rules(ruleset, option="all"):
-    if option == "opt":
-        return generate_opt_ruleset(ruleset)
-    if option == "law":
-        return generate_law_ruleset(ruleset)
-    if option == "ind_const":
-        return generate_ind_const_ruleset(ruleset)
-    if option == "one_const":
-        return generate_one_const_ruleset(ruleset)
-    if option == "all_adj":
-        return generate_all_adj_ruleset(ruleset)
-    if option == "all":
-        return {
-            "opt":       generate_opt_ruleset(ruleset),
-            "law":       generate_law_ruleset(ruleset),
-            "ind_const": generate_ind_const_ruleset(ruleset),
-            "one_const": generate_one_const_ruleset(ruleset),
-            "all_adj":   generate_all_adj_ruleset(ruleset)
-        }
-    return None
-
-def generate_opt_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["adjustment_method"] = "alternating-scaling"
-    return ref_rs
-
-def generate_law_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["adjustment_method"] = "icelandic-law"
-    ref_rs["primary_divider"] = "dhondt"
-    ref_rs["adj_determine_divider"] = "dhondt"
-    ref_rs["adj_alloc_divider"] = "dhondt"
-    ref_rs["adjustment_threshold"] = 5
-    return ref_rs
-
-def generate_ind_const_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["constituency_seats"] = copy(ruleset["constituency_seats"])
-    ref_rs["constituency_adjustment_seats"] = []
-    for i in range(len(ruleset["constituency_seats"])):
-        ref_rs["constituency_seats"][i] += ruleset["constituency_adjustment_seats"][i]
-        ref_rs["constituency_adjustment_seats"].append(0)
-    return ref_rs
-
-def generate_one_const_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    ref_rs["constituency_seats"] = [sum(ruleset["constituency_seats"])]
-    ref_rs["constituency_adjustment_seats"] = [sum(ruleset["constituency_adjustment_seats"])]
-    ref_rs["constituency_names"] = ["All"]
-    return ref_rs
-
-def generate_all_adj_ruleset(ruleset):
-    ref_rs = voting.ElectionRules()
-    ref_rs.update(ruleset)
-    n = len(ruleset["constituency_names"])
-    ref_rs["constituency_seats"] = [0 for c in range(n)]
-    ref_rs["constituency_adjustment_seats"] \
-        = [ruleset["constituency_seats"][c] \
-           + ruleset["constituency_adjustment_seats"][c]
-           for c in range(n)]
-    return ref_rs
+    def to_xlsx(self, filename):
+        simulation_to_xlsx(self, filename)
 
 def run_script_simulation(rules):
     srs = SimulationRules()

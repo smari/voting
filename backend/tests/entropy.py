@@ -1,8 +1,9 @@
 import unittest
 
-from voting import dhondt_gen, sainte_lague_gen
-from voting import ElectionRules, Election
-from util import entropy
+from division_rules import dhondt_gen, sainte_lague_gen
+from electionRules import ElectionRules
+from voting import Election
+from table_util import entropy
 
 class TestEntropy(unittest.TestCase):
     def setUp(self):
