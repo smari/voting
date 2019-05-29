@@ -95,7 +95,8 @@ def get_election_excel():
     return send_from_directory(
         directory=os.path.dirname(tmpfilename),
         filename=os.path.basename(tmpfilename),
-        attachment_filename="election.xlsx",
+        attachment_filename=
+            f"election {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx",
         as_attachment=True
     )
 
@@ -233,7 +234,8 @@ def get_xlsx():
     return send_from_directory(
         directory=os.path.dirname(tmpfilename),
         filename=os.path.basename(tmpfilename),
-        attachment_filename="simulation.xlsx",
+        attachment_filename=
+            f"simulation {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx",
         as_attachment=True
     )
 
