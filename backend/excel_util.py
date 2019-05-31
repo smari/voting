@@ -169,6 +169,10 @@ def simulation_to_xlsx(simulation, filename):
 
     time_format = workbook.add_format()
     time_format.set_num_format('d mmm yyyy hh:mm')
+    time_format.set_align('left')
+
+    basic_format = workbook.add_format()
+    basic_format.set_align('left')
 
 
     def write_matrix(worksheet, startrow, startcol, matrix, cformat):
@@ -245,7 +249,7 @@ def simulation_to_xlsx(simulation, filename):
         toprow = 0
         #Basic info
         worksheet.merge_range(toprow,0,toprow,1,"Test name:",h_format)
-        worksheet.merge_range(toprow,2,toprow,3,simulation.e_rules[r]["name"],cell_format)
+        worksheet.write(toprow,2,simulation.e_rules[r]["name"],basic_format)
         worksheet.merge_range(toprow+1,0,toprow+1,1,"Date:",h_format)
         worksheet.merge_range(toprow+1,2,toprow+1,3,datetime.now(),time_format)
         toprow += 2+2
