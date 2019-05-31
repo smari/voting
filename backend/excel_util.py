@@ -1,5 +1,6 @@
 
 import xlsxwriter
+from datetime import datetime
 
 from util import ADJUSTMENT_METHODS
 from table_util import matrix_subtraction, add_totals, find_xtd_shares
@@ -35,6 +36,9 @@ def election_to_xlsx(election, filename):
     h_format.set_bold()
     h_format.set_font_size(14)
 
+    time_format = workbook.add_format()
+    time_format.set_num_format('d mmm yyyy hh:mm')
+
     worksheet.set_column('B:B', 20)
 
     def write_matrix(worksheet, startrow, startcol, matrix, cformat):
@@ -67,6 +71,13 @@ def election_to_xlsx(election, filename):
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
     startcol = 1
+
+    toprow=0
+    worksheet.merge_range(toprow,0,toprow,1,"Test name:",h_format)
+    worksheet.merge_range(toprow,2,toprow,3,"My electoral system",cell_format)
+    worksheet.merge_range(toprow+1,0,toprow+1,1,"Date:",h_format)
+    worksheet.merge_range(toprow+1,2,toprow+1,3,datetime.now(),time_format)
+
     startrow = 4
     tables_before = [
         {"heading": "Votes",              "matrix": xtd_votes      },
@@ -156,6 +167,9 @@ def simulation_to_xlsx(simulation, filename):
     share_format = workbook.add_format()
     share_format.set_num_format('0.0%')
 
+    time_format = workbook.add_format()
+    time_format.set_num_format('d mmm yyyy hh:mm')
+
 
     def write_matrix(worksheet, startrow, startcol, matrix, cformat):
         for c in range(len(matrix)):
@@ -228,7 +242,17 @@ def simulation_to_xlsx(simulation, filename):
                 "ss": simulation.list_data[ r]["seat_shares"]["std"],
             },
         }
-        toprow = 3
+        toprow = 0
+        #Basic info
+        worksheet.merge_range(toprow,0,toprow,1,"Test name:",h_format)
+        worksheet.merge_range(toprow,2,toprow,3,simulation.e_rules[r]["name"],cell_format)
+        worksheet.merge_range(toprow+1,0,toprow+1,1,"Date:",h_format)
+        worksheet.merge_range(toprow+1,2,toprow+1,3,datetime.now(),time_format)
+        toprow += 2+2
+        #vote data name
+        #settings
+
+        #Election tables
         for category in categories:
             worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
                 category["heading"], r_format)
@@ -244,6 +268,7 @@ def simulation_to_xlsx(simulation, filename):
                 col += len(parties)+2
             toprow += len(const_names)+3
 
+        #Measures
         results = simulation.get_results_dict()
         DEVIATION_MEASURES = results["deviation_measures"]
         STANDARDIZED_MEASURES = results["standardized_measures"]
