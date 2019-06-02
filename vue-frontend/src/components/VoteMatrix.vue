@@ -107,11 +107,11 @@
 export default {
   data: function () {
     return {
-      table_name: "Test",
       constituencies: ["I", "II"],
       constituency_seats: [10, 10],
       constituency_adjustment_seats: [2, 3],
       parties: ["A", "B"],
+      table_name: "Test",
       votes: [[1500, 2000], [2500, 1700]],
       presets: [],
       presetfields: [
@@ -137,11 +137,17 @@ export default {
     });
     this.$emit('update-constituencies', this.constituencies, false);
     this.$emit('update-parties', this.parties, false);
+    this.$emit('update-table-name', this.table_name, false);
     this.$emit('update-votes', this.votes, false);
     this.$emit('update-constituency-seats', this.constituency_seats, false);
     this.$emit('update-adjustment-seats', this.constituency_adjustment_seats, false);
   },
   watch: {
+    'table_name': {
+      handler: function (val, oldVal) {
+        this.$emit('update-table-name', val);
+      }
+    },
     'votes': {
       handler: function (val, oldVal) {
         this.$emit('update-votes', val);

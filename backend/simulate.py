@@ -97,7 +97,7 @@ class SimulationRules(Rules):
 
 class Simulation:
     """Simulate a set of elections."""
-    def __init__(self, sim_rules, e_rules, m_votes, stbl_param=100):
+    def __init__(self, sim_rules, e_rules, m_votes, table_name, stbl_param=100):
         self.num_total_simulations = sim_rules["simulation_count"]
         self.num_rulesets = len(e_rules)
         self.num_constituencies = len(m_votes)
@@ -112,6 +112,7 @@ class Simulation:
         ]))
         self.sim_rules = sim_rules
         self.e_rules = e_rules
+        self.vote_table_name = table_name
         self.base_votes = m_votes
         self.xtd_votes = add_totals(self.base_votes)
         self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)

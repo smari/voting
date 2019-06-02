@@ -261,6 +261,8 @@ def set_up_simulation():
 
         rulesets.append(election_rules)
 
+    table_name = data["table_name"] if "table_name" in data else ""
+
     if not "ref_votes" in data:
         return False, "Votes missing."
 
@@ -284,7 +286,8 @@ def set_up_simulation():
 
     try:
         simulation = sim.Simulation(
-            simulation_rules, rulesets, data["ref_votes"], stability_parameter)
+            simulation_rules, rulesets, data["ref_votes"], table_name,
+            stability_parameter)
     except ZeroDivisionError:
         return False, "Need to have more votes."
 
