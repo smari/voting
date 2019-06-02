@@ -251,10 +251,12 @@ def simulation_to_xlsx(simulation, filename):
         col=0
         worksheet.merge_range(toprow,col,toprow,col+1,"Date:",h_format)
         worksheet.merge_range(toprow,col+2,toprow,col+3,datetime.now(),time_format)
-        worksheet.merge_range(toprow+1,col,toprow+1,col+1,"Test name:",h_format)
-        worksheet.write(toprow+1,col+2,simulation.e_rules[r]["name"],basic_format)
-        worksheet.merge_range(toprow+2,col,toprow+2,col+1,"Adjustment method",h_format)
-        worksheet.write(toprow+2,col+2,simulation.e_rules[r]["adjustment_method"],basic_format)
+        worksheet.merge_range(toprow+1,col,toprow+1,col+1,"Vote name:",h_format)
+        worksheet.write(toprow+1,col+2,simulation.vote_table_name,basic_format)
+        worksheet.merge_range(toprow+2,col,toprow+2,col+1,"Test name:",h_format)
+        worksheet.write(toprow+2,col+2,simulation.e_rules[r]["name"],basic_format)
+        worksheet.merge_range(toprow+3,col,toprow+3,col+1,"Adjustment method",h_format)
+        worksheet.write(toprow+3,col+2,simulation.e_rules[r]["adjustment_method"],basic_format)
 
         col=8
         worksheet.write(toprow,col,"Primary division rule",h_format)
@@ -266,8 +268,6 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write(toprow+3,col,"Adjustment threshold",h_format)
         worksheet.write(toprow+3,col+1,simulation.e_rules[r]["adjustment_threshold"],cell_format)
         toprow += 4+2
-        #vote data name
-        #settings
 
         #Election tables
         for category in categories:
