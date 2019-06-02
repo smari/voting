@@ -264,9 +264,11 @@ def set_up_simulation():
     if not "ref_votes" in data:
         return False, "Votes missing."
 
-    for const in data["ref_votes"]:
-        for party in const:
-            if type(party) != int:
+    for c in range(len(data["ref_votes"])):
+        for p in range(len(data["ref_votes"][c])):
+            if not data["ref_votes"][c][p]:
+                data["ref_votes"][c][p] = 0
+            if type(data["ref_votes"][c][p]) != int:
                 return False, "Votes must be numbers."
 
     stability_parameter = 100
