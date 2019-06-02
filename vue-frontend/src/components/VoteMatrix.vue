@@ -70,8 +70,8 @@
     </b-button-toolbar>
     <table class="votematrix">
       <tr class="parties">
-        <th class="small-12 medium-1 topleft">
-          &nbsp;
+        <th class="small-12 medium-1 tablename">
+          <input type="text" v-model="table_name">
         </th>
         <th>
           <abbr title="Constituency seats"># Cons.</abbr>
@@ -107,6 +107,7 @@
 export default {
   data: function () {
     return {
+      table_name: "Test",
       constituencies: ["I", "II"],
       constituency_seats: [10, 10],
       constituency_adjustment_seats: [2, 3],
