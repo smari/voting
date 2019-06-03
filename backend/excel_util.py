@@ -4,6 +4,9 @@ from datetime import datetime
 
 from util import ADJUSTMENT_METHODS
 from table_util import matrix_subtraction, add_totals, find_xtd_shares
+from dictionaries import ADJUSTMENT_METHOD_NAMES as AMN, \
+                         DIVIDER_RULE_NAMES as DRM, \
+                         GENERATING_METHOD_NAMES as GMN
 
 
 
@@ -262,20 +265,20 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write(row,cr,simulation.e_rules[r]["name"],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment method",h_format)
-        worksheet.write(row,cr,simulation.e_rules[r]["adjustment_method"],basic_format)
+        worksheet.write(row,cr,AMN[simulation.e_rules[r]["adjustment_method"]],basic_format)
 
         row=toprow
-        col+=span+3
+        col+=span+5
         span=6
         cr=col+span
         worksheet.merge_range(row,col,row,cr-1,"Primary division rule",h_format)
-        worksheet.write(row,cr,simulation.e_rules[r]["primary_divider"],basic_format)
+        worksheet.write(row,cr,DRM[simulation.e_rules[r]["primary_divider"]],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment determination division rule",h_format)
-        worksheet.write(row,cr,simulation.e_rules[r]["adj_determine_divider"],basic_format)
+        worksheet.write(row,cr,DRM[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment allocation division rule",h_format)
-        worksheet.write(row,cr,simulation.e_rules[r]["adj_alloc_divider"],basic_format)
+        worksheet.write(row,cr,DRM[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment threshold",h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["adjustment_threshold"],basic_format)
@@ -288,7 +291,7 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write(row,cr,simulation.num_total_simulations,basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Generating method",h_format)
-        worksheet.write(row,cr,simulation.variate,basic_format)
+        worksheet.write(row,cr,GMN[simulation.variate],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Stability parameter",h_format)
         worksheet.write(row,cr,simulation.stbl_param,basic_format)
