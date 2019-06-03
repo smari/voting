@@ -277,6 +277,17 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write(row,col,"Adjustment threshold",h_format)
         worksheet.write(row,col+1,simulation.e_rules[r]["adjustment_threshold"],cell_format)
 
+        col=16
+        row=toprow
+        worksheet.write(row,col,"Number of simulations",h_format)
+        worksheet.write(row,col+1,simulation.num_total_simulations,basic_format)
+        row += 1
+        worksheet.write(row,col,"Generating method",h_format)
+        worksheet.write(row,col+1,simulation.variate,basic_format)
+        row += 1
+        worksheet.write(row,col,"Stability parameter",h_format)
+        worksheet.write(row,col+1,simulation.stbl_param,basic_format)
+
         padding=2
         toprow += 4+padding
 
