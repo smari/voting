@@ -5,7 +5,7 @@ from datetime import datetime
 from util import ADJUSTMENT_METHODS
 from table_util import matrix_subtraction, add_totals, find_xtd_shares
 from dictionaries import ADJUSTMENT_METHOD_NAMES as AMN, \
-                         DIVIDER_RULE_NAMES as DRM, \
+                         DIVIDER_RULE_NAMES as DRN, \
                          GENERATING_METHOD_NAMES as GMN
 
 
@@ -277,13 +277,13 @@ def simulation_to_xlsx(simulation, filename):
         span=5
         cr=col+span
         worksheet.merge_range(row,col,row,cr-1,"Primary division rule:",basic_h_format)
-        worksheet.write(row,cr,DRM[simulation.e_rules[r]["primary_divider"]],basic_format)
+        worksheet.write(row,cr,DRN[simulation.e_rules[r]["primary_divider"]],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment determination division rule:",basic_h_format)
-        worksheet.write(row,cr,DRM[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
+        worksheet.write(row,cr,DRN[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment allocation division rule:",basic_h_format)
-        worksheet.write(row,cr,DRM[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
+        worksheet.write(row,cr,DRN[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment threshold:",basic_h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["adjustment_threshold"],basic_format)
