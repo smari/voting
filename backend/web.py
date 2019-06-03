@@ -245,6 +245,23 @@ def set_up_simulation():
     data = request.get_json(force=True)
     rulesets = []
 
+    for section in ["vote_table", "election_rules", "simulation_rules"]:
+        if section not in data or not data[section]:
+            return False, f"Missing data ('{section}')"
+
+    vote_table = data["vote_table"]
+
+    for info in [
+        "name",
+        "votes",
+        "parties",
+        "constituency_names",
+        "constituency_seats",
+        "constituency_adjustment_seats"
+    ]:
+        if info not in vote_table or not vote_table[info]:
+            return False, f"Missing data ('{info}')"
+
     for rs in data["election_rules"]:
         election_rules = ElectionRules()
 
@@ -255,23 +272,18 @@ def set_up_simulation():
             election_rules[k] = v
 
         for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
-            if x in data and data[x]:
-                election_rules[x] = data[x]
-            else:
-                return False, "Missing data ('%s')" % x
+            election_rules[x] = vote_table[x]
 
         rulesets.append(election_rules)
 
-    table_name = data["table_name"] if "table_name" in data else ""
+    table_name = vote_table["name"]
+    votes = vote_table["votes"]
 
-    if not "ref_votes" in data:
-        return False, "Votes missing."
-
-    for c in range(len(data["ref_votes"])):
-        for p in range(len(data["ref_votes"][c])):
-            if not data["ref_votes"][c][p]:
-                data["ref_votes"][c][p] = 0
-            if type(data["ref_votes"][c][p]) != int:
+    for c in range(len(votes)):
+        for p in range(len(votes[c])):
+            if not votes[c][p]:
+                votes[c][p] = 0
+            if type(votes[c][p]) != int:
                 return False, "Votes must be numbers."
 
     stability_parameter = 100
@@ -281,13 +293,12 @@ def set_up_simulation():
             return False, "Stability parameter must be greater than 1."
 
     simulation_rules = sim.SimulationRules()
-
     for k, v in data["simulation_rules"].items():
         simulation_rules[k] = v
 
     try:
         simulation = sim.Simulation(
-            simulation_rules, rulesets, data["ref_votes"], table_name,
+            simulation_rules, rulesets, votes, table_name,
             stability_parameter)
     except ZeroDivisionError:
         return False, "Need to have more votes."

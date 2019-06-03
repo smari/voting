@@ -267,15 +267,17 @@ export default {
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
         {
-          table_name: this.table_name,
-          ref_votes: this.ref_votes,
+          vote_table: {
+            name: this.table_name,
+            constituency_names: this.constituency_names,
+            constituency_seats: this.constituency_seats,
+            constituency_adjustment_seats: this.constituency_adjustment_seats,
+            parties: this.parties,
+            votes: this.ref_votes
+          },
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
-          stbl_param: this.distribution_parameter,
-          parties: this.parties,
-          constituency_names: this.constituency_names,
-          constituency_seats: this.constituency_seats,
-          constituency_adjustment_seats: this.constituency_adjustment_seats
+          stbl_param: this.distribution_parameter
         }).then(response => {
           if (response.body.error) {
             this.server.errormsg = response.body.error;
