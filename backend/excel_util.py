@@ -177,6 +177,11 @@ def simulation_to_xlsx(simulation, filename):
     basic_format = workbook.add_format()
     basic_format.set_align('left')
 
+    basic_h_format = workbook.add_format()
+    basic_h_format.set_align('right')
+    basic_h_format.set_bold()
+    basic_h_format.set_font_size(12)
+
 
     def write_matrix(worksheet, startrow, startcol, matrix, cformat):
         for c in range(len(matrix)):
@@ -255,45 +260,45 @@ def simulation_to_xlsx(simulation, filename):
         col=0
         span=3
         cr=col+span
-        worksheet.merge_range(row,col,row,cr-1,"Date:",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Date:",basic_h_format)
         worksheet.merge_range(row,cr,row,cr+1,datetime.now(),time_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Vote name:",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Vote name:",basic_h_format)
         worksheet.write(row,cr,simulation.vote_table_name,basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Test name:",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Test name:",basic_h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["name"],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Adjustment method",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment method:",basic_h_format)
         worksheet.write(row,cr,AMN[simulation.e_rules[r]["adjustment_method"]],basic_format)
 
         row=toprow
         col+=span+5
-        span=6
+        span=5
         cr=col+span
-        worksheet.merge_range(row,col,row,cr-1,"Primary division rule",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Primary division rule:",basic_h_format)
         worksheet.write(row,cr,DRM[simulation.e_rules[r]["primary_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Adjustment determination division rule",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment determination division rule:",basic_h_format)
         worksheet.write(row,cr,DRM[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Adjustment allocation division rule",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment allocation division rule:",basic_h_format)
         worksheet.write(row,cr,DRM[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Adjustment threshold",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment threshold:",basic_h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["adjustment_threshold"],basic_format)
 
         row=toprow
         col+=span+3
-        span=4
+        span=3
         cr=col+span
-        worksheet.merge_range(row,col,row,cr-1,"Number of simulations",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Number of simulations:",basic_h_format)
         worksheet.write(row,cr,simulation.num_total_simulations,basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Generating method",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Generating method:",basic_h_format)
         worksheet.write(row,cr,GMN[simulation.variate],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Stability parameter",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Stability parameter:",basic_h_format)
         worksheet.write(row,cr,simulation.stbl_param,basic_format)
 
         padding=2
