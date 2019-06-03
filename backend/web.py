@@ -275,7 +275,10 @@ def set_up_simulation():
             election_rules[info] = vote_table[info]
 
         for info in ["constituency_seats", "constituency_adjustment_seats"]:
-            election_rules[info] = vote_table[info]
+            if info in data["election_rules"] and data["election_rules"][info]:
+                election_rules[info] = data["election_rules"][info]
+            else:
+                election_rules[info] = vote_table[info]
 
             for c in range(len(election_rules[info])):
                 if not election_rules[info][c]:
