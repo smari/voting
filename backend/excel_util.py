@@ -248,26 +248,37 @@ def simulation_to_xlsx(simulation, filename):
         }
         toprow = 0
         #Basic info
+        row=toprow
         col=0
-        worksheet.merge_range(toprow,col,toprow,col+1,"Date:",h_format)
-        worksheet.merge_range(toprow,col+2,toprow,col+3,datetime.now(),time_format)
-        worksheet.merge_range(toprow+1,col,toprow+1,col+1,"Vote name:",h_format)
-        worksheet.write(toprow+1,col+2,simulation.vote_table_name,basic_format)
-        worksheet.merge_range(toprow+2,col,toprow+2,col+1,"Test name:",h_format)
-        worksheet.write(toprow+2,col+2,simulation.e_rules[r]["name"],basic_format)
-        worksheet.merge_range(toprow+3,col,toprow+3,col+1,"Adjustment method",h_format)
-        worksheet.write(toprow+3,col+2,simulation.e_rules[r]["adjustment_method"],basic_format)
+        cr=col+2
+        worksheet.merge_range(row,col,row,col+1,"Date:",h_format)
+        worksheet.merge_range(row,cr,row,cr+1,datetime.now(),time_format)
+        row += 1
+        worksheet.merge_range(row,col,row,col+1,"Vote name:",h_format)
+        worksheet.write(row,cr,simulation.vote_table_name,basic_format)
+        row += 1
+        worksheet.merge_range(row,col,row,col+1,"Test name:",h_format)
+        worksheet.write(row,cr,simulation.e_rules[r]["name"],basic_format)
+        row += 1
+        worksheet.merge_range(row,col,row,col+1,"Adjustment method",h_format)
+        worksheet.write(row,cr,simulation.e_rules[r]["adjustment_method"],basic_format)
 
         col=8
-        worksheet.write(toprow,col,"Primary division rule",h_format)
-        worksheet.write(toprow,col+1,simulation.e_rules[r]["primary_divider"],basic_format)
-        worksheet.write(toprow+1,col,"Adjustment determination division rule",h_format)
-        worksheet.write(toprow+1,col+1,simulation.e_rules[r]["adj_determine_divider"],basic_format)
-        worksheet.write(toprow+2,col,"Adjustment allocation division rule",h_format)
-        worksheet.write(toprow+2,col+1,simulation.e_rules[r]["adj_alloc_divider"],basic_format)
-        worksheet.write(toprow+3,col,"Adjustment threshold",h_format)
-        worksheet.write(toprow+3,col+1,simulation.e_rules[r]["adjustment_threshold"],cell_format)
-        toprow += 4+2
+        row=toprow
+        worksheet.write(row,col,"Primary division rule",h_format)
+        worksheet.write(row,col+1,simulation.e_rules[r]["primary_divider"],basic_format)
+        row += 1
+        worksheet.write(row,col,"Adjustment determination division rule",h_format)
+        worksheet.write(row,col+1,simulation.e_rules[r]["adj_determine_divider"],basic_format)
+        row += 1
+        worksheet.write(row,col,"Adjustment allocation division rule",h_format)
+        worksheet.write(row,col+1,simulation.e_rules[r]["adj_alloc_divider"],basic_format)
+        row += 1
+        worksheet.write(row,col,"Adjustment threshold",h_format)
+        worksheet.write(row,col+1,simulation.e_rules[r]["adjustment_threshold"],cell_format)
+
+        padding=2
+        toprow += 4+padding
 
         #Election tables
         for category in categories:
