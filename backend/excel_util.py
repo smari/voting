@@ -250,43 +250,48 @@ def simulation_to_xlsx(simulation, filename):
         #Basic info
         row=toprow
         col=0
-        cr=col+2
-        worksheet.merge_range(row,col,row,col+1,"Date:",h_format)
+        span=3
+        cr=col+span
+        worksheet.merge_range(row,col,row,cr-1,"Date:",h_format)
         worksheet.merge_range(row,cr,row,cr+1,datetime.now(),time_format)
         row += 1
-        worksheet.merge_range(row,col,row,col+1,"Vote name:",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Vote name:",h_format)
         worksheet.write(row,cr,simulation.vote_table_name,basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,col+1,"Test name:",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Test name:",h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["name"],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,col+1,"Adjustment method",h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment method",h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["adjustment_method"],basic_format)
 
-        col=8
         row=toprow
-        worksheet.write(row,col,"Primary division rule",h_format)
-        worksheet.write(row,col+1,simulation.e_rules[r]["primary_divider"],basic_format)
+        col+=span+3
+        span=6
+        cr=col+span
+        worksheet.merge_range(row,col,row,cr-1,"Primary division rule",h_format)
+        worksheet.write(row,cr,simulation.e_rules[r]["primary_divider"],basic_format)
         row += 1
-        worksheet.write(row,col,"Adjustment determination division rule",h_format)
-        worksheet.write(row,col+1,simulation.e_rules[r]["adj_determine_divider"],basic_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment determination division rule",h_format)
+        worksheet.write(row,cr,simulation.e_rules[r]["adj_determine_divider"],basic_format)
         row += 1
-        worksheet.write(row,col,"Adjustment allocation division rule",h_format)
-        worksheet.write(row,col+1,simulation.e_rules[r]["adj_alloc_divider"],basic_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment allocation division rule",h_format)
+        worksheet.write(row,cr,simulation.e_rules[r]["adj_alloc_divider"],basic_format)
         row += 1
-        worksheet.write(row,col,"Adjustment threshold",h_format)
-        worksheet.write(row,col+1,simulation.e_rules[r]["adjustment_threshold"],cell_format)
+        worksheet.merge_range(row,col,row,cr-1,"Adjustment threshold",h_format)
+        worksheet.write(row,cr,simulation.e_rules[r]["adjustment_threshold"],basic_format)
 
-        col=16
         row=toprow
-        worksheet.write(row,col,"Number of simulations",h_format)
-        worksheet.write(row,col+1,simulation.num_total_simulations,basic_format)
+        col+=span+3
+        span=4
+        cr=col+span
+        worksheet.merge_range(row,col,row,cr-1,"Number of simulations",h_format)
+        worksheet.write(row,cr,simulation.num_total_simulations,basic_format)
         row += 1
-        worksheet.write(row,col,"Generating method",h_format)
-        worksheet.write(row,col+1,simulation.variate,basic_format)
+        worksheet.merge_range(row,col,row,cr-1,"Generating method",h_format)
+        worksheet.write(row,cr,simulation.variate,basic_format)
         row += 1
-        worksheet.write(row,col,"Stability parameter",h_format)
-        worksheet.write(row,col+1,simulation.stbl_param,basic_format)
+        worksheet.merge_range(row,col,row,cr-1,"Stability parameter",h_format)
+        worksheet.write(row,cr,simulation.stbl_param,basic_format)
 
         padding=2
         toprow += 4+padding
