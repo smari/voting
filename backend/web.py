@@ -165,6 +165,7 @@ def start_simulation():
 
     success, simulation = set_up_simulation()
     if not success:
+        print(simulation)
         return jsonify({"started": False, "error": simulation})
 
     # Simulation cache expires in 3 hours = 3*3600 = 10800 seconds
