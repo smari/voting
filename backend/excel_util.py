@@ -285,7 +285,7 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.merge_range(row,col,row,cr-1,"Rule for allocating adjustment seats:",basic_h_format)
         worksheet.write(row,cr,DRN[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Threshold for division of adjustment seats:",basic_h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Threshold for dividing adjustment seats:",basic_h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["adjustment_threshold"],basic_format)
 
         row=toprow
