@@ -259,47 +259,47 @@ def simulation_to_xlsx(simulation, filename):
         row=toprow
         col=1
         span=3
-        cr=col+span
-        worksheet.merge_range(row,col,row,cr-1,"Date:",basic_h_format)
-        worksheet.merge_range(row,cr,row,cr+1,datetime.now(),time_format)
+        c2=col+span
+        worksheet.merge_range(row,col,row,c2-1,"Date:",basic_h_format)
+        worksheet.merge_range(row,c2,row,c2+1,datetime.now(),time_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Reference votes:",basic_h_format)
-        worksheet.write(row,cr,simulation.vote_table_name,basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Reference votes:",basic_h_format)
+        worksheet.write(row,c2,simulation.vote_table_name,basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Electoral system:",basic_h_format)
-        worksheet.write(row,cr,simulation.e_rules[r]["name"],basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Electoral system:",basic_h_format)
+        worksheet.write(row,c2,simulation.e_rules[r]["name"],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Adjustment method:",basic_h_format)
-        worksheet.write(row,cr,AMN[simulation.e_rules[r]["adjustment_method"]],basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Adjustment method:",basic_h_format)
+        worksheet.write(row,c2,AMN[simulation.e_rules[r]["adjustment_method"]],basic_format)
 
         row=toprow
         col+=span+5
         span=6
-        cr=col+span
-        worksheet.merge_range(row,col,row,cr-1,"Rule for allocating constituency seats:",basic_h_format)
-        worksheet.write(row,cr,DRN[simulation.e_rules[r]["primary_divider"]],basic_format)
+        c2=col+span
+        worksheet.merge_range(row,col,row,c2-1,"Rule for allocating constituency seats:",basic_h_format)
+        worksheet.write(row,c2,DRN[simulation.e_rules[r]["primary_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Rule for dividing adjustment seats:",basic_h_format)
-        worksheet.write(row,cr,DRN[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Rule for dividing adjustment seats:",basic_h_format)
+        worksheet.write(row,c2,DRN[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Rule for allocating adjustment seats:",basic_h_format)
-        worksheet.write(row,cr,DRN[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Rule for allocating adjustment seats:",basic_h_format)
+        worksheet.write(row,c2,DRN[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Threshold for dividing adjustment seats:",basic_h_format)
-        worksheet.write(row,cr,simulation.e_rules[r]["adjustment_threshold"],basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Threshold for dividing adjustment seats:",basic_h_format)
+        worksheet.write(row,c2,simulation.e_rules[r]["adjustment_threshold"],basic_format)
 
         row=toprow
         col+=span+3
         span=3
-        cr=col+span
-        worksheet.merge_range(row,col,row,cr-1,"Number of simulations:",basic_h_format)
-        worksheet.write(row,cr,simulation.num_total_simulations,basic_format)
+        c2=col+span
+        worksheet.merge_range(row,col,row,c2-1,"Number of simulations:",basic_h_format)
+        worksheet.write(row,c2,simulation.num_total_simulations,basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Generating method:",basic_h_format)
-        worksheet.write(row,cr,GMN[simulation.variate],basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Generating method:",basic_h_format)
+        worksheet.write(row,c2,GMN[simulation.variate],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Stability parameter:",basic_h_format)
-        worksheet.write(row,cr,simulation.stbl_param,basic_format)
+        worksheet.merge_range(row,col,row,c2-1,"Stability parameter:",basic_h_format)
+        worksheet.write(row,c2,simulation.stbl_param,basic_format)
 
         padding=2
         toprow += 4+padding
