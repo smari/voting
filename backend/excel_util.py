@@ -8,6 +8,16 @@ from dictionaries import ADJUSTMENT_METHOD_NAMES as AMN, \
                          DIVIDER_RULE_NAMES as DRN, \
                          GENERATING_METHOD_NAMES as GMN
 
+def write_matrix(worksheet, startrow, startcol, matrix, cformat):
+    for c in range(len(matrix)):
+        for p in range(len(matrix[c])):
+            if matrix[c][p] != 0:
+                try:
+                    worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                    cformat[c])
+                except TypeError:
+                    worksheet.write(startrow+c, startcol+p, matrix[c][p],
+                                    cformat)
 
 
 def election_to_xlsx(election, filename):
@@ -43,17 +53,6 @@ def election_to_xlsx(election, filename):
     time_format.set_num_format('d mmm yyyy hh:mm')
 
     worksheet.set_column('B:B', 20)
-
-    def write_matrix(worksheet, startrow, startcol, matrix, cformat):
-        for c in range(len(matrix)):
-            for p in range(len(matrix[c])):
-                if matrix[c][p] != 0:
-                    try:
-                        worksheet.write(startrow+c, startcol+p, matrix[c][p],
-                                        cformat[c])
-                    except TypeError:
-                        worksheet.write(startrow+c, startcol+p, matrix[c][p],
-                                        cformat)
 
     def draw_block(worksheet, row, col,
         heading, xheaders, yheaders,
@@ -182,13 +181,6 @@ def simulation_to_xlsx(simulation, filename):
     basic_h_format.set_bold()
     basic_h_format.set_font_size(12)
 
-
-    def write_matrix(worksheet, startrow, startcol, matrix, cformat):
-        for c in range(len(matrix)):
-            for p in range(len(matrix[c])):
-                if matrix[c][p] != 0:
-                    worksheet.write(startrow+c, startcol+p, matrix[c][p],
-                                    cformat)
 
     def draw_block(worksheet, row, col,
         heading, xheaders, yheaders,
