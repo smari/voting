@@ -258,15 +258,15 @@ def simulation_to_xlsx(simulation, filename):
         #Basic info
         row=toprow
         col=1
-        span=4
+        span=3
         cr=col+span
         worksheet.merge_range(row,col,row,cr-1,"Date:",basic_h_format)
         worksheet.merge_range(row,cr,row,cr+1,datetime.now(),time_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Vote data being used:",basic_h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Reference votes:",basic_h_format)
         worksheet.write(row,cr,simulation.vote_table_name,basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Electoral system being used:",basic_h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Electoral system:",basic_h_format)
         worksheet.write(row,cr,simulation.e_rules[r]["name"],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Adjustment method:",basic_h_format)

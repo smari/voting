@@ -111,7 +111,7 @@ export default {
       constituency_seats: [10, 10],
       constituency_adjustment_seats: [2, 3],
       parties: ["A", "B"],
-      table_name: "Test",
+      table_name: "My reference votes",
       votes: [[1500, 2000], [2500, 1700]],
       presets: [],
       presetfields: [
