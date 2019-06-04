@@ -276,13 +276,13 @@ def simulation_to_xlsx(simulation, filename):
         col+=span+5
         span=6
         cr=col+span
-        worksheet.merge_range(row,col,row,cr-1,"Division rule for allocation of constituency seats:",basic_h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Rule for allocating constituency seats:",basic_h_format)
         worksheet.write(row,cr,DRN[simulation.e_rules[r]["primary_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Division rule for division of adjustment seats:",basic_h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Rule for dividing adjustment seats:",basic_h_format)
         worksheet.write(row,cr,DRN[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
         row += 1
-        worksheet.merge_range(row,col,row,cr-1,"Division rule for allocation of adjustment seats:",basic_h_format)
+        worksheet.merge_range(row,col,row,cr-1,"Rule for allocating adjustment seats:",basic_h_format)
         worksheet.write(row,cr,DRN[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
         row += 1
         worksheet.merge_range(row,col,row,cr-1,"Threshold for division of adjustment seats:",basic_h_format)
