@@ -272,17 +272,20 @@ def simulation_to_xlsx(simulation, filename):
         col+=span+5
         span=6
         c2=col+span
-        worksheet.merge_range(row,col,row,c2-1,"Rule for allocating constituency seats:",basic_h_format)
-        worksheet.write(row,c2,DRN[simulation.e_rules[r]["primary_divider"]],basic_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Rule for dividing adjustment seats:",basic_h_format)
-        worksheet.write(row,c2,DRN[simulation.e_rules[r]["adj_determine_divider"]],basic_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Rule for allocating adjustment seats:",basic_h_format)
-        worksheet.write(row,c2,DRN[simulation.e_rules[r]["adj_alloc_divider"]],basic_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Threshold for dividing adjustment seats:",basic_h_format)
-        worksheet.write(row,c2,simulation.e_rules[r]["adjustment_threshold"],basic_format)
+        election_settings = [
+            {"label": "Rule for allocating constituency seats:",
+                "data": DRN[simulation.e_rules[r]["primary_divider"]]},
+            {"label": "Rule for dividing adjustment seats:",
+                "data": DRN[simulation.e_rules[r]["adj_determine_divider"]]},
+            {"label": "Rule for allocating adjustment seats:",
+                "data": DRN[simulation.e_rules[r]["adj_alloc_divider"]]},
+            {"label": "Threshold for dividing adjustment seats:",
+                "data": simulation.e_rules[r]["adjustment_threshold"]},
+        ]
+        for info in election_settings:
+            worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
+            worksheet.write(row,c2,info["data"],basic_format)
+            row += 1
 
         row=toprow
         col+=span+3
