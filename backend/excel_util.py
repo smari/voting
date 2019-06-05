@@ -281,7 +281,7 @@ def simulation_to_xlsx(simulation, filename):
                 "right_span": 5,
             },
             {   "info": election_settings,
-                "left_span": 6,
+                "left_span": 5,
                 "right_span": 3,
             },
             {   "info": simulation_settings,
