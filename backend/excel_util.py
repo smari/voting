@@ -221,6 +221,8 @@ def simulation_to_xlsx(simulation, filename):
         parties     = simulation.e_rules[r]["parties"           ] + ["Total"]
 
         basic_info = [
+            {"label": "Date:",
+                "data": datetime.now()},
             {"label": "Reference votes:",
                 "data": simulation.vote_table_name},
             {"label": "Electoral system:",
@@ -275,37 +277,43 @@ def simulation_to_xlsx(simulation, filename):
         }
         toprow = 0
         bottomrow = toprow
+        col=1
         #Basic info
         row=toprow
-        col=1
         span=3
         c2=col+span
-        worksheet.merge_range(row,col,row,c2-1,"Date:",basic_h_format)
-        worksheet.merge_range(row,c2,row,c2+1,datetime.now(),time_format)
-        row += 1
         for info in basic_info:
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
-            worksheet.write(row,c2,info["data"],basic_format)
+            if info["label"] == "Date:":
+                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
+            else:
+                worksheet.write(row,c2,info["data"],basic_format)
             row += 1
         bottomrow = max(row, bottomrow)
+        col+=span+5
 
         row=toprow
-        col+=span+5
         span=6
         c2=col+span
         for info in election_settings:
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
-            worksheet.write(row,c2,info["data"],basic_format)
+            if info["label"] == "Date:":
+                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
+            else:
+                worksheet.write(row,c2,info["data"],basic_format)
             row += 1
         bottomrow = max(row, bottomrow)
+        col+=span+3
 
         row=toprow
-        col+=span+3
         span=3
         c2=col+span
         for info in simulation_settings:
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
-            worksheet.write(row,c2,info["data"],basic_format)
+            if info["label"] == "Date:":
+                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
+            else:
+                worksheet.write(row,c2,info["data"],basic_format)
             row += 1
         bottomrow = max(row, bottomrow)
 
