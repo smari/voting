@@ -252,17 +252,23 @@ def simulation_to_xlsx(simulation, filename):
         col=1
         span=3
         c2=col+span
-        worksheet.merge_range(row,col,row,c2-1,"Date:",basic_h_format)
-        worksheet.merge_range(row,c2,row,c2+1,datetime.now(),time_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Reference votes:",basic_h_format)
-        worksheet.write(row,c2,simulation.vote_table_name,basic_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Electoral system:",basic_h_format)
-        worksheet.write(row,c2,simulation.e_rules[r]["name"],basic_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Adjustment method:",basic_h_format)
-        worksheet.write(row,c2,AMN[simulation.e_rules[r]["adjustment_method"]],basic_format)
+        basic_info = [
+            {"label": "Date:",
+                "data": datetime.now()},
+            {"label": "Reference votes:",
+                "data": simulation.vote_table_name},
+            {"label": "Electoral system:",
+                "data": simulation.e_rules[r]["name"]},
+            {"label": "Adjustment method:",
+                "data": AMN[simulation.e_rules[r]["adjustment_method"]]},
+        ]
+        for info in basic_info:
+            worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
+            if info["label"] == "Date:":
+                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
+            else:
+                worksheet.write(row,c2,info["data"],basic_format)
+            row += 1
 
         row=toprow
         col+=span+5
