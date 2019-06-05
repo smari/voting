@@ -252,9 +252,10 @@ def simulation_to_xlsx(simulation, filename):
         col=1
         span=3
         c2=col+span
+        worksheet.merge_range(row,col,row,c2-1,"Date:",basic_h_format)
+        worksheet.merge_range(row,c2,row,c2+1,datetime.now(),time_format)
+        row += 1
         basic_info = [
-            {"label": "Date:",
-                "data": datetime.now()},
             {"label": "Reference votes:",
                 "data": simulation.vote_table_name},
             {"label": "Electoral system:",
@@ -264,10 +265,7 @@ def simulation_to_xlsx(simulation, filename):
         ]
         for info in basic_info:
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
-            if info["label"] == "Date:":
-                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
-            else:
-                worksheet.write(row,c2,info["data"],basic_format)
+            worksheet.write(row,c2,info["data"],basic_format)
             row += 1
 
         row=toprow
