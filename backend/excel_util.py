@@ -247,6 +247,7 @@ def simulation_to_xlsx(simulation, filename):
             },
         }
         toprow = 0
+        bottomrow = toprow
         #Basic info
         row=toprow
         col=1
@@ -267,6 +268,7 @@ def simulation_to_xlsx(simulation, filename):
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
             worksheet.write(row,c2,info["data"],basic_format)
             row += 1
+        bottomrow = max(row, bottomrow)
 
         row=toprow
         col+=span+5
@@ -286,6 +288,7 @@ def simulation_to_xlsx(simulation, filename):
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
             worksheet.write(row,c2,info["data"],basic_format)
             row += 1
+        bottomrow = max(row, bottomrow)
 
         row=toprow
         col+=span+3
@@ -303,10 +306,9 @@ def simulation_to_xlsx(simulation, filename):
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
             worksheet.write(row,c2,info["data"],basic_format)
             row += 1
+        bottomrow = max(row, bottomrow)
 
-        padding=2
-        toprow += 4+padding
-
+        toprow += bottomrow+2
         #Election tables
         for category in categories:
             worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
