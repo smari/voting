@@ -220,6 +220,33 @@ def simulation_to_xlsx(simulation, filename):
         const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
         parties     = simulation.e_rules[r]["parties"           ] + ["Total"]
 
+        basic_info = [
+            {"label": "Reference votes:",
+                "data": simulation.vote_table_name},
+            {"label": "Electoral system:",
+                "data": simulation.e_rules[r]["name"]},
+            {"label": "Adjustment method:",
+                "data": AMN[simulation.e_rules[r]["adjustment_method"]]},
+        ]
+        election_settings = [
+            {"label": "Rule for allocating constituency seats:",
+                "data": DRN[simulation.e_rules[r]["primary_divider"]]},
+            {"label": "Rule for dividing adjustment seats:",
+                "data": DRN[simulation.e_rules[r]["adj_determine_divider"]]},
+            {"label": "Rule for allocating adjustment seats:",
+                "data": DRN[simulation.e_rules[r]["adj_alloc_divider"]]},
+            {"label": "Threshold for dividing adjustment seats:",
+                "data": simulation.e_rules[r]["adjustment_threshold"]},
+        ]
+        simulation_settings = [
+            {"label": "Number of simulations:",
+                "data": simulation.num_total_simulations},
+            {"label": "Generating method:",
+                "data": GMN[simulation.variate]},
+            {"label": "Stability parameter:",
+                "data": simulation.stbl_param},
+        ]
+
         data_matrix = {
             "base": {
                 "v" : simulation.xtd_votes,
@@ -256,14 +283,6 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.merge_range(row,col,row,c2-1,"Date:",basic_h_format)
         worksheet.merge_range(row,c2,row,c2+1,datetime.now(),time_format)
         row += 1
-        basic_info = [
-            {"label": "Reference votes:",
-                "data": simulation.vote_table_name},
-            {"label": "Electoral system:",
-                "data": simulation.e_rules[r]["name"]},
-            {"label": "Adjustment method:",
-                "data": AMN[simulation.e_rules[r]["adjustment_method"]]},
-        ]
         for info in basic_info:
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
             worksheet.write(row,c2,info["data"],basic_format)
@@ -274,16 +293,6 @@ def simulation_to_xlsx(simulation, filename):
         col+=span+5
         span=6
         c2=col+span
-        election_settings = [
-            {"label": "Rule for allocating constituency seats:",
-                "data": DRN[simulation.e_rules[r]["primary_divider"]]},
-            {"label": "Rule for dividing adjustment seats:",
-                "data": DRN[simulation.e_rules[r]["adj_determine_divider"]]},
-            {"label": "Rule for allocating adjustment seats:",
-                "data": DRN[simulation.e_rules[r]["adj_alloc_divider"]]},
-            {"label": "Threshold for dividing adjustment seats:",
-                "data": simulation.e_rules[r]["adjustment_threshold"]},
-        ]
         for info in election_settings:
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
             worksheet.write(row,c2,info["data"],basic_format)
@@ -294,14 +303,6 @@ def simulation_to_xlsx(simulation, filename):
         col+=span+3
         span=3
         c2=col+span
-        simulation_settings = [
-            {"label": "Number of simulations:",
-                "data": simulation.num_total_simulations},
-            {"label": "Generating method:",
-                "data": GMN[simulation.variate]},
-            {"label": "Stability parameter:",
-                "data": simulation.stbl_param},
-        ]
         for info in simulation_settings:
             worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
             worksheet.write(row,c2,info["data"],basic_format)
