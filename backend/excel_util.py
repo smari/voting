@@ -291,20 +291,20 @@ def simulation_to_xlsx(simulation, filename):
         }
         toprow = 0
         bottomrow = toprow
-        col=1
+        c1=1
         #Basic info
         for group in info_groups:
             row = toprow
-            c2 = col + group["left_span"]
+            c2 = c1 + group["left_span"]
             for info in group["info"]:
-                worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
+                worksheet.merge_range(row,c1,row,c2-1,info["label"],basic_h_format)
                 if info["label"] == "Date:":
                     worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
                 else:
                     worksheet.write(row,c2,info["data"],basic_format)
                 row += 1
             bottomrow = max(row, bottomrow)
-            col = c2 + group["right_span"]
+            c1 = c2 + group["right_span"]
         toprow += bottomrow+2
 
         #Election tables
