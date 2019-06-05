@@ -220,6 +220,33 @@ def simulation_to_xlsx(simulation, filename):
         const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
         parties     = simulation.e_rules[r]["parties"           ] + ["Total"]
 
+        data_matrix = {
+            "base": {
+                "v" : simulation.xtd_votes,
+                "vs": simulation.xtd_vote_shares,
+                "cs": simulation.base_allocations[r]["xtd_const_seats"],
+                "as": simulation.base_allocations[r]["xtd_adj_seats"],
+                "ts": simulation.base_allocations[r]["xtd_total_seats"],
+                "ss": simulation.base_allocations[r]["xtd_seat_shares"],
+            },
+            "avg": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["avg"],
+                "cs": simulation.list_data[ r]["const_seats"]["avg"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["avg"],
+                "ts": simulation.list_data[ r]["total_seats"]["avg"],
+                "ss": simulation.list_data[ r]["seat_shares"]["avg"],
+            },
+            "std": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["std"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["std"],
+                "cs": simulation.list_data[ r]["const_seats"]["std"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["std"],
+                "ts": simulation.list_data[ r]["total_seats"]["std"],
+                "ss": simulation.list_data[ r]["seat_shares"]["std"],
+            },
+        }
+
         basic_info = [
             {"label": "Date:",
                 "data": datetime.now()},
@@ -263,32 +290,6 @@ def simulation_to_xlsx(simulation, filename):
             },
         ]
 
-        data_matrix = {
-            "base": {
-                "v" : simulation.xtd_votes,
-                "vs": simulation.xtd_vote_shares,
-                "cs": simulation.base_allocations[r]["xtd_const_seats"],
-                "as": simulation.base_allocations[r]["xtd_adj_seats"],
-                "ts": simulation.base_allocations[r]["xtd_total_seats"],
-                "ss": simulation.base_allocations[r]["xtd_seat_shares"],
-            },
-            "avg": {
-                "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],
-                "vs": simulation.list_data[-1]["sim_shares" ]["avg"],
-                "cs": simulation.list_data[ r]["const_seats"]["avg"],
-                "as": simulation.list_data[ r]["adj_seats"  ]["avg"],
-                "ts": simulation.list_data[ r]["total_seats"]["avg"],
-                "ss": simulation.list_data[ r]["seat_shares"]["avg"],
-            },
-            "std": {
-                "v" : simulation.list_data[-1]["sim_votes"  ]["std"],
-                "vs": simulation.list_data[-1]["sim_shares" ]["std"],
-                "cs": simulation.list_data[ r]["const_seats"]["std"],
-                "as": simulation.list_data[ r]["adj_seats"  ]["std"],
-                "ts": simulation.list_data[ r]["total_seats"]["std"],
-                "ss": simulation.list_data[ r]["seat_shares"]["std"],
-            },
-        }
         toprow = 0
         bottomrow = toprow
         c1=1
