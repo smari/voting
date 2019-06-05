@@ -291,14 +291,18 @@ def simulation_to_xlsx(simulation, filename):
         col+=span+3
         span=3
         c2=col+span
-        worksheet.merge_range(row,col,row,c2-1,"Number of simulations:",basic_h_format)
-        worksheet.write(row,c2,simulation.num_total_simulations,basic_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Generating method:",basic_h_format)
-        worksheet.write(row,c2,GMN[simulation.variate],basic_format)
-        row += 1
-        worksheet.merge_range(row,col,row,c2-1,"Stability parameter:",basic_h_format)
-        worksheet.write(row,c2,simulation.stbl_param,basic_format)
+        simulation_settings = [
+            {"label": "Number of simulations:",
+                "data": simulation.num_total_simulations},
+            {"label": "Generating method:",
+                "data": GMN[simulation.variate]},
+            {"label": "Stability parameter:",
+                "data": simulation.stbl_param},
+        ]
+        for info in simulation_settings:
+            worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
+            worksheet.write(row,c2,info["data"],basic_format)
+            row += 1
 
         padding=2
         toprow += 4+padding
