@@ -248,6 +248,20 @@ def simulation_to_xlsx(simulation, filename):
             {"label": "Stability parameter:",
                 "data": simulation.stbl_param},
         ]
+        info_groups = [
+            {   "info": basic_info,
+                "left_span": 3,
+                "right_span": 5,
+            },
+            {   "info": election_settings,
+                "left_span": 6,
+                "right_span": 3,
+            },
+            {   "info": simulation_settings,
+                "left_span": 3,
+                "right_span": 3,
+            },
+        ]
 
         data_matrix = {
             "base": {
@@ -279,45 +293,20 @@ def simulation_to_xlsx(simulation, filename):
         bottomrow = toprow
         col=1
         #Basic info
-        row=toprow
-        span=3
-        c2=col+span
-        for info in basic_info:
-            worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
-            if info["label"] == "Date:":
-                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
-            else:
-                worksheet.write(row,c2,info["data"],basic_format)
-            row += 1
-        bottomrow = max(row, bottomrow)
-        col+=span+5
-
-        row=toprow
-        span=6
-        c2=col+span
-        for info in election_settings:
-            worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
-            if info["label"] == "Date:":
-                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
-            else:
-                worksheet.write(row,c2,info["data"],basic_format)
-            row += 1
-        bottomrow = max(row, bottomrow)
-        col+=span+3
-
-        row=toprow
-        span=3
-        c2=col+span
-        for info in simulation_settings:
-            worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
-            if info["label"] == "Date:":
-                worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
-            else:
-                worksheet.write(row,c2,info["data"],basic_format)
-            row += 1
-        bottomrow = max(row, bottomrow)
-
+        for group in info_groups:
+            row = toprow
+            c2 = col + group["left_span"]
+            for info in group["info"]:
+                worksheet.merge_range(row,col,row,c2-1,info["label"],basic_h_format)
+                if info["label"] == "Date:":
+                    worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
+                else:
+                    worksheet.write(row,c2,info["data"],basic_format)
+                row += 1
+            bottomrow = max(row, bottomrow)
+            col = c2 + group["right_span"]
         toprow += bottomrow+2
+
         #Election tables
         for category in categories:
             worksheet.merge_range(toprow, 0, toprow+1+len(const_names), 0,
