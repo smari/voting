@@ -247,9 +247,10 @@ def simulation_to_xlsx(simulation, filename):
             },
         }
 
+        date_label = "Date:"
         info_groups = [
             {"left_span": 3, "right_span": 5, "info": [
-                {"label": "Date:",
+                {"label": date_label,
                     "data": datetime.now()},
                 {"label": "Reference votes:",
                     "data": simulation.vote_table_name},
@@ -287,7 +288,7 @@ def simulation_to_xlsx(simulation, filename):
             c2 = c1 + group["left_span"]
             for info in group["info"]:
                 worksheet.merge_range(row,c1,row,c2-1,info["label"],basic_h_format)
-                if info["label"] == "Date:":
+                if info["label"] == date_label:
                     worksheet.merge_range(row,c2,row,c2+1,info["data"],time_format)
                 else:
                     worksheet.write(row,c2,info["data"],basic_format)
