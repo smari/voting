@@ -247,47 +247,35 @@ def simulation_to_xlsx(simulation, filename):
             },
         }
 
-        basic_info = [
-            {"label": "Date:",
-                "data": datetime.now()},
-            {"label": "Reference votes:",
-                "data": simulation.vote_table_name},
-            {"label": "Electoral system:",
-                "data": simulation.e_rules[r]["name"]},
-            {"label": "Adjustment method:",
-                "data": AMN[simulation.e_rules[r]["adjustment_method"]]},
-        ]
-        election_settings = [
-            {"label": "Rule for allocating constituency seats:",
-                "data": DRN[simulation.e_rules[r]["primary_divider"]]},
-            {"label": "Rule for dividing adjustment seats:",
-                "data": DRN[simulation.e_rules[r]["adj_determine_divider"]]},
-            {"label": "Rule for allocating adjustment seats:",
-                "data": DRN[simulation.e_rules[r]["adj_alloc_divider"]]},
-            {"label": "Threshold for dividing adjustment seats:",
-                "data": simulation.e_rules[r]["adjustment_threshold"]},
-        ]
-        simulation_settings = [
-            {"label": "Number of simulations:",
-                "data": simulation.num_total_simulations},
-            {"label": "Generating method:",
-                "data": GMN[simulation.variate]},
-            {"label": "Stability parameter:",
-                "data": simulation.stbl_param},
-        ]
         info_groups = [
-            {   "info": basic_info,
-                "left_span": 3,
-                "right_span": 5,
-            },
-            {   "info": election_settings,
-                "left_span": 5,
-                "right_span": 3,
-            },
-            {   "info": simulation_settings,
-                "left_span": 3,
-                "right_span": 3,
-            },
+            {"left_span": 3, "right_span": 5, "info": [
+                {"label": "Date:",
+                    "data": datetime.now()},
+                {"label": "Reference votes:",
+                    "data": simulation.vote_table_name},
+                {"label": "Electoral system:",
+                    "data": simulation.e_rules[r]["name"]},
+                {"label": "Adjustment method:",
+                    "data": AMN[simulation.e_rules[r]["adjustment_method"]]},
+            ]},
+            {"left_span": 5, "right_span": 3, "info": [
+                {"label": "Rule for allocating constituency seats:",
+                    "data": DRN[simulation.e_rules[r]["primary_divider"]]},
+                {"label": "Rule for dividing adjustment seats:",
+                    "data": DRN[simulation.e_rules[r]["adj_determine_divider"]]},
+                {"label": "Rule for allocating adjustment seats:",
+                    "data": DRN[simulation.e_rules[r]["adj_alloc_divider"]]},
+                {"label": "Threshold for dividing adjustment seats:",
+                    "data": simulation.e_rules[r]["adjustment_threshold"]},
+            ]},
+            {"left_span": 3, "right_span": 3, "info": [
+                {"label": "Number of simulations:",
+                    "data": simulation.num_total_simulations},
+                {"label": "Generating method:",
+                    "data": GMN[simulation.variate]},
+                {"label": "Stability parameter:",
+                    "data": simulation.stbl_param},
+            ]},
         ]
 
         toprow = 0
