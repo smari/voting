@@ -52,6 +52,14 @@ def election_to_xlsx(election, filename):
     time_format = workbook.add_format()
     time_format.set_num_format('d mmm yyyy hh:mm')
 
+    basic_format = workbook.add_format()
+    basic_format.set_align('left')
+
+    basic_h_format = workbook.add_format()
+    basic_h_format.set_align('right')
+    basic_h_format.set_bold()
+    basic_h_format.set_font_size(12)
+
     worksheet.set_column('B:B', 20)
 
     def draw_block(worksheet, row, col,
@@ -75,10 +83,14 @@ def election_to_xlsx(election, filename):
     startcol = 1
 
     toprow=0
-    worksheet.merge_range(toprow,0,toprow,1,"Test name:",h_format)
-    worksheet.merge_range(toprow,2,toprow,3,"My electoral system",cell_format)
-    worksheet.merge_range(toprow+1,0,toprow+1,1,"Date:",h_format)
-    worksheet.merge_range(toprow+1,2,toprow+1,3,datetime.now(),time_format)
+    c1=1
+    left_span=2
+    c2=c1+left_span
+    worksheet.merge_range(toprow,c1,toprow,c2-1,"Date:",basic_h_format)
+    worksheet.merge_range(toprow,c2,toprow,c2+1,datetime.now(),time_format)
+    toprow+=1
+    worksheet.merge_range(toprow,c1,toprow,c2-1,"Test name:",basic_h_format)
+    worksheet.write(toprow,c2,"My electoral system",basic_format)
 
     startrow = 4
     tables_before = [
