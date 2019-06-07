@@ -68,8 +68,7 @@ class TestDivisors(unittest.TestCase):
         self.assertEqual(next(gen), math.sqrt(3*4)*base)
         self.assertEqual(next(gen), math.sqrt(4*5)*base)
         for i in range(1000):
-            next(gen)
-        self.assertGreater(1/first, 1/next(gen))
+            self.assertGreater(1/first, 1/next(gen))
 
 class TestApportionment1d(unittest.TestCase):
 
