@@ -76,6 +76,7 @@ def load_votes_from_stream(stream, filename):
 
     return parse_input(
         input=rd,
+        name_included=False,
         parties_included=True,
         const_included=True,
         const_seats_included=const_seats_incl,
@@ -85,11 +86,11 @@ def load_votes_from_stream(stream, filename):
 
 def parse_input(
     input,
+    name_included,
     parties_included,
     const_included,
     const_seats_included,
     adj_seats_included,
-    name_included=False,
     filename=''
 ):
     name_included = strtobool(str(name_included))
