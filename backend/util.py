@@ -113,6 +113,28 @@ def parse_input(
             res["parties"] = res["parties"][:-1]
         res["votes"] = [row[:len(res["parties"])] for row in res["votes"]]
     res["votes"] = [[parsint(v) for v in row] for row in res["votes"]]
+
+    #Make sure data is not malformed
+    num_constituencies = len(res["votes"])
+    num_parties = len(res["votes"][0])
+    assert(all([len(row) == num_parties for row in res["votes"]]))
+    if parties_included:
+        assert(len(res["parties"]) == num_parties)
+    else:
+        res["parties"] = ['']*num_parties
+    if const_included:
+        assert(len(res["constituencies"]) == num_constituencies)
+    else:
+        res["constituencies"] = ['']*num_constituencies
+    if const_seats_included:
+        assert(len(res["constituency_seats"]) == num_constituencies)
+    else:
+        res["constituency_seats"] = [0]*num_constituencies
+    if adj_seats_included:
+        assert(len(res["constituency_adjustment_seats"]) == num_constituencies)
+    else:
+        res["constituency_adjustment_seats"] = [0]*num_constituencies
+
     return res
 
 def parsint(value):
