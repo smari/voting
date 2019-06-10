@@ -88,17 +88,23 @@ def parse_input(
     const_included,
     const_seats_included,
     adj_seats_included,
+    name_included=False,
     filename=''
 ):
     res = {}
-    if parties_included:
-        res["parties"] = input[0]
+    table_name = ''
+    if name_included or parties_included:
+        if name_included:
+            table_name = input[0][0]
+        if parties_included:
+            res["parties"] = input[0]
         del(input[0])
 
-    res["table_name"] = determine_table_name(filename)
+    res["table_name"] = determine_table_name(table_name,filename)
 
-    if const_included:
-        res["constituencies"] = [row[0] for row in input]
+    if name_included or const_included:
+        if const_included:
+            res["constituencies"] = [row[0] for row in input]
         for row in input: del(row[0])
         if parties_included: res["parties"] = res["parties"][1:]
 
@@ -145,8 +151,8 @@ def parse_input(
 def parsint(value):
     return int(value) if value else 0
 
-def determine_table_name(filename):
-    return os.path.splitext(filename)[0]
+def determine_table_name(first,filename):
+    return first if first else os.path.splitext(filename)[0]
 
 def load_votes(votefile, consts):
     """Load votes from a file."""
