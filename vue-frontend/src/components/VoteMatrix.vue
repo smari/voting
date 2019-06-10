@@ -15,6 +15,12 @@
                      rows="7">
       </b-form-textarea>
       <b-form-checkbox
+                     v-model="paste.has_name"
+                     value="true"
+                     unchecked-value="false">
+      First row begins with name by which to refer to this vote table.
+      </b-form-checkbox>
+      <b-form-checkbox
                      v-model="paste.has_parties"
                      value="true"
                      unchecked-value="false">
@@ -122,6 +128,7 @@ export default {
       ],
       uploadfile: null,
       paste: { csv: '',
+               has_name: false,
                has_parties: false,
                has_constituencies: false,
                has_constituency_seats: false,

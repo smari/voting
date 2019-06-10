@@ -121,6 +121,7 @@ def paste_votes():
 
     return jsonify(util.parse_input(
         input=rd,
+        name_included=data["has_name"],
         parties_included=data["has_parties"],
         const_included=data["has_constituencies"],
         const_seats_included=data["has_constituency_seats"],
