@@ -242,6 +242,7 @@ export default {
       });
     },
     handleReceivedVotes(data) {
+      this.table_name = data.table_name;
       this.constituencies = data.constituencies;
       this.parties = data.parties;
       this.votes = data.votes;
@@ -258,6 +259,7 @@ export default {
         return;
       }
       this.$http.post('/api/votes/paste/', this.paste).then(response => {
+        this.table_name = response.data.table_name;
         this.votes = response.data.votes;
         if (response.data.constituencies) {
           this.constituencies = response.data.constituencies;

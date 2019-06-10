@@ -4,6 +4,7 @@ from backports import csv
 import sys #??????
 from tabulate import tabulate
 import io
+import os
 import openpyxl
 import configparser
 import codecs
@@ -77,7 +78,8 @@ def load_votes_from_stream(stream, filename):
         parties_included=True,
         const_included=True,
         const_seats_included=const_seats_incl,
-        adj_seats_included=adj_seats_incl
+        adj_seats_included=adj_seats_incl,
+        filename=filename
     )
 
 def parse_input(
@@ -85,12 +87,15 @@ def parse_input(
     parties_included,
     const_included,
     const_seats_included,
-    adj_seats_included
+    adj_seats_included,
+    filename=''
 ):
     res = {}
     if parties_included:
         res["parties"] = input[0]
         del(input[0])
+
+    res["table_name"] = determine_table_name(filename)
 
     if const_included:
         res["constituencies"] = [row[0] for row in input]
@@ -140,6 +145,8 @@ def parse_input(
 def parsint(value):
     return int(value) if value else 0
 
+def determine_table_name(filename):
+    return os.path.splitext(filename)[0]
 
 def load_votes(votefile, consts):
     """Load votes from a file."""
