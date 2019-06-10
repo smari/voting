@@ -8,6 +8,7 @@ import os
 import openpyxl
 import configparser
 import codecs
+from distutils.util import strtobool
 
 from methods import var_alt_scal, alternating_scaling, icelandic_law
 from methods import monge, nearest_neighbor, relative_superiority
@@ -91,6 +92,12 @@ def parse_input(
     name_included=False,
     filename=''
 ):
+    name_included = strtobool(str(name_included))
+    parties_included = strtobool(str(parties_included))
+    const_included = strtobool(str(const_included))
+    const_seats_included = strtobool(str(const_seats_included))
+    adj_seats_included = strtobool(str(adj_seats_included))
+
     res = {}
     table_name = ''
     if name_included or parties_included:
