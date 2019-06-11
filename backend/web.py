@@ -1,5 +1,6 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 import threading
 import random
 import os.path
@@ -16,6 +17,7 @@ import csv
 import dictionaries
 from electionRules import ElectionRules
 import util
+from excel_util import save_votes_to_xlsx
 import voting
 import simulate as sim
 
@@ -97,6 +99,55 @@ def get_election_excel():
         filename=os.path.basename(tmpfilename),
         attachment_filename=
             f"election {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx",
+        as_attachment=True
+    )
+
+@app.route('/api/votes/save/', methods=['POST'])
+def save_votes():
+    data = request.get_json(force=True)
+    if "vote_table" not in data or not data["vote_table"]:
+        return False, f"Missing data (vote_table)"
+    vote_table = data["vote_table"]
+    for info in [
+        "name",
+        "votes",
+        "parties",
+        "constituency_names",
+        "constituency_seats",
+        "constituency_adjustment_seats"
+    ]:
+        if info not in vote_table or not vote_table[info]:
+            return False, f"Missing data ('{info}')"
+
+    num_constituencies = len(vote_table["votes"])
+    num_parties = len(vote_table["parties"])
+    assert(num_constituencies == len(vote_table["constituency_names"]))
+    assert(num_constituencies == len(vote_table["constituency_seats"]))
+    assert(num_constituencies == len(vote_table["constituency_adjustment_seats"]))
+    assert(all([num_parties == len(row) for row in vote_table["votes"]]))
+    file_matrix = [
+        [vote_table["name"], "cons", "adj"] + vote_table["parties"],
+    ] + [
+        [
+            vote_table["constituency_names"][c],
+            vote_table["constituency_seats"][c],
+            vote_table["constituency_adjustment_seats"][c],
+        ] + vote_table["votes"][c]
+        for c in range(num_constituencies)
+    ]
+    print(file_matrix)
+
+    tmpfilename = tempfile.mktemp(prefix='vote_table-')
+    print(tmpfilename)
+    filename = secure_filename(vote_table['name'])
+    print(filename)
+    save_votes_to_xlsx(file_matrix, tmpfilename)
+    attachment_filename = f"{filename}.xlsx"
+    print(attachment_filename)
+    return send_from_directory(
+        directory=os.path.dirname(tmpfilename),
+        filename=os.path.basename(tmpfilename),
+        attachment_filename=f"{filename}.xlsx",
         as_attachment=True
     )
 

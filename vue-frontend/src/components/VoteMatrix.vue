@@ -71,7 +71,7 @@
         </b-dropdown-->
       </b-button-group>
       <b-button-group class="mx-1">
-        <b-button disabled>Save voteset</b-button>
+        <b-button @click="saveVotes()">Save voteset</b-button>
       </b-button-group>
     </b-button-toolbar>
     <table class="votematrix">
@@ -224,6 +224,26 @@ export default {
       this.constituency_adjustment_seats = [];
       this.parties = [];
       this.votes = [];
+    },
+    saveVotes: function() {
+      this.$http.post('/api/votes/save/', {
+        vote_table: {
+          name: this.table_name,
+          constituency_names: this.constituencies,
+          constituency_seats: this.constituency_seats,
+          constituency_adjustment_seats: this.constituency_adjustment_seats,
+          parties: this.parties,
+          votes: this.votes
+        }
+      }, {responseType: 'blob'}).then(response => {
+        let blob = new Blob([response.body], {type: 'file'})
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = 'vote_table.xlsx'
+        link.click()
+      }, response => {
+        this.server.error = true;
+      })
     },
     loadPreset: function(eid) {
       this.$http.post('/api/presets/load/', {'eid': eid}).then(response => {

@@ -344,3 +344,11 @@ def simulation_to_xlsx(simulation, filename):
         )
 
     workbook.close()
+
+def save_votes_to_xlsx(matrix, filename):
+    workbook = xlsxwriter.Workbook(filename)
+    worksheet = workbook.add_worksheet()
+    fmt = prepare_formats(workbook)
+    write_matrix(worksheet=worksheet, startrow=0, startcol=0,
+        matrix=matrix, cformat=fmt["cell"])
+    workbook.close()
