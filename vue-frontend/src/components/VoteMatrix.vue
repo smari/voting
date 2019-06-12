@@ -236,10 +236,11 @@ export default {
           votes: this.votes
         }
       }, {responseType: 'blob'}).then(response => {
+        let dis = response.headers.get("content-disposition")
         let blob = new Blob([response.body], {type: 'file'})
         let link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
-        link.download = 'vote_table.xlsx'
+        link.download = dis.substring(dis.indexOf("filename=")+9)
         link.click()
       }, response => {
         this.server.error = true;
