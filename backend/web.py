@@ -104,6 +104,15 @@ def get_election_excel():
 
 @app.route('/api/votes/save/', methods=['POST'])
 def save_votes():
+    tmpfilename, attachment_filename = prepare_to_save_vote_table()
+    return send_from_directory(
+        directory=os.path.dirname(tmpfilename),
+        filename=os.path.basename(tmpfilename),
+        attachment_filename=attachment_filename,
+        as_attachment=True
+    )
+
+def prepare_to_save_vote_table():
     data = request.get_json(force=True)
     if "vote_table" not in data or not data["vote_table"]:
         return False, f"Missing data (vote_table)"
@@ -138,18 +147,11 @@ def save_votes():
     print(file_matrix)
 
     tmpfilename = tempfile.mktemp(prefix='vote_table-')
-    print(tmpfilename)
-    filename = secure_filename(vote_table['name'])
-    print(filename)
     save_votes_to_xlsx(file_matrix, tmpfilename)
-    attachment_filename = f"{filename}.xlsx"
-    print(attachment_filename)
-    return send_from_directory(
-        directory=os.path.dirname(tmpfilename),
-        filename=os.path.basename(tmpfilename),
-        attachment_filename=f"{filename}.xlsx",
-        as_attachment=True
-    )
+    filename = secure_filename(vote_table['name'])
+    attachment_filename=f"{filename}.xlsx"
+
+    return tmpfilename, attachment_filename
 
 @app.route('/api/votes/upload/', methods=['POST'])
 def upload_votes():
