@@ -46,6 +46,33 @@ def serve_index():
 def send_static(path):
     return send_from_directory('static/', path)
 
+DOWNLOADS = {}
+DOWNLOADS_IDX = 0
+def get_new_download_id():
+    global DOWNLOADS_IDX
+    did = DOWNLOADS_IDX = DOWNLOADS_IDX + 1
+
+    h = sha256()
+    didbytes = (str(did) + ":" + str(random.randint(1, 100000000))).encode('utf-8')
+    h.update(didbytes)
+    return h.hexdigest()
+
+@app.route('/api/downloads/get/', methods=['GET'])
+def get_download():
+    global DOWNLOADS
+    if "id" not in request.args:
+        return jsonify({'error': 'Please supply a download id.'})
+    if request.args["id"] not in DOWNLOADS:
+        return jsonify({"error": "Please supply a valid download id."})
+    tmpfilename, attachment_filename = DOWNLOADS[request.args["id"]]
+
+    return send_from_directory(
+        directory=os.path.dirname(tmpfilename),
+        filename=os.path.basename(tmpfilename),
+        attachment_filename=attachment_filename,
+        as_attachment=True
+    )
+
 def handle_election():
     data = request.get_json(force=True)
     rules = ElectionRules()
@@ -87,30 +114,25 @@ def get_election_results():
 
 @app.route('/api/election/getxlsx/', methods=['POST'])
 def get_election_excel():
+    global DOWNLOADS
+    did = get_new_download_id()
+
     election = handle_election()
     if type(election)==dict and "error" in election:
         return jsonify(election)
 
     tmpfilename = tempfile.mktemp(prefix='election-')
     election.to_xlsx(tmpfilename)
-    print("%s" % (tmpfilename))
-    return send_from_directory(
-        directory=os.path.dirname(tmpfilename),
-        filename=os.path.basename(tmpfilename),
-        attachment_filename=
-            f"election {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx",
-        as_attachment=True
-    )
+    attachment_filename=f"election {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx"
+    DOWNLOADS[did] = tmpfilename, attachment_filename
+    return jsonify({"download_id": did})
 
 @app.route('/api/votes/save/', methods=['POST'])
 def save_votes():
-    tmpfilename, attachment_filename = prepare_to_save_vote_table()
-    return send_from_directory(
-        directory=os.path.dirname(tmpfilename),
-        filename=os.path.basename(tmpfilename),
-        attachment_filename=attachment_filename,
-        as_attachment=True
-    )
+    global DOWNLOADS
+    did = get_new_download_id()
+    DOWNLOADS[did] = prepare_to_save_vote_table()
+    return jsonify({"download_id": did})
 
 def prepare_to_save_vote_table():
     data = request.get_json(force=True)

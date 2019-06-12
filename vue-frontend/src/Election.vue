@@ -145,12 +145,9 @@ export default {
         constituency_names: this.constituency_names,
         constituency_seats: this.constituency_seats,
         constituency_adjustment_seats: this.constituency_adjustment_seats
-      }, {responseType: 'blob'}).then(response => {
-        let dis = response.headers.get("content-disposition")
-        let blob = new Blob([response.body], {type: 'file'})
+      }).then(response => {
         let link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        link.download = dis.substring(dis.indexOf("filename=")+10, dis.length-1)
+        link.href = '/api/downloads/get?id=' + response.data.download_id
         link.click()
       }, response => {
         this.server.error = true;

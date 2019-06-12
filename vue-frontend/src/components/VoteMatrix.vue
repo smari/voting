@@ -235,12 +235,9 @@ export default {
           parties: this.parties,
           votes: this.votes
         }
-      }, {responseType: 'blob'}).then(response => {
-        let dis = response.headers.get("content-disposition")
-        let blob = new Blob([response.body], {type: 'file'})
+      }).then(response => {
         let link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        link.download = dis.substring(dis.indexOf("filename=")+9)
+        link.href = '/api/downloads/get?id=' + response.data.download_id
         link.click()
       }, response => {
         this.server.error = true;
