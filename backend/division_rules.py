@@ -40,7 +40,7 @@ def danish_gen():
 def huntington_hill_gen():
     """Generate Huntington-Hill divider sequence; modified for hh(0) -> \inf"""
     n = 0
-    yield 10000000000
+    yield 0.00000000001
     while True:
         n += 1
         yield math.sqrt(n*(n+1))

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, send_from_directory, request, jsonify
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 import threading
 import random
 import os.path
@@ -16,6 +17,7 @@ import csv
 import dictionaries
 from electionRules import ElectionRules
 import util
+from excel_util import save_votes_to_xlsx
 import voting
 import simulate as sim
 
@@ -43,6 +45,33 @@ def serve_index():
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static/', path)
+
+DOWNLOADS = {}
+DOWNLOADS_IDX = 0
+def get_new_download_id():
+    global DOWNLOADS_IDX
+    did = DOWNLOADS_IDX = DOWNLOADS_IDX + 1
+
+    h = sha256()
+    didbytes = (str(did) + ":" + str(random.randint(1, 100000000))).encode('utf-8')
+    h.update(didbytes)
+    return h.hexdigest()
+
+@app.route('/api/downloads/get/', methods=['GET'])
+def get_download():
+    global DOWNLOADS
+    if "id" not in request.args:
+        return jsonify({'error': 'Please supply a download id.'})
+    if request.args["id"] not in DOWNLOADS:
+        return jsonify({"error": "Please supply a valid download id."})
+    tmpfilename, attachment_filename = DOWNLOADS[request.args["id"]]
+
+    return send_from_directory(
+        directory=os.path.dirname(tmpfilename),
+        filename=os.path.basename(tmpfilename),
+        attachment_filename=attachment_filename,
+        as_attachment=True
+    )
 
 def handle_election():
     data = request.get_json(force=True)
@@ -85,19 +114,65 @@ def get_election_results():
 
 @app.route('/api/election/getxlsx/', methods=['POST'])
 def get_election_excel():
+    global DOWNLOADS
+    did = get_new_download_id()
+
     election = handle_election()
     if type(election)==dict and "error" in election:
         return jsonify(election)
 
     tmpfilename = tempfile.mktemp(prefix='election-')
     election.to_xlsx(tmpfilename)
-    print("%s" % (tmpfilename))
-    return send_from_directory(
-        directory=os.path.dirname(tmpfilename),
-        filename=os.path.basename(tmpfilename),
-        attachment_filename="election.xlsx",
-        as_attachment=True
-    )
+    attachment_filename=f"election {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx"
+    DOWNLOADS[did] = tmpfilename, attachment_filename
+    return jsonify({"download_id": did})
+
+@app.route('/api/votes/save/', methods=['POST'])
+def save_votes():
+    global DOWNLOADS
+    did = get_new_download_id()
+    DOWNLOADS[did] = prepare_to_save_vote_table()
+    return jsonify({"download_id": did})
+
+def prepare_to_save_vote_table():
+    data = request.get_json(force=True)
+    if "vote_table" not in data or not data["vote_table"]:
+        return False, f"Missing data (vote_table)"
+    vote_table = data["vote_table"]
+    for info in [
+        "name",
+        "votes",
+        "parties",
+        "constituency_names",
+        "constituency_seats",
+        "constituency_adjustment_seats"
+    ]:
+        if info not in vote_table or not vote_table[info]:
+            return False, f"Missing data ('{info}')"
+
+    num_constituencies = len(vote_table["votes"])
+    num_parties = len(vote_table["parties"])
+    assert(num_constituencies == len(vote_table["constituency_names"]))
+    assert(num_constituencies == len(vote_table["constituency_seats"]))
+    assert(num_constituencies == len(vote_table["constituency_adjustment_seats"]))
+    assert(all([num_parties == len(row) for row in vote_table["votes"]]))
+    file_matrix = [
+        [vote_table["name"], "cons", "adj"] + vote_table["parties"],
+    ] + [
+        [
+            vote_table["constituency_names"][c],
+            vote_table["constituency_seats"][c],
+            vote_table["constituency_adjustment_seats"][c],
+        ] + vote_table["votes"][c]
+        for c in range(num_constituencies)
+    ]
+
+    tmpfilename = tempfile.mktemp(prefix='vote_table-')
+    save_votes_to_xlsx(file_matrix, tmpfilename)
+    filename = secure_filename(vote_table['name'])
+    attachment_filename=f"{filename}.xlsx"
+
+    return tmpfilename, attachment_filename
 
 @app.route('/api/votes/upload/', methods=['POST'])
 def upload_votes():
@@ -120,6 +195,7 @@ def paste_votes():
 
     return jsonify(util.parse_input(
         input=rd,
+        name_included=data["has_name"],
         parties_included=data["has_parties"],
         const_included=data["has_constituencies"],
         const_seats_included=data["has_constituency_seats"],
@@ -164,6 +240,7 @@ def start_simulation():
 
     success, simulation = set_up_simulation()
     if not success:
+        print(simulation)
         return jsonify({"started": False, "error": simulation})
 
     # Simulation cache expires in 3 hours = 3*3600 = 10800 seconds
@@ -233,7 +310,8 @@ def get_xlsx():
     return send_from_directory(
         directory=os.path.dirname(tmpfilename),
         filename=os.path.basename(tmpfilename),
-        attachment_filename="simulation.xlsx",
+        attachment_filename=
+            f"simulation {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx",
         as_attachment=True
     )
 
@@ -241,6 +319,23 @@ def get_xlsx():
 def set_up_simulation():
     data = request.get_json(force=True)
     rulesets = []
+
+    for section in ["vote_table", "election_rules", "simulation_rules"]:
+        if section not in data or not data[section]:
+            return False, f"Missing data ('{section}')"
+
+    vote_table = data["vote_table"]
+
+    for info in [
+        "name",
+        "votes",
+        "parties",
+        "constituency_names",
+        "constituency_seats",
+        "constituency_adjustment_seats"
+    ]:
+        if info not in vote_table or not vote_table[info]:
+            return False, f"Missing data ('{info}')"
 
     for rs in data["election_rules"]:
         election_rules = ElectionRules()
@@ -251,20 +346,31 @@ def set_up_simulation():
             print("Setting election_rules[%s] = %s" % (k, v))
             election_rules[k] = v
 
-        for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
-            if x in data and data[x]:
-                election_rules[x] = data[x]
+        for info in ["parties", "constituency_names"]:
+            election_rules[info] = vote_table[info]
+
+        for info in ["constituency_seats", "constituency_adjustment_seats"]:
+            if info in rs and rs[info]:
+                election_rules[info] = rs[info]
             else:
-                return False, "Missing data ('%s')" % x
+                election_rules[info] = vote_table[info]
+
+            for c in range(len(election_rules[info])):
+                if not election_rules[info][c]:
+                    election_rules[info][c]=0
+                if type(election_rules[info][c]) != int:
+                    return False, "Seat specifications must be numbers."
 
         rulesets.append(election_rules)
 
-    if not "ref_votes" in data:
-        return False, "Votes missing."
+    table_name = vote_table["name"]
+    votes = vote_table["votes"]
 
-    for const in data["ref_votes"]:
-        for party in const:
-            if type(party) != int:
+    for c in range(len(votes)):
+        for p in range(len(votes[c])):
+            if not votes[c][p]:
+                votes[c][p] = 0
+            if type(votes[c][p]) != int:
                 return False, "Votes must be numbers."
 
     stability_parameter = 100
@@ -274,13 +380,13 @@ def set_up_simulation():
             return False, "Stability parameter must be greater than 1."
 
     simulation_rules = sim.SimulationRules()
-
     for k, v in data["simulation_rules"].items():
         simulation_rules[k] = v
 
     try:
         simulation = sim.Simulation(
-            simulation_rules, rulesets, data["ref_votes"], stability_parameter)
+            simulation_rules, rulesets, votes, table_name,
+            stability_parameter)
     except ZeroDivisionError:
         return False, "Need to have more votes."
 
@@ -334,7 +440,7 @@ def get_presets_dict():
     from os.path import isfile, join
 
     try:
-        with open('../data/presets.json') as js:
+        with open('../data/presets.json', encoding='utf-8') as js:
             data = json.load(js)
     except IOError:
         data = {'error': 'Could not load presets: database lost.'}

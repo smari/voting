@@ -27,7 +27,7 @@ class MeasureTest(TestCase):
         election = voting.Election(self.e_rules, self.votes)
         comparison_rules = self.e_rules.generate_all_adj_ruleset()
         comparison_election = voting.Election(comparison_rules, self.votes)
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes)
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, '')
 
         #Act
         base_results = election.run()
@@ -65,7 +65,7 @@ class MeasureTest(TestCase):
         comparison_rules = self.e_rules.generate_one_const_ruleset()
         v_votes = [sum(x) for x in zip(*self.votes)]
         comparison_election = voting.Election(comparison_rules, [v_votes])
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes)
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, '')
 
         #Act
         base_results = election.run()

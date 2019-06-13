@@ -4,9 +4,11 @@ from backports import csv
 import sys #??????
 from tabulate import tabulate
 import io
+import os
 import openpyxl
 import configparser
 import codecs
+from distutils.util import strtobool
 
 from methods import var_alt_scal, alternating_scaling, icelandic_law
 from methods import monge, nearest_neighbor, relative_superiority
@@ -56,6 +58,8 @@ def load_constituencies(confile):
 def load_votes_from_stream(stream, filename):
     rd = []
     if filename.endswith(".csv"):
+        if isinstance(stream, io.TextIOWrapper) and stream.encoding != 'utf-8':
+            stream.reconfigure(encoding='utf-8')
         if isinstance(stream, io.BytesIO):
             stream = codecs.iterdecode(stream, 'utf-8')
         for row in csv.reader(stream, skipinitialspace=True):
@@ -68,32 +72,50 @@ def load_votes_from_stream(stream, filename):
     else:
         return None, None, None
 
+    name_incl = rd[0][0].lower() != u"kjördæmi"
     const_seats_incl = rd[0][1].lower() == "cons"
     expected = 2 if const_seats_incl else 1
     adj_seats_incl = rd[0][expected].lower() == "adj"
 
     return parse_input(
         input=rd,
+        name_included=name_incl,
         parties_included=True,
         const_included=True,
         const_seats_included=const_seats_incl,
-        adj_seats_included=adj_seats_incl
+        adj_seats_included=adj_seats_incl,
+        filename=filename
     )
 
 def parse_input(
     input,
+    name_included,
     parties_included,
     const_included,
     const_seats_included,
-    adj_seats_included
+    adj_seats_included,
+    filename=''
 ):
+    name_included = strtobool(str(name_included))
+    parties_included = strtobool(str(parties_included))
+    const_included = strtobool(str(const_included))
+    const_seats_included = strtobool(str(const_seats_included))
+    adj_seats_included = strtobool(str(adj_seats_included))
+
     res = {}
-    if parties_included:
-        res["parties"] = input[0]
+    table_name = ''
+    if name_included or parties_included:
+        if name_included:
+            table_name = input[0][0]
+        if parties_included:
+            res["parties"] = input[0]
         del(input[0])
 
-    if const_included:
-        res["constituencies"] = [row[0] for row in input]
+    res["table_name"] = determine_table_name(table_name,filename)
+
+    if name_included or const_included:
+        if const_included:
+            res["constituencies"] = [row[0] for row in input]
         for row in input: del(row[0])
         if parties_included: res["parties"] = res["parties"][1:]
 
@@ -113,11 +135,35 @@ def parse_input(
             res["parties"] = res["parties"][:-1]
         res["votes"] = [row[:len(res["parties"])] for row in res["votes"]]
     res["votes"] = [[parsint(v) for v in row] for row in res["votes"]]
+
+    #Make sure data is not malformed
+    num_constituencies = len(res["votes"])
+    num_parties = len(res["votes"][0])
+    assert(all([len(row) == num_parties for row in res["votes"]]))
+    if parties_included:
+        assert(len(res["parties"]) == num_parties)
+    else:
+        res["parties"] = ['']*num_parties
+    if const_included:
+        assert(len(res["constituencies"]) == num_constituencies)
+    else:
+        res["constituencies"] = ['']*num_constituencies
+    if const_seats_included:
+        assert(len(res["constituency_seats"]) == num_constituencies)
+    else:
+        res["constituency_seats"] = [0]*num_constituencies
+    if adj_seats_included:
+        assert(len(res["constituency_adjustment_seats"]) == num_constituencies)
+    else:
+        res["constituency_adjustment_seats"] = [0]*num_constituencies
+
     return res
 
 def parsint(value):
     return int(value) if value else 0
 
+def determine_table_name(first,filename):
+    return first if first else os.path.splitext(filename)[0]
 
 def load_votes(votefile, consts):
     """Load votes from a file."""

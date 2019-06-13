@@ -40,7 +40,11 @@ th.topleft {
   background-color: #fff;
 }
 
-.constname input {
+.tablename {
+  text-align: center;
+}
+
+.constname input, .tablename input {
   border:         0;
   outline:        0;
   padding:        8px;
@@ -56,8 +60,10 @@ th.topleft {
   background:     none;
 }
 
-.partyvotes input:hover, .partyname input:hover, .constname input:hover,
-.partyvotes input:focus, .partyname input:focus, .constname input:focus {
+.partyvotes input:hover, .partyvotes input:focus,
+.partyname input:hover, .partyname input:focus,
+.constname input:hover, .constname input:focus,
+.tablename input:hover, .tablename input:focus {
   background:     #ddd;
 }
 

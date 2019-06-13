@@ -15,6 +15,12 @@
                      rows="7">
       </b-form-textarea>
       <b-form-checkbox
+                     v-model="paste.has_name"
+                     value="true"
+                     unchecked-value="false">
+      First row begins with name by which to refer to this vote table.
+      </b-form-checkbox>
+      <b-form-checkbox
                      v-model="paste.has_parties"
                      value="true"
                      unchecked-value="false">
@@ -65,13 +71,13 @@
         </b-dropdown-->
       </b-button-group>
       <b-button-group class="mx-1">
-        <b-button disabled>Save voteset</b-button>
+        <b-button @click="saveVotes()">Save voteset</b-button>
       </b-button-group>
     </b-button-toolbar>
     <table class="votematrix">
       <tr class="parties">
-        <th class="small-12 medium-1 topleft">
-          &nbsp;
+        <th class="small-12 medium-1 tablename">
+          <input type="text" v-model="table_name">
         </th>
         <th>
           <abbr title="Constituency seats"># Cons.</abbr>
@@ -111,6 +117,7 @@ export default {
       constituency_seats: [10, 10],
       constituency_adjustment_seats: [2, 3],
       parties: ["A", "B"],
+      table_name: "My reference votes",
       votes: [[1500, 2000], [2500, 1700]],
       presets: [],
       presetfields: [
@@ -121,6 +128,7 @@ export default {
       ],
       uploadfile: null,
       paste: { csv: '',
+               has_name: false,
                has_parties: false,
                has_constituencies: false,
                has_constituency_seats: false,
@@ -136,11 +144,17 @@ export default {
     });
     this.$emit('update-constituencies', this.constituencies, false);
     this.$emit('update-parties', this.parties, false);
+    this.$emit('update-table-name', this.table_name, false);
     this.$emit('update-votes', this.votes, false);
     this.$emit('update-constituency-seats', this.constituency_seats, false);
     this.$emit('update-adjustment-seats', this.constituency_adjustment_seats, false);
   },
   watch: {
+    'table_name': {
+      handler: function (val, oldVal) {
+        this.$emit('update-table-name', val);
+      }
+    },
     'votes': {
       handler: function (val, oldVal) {
         this.$emit('update-votes', val);
@@ -211,6 +225,24 @@ export default {
       this.parties = [];
       this.votes = [];
     },
+    saveVotes: function() {
+      this.$http.post('/api/votes/save/', {
+        vote_table: {
+          name: this.table_name,
+          constituency_names: this.constituencies,
+          constituency_seats: this.constituency_seats,
+          constituency_adjustment_seats: this.constituency_adjustment_seats,
+          parties: this.parties,
+          votes: this.votes
+        }
+      }).then(response => {
+        let link = document.createElement('a')
+        link.href = '/api/downloads/get?id=' + response.data.download_id
+        link.click()
+      }, response => {
+        this.server.error = true;
+      })
+    },
     loadPreset: function(eid) {
       this.$http.post('/api/presets/load/', {'eid': eid}).then(response => {
         this.handleReceivedVotes(response.data);
@@ -235,6 +267,7 @@ export default {
       });
     },
     handleReceivedVotes(data) {
+      this.table_name = data.table_name;
       this.constituencies = data.constituencies;
       this.parties = data.parties;
       this.votes = data.votes;
@@ -251,6 +284,7 @@ export default {
         return;
       }
       this.$http.post('/api/votes/paste/', this.paste).then(response => {
+        this.table_name = response.data.table_name;
         this.votes = response.data.votes;
         if (response.data.constituencies) {
           this.constituencies = response.data.constituencies;

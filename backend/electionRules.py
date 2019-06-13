@@ -26,7 +26,7 @@ class ElectionRules(Rules):
             "constituency_names", "parties"
         ]
 
-        self["name"] = "My test"
+        self["name"] = "My electoral system"
 
         # Election rules
         self["primary_divider"] = "dhondt"

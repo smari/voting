@@ -26,6 +26,7 @@
     <h2>Reference votes</h2>
     <p>Reference votes are the votes that will be used as mean values for the statistical distribution in the simulation.</p>
     <VoteMatrix
+      @update-table-name="updateTableName"
       @update-votes="updateVotes"
       @update-adjustment-seats="updateAdjustmentSeats"
       @update-constituency-seats="updateConstituencySeats"
@@ -156,6 +157,7 @@ export default {
       current_iteration: 0,
       iteration_time: 0,
       inflight: 0,
+      table_name: "",
       ref_votes: [],
       results: { measures: [], methods: [], data: [] },
     }
@@ -183,6 +185,9 @@ export default {
     },
     updateDistributionParameter: function(parameter) {
       this.distribution_parameter = parameter
+    },
+    updateTableName: function(name) {
+      this.table_name = name;
     },
     updateVotes: function(votes) {
       this.ref_votes = votes;
@@ -262,14 +267,17 @@ export default {
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
         {
-          ref_votes: this.ref_votes,
+          vote_table: {
+            name: this.table_name,
+            constituency_names: this.constituency_names,
+            constituency_seats: this.constituency_seats,
+            constituency_adjustment_seats: this.constituency_adjustment_seats,
+            parties: this.parties,
+            votes: this.ref_votes
+          },
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
-          stbl_param: this.distribution_parameter,
-          parties: this.parties,
-          constituency_names: this.constituency_names,
-          constituency_seats: this.constituency_seats,
-          constituency_adjustment_seats: this.constituency_adjustment_seats
+          stbl_param: this.distribution_parameter
         }).then(response => {
           if (response.body.error) {
             this.server.errormsg = response.body.error;
