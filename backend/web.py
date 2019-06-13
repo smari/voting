@@ -441,7 +441,7 @@ def get_presets_dict():
     from os.path import isfile, join
 
     try:
-        with open('../data/presets.json') as js:
+        with open('../data/presets.json', encoding='utf-8') as js:
             data = json.load(js)
     except IOError:
         data = {'error': 'Could not load presets: database lost.'}

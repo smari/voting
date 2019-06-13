@@ -58,6 +58,8 @@ def load_constituencies(confile):
 def load_votes_from_stream(stream, filename):
     rd = []
     if filename.endswith(".csv"):
+        if isinstance(stream, io.TextIOWrapper) and stream.encoding != 'utf-8':
+            stream.reconfigure(encoding='utf-8')
         if isinstance(stream, io.BytesIO):
             stream = codecs.iterdecode(stream, 'utf-8')
         for row in csv.reader(stream, skipinitialspace=True):
