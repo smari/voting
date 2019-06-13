@@ -2,14 +2,19 @@
   <div>
     <h1>Simulate elections</h1>
 
-    <h2>Settings</h2>
-    <h3>Simulation settings</h3>
-    <SimulationSettings
-      @update-rules="updateSimulationRules"
-      @update-parameter="updateDistributionParameter">
-    </SimulationSettings>
+    <h2>Reference votes</h2>
+    <p>Reference votes are the votes that will be used as mean values for the statistical distribution in the simulation.</p>
+    <VoteMatrix
+      @update-table-name="updateTableName"
+      @update-votes="updateVotes"
+      @update-adjustment-seats="updateAdjustmentSeats"
+      @update-constituency-seats="updateConstituencySeats"
+      @update-parties="updateParties"
+      @update-constituencies="updateConstituencies"
+      @server-error="serverError">
+    </VoteMatrix>
 
-    <h3>Simulate elections</h3>
+    <h2>Electoral system settings</h2>
     <b-button @click="addElectionRules">Add electoral system</b-button>
     <b-container v-for="(rules, rulesidx) in election_rules" :key="rulesidx" class="ruleset">
       <b-row>
@@ -23,17 +28,11 @@
       </b-row>
     </b-container>
 
-    <h2>Reference votes</h2>
-    <p>Reference votes are the votes that will be used as mean values for the statistical distribution in the simulation.</p>
-    <VoteMatrix
-      @update-table-name="updateTableName"
-      @update-votes="updateVotes"
-      @update-adjustment-seats="updateAdjustmentSeats"
-      @update-constituency-seats="updateConstituencySeats"
-      @update-parties="updateParties"
-      @update-constituencies="updateConstituencies"
-      @server-error="serverError">
-    </VoteMatrix>
+    <h2>Simulation settings</h2>
+    <SimulationSettings
+      @update-rules="updateSimulationRules"
+      @update-parameter="updateDistributionParameter">
+    </SimulationSettings>
 
     <div style="text-align: center; margin-bottom: 0.7em;">
         <span v-if="simulation_done">
