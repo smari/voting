@@ -166,7 +166,6 @@ def prepare_to_save_vote_table():
         ] + vote_table["votes"][c]
         for c in range(num_constituencies)
     ]
-    print(file_matrix)
 
     tmpfilename = tempfile.mktemp(prefix='vote_table-')
     save_votes_to_xlsx(file_matrix, tmpfilename)
