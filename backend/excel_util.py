@@ -186,7 +186,7 @@ def simulation_to_xlsx(simulation, filename):
         matrix,
         cformat=fmt["cell"]
     ):
-        if heading.endswith("shares"):
+        if heading.endswith("shares") and not heading.lower().startswith("bi"):
             cformat = fmt["share"]
         if heading == "Votes":
             cformat = fmt["base"]
@@ -227,6 +227,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.base_allocations[r]["xtd_adj_seats"],
                 "ts": simulation.base_allocations[r]["xtd_total_seats"],
                 "ss": simulation.base_allocations[r]["xtd_seat_shares"],
+                "bs": simulation.base_allocations[r]["xtd_bi_seat_shares"],
             },
             "avg": {
                 "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],
@@ -318,6 +319,14 @@ def simulation_to_xlsx(simulation, filename):
                     yheaders=const_names,
                     matrix=data_matrix[category["abbr"]][table["abbr"]],
                     cformat=category["cell_format"]
+                )
+                col += len(parties)+2
+            if "bs" in data_matrix[category["abbr"]]:
+                draw_block(worksheet, row=toprow, col=col,
+                    heading="Biproportional seat shares",
+                    xheaders=parties,
+                    yheaders=const_names,
+                    matrix=data_matrix[category["abbr"]]["bs"]
                 )
                 col += len(parties)+2
             toprow += len(const_names)+3

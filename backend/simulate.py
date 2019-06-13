@@ -221,11 +221,18 @@ class Simulation:
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
+
+            opt_rules = self.e_rules[r].generate_opt_ruleset()
+            opt_election = voting.Election(opt_rules, self.base_votes)
+            opt_results = opt_election.run()
+            bi_seat_shares = self.calculate_bi_seat_shares(r, self.base_votes, opt_results)
+            xtd_bi_seat_shares = add_totals(bi_seat_shares)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
                 "xtd_total_seats": xtd_total_seats,
                 "xtd_seat_shares": xtd_seat_shares,
+                "xtd_bi_seat_shares": xtd_bi_seat_shares,
                 "step_info": election.adj_seats_info,
             })
 
