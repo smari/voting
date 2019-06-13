@@ -2,8 +2,7 @@
   <div>
     <h1>Simulate elections</h1>
 
-    <h2>Reference votes</h2>
-    <p>Reference votes are the votes that will be used as mean values for the statistical distribution in the simulation.</p>
+    <h2>Votes</h2>
     <VoteMatrix
       @update-table-name="updateTableName"
       @update-votes="updateVotes"
