@@ -127,7 +127,7 @@ export default {
         {
           vote_table: {
             name: this.table_name,
-            parites: this.parties,
+            parties: this.parties,
             constituency_names: this.constituency_names,
             constituency_seats: this.constituency_seats,
             constituency_adjustment_seats: this.constituency_adjustment_seats,
@@ -156,7 +156,7 @@ export default {
       this.$http.post('/api/election/getxlsx/', {
         vote_table: {
           name: this.table_name,
-          parites: this.parties,
+          parties: this.parties,
           constituency_names: this.constituency_names,
           constituency_seats: this.constituency_seats,
           constituency_adjustment_seats: this.constituency_adjustment_seats,
