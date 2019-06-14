@@ -133,12 +133,7 @@ export default {
             constituency_adjustment_seats: this.constituency_adjustment_seats,
             votes: this.votes,
           },
-          votes: this.votes,
           rules: this.rules,
-          parties: this.parties,
-          constituency_names: this.constituency_names,
-          constituency_seats: this.constituency_seats,
-          constituency_adjustment_seats: this.constituency_adjustment_seats
         }).then(response => {
           if (response.body.error) {
             this.server.errormsg = response.body.error;
@@ -167,12 +162,7 @@ export default {
           constituency_adjustment_seats: this.constituency_adjustment_seats,
           votes: this.votes,
         },
-        votes: this.votes,
         rules: this.rules,
-        parties: this.parties,
-        constituency_names: this.constituency_names,
-        constituency_seats: this.constituency_seats,
-        constituency_adjustment_seats: this.constituency_adjustment_seats
       }).then(response => {
         let link = document.createElement('a')
         link.href = '/api/downloads/get?id=' + response.data.download_id
