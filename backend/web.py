@@ -95,13 +95,16 @@ def handle_election():
     if not "votes" in vote_table:
         return {"error": "Votes missing."}
 
-    for const in vote_table["votes"]:
-        for party in const:
-            if type(party) != int:
+    votes = vote_table["votes"]
+    for c in range(len(votes)):
+        for p in range(len(votes[c])):
+            if not votes[c][p]:
+                votes[c][p] = 0
+            if type(votes[c][p]) != int:
                 return {"error": "Votes must be numbers."}
 
     try:
-        election = voting.Election(rules, vote_table["votes"])
+        election = voting.Election(rules, votes)
         election.run()
     except ZeroDivisionError:
         return {"error": "Need to have more votes."}
