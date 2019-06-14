@@ -77,25 +77,31 @@ def handle_election():
     data = request.get_json(force=True)
     rules = ElectionRules()
 
+    for section in ["vote_table", "rules"]:
+        if section not in data or not data[section]:
+            return {"error": f"Missing data ('{section}')"}
+
+    vote_table = data["vote_table"]
+
     for k, v in data["rules"].items():
         rules[k] = v
 
     for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
-        if x in data and data[x]:
-            rules[x] = data[x]
+        if x in vote_table and vote_table[x]:
+            rules[x] = vote_table[x]
         else:
             return {"error": "Missing data ('%s')" % x}
 
-    if not "votes" in data:
+    if not "votes" in vote_table:
         return {"error": "Votes missing."}
 
-    for const in data["votes"]:
+    for const in vote_table["votes"]:
         for party in const:
             if type(party) != int:
                 return {"error": "Votes must be numbers."}
 
     try:
-        election = voting.Election(rules, data["votes"])
+        election = voting.Election(rules, vote_table["votes"])
         election.run()
     except ZeroDivisionError:
         return {"error": "Need to have more votes."}

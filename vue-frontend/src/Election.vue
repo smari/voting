@@ -6,7 +6,15 @@
   <b-alert :show="server.errormsg != ''" dismissible @dismissed="server.errormsg=''" variant="danger">Server error. {{server.errormsg}}</b-alert>
 
   <h2>Votes</h2>
-  <VoteMatrix @update-votes="updateVotes" @update-adjustment-seats="updateAdjustmentSeats" @update-constituency-seats="updateConstituencySeats" @update-parties="updateParties" @update-constituencies="updateConstituencies" @recalculate="recalculate" @server-error="serverError">
+  <VoteMatrix
+    @update-table-name="updateTableName"
+    @update-votes="updateVotes"
+    @update-adjustment-seats="updateAdjustmentSeats"
+    @update-constituency-seats="updateConstituencySeats"
+    @update-parties="updateParties"
+    @update-constituencies="updateConstituencies"
+    @recalculate="recalculate"
+    @server-error="serverError">
   </VoteMatrix>
 
   <h2>Settings</h2>
@@ -65,6 +73,7 @@ export default {
         adjustment_threshold: 0.0,
         adjustment_method: "",
       },
+      table_name: "",
       votes: [],
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
@@ -75,6 +84,9 @@ export default {
       if (recalc === true || recalc === undefined) {
         this.recalculate();
       }
+    },
+    updateTableName: function(name) {
+      this.table_name = name;
     },
     updateVotes: function(votes, recalc) {
       this.votes = votes;
@@ -113,6 +125,14 @@ export default {
       this.server.waitingForData = true;
       this.$http.post('/api/election/',
         {
+          vote_table: {
+            name: this.table_name,
+            parites: this.parties,
+            constituency_names: this.constituency_names,
+            constituency_seats: this.constituency_seats,
+            constituency_adjustment_seats: this.constituency_adjustment_seats,
+            votes: this.votes,
+          },
           votes: this.votes,
           rules: this.rules,
           parties: this.parties,
@@ -139,6 +159,14 @@ export default {
 
     get_xlsx: function() {
       this.$http.post('/api/election/getxlsx/', {
+        vote_table: {
+          name: this.table_name,
+          parites: this.parties,
+          constituency_names: this.constituency_names,
+          constituency_seats: this.constituency_seats,
+          constituency_adjustment_seats: this.constituency_adjustment_seats,
+          votes: this.votes,
+        },
         votes: this.votes,
         rules: this.rules,
         parties: this.parties,
