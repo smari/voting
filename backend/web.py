@@ -86,14 +86,22 @@ def handle_election():
     for k, v in data["rules"].items():
         rules[k] = v
 
+    for info in [
+        "name",
+        "votes",
+        "parties",
+        "constituency_names",
+        "constituency_seats",
+        "constituency_adjustment_seats"
+    ]:
+        if info not in vote_table or not vote_table[info]:
+            return {"error": f"Missing data ('vote_table.{info}')"}
+
     for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
         if x in vote_table and vote_table[x]:
             rules[x] = vote_table[x]
         else:
             return {"error": "Missing data ('%s')" % x}
-
-    if not "votes" in vote_table:
-        return {"error": "Votes missing."}
 
     votes = vote_table["votes"]
     for c in range(len(votes)):
