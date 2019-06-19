@@ -48,9 +48,8 @@ class ElectionRules(Rules):
         if key == "constituencies":
             value = load_constituencies(value)
             self["constituency_names"] = [x["name"] for x in value]
-            self["constituency_seats"] = [x["num_constituency_seats"]
-                                          for x in value]
-            self["constituency_adjustment_seats"] = [x["num_adjustment_seats"]
+            self["constituency_seats"] = [x["num_const_seats"] for x in value]
+            self["constituency_adjustment_seats"] = [x["num_adj_seats"]
                                                      for x in value]
 
         super(ElectionRules, self).__setitem__(key, value)

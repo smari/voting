@@ -51,8 +51,8 @@ def load_constituencies(confile):
                             "must add to a nonzero number.")
         cons.append({
             "name": row[0],
-            "num_constituency_seats": int(row[1]),
-            "num_adjustment_seats": int(row[2])})
+            "num_const_seats": int(row[1]),
+            "num_adj_seats": int(row[2])})
     return cons
 
 def load_votes_from_stream(stream, filename):
