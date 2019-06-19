@@ -41,9 +41,10 @@ class TestRules(unittest.TestCase):
 class TestBasicAllocation(unittest.TestCase):
     def test_election_basic(self):
         rules = ElectionRules()
-        rules["constituency_seats"] = [1, 2]
-        rules["constituency_adjustment_seats"] = [2, 1]
-        rules["constituency_names"] = ["I", "II"]
+        rules["constituencies"] = [
+            {"name": "I",  "num_const_seats": 1, "num_adj_seats": 2},
+            {"name": "II", "num_const_seats": 2, "num_adj_seats": 1}
+        ]
         rules["parties"] = ["A", "B"]
 
         votes = [[501, 400], [301, 200]]
@@ -53,9 +54,10 @@ class TestBasicAllocation(unittest.TestCase):
 
     def test_election_basic2(self):
         rules = ElectionRules()
-        rules["constituency_seats"] = [1, 1]
-        rules["constituency_adjustment_seats"] = [1, 1]
-        rules["constituency_names"] = ["I", "II"]
+        rules["constituencies"] = [
+            {"name": "I",  "num_const_seats": 1, "num_adj_seats": 1},
+            {"name": "II", "num_const_seats": 1, "num_adj_seats": 1}
+        ]
         rules["parties"] = ["A", "B", "C"]
         rules["divisor"] = "dhondt"
         rules["adjustment_threshold"] = 0.0

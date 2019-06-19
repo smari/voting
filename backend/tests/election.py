@@ -9,9 +9,10 @@ class TestElection(unittest.TestCase):
         rules = ElectionRules()
         rules["parties"] = ["A", "B"]
         rules["adjustment_method"] = "alternating-scaling"
-        rules["constituency_names"] = ["I", "II"]
-        rules["constituency_seats"] = [2, 3]
-        rules["constituency_adjustment_seats"] = [1, 2]
+        rules["constituencies"] = [
+            {"name": "I",  "num_const_seats": 2, "num_adj_seats": 1},
+            {"name": "II", "num_const_seats": 3, "num_adj_seats": 2}
+        ]
         votes = [[500, 400],[300, 200]]
         election = Election(rules, votes)
         election.run()

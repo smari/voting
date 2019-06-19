@@ -11,9 +11,11 @@ import util
 class SimulationTest(TestCase):
     def setUp(self):
         self.e_rules = voting.ElectionRules()
-        self.e_rules["constituency_names"] = ["I", "II", "III"]
-        self.e_rules["constituency_seats"] = [5, 6, 4]
-        self.e_rules["constituency_adjustment_seats"] = [1, 2, 1]
+        self.e_rules["constituencies"] = [
+            {"name": "I",   "num_const_seats": 5, "num_adj_seats": 1},
+            {"name": "II",  "num_const_seats": 6, "num_adj_seats": 2},
+            {"name": "III", "num_const_seats": 4, "num_adj_seats": 1},
+        ]
         self.e_rules["parties"] = ["A", "B"]
         self.votes = [[500, 300], [200, 400], [350, 450]]
         self.s_rules = simulate.SimulationRules()

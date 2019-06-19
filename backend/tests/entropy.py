@@ -12,9 +12,10 @@ class TestEntropy(unittest.TestCase):
         self.rules["show_entropy"] = True
         self.rules["parties"] = ["A", "B"]
         self.rules["adjustment_method"] = "alternating-scaling"
-        self.rules["constituency_names"] = ["I", "II"]
-        self.rules["constituency_seats"] = [2, 3]
-        self.rules["constituency_adjustment_seats"] = [1, 2]
+        self.rules["constituencies"] = [
+            {"name": "I",  "num_const_seats": 2, "num_adj_seats": 1},
+            {"name": "II", "num_const_seats": 3, "num_adj_seats": 2}
+        ]
         self.votes = [[500, 400],[300, 200]]
         self.election = Election(self.rules, self.votes)
         self.election.run()
