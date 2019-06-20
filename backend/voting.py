@@ -13,9 +13,10 @@ from dictionaries import ADJUSTMENT_METHODS
 
 class Election:
     """A single election."""
-    def __init__(self, rules, votes=None):
+    def __init__(self, rules, votes=None, name=''):
         self.num_constituencies = len(rules["constituencies"])
         self.rules = rules
+        self.name = name
         self.set_votes(votes)
 
     def entropy(self):

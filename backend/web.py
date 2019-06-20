@@ -111,6 +111,7 @@ def handle_election():
             return {"error": "Constituency seats and adjustment seats "
                              "must add to a nonzero number."}
 
+    table_name = vote_table["name"]
     votes = vote_table["votes"]
     for c in range(len(votes)):
         for p in range(len(votes[c])):
@@ -120,7 +121,7 @@ def handle_election():
                 return {"error": "Votes must be numbers."}
 
     try:
-        election = voting.Election(rules, votes)
+        election = voting.Election(rules, votes, table_name)
         election.run()
     except ZeroDivisionError:
         return {"error": "Need to have more votes."}

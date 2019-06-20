@@ -111,7 +111,7 @@ def election_to_xlsx(election, filename):
     worksheet.merge_range(toprow,c2,toprow,c2+1,datetime.now(),fmt["time"])
     toprow+=1
     worksheet.merge_range(toprow,c1,toprow,c2-1,"Test name:",fmt["basic_h"])
-    worksheet.write(toprow,c2,"My electoral system",fmt["basic"])
+    worksheet.write(toprow,c2,election.name,fmt["basic"])
 
     startrow = 4
     tables_before = [
