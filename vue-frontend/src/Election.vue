@@ -7,10 +7,7 @@
 
   <h2>Votes</h2>
   <VoteMatrix
-    @update-table-name="updateTableName"
-    @update-votes="updateVotes"
-    @update-parties="updateParties"
-    @update-constituencies="updateConstituencies"
+    @update-vote-table="updateVoteTable"
     @recalculate="recalculate"
     @server-error="serverError">
   </VoteMatrix>
@@ -61,16 +58,18 @@ export default {
         waitingForData: false,
         error: false,
       },
-      parties: [],
-      constituencies: [],
+      vote_table: {
+        name: "",
+        votes: [],
+        parties: [],
+        constituencies: [],
+      },
       rules: {
         adjustment_divider: "",
         primary_divider: "",
         adjustment_threshold: 0.0,
         adjustment_method: "",
       },
-      table_name: "",
-      votes: [],
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
   },
@@ -81,23 +80,8 @@ export default {
         this.recalculate();
       }
     },
-    updateTableName: function(name) {
-      this.table_name = name;
-    },
-    updateVotes: function(votes, recalc) {
-      this.votes = votes;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
-    },
-    updateConstituencies: function(cons, recalc) {
-      this.constituencies = cons;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
-    },
-    updateParties: function(parties, recalc) {
-      this.parties = parties;
+    updateVoteTable: function(table, recalc) {
+      this.vote_table = table;
       if (recalc === true || recalc === undefined) {
         this.recalculate();
       }
@@ -109,12 +93,7 @@ export default {
       this.server.waitingForData = true;
       this.$http.post('/api/election/',
         {
-          vote_table: {
-            name: this.table_name,
-            parties: this.parties,
-            constituencies: this.constituencies,
-            votes: this.votes,
-          },
+          vote_table: this.vote_table,
           rules: this.rules,
         }).then(response => {
           if (response.body.error) {
@@ -136,12 +115,7 @@ export default {
 
     get_xlsx: function() {
       this.$http.post('/api/election/getxlsx/', {
-        vote_table: {
-          name: this.table_name,
-          parties: this.parties,
-          constituencies: this.constituencies,
-          votes: this.votes,
-        },
+        vote_table: this.vote_table,
         rules: this.rules,
       }).then(response => {
         let link = document.createElement('a')

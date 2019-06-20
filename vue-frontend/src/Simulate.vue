@@ -4,10 +4,7 @@
 
     <h2>Votes</h2>
     <VoteMatrix
-      @update-table-name="updateTableName"
-      @update-votes="updateVotes"
-      @update-parties="updateParties"
-      @update-constituencies="updateConstituencies"
+      @update-vote-table="updateVoteTable"
       @server-error="serverError">
     </VoteMatrix>
 
@@ -132,8 +129,12 @@ export default {
         error: false,
       },
       distribution_parameter: 0,
-      parties: [],
-      constituencies: [],
+      vote_table: {
+        name: "",
+        votes: [],
+        parties: [],
+        constituencies: [],
+      },
       election_rules: [
         {
           name: "",
@@ -151,8 +152,6 @@ export default {
       current_iteration: 0,
       iteration_time: 0,
       inflight: 0,
-      table_name: "",
-      ref_votes: [],
       results: { measures: [], methods: [], data: [] },
     }
   },
@@ -180,17 +179,8 @@ export default {
     updateDistributionParameter: function(parameter) {
       this.distribution_parameter = parameter
     },
-    updateTableName: function(name) {
-      this.table_name = name;
-    },
-    updateVotes: function(votes) {
-      this.ref_votes = votes;
-    },
-    updateConstituencies: function(cons) {
-      this.constituencies = cons;
-    },
-    updateParties: function(parties) {
-      this.parties = parties;
+    updateVoteTable: function(table) {
+      this.vote_table = table;
     },
     serverError: function(error) {
       this.server.errormsg = error;
@@ -255,12 +245,7 @@ export default {
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
         {
-          vote_table: {
-            name: this.table_name,
-            constituencies: this.constituencies,
-            parties: this.parties,
-            votes: this.ref_votes
-          },
+          vote_table: this.vote_table,
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
           stbl_param: this.distribution_parameter

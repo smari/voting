@@ -136,7 +136,7 @@ def parse_input(
     } for row in input[start_row:]]
 
     table_name = input[0][0] if name_included else ''
-    res["table_name"] = determine_table_name(table_name,filename)
+    res["name"] = determine_table_name(table_name,filename)
 
     return res
 
