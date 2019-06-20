@@ -34,6 +34,7 @@ class ElectionRules(Rules):
         self["adjustment_threshold"] = 5
         self["adjustment_method"] = "icelandic-law"
         self["constituencies"] = []
+        self["parties"] = []
 
         # Display rules
         self["debug"] = False
