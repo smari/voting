@@ -1,16 +1,6 @@
 <template>
 <div>
   <h1>Election</h1>
-  <b-alert :show="server.waitingForData">Loading...</b-alert>
-  <b-alert :show="server.error" dismissible @dismissed="server.error=false" variant="danger">Server error. Try again in a few seconds...</b-alert>
-  <b-alert :show="server.errormsg != ''" dismissible @dismissed="server.errormsg=''" variant="danger">Server error. {{server.errormsg}}</b-alert>
-
-  <h2>Votes</h2>
-  <VoteMatrix
-    @update-vote-table="updateVoteTable"
-    @recalculate="recalculate"
-    @server-error="serverError">
-  </VoteMatrix>
 
   <h2>Settings</h2>
   <b-container>
@@ -45,6 +35,10 @@ import ResultChart from './components/ResultChart.vue'
 import ElectionSettings from './components/ElectionSettings.vue'
 
 export default {
+  props: {
+    "vote_table": { default: {} },
+    "server": { default: {} },
+  },
   components: {
     VoteMatrix,
     ResultMatrix,
@@ -54,16 +48,6 @@ export default {
 
   data: function() {
     return {
-      server: {
-        waitingForData: false,
-        error: false,
-      },
-      vote_table: {
-        name: "",
-        votes: [],
-        parties: [],
-        constituencies: [],
-      },
       rules: {
         adjustment_divider: "",
         primary_divider: "",
@@ -73,21 +57,20 @@ export default {
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
   },
+  watch: {
+    'vote_table': {
+      handler: function (val, oldVal) {
+        this.recalculate();
+      },
+      deep: true
+    },
+  },
   methods: {
     updateRules: function(rules, recalc) {
       this.rules = rules;
       if (recalc === true || recalc === undefined) {
         this.recalculate();
       }
-    },
-    updateVoteTable: function(table, recalc) {
-      this.vote_table = table;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
-    },
-    serverError: function(error) {
-      this.server.errormsg = error;
     },
     recalculate: function() {
       this.server.waitingForData = true;

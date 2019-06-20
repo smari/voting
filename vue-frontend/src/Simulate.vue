@@ -2,12 +2,6 @@
   <div>
     <h1>Simulate elections</h1>
 
-    <h2>Votes</h2>
-    <VoteMatrix
-      @update-vote-table="updateVoteTable"
-      @server-error="serverError">
-    </VoteMatrix>
-
     <h2>Electoral system settings</h2>
     <b-button @click="addElectionRules">Add electoral system</b-button>
     <b-container v-for="(rules, rulesidx) in election_rules" :key="rulesidx" class="ruleset">
@@ -114,6 +108,10 @@ import SimulationSettings from './components/SimulationSettings.vue'
 import SimulationData from './components/SimulationData.vue'
 
 export default {
+  props: {
+    "vote_table": { default: {} },
+    "server": { default: {} },
+  },
   components: {
     VoteMatrix,
     ResultMatrix,
@@ -124,17 +122,7 @@ export default {
 
   data: function() {
     return {
-      server: {
-        waitingForData: false,
-        error: false,
-      },
       distribution_parameter: 0,
-      vote_table: {
-        name: "",
-        votes: [],
-        parties: [],
-        constituencies: [],
-      },
       election_rules: [
         {
           name: "",
@@ -178,12 +166,6 @@ export default {
     },
     updateDistributionParameter: function(parameter) {
       this.distribution_parameter = parameter
-    },
-    updateVoteTable: function(table) {
-      this.vote_table = table;
-    },
-    serverError: function(error) {
-      this.server.errormsg = error;
     },
     stop_simulation: function() {
       this.$http.post('/api/simulate/stop/',
