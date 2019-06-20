@@ -6,8 +6,6 @@
     <VoteMatrix
       @update-table-name="updateTableName"
       @update-votes="updateVotes"
-      @update-adjustment-seats="updateAdjustmentSeats"
-      @update-constituency-seats="updateConstituencySeats"
       @update-parties="updateParties"
       @update-constituencies="updateConstituencies"
       @server-error="serverError">
@@ -134,10 +132,8 @@ export default {
         error: false,
       },
       distribution_parameter: 0,
-      constituency_names: [],
       parties: [],
-      constituency_seats: [],
-      constituency_adjustment_seats: [],
+      constituencies: [],
       election_rules: [
         {
           name: "",
@@ -190,14 +186,8 @@ export default {
     updateVotes: function(votes) {
       this.ref_votes = votes;
     },
-    updateConstituencySeats: function(seats) {
-      this.constituency_seats = seats;
-    },
-    updateAdjustmentSeats: function(seats) {
-      this.constituency_adjustment_seats = seats;
-    },
     updateConstituencies: function(cons) {
-      this.constituency_names = cons;
+      this.constituencies = cons;
     },
     updateParties: function(parties) {
       this.parties = parties;
@@ -267,9 +257,7 @@ export default {
         {
           vote_table: {
             name: this.table_name,
-            constituency_names: this.constituency_names,
-            constituency_seats: this.constituency_seats,
-            constituency_adjustment_seats: this.constituency_adjustment_seats,
+            constituencies: this.constituencies,
             parties: this.parties,
             votes: this.ref_votes
           },

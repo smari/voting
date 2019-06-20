@@ -22,7 +22,7 @@
       </tr>
       <tr v-for="(constituency, conidx) in constituencies">
         <th class="small-12 medium-1 column constname">
-          {{ constituencies[conidx] }}
+          {{ constituency["name"] }}
         </th>
         <template v-for="(party, partyidx) in parties">
           <td class="small-12 medium-2 column partyseats">

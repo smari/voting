@@ -9,8 +9,6 @@
   <VoteMatrix
     @update-table-name="updateTableName"
     @update-votes="updateVotes"
-    @update-adjustment-seats="updateAdjustmentSeats"
-    @update-constituency-seats="updateConstituencySeats"
     @update-parties="updateParties"
     @update-constituencies="updateConstituencies"
     @recalculate="recalculate"
@@ -63,10 +61,8 @@ export default {
         waitingForData: false,
         error: false,
       },
-      constituency_names: [],
       parties: [],
-      constituency_seats: [],
-      constituency_adjustment_seats: [],
+      constituencies: [],
       rules: {
         adjustment_divider: "",
         primary_divider: "",
@@ -94,20 +90,8 @@ export default {
         this.recalculate();
       }
     },
-    updateConstituencySeats: function(seats, recalc) {
-      this.constituency_seats = seats;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
-    },
-    updateAdjustmentSeats: function(seats, recalc) {
-      this.constituency_adjustment_seats = seats;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
-    },
     updateConstituencies: function(cons, recalc) {
-      this.constituency_names = cons;
+      this.constituencies = cons;
       if (recalc === true || recalc === undefined) {
         this.recalculate();
       }
@@ -128,9 +112,7 @@ export default {
           vote_table: {
             name: this.table_name,
             parties: this.parties,
-            constituency_names: this.constituency_names,
-            constituency_seats: this.constituency_seats,
-            constituency_adjustment_seats: this.constituency_adjustment_seats,
+            constituencies: this.constituencies,
             votes: this.votes,
           },
           rules: this.rules,
@@ -141,7 +123,7 @@ export default {
           } else {
             this.server.errormsg = '';
             this.server.error = false;
-            this.results["constituencies"] = response.body.rules.constituency_names;
+            this.results["constituencies"] = response.body.rules.constituencies;
             this.results["parties"] = response.body.rules.parties;
             this.results["seat_allocations"] = response.body.seat_allocations;
             this.server.waitingForData = false;
@@ -157,9 +139,7 @@ export default {
         vote_table: {
           name: this.table_name,
           parties: this.parties,
-          constituency_names: this.constituency_names,
-          constituency_seats: this.constituency_seats,
-          constituency_adjustment_seats: this.constituency_adjustment_seats,
+          constituencies: this.constituencies,
           votes: this.votes,
         },
         rules: this.rules,

@@ -90,23 +90,17 @@ def handle_election():
         "name",
         "votes",
         "parties",
-        "constituency_names",
-        "constituency_seats",
-        "constituency_adjustment_seats"
+        "constituencies",
     ]:
         if info not in vote_table or not vote_table[info]:
             return {"error": f"Missing data ('vote_table.{info}')"}
 
     rules["parties"] = vote_table["parties"]
-    num_constituencies = len(vote_table["constituency_names"])
-    assert(num_constituencies == len(vote_table["constituency_seats"]))
-    assert(num_constituencies == len(vote_table["constituency_adjustment_seats"]))
-    rules["constituencies"] = [{
-        "name": vote_table["constituency_names"][c],
-        "num_const_seats": vote_table["constituency_seats"][c],
-        "num_adj_seats": vote_table["constituency_adjustment_seats"][c],
-    } for c in range(num_constituencies)]
+    rules["constituencies"] = vote_table["constituencies"]
     for const in rules["constituencies"]:
+        for info in ["name", "num_const_seats", "num_adj_seats"]:
+            if info not in const:
+                return {"error": f"Missing data ('vote_table.constituencies[x].{info}')"}
         if const["num_const_seats"]+const["num_adj_seats"] <= 0:
             return {"error": "Constituency seats and adjustment seats "
                              "must add to a nonzero number."}
@@ -168,26 +162,22 @@ def prepare_to_save_vote_table():
         "name",
         "votes",
         "parties",
-        "constituency_names",
-        "constituency_seats",
-        "constituency_adjustment_seats"
+        "constituencies",
     ]:
         if info not in vote_table or not vote_table[info]:
             return False, f"Missing data ('{info}')"
 
-    num_constituencies = len(vote_table["votes"])
+    num_constituencies = len(vote_table["constituencies"])
     num_parties = len(vote_table["parties"])
-    assert(num_constituencies == len(vote_table["constituency_names"]))
-    assert(num_constituencies == len(vote_table["constituency_seats"]))
-    assert(num_constituencies == len(vote_table["constituency_adjustment_seats"]))
+    assert(num_constituencies == len(vote_table["votes"]))
     assert(all([num_parties == len(row) for row in vote_table["votes"]]))
     file_matrix = [
         [vote_table["name"], "cons", "adj"] + vote_table["parties"],
     ] + [
         [
-            vote_table["constituency_names"][c],
-            vote_table["constituency_seats"][c],
-            vote_table["constituency_adjustment_seats"][c],
+            vote_table["constituencies"][c]["name"],
+            vote_table["constituencies"][c]["num_const_seats"],
+            vote_table["constituencies"][c]["num_adj_seats"],
         ] + vote_table["votes"][c]
         for c in range(num_constituencies)
     ]
@@ -355,9 +345,7 @@ def set_up_simulation():
         "name",
         "votes",
         "parties",
-        "constituency_names",
-        "constituency_seats",
-        "constituency_adjustment_seats"
+        "constituencies",
     ]:
         if info not in vote_table or not vote_table[info]:
             return False, f"Missing data ('{info}')"
@@ -372,11 +360,7 @@ def set_up_simulation():
             election_rules[k] = v
 
         election_rules["parties"] = vote_table["parties"]
-        election_rules["constituencies"] = [{
-            "name": vote_table["constituency_names"][c],
-            "num_const_seats": vote_table["constituency_seats"][c],
-            "num_adj_seats": vote_table["constituency_adjustment_seats"][c],
-        } for c in range(len(vote_table["constituency_names"]))]
+        election_rules["constituencies"] = vote_table["constituencies"]
         for c in range(len(election_rules["constituencies"])):
             for info in ["num_const_seats", "num_adj_seats"]:
                 if not election_rules["constituencies"][c][info]:
@@ -385,7 +369,7 @@ def set_up_simulation():
                     return False, "Seat specifications must be numbers."
         for const in election_rules["constituencies"]:
             if const["num_const_seats"]+const["num_adj_seats"] <= 0:
-                return False, "Constituency seats and adjustment seats "
+                return False, "Constituency seats and adjustment seats " \
                               "must add to a nonzero number."
 
         rulesets.append(election_rules)

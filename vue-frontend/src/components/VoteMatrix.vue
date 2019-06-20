@@ -93,13 +93,13 @@
       <tr v-for="(constituency, conidx) in constituencies">
         <th class="small-12 medium-1 column constname">
             <b-button size="sm" variant="link" @click="deleteConstituency(conidx)">×</b-button>
-            <input type="text" v-model="constituencies[conidx]"></input>
+            <input type="text" v-model="constituency['name']"></input>
         </th>
         <td class="small-12 medium-2 column partyvotes">
-          <input type="text" v-model.number="constituency_seats[conidx]"></input>
+          <input type="text" v-model.number="constituency['num_const_seats']"></input>
         </td>
         <td class="small-12 medium-2 column partyvotes">
-          <input type="text" v-model.number="constituency_adjustment_seats[conidx]"></input>
+          <input type="text" v-model.number="constituency['num_adj_seats']"></input>
         </td>
         <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyvotes">
             <input type="text" v-model.number="votes[conidx][partyidx]">
@@ -113,9 +113,10 @@
 export default {
   data: function () {
     return {
-      constituencies: ["I", "II"],
-      constituency_seats: [10, 10],
-      constituency_adjustment_seats: [2, 3],
+      constituencies: [
+        {"name": "I",  "num_const_seats": 10, "num_adj_seats": 2},
+        {"name": "II", "num_const_seats": 10, "num_adj_seats": 3}
+      ],
       parties: ["A", "B"],
       table_name: "My reference votes",
       votes: [[1500, 2000], [2500, 1700]],
@@ -146,8 +147,6 @@ export default {
     this.$emit('update-parties', this.parties, false);
     this.$emit('update-table-name', this.table_name, false);
     this.$emit('update-votes', this.votes, false);
-    this.$emit('update-constituency-seats', this.constituency_seats, false);
-    this.$emit('update-adjustment-seats', this.constituency_adjustment_seats, false);
   },
   watch: {
     'table_name': {
@@ -173,18 +172,6 @@ export default {
       },
       deep: true
     },
-    'constituency_seats': {
-      handler: function (val, oldVal) {
-        this.$emit('update-constituency-seats', val);
-      },
-      deep: true
-    },
-    'constituency_adjustment_seats': {
-      handler: function (val, oldVal) {
-        this.$emit('update-adjustment-seats', val);
-      },
-      deep: true
-    },
   },
   methods: {
     deleteParty: function(index) {
@@ -196,8 +183,6 @@ export default {
     deleteConstituency: function(index) {
       this.constituencies.splice(index, 1);
       this.votes.splice(index, 1);
-      this.constituency_seats.splice(index, 1);
-      this.constituency_adjustment_seats.splice(index, 1);
     },
     addParty: function() {
       this.parties.push('');
@@ -206,10 +191,9 @@ export default {
       }
     },
     addConstituency: function() {
-      this.constituencies.push('');
+      this.constituencies.push(
+        {"name": '', "num_const_seats": 1, "num_adj_seats": 1});
       this.votes.push(Array(this.parties.length).fill(0));
-      this.constituency_seats.push(1);
-      this.constituency_adjustment_seats.push(1);
     },
     clearVotes: function() {
       let v = [];
@@ -220,8 +204,6 @@ export default {
     },
     clearAll: function() {
       this.constituencies = [];
-      this.constituency_seats = [];
-      this.constituency_adjustment_seats = [];
       this.parties = [];
       this.votes = [];
     },
@@ -229,9 +211,7 @@ export default {
       this.$http.post('/api/votes/save/', {
         vote_table: {
           name: this.table_name,
-          constituency_names: this.constituencies,
-          constituency_seats: this.constituency_seats,
-          constituency_adjustment_seats: this.constituency_adjustment_seats,
+          constituencies: this.constituencies,
           parties: this.parties,
           votes: this.votes
         }
@@ -250,10 +230,8 @@ export default {
     },
     setPreset: function(idx) {
       let el = this.presets[idx].election_rules;
-      this.constituencies = el.constituency_names;
+      this.constituencies = el.constituencies;
       this.parties = el.parties;
-      this.constituency_seats = el.constituency_seats;
-      this.constituency_adjustment_seats = el.constituency_adjustment_seats;
       this.votes = el.votes;
     },
     uploadVotes: function(evt) {
@@ -271,12 +249,6 @@ export default {
       this.constituencies = data.constituencies;
       this.parties = data.parties;
       this.votes = data.votes;
-      if (data.constituency_seats) {
-        this.constituency_seats = data.constituency_seats;
-      }
-      if (data.constituency_adjustment_seats) {
-        this.constituency_adjustment_seats = data.constituency_adjustment_seats;
-      }
     },
     pasteCSV: function(evt) {
       if (!this.paste.csv) {
@@ -291,12 +263,6 @@ export default {
         }
         if (response.data.parties) {
           this.parties = response.data.parties;
-        }
-        if (response.data.constituency_seats) {
-          this.constituency_seats = response.data.constituency_seats;
-        }
-        if (response.data.constituency_adjustment_seats) {
-          this.constituency_adjustment_seats = response.data.constituency_adjustment_seats;
         }
       }, response => {
         console.log("Error:", response);

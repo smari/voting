@@ -157,7 +157,18 @@ def parse_input(
     else:
         res["constituency_adjustment_seats"] = [0]*num_constituencies
 
-    return res
+    constituencies = [{
+        "name": res["constituencies"][c],
+        "num_const_seats": res["constituency_seats"][c],
+        "num_adj_seats": res["constituency_adjustment_seats"][c],
+    } for c in range(num_constituencies)]
+
+    return {
+        "table_name": res["table_name"],
+        "parties": res["parties"],
+        "constituencies": constituencies,
+        "votes": res["votes"]
+    }
 
 def parsint(value):
     return int(value) if value else 0
