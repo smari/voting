@@ -43,7 +43,7 @@ def load_constituencies(confile):
     cons = []
     for row in reader:
         try:
-            assert(int(row[1]) + int(row[2]) >= 0)
+            assert(int(row[1]) + int(row[2]) > 0)
         except Exception as e:
             print(row[1:3])
             raise Exception("Error loading constituency file: "

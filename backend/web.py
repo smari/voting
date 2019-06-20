@@ -106,6 +106,10 @@ def handle_election():
         "num_const_seats": vote_table["constituency_seats"][c],
         "num_adj_seats": vote_table["constituency_adjustment_seats"][c],
     } for c in range(num_constituencies)]
+    for const in rules["constituencies"]:
+        if const["num_const_seats"]+const["num_adj_seats"] <= 0:
+            return {"error": "Constituency seats and adjustment seats "
+                             "must add to a nonzero number."}
 
     votes = vote_table["votes"]
     for c in range(len(votes)):
@@ -379,6 +383,10 @@ def set_up_simulation():
                     election_rules["constituencies"][c][info] = 0
                 if type(election_rules["constituencies"][c][info]) != int:
                     return False, "Seat specifications must be numbers."
+        for const in election_rules["constituencies"]:
+            if const["num_const_seats"]+const["num_adj_seats"] <= 0:
+                return False, "Constituency seats and adjustment seats "
+                              "must add to a nonzero number."
 
         rulesets.append(election_rules)
 
