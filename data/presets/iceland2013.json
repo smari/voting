@@ -6,15 +6,13 @@
     "adjustment_divider": "dhondt",
     "adjustment_threshold": 0.05,
     "adjustment_method": "icelandic-law",
-    "constituency_seats": [7, 9, 9, 11, 9, 9],
-    "constituency_adjustment_seats": [1, 1, 1, 2, 2, 2],
-    "constituency_names": [
-      "Norðvestur",
-      "Norðaustur",
-      "Suður",
-      "Suðvestur",
-      "Reykjavík suður",
-      "Reykjavík norður"
+    "constituencies": [
+      {"name": "Norðvestur",       "num_const_seats":  7, "num_adj_seats": 1},
+      {"name": "Norðaustur",       "num_const_seats":  9, "num_adj_seats": 1},
+      {"name": "Suður",            "num_const_seats":  9, "num_adj_seats": 1},
+      {"name": "Suðvestur",        "num_const_seats": 11, "num_adj_seats": 2},
+      {"name": "Reykjavík suður",  "num_const_seats":  9, "num_adj_seats": 2},
+      {"name": "Reykjavík norður", "num_const_seats":  9, "num_adj_seats": 2}
     ],
     "parties": ["A","B","D","G","H","I","J","K","L","M","R","S","T","V","Þ"],
     "votes": [

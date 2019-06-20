@@ -14,9 +14,7 @@ from dictionaries import ADJUSTMENT_METHODS
 class Election:
     """A single election."""
     def __init__(self, rules, votes=None):
-        self.num_constituencies = len(rules["constituency_adjustment_seats"])
-        assert(len(rules["constituency_seats"]) == self.num_constituencies)
-        assert(len(rules["constituency_names"]) == self.num_constituencies)
+        self.num_constituencies = len(rules["constituencies"])
         self.rules = rules
         self.set_votes(votes)
 
@@ -43,10 +41,10 @@ class Election:
         # Which seats does each party get in each constituency:
         self.order = []
         # Determine total seats (const + adjustment) in each constituency:
-        self.v_total_seats = [sum(x) for x in
-                              zip(self.rules["constituency_seats"],
-                                  self.rules["constituency_adjustment_seats"])
-                             ]
+        self.v_total_seats = [
+            const["num_const_seats"] + const["num_adj_seats"]
+            for const in self.rules["constituencies"]
+        ]
         # Determine total seats in play:
         self.total_seats = sum(self.v_total_seats)
 
@@ -62,13 +60,13 @@ class Election:
             print(" + Primary apportionment")
 
         gen = self.rules.get_generator("primary_divider")
-        const_seats = self.rules["constituency_seats"]
+        constituencies = self.rules["constituencies"]
         parties = self.rules["parties"]
 
         m_allocations = []
         self.last = []
-        for i in range(len(const_seats)):
-            num_seats = const_seats[i]
+        for i in range(len(constituencies)):
+            num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
                 alloc, div = apportion1d(self.m_votes[i], num_seats, [0]*len(parties), gen)
                 self.last.append(div[2])

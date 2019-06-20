@@ -97,8 +97,15 @@ def handle_election():
         if info not in vote_table or not vote_table[info]:
             return {"error": f"Missing data ('vote_table.{info}')"}
 
-    for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
-        rules[x] = vote_table[x]
+    rules["parties"] = vote_table["parties"]
+    num_constituencies = len(vote_table["constituency_names"])
+    assert(num_constituencies == len(vote_table["constituency_seats"]))
+    assert(num_constituencies == len(vote_table["constituency_adjustment_seats"]))
+    rules["constituencies"] = [{
+        "name": vote_table["constituency_names"][c],
+        "num_const_seats": vote_table["constituency_seats"][c],
+        "num_adj_seats": vote_table["constituency_adjustment_seats"][c],
+    } for c in range(num_constituencies)]
 
     votes = vote_table["votes"]
     for c in range(len(votes)):
@@ -360,19 +367,17 @@ def set_up_simulation():
             print("Setting election_rules[%s] = %s" % (k, v))
             election_rules[k] = v
 
-        for info in ["parties", "constituency_names"]:
-            election_rules[info] = vote_table[info]
-
-        for info in ["constituency_seats", "constituency_adjustment_seats"]:
-            if info in rs and rs[info]:
-                election_rules[info] = rs[info]
-            else:
-                election_rules[info] = vote_table[info]
-
-            for c in range(len(election_rules[info])):
-                if not election_rules[info][c]:
-                    election_rules[info][c]=0
-                if type(election_rules[info][c]) != int:
+        election_rules["parties"] = vote_table["parties"]
+        election_rules["constituencies"] = [{
+            "name": vote_table["constituency_names"][c],
+            "num_const_seats": vote_table["constituency_seats"][c],
+            "num_adj_seats": vote_table["constituency_adjustment_seats"][c],
+        } for c in range(len(vote_table["constituency_names"]))]
+        for c in range(len(election_rules["constituencies"])):
+            for info in ["num_const_seats", "num_adj_seats"]:
+                if not election_rules["constituencies"][c][info]:
+                    election_rules["constituencies"][c][info] = 0
+                if type(election_rules["constituencies"][c][info]) != int:
                     return False, "Seat specifications must be numbers."
 
         rulesets.append(election_rules)

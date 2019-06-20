@@ -64,10 +64,7 @@ def write_matrix(worksheet, startrow, startcol, matrix, cformat):
 
 def election_to_xlsx(election, filename):
     """Write detailed information about a single election to an xlsx file."""
-    if "constituencies" in election.rules:
-        const_names = [c["name"] for c in election.rules["constituencies"]]
-    else:
-        const_names = election.rules["constituency_names"]
+    const_names = [c["name"] for c in election.rules["constituencies"]]
     const_names.append("Total")
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
@@ -216,8 +213,10 @@ def simulation_to_xlsx(simulation, filename):
     for r in range(len(simulation.e_rules)):
         sheet_name  = f'{r+1}-{simulation.e_rules[r]["name"]}'
         worksheet   = workbook.add_worksheet(sheet_name)
-        const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
-        parties     = simulation.e_rules[r]["parties"           ] + ["Total"]
+        const_names = [
+            const["name"] for const in simulation.e_rules[r]["constituencies"]
+        ] + ["Total"]
+        parties = simulation.e_rules[r]["parties"] + ["Total"]
 
         data_matrix = {
             "base": {
@@ -300,9 +299,9 @@ def simulation_to_xlsx(simulation, filename):
             heading="Desired number of seats",
             xheaders=["cons", "adj", "total"],
             yheaders=const_names,
-            matrix=add_totals([[simulation.e_rules[r]["constituency_seats"][c],
-                     simulation.e_rules[r]["constituency_adjustment_seats"][c]]
-                for c in range(simulation.num_constituencies)])
+            matrix=add_totals([
+                [const["num_const_seats"],const["num_adj_seats"]]
+                for const in simulation.e_rules[r]["constituencies"]])
         )
         bottomrow = max(2+len(const_names), bottomrow)
         toprow += bottomrow+2

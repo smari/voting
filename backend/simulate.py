@@ -104,9 +104,7 @@ class Simulation:
         self.num_parties = len(m_votes[0])
         assert(all([len(c) == self.num_parties for c in m_votes]))
         assert(all([
-            self.num_constituencies == len(ruleset["constituency_names"])
-            and self.num_constituencies == len(ruleset["constituency_seats"])
-            and self.num_constituencies == len(ruleset["constituency_adjustment_seats"])
+            self.num_constituencies == len(ruleset["constituencies"])
             and self.num_parties == len(ruleset["parties"])
             for ruleset in e_rules
         ]))
