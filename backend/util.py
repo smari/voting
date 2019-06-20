@@ -72,7 +72,7 @@ def load_votes_from_stream(stream, filename):
     else:
         return None, None, None
 
-    name_incl = rd[0][0].lower() != u"kjördæmi"
+    name_incl = rd[0][0].lower() != u"kjördæmi" if rd[0][0] else False
     const_seats_incl = rd[0][1].lower() == "cons"
     expected = 2 if const_seats_incl else 1
     adj_seats_incl = rd[0][expected].lower() == "adj"
