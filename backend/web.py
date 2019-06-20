@@ -98,9 +98,15 @@ def handle_election():
     rules["parties"] = vote_table["parties"]
     rules["constituencies"] = vote_table["constituencies"]
     for const in rules["constituencies"]:
-        for info in ["name", "num_const_seats", "num_adj_seats"]:
+        if "name" not in const or not const["name"]:
+            return {"error": f"Missing data ('vote_table.constituencies[x].name')"}
+        for info in ["num_const_seats", "num_adj_seats"]:
             if info not in const:
                 return {"error": f"Missing data ('vote_table.constituencies[x].{info}')"}
+            if not const[info]:
+                const[info] = 0
+            if type(const[info]) != int:
+                return {"error": "Seat numbers must be numbers."}
         if const["num_const_seats"]+const["num_adj_seats"] <= 0:
             return {"error": "Constituency seats and adjustment seats "
                              "must add to a nonzero number."}
