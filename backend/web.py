@@ -103,8 +103,7 @@ def handle_election():
         for info in ["num_const_seats", "num_adj_seats"]:
             if info not in const:
                 return {"error": f"Missing data ('vote_table.constituencies[x].{info}')"}
-            if not const[info]:
-                const[info] = 0
+            if not const[info]: const[info] = 0
             if type(const[info]) != int:
                 return {"error": "Seat numbers must be numbers."}
         if const["num_const_seats"]+const["num_adj_seats"] <= 0:
@@ -113,12 +112,10 @@ def handle_election():
 
     table_name = vote_table["name"]
     votes = vote_table["votes"]
-    for c in range(len(votes)):
-        for p in range(len(votes[c])):
-            if not votes[c][p]:
-                votes[c][p] = 0
-            if type(votes[c][p]) != int:
-                return {"error": "Votes must be numbers."}
+    for row in votes:
+        for p in range(len(row)):
+            if not row[p]: row[p] = 0
+            if type(row[p]) != int: return {"error": "Votes must be numbers."}
 
     try:
         election = voting.Election(rules, votes, table_name)
@@ -368,13 +365,11 @@ def set_up_simulation():
 
         election_rules["parties"] = vote_table["parties"]
         election_rules["constituencies"] = vote_table["constituencies"]
-        for c in range(len(election_rules["constituencies"])):
-            for info in ["num_const_seats", "num_adj_seats"]:
-                if not election_rules["constituencies"][c][info]:
-                    election_rules["constituencies"][c][info] = 0
-                if type(election_rules["constituencies"][c][info]) != int:
-                    return False, "Seat specifications must be numbers."
         for const in election_rules["constituencies"]:
+            for info in ["num_const_seats", "num_adj_seats"]:
+                if not const[info]: const[info] = 0
+                if type(const[info]) != int:
+                    return False, "Seat specifications must be numbers."
             if const["num_const_seats"]+const["num_adj_seats"] <= 0:
                 return False, "Constituency seats and adjustment seats " \
                               "must add to a nonzero number."
@@ -384,12 +379,10 @@ def set_up_simulation():
     table_name = vote_table["name"]
     votes = vote_table["votes"]
 
-    for c in range(len(votes)):
-        for p in range(len(votes[c])):
-            if not votes[c][p]:
-                votes[c][p] = 0
-            if type(votes[c][p]) != int:
-                return False, "Votes must be numbers."
+    for row in votes:
+        for p in range(len(row)):
+            if not row[p]: row[p] = 0
+            if type(row[p]) != int: return False, "Votes must be numbers."
 
     stability_parameter = 100
     if "stbl_param" in data:
