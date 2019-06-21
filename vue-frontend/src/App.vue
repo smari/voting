@@ -6,7 +6,7 @@
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
           <b-nav-item href="#/">Instructions</b-nav-item>
-          <b-nav-item href="#/main">Main</b-nav-item>
+          <b-nav-item href="#/calc">Calculator</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>

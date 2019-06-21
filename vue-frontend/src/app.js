@@ -15,7 +15,7 @@ import Intro from './Intro.vue'
 
 const routes = [
   { path: '/', component: Intro },
-  { path: '/main', component: Main }
+  { path: '/calc', component: Main }
 ]
 
 var router = new VueRouter({ routes })
