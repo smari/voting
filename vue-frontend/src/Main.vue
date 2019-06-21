@@ -51,15 +51,13 @@ export default {
         constituencies: [],
         votes: [],
       },
-      election_rules: [
-        {
-          name: "",
-          adjustment_divider: "",
-          primary_divider: "",
-          adjustment_threshold: 0.0,
-          adjustment_method: "",
-        }
-      ],
+      election_rules: [{
+        name: "",
+        adjustment_divider: "",
+        primary_divider: "",
+        adjustment_threshold: 0.0,
+        adjustment_method: "",
+      }],
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",
@@ -77,12 +75,6 @@ export default {
   methods: {
     updateVoteTable: function(table) {
       this.vote_table = table;
-    },
-    updateVoteTable: function(table, recalc) {
-      this.vote_table = table;
-      if (recalc === true || recalc === undefined) {
-        this.recalculate();
-      }
     },
     serverError: function(error) {
       this.server.errormsg = error;
