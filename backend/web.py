@@ -131,6 +131,7 @@ def handle_election():
 def get_election_results():
     result = handle_election()
     if type(result)==dict and "error" in result:
+        print(result["error"])
         return jsonify(result)
 
     election = result
@@ -143,6 +144,7 @@ def get_election_excel():
 
     result = handle_election()
     if type(result)==dict and "error" in result:
+        print(result["error"])
         return jsonify(result)
 
     tmpfilename = tempfile.mktemp(prefix='election-')
