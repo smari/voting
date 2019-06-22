@@ -2,30 +2,6 @@
 <div>
   <h1>Election</h1>
 
-  <h2>Settings</h2>
-  <b-card no-body>
-    <b-tabs v-model="activeTabIndex" card>
-      <b-tab v-for="(rules, rulesidx) in election_rules" :key="rulesidx">
-        <div slot="title">
-          <b-button size="sm" variant="link" @click="deleteElectionRules(rulesidx)">x</b-button>
-          {{rulesidx}}-{{rules.name}}
-        </div>
-        <ElectionSettings
-          :rulesidx="rulesidx"
-          :rules="rules"
-          @update-rules="updateElectionRules">
-        </ElectionSettings>
-      </b-tab>
-      <template slot="tabs">
-        <b-button size="sm" @click="addElectionRules"><b>+</b></b-button>
-      </template>
-      <div slot="empty">
-        There are no electoral systems specified.
-        Use the + button to create a new electoral system.
-      </div>
-    </b-tabs>
-  </b-card>
-
   <h2>Results</h2>
   <b-button size="lg" @click="get_xlsx">Download XLSX file</b-button>
   <b-container>
@@ -47,27 +23,23 @@
 </template>
 
 <script>
-import VoteMatrix from './components/VoteMatrix.vue'
 import ResultMatrix from './components/ResultMatrix.vue'
 import ResultChart from './components/ResultChart.vue'
-import ElectionSettings from './components/ElectionSettings.vue'
 
 export default {
   props: {
     "vote_table": { default: {} },
     "election_rules": { default: [{}] },
+    "activeTabIndex": { default: 0 },
     "server": { default: {} },
   },
   components: {
-    VoteMatrix,
     ResultMatrix,
-    ElectionSettings,
     ResultChart
   },
 
   data: function() {
     return {
-      activeTabIndex: 0,
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
   },
@@ -86,15 +58,6 @@ export default {
     },
   },
   methods: {
-    addElectionRules: function() {
-      this.election_rules.push({})
-    },
-    deleteElectionRules: function(idx) {
-      this.election_rules.splice(idx, 1);
-    },
-    updateElectionRules: function(rules, idx) {
-      this.$set(this.election_rules, idx, rules);
-    },
     recalculate: function() {
       if (this.election_rules.length > 0
           && this.election_rules[this.activeTabIndex].name) {

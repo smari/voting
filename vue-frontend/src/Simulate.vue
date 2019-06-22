@@ -2,30 +2,6 @@
   <div>
     <h1>Simulate elections</h1>
 
-    <h2>Electoral system settings</h2>
-    <b-card no-body>
-      <b-tabs card>
-        <b-tab v-for="(rules, rulesidx) in election_rules" :key="rulesidx">
-          <div slot="title">
-            <b-button size="sm" variant="link" @click="deleteElectionRules(rulesidx)">x</b-button>
-            {{rulesidx}}-{{rules.name}}
-          </div>
-          <ElectionSettings
-            :rulesidx="rulesidx"
-            :rules="rules"
-            @update-rules="updateElectionRules">
-          </ElectionSettings>
-        </b-tab>
-        <template slot="tabs">
-          <b-button size="sm" @click="addElectionRules"><b>+</b></b-button>
-        </template>
-        <div slot="empty">
-          There are no electoral systems specified.
-          Use the + button to create a new electoral system.
-        </div>
-      </b-tabs>
-    </b-card>
-
     <h2>Simulation settings</h2>
     <SimulationSettings
       @update-rules="updateSimulationRules"
@@ -111,9 +87,7 @@
 </template>
 
 <script>
-import VoteMatrix from './components/VoteMatrix.vue'
 import ResultMatrix from './components/ResultMatrix.vue'
-import ElectionSettings from './components/ElectionSettings.vue'
 import SimulationSettings from './components/SimulationSettings.vue'
 import SimulationData from './components/SimulationData.vue'
 
@@ -124,9 +98,7 @@ export default {
     "server": { default: {} },
   },
   components: {
-    VoteMatrix,
     ResultMatrix,
-    ElectionSettings,
     SimulationSettings,
     SimulationData,
   },
@@ -146,16 +118,6 @@ export default {
     }
   },
   methods: {
-    addElectionRules: function() {
-      this.election_rules.push({})
-    },
-    deleteElectionRules: function(idx) {
-      this.election_rules.splice(idx, 1);
-    },
-    updateElectionRules: function(rules, idx) {
-      this.$set(this.election_rules, idx, rules);
-      //this works too: this.election_rules.splice(idx, 1, rules);
-    },
     updateSimulationRules: function(rules) {
       this.simulation_rules = rules;
     },
