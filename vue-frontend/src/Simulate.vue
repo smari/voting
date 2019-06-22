@@ -133,15 +133,7 @@ export default {
   data: function() {
     return {
       distribution_parameter: 0,
-      election_rules: [
-        {
-          name: "",
-          adjustment_divider: "",
-          primary_divider: "",
-          adjustment_threshold: 0.0,
-          adjustment_method: "",
-        }
-      ],
+      election_rules: [{}],
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",
@@ -155,15 +147,7 @@ export default {
   },
   methods: {
     addElectionRules: function() {
-      this.election_rules.push(
-        {
-          name: "",
-          adjustment_divider: "",
-          primary_divider: "",
-          adjustment_threshold: 0.0,
-          adjustment_method: "",
-        }
-      )
+      this.election_rules.push({})
     },
     deleteElectionRules: function(idx) {
       this.election_rules.splice(idx, 1);
