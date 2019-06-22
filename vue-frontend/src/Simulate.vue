@@ -10,7 +10,10 @@
             <b-button size="sm" variant="link" @click="deleteElectionRules(rulesidx)">x</b-button>
             {{rulesidx}}-{{rules.name}}
           </div>
-          <ElectionSettings :rulesidx="rulesidx" @update-rules="updateElectionRules">
+          <ElectionSettings
+            :rulesidx="rulesidx"
+            :rules="rules"
+            @update-rules="updateElectionRules">
           </ElectionSettings>
         </b-tab>
         <template slot="tabs">

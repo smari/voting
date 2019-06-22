@@ -57,11 +57,13 @@
 
 <script>
 export default {
-  props: [ "rulesidx" ],
+  props: [
+    "rulesidx",
+    "rules",
+  ],
   data: function () {
     return {
       doneCreating: false,
-      rules: { },
       capabilities: {},
     }
   },

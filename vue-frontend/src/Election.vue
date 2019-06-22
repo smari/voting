@@ -4,7 +4,10 @@
 
   <h2>Settings</h2>
   <b-container>
-    <ElectionSettings server="server" @update-rules="updateRules">
+    <ElectionSettings
+      server="server"
+      :rules="rules"
+      @update-rules="updateRules">
     </ElectionSettings>
   </b-container>
 
