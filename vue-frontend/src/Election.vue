@@ -67,7 +67,6 @@ export default {
 
   data: function() {
     return {
-      doneCreating: false,
       activeTabIndex: 0,
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
@@ -86,9 +85,6 @@ export default {
       deep: true
     },
   },
-  created: function() {
-    this.doneCreating = true;
-  },
   methods: {
     addElectionRules: function() {
       this.election_rules.push({})
@@ -100,8 +96,7 @@ export default {
       this.$set(this.election_rules, idx, rules);
     },
     recalculate: function() {
-      if (this.doneCreating
-          && this.election_rules.length > 0
+      if (this.election_rules.length > 0
           && this.election_rules[this.activeTabIndex].name) {
         this.server.waitingForData = true;
         this.$http.post('/api/election/',
