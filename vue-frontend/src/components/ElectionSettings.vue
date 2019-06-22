@@ -1,6 +1,6 @@
 <template>
   <b-form>
-    <b-row v-if="rulesidx !== undefined">
+    <b-row>
       <b-col>
         <b-form-group
           label="Name"
@@ -79,10 +79,9 @@ export default {
   },
   created: function() {
     this.$http.get('/api/capabilities').then(response => {
-      this.rules = response.body.election_rules;
       this.capabilities = response.body.capabilities;
+      this.$emit('update-rules', response.body.election_rules, this.rulesidx);
       this.doneCreating = true;
-      this.$emit('update-rules', this.rules, this.rulesidx);
     }, response => {
       this.serverError = true;
     });
