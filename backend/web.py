@@ -147,7 +147,8 @@ def get_election_excel():
 
     tmpfilename = tempfile.mktemp(prefix='election-')
     election.to_xlsx(tmpfilename)
-    attachment_filename=f"election {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx"
+    date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
+    attachment_filename=f"election {date}.xlsx"
     DOWNLOADS[did] = tmpfilename, attachment_filename
     return jsonify({"download_id": did})
 
