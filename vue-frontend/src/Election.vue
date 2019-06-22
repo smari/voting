@@ -52,12 +52,7 @@ export default {
   data: function() {
     return {
       doneCreating: false,
-      rules: {
-        adjustment_divider: "",
-        primary_divider: "",
-        adjustment_threshold: 0.0,
-        adjustment_method: "",
-      },
+      rules: {},
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
   },
