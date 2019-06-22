@@ -43,6 +43,7 @@ export default {
     return {
       server: {
         waitingForData: false,
+        errormsg: '',
         error: false,
       },
       vote_table: {
