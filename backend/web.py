@@ -129,10 +129,11 @@ def handle_election():
 
 @app.route('/api/election/', methods=["POST"])
 def get_election_results():
-    election = handle_election()
-    if type(election)==dict and "error" in election:
-        return jsonify(election)
+    result = handle_election()
+    if type(result)==dict and "error" in result:
+        return jsonify(result)
 
+    election = result
     return jsonify(election.get_results_dict())
 
 @app.route('/api/election/getxlsx/', methods=['POST'])
@@ -140,9 +141,9 @@ def get_election_excel():
     global DOWNLOADS
     did = get_new_download_id()
 
-    election = handle_election()
-    if type(election)==dict and "error" in election:
-        return jsonify(election)
+    result = handle_election()
+    if type(result)==dict and "error" in result:
+        return jsonify(result)
 
     tmpfilename = tempfile.mktemp(prefix='election-')
     election.to_xlsx(tmpfilename)
