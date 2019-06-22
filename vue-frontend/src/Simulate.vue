@@ -166,7 +166,8 @@ export default {
       this.election_rules.splice(idx, 1);
     },
     updateElectionRules: function(rules, idx) {
-      this.election_rules[idx] = rules;
+      this.$set(this.election_rules, idx, rules);
+      //this works too: this.election_rules.splice(idx, 1, rules);
     },
     updateSimulationRules: function(rules) {
       this.simulation_rules = rules;

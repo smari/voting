@@ -80,6 +80,7 @@ export default {
       this.rules = response.body.election_rules;
       this.capabilities = response.body.capabilities;
       this.doneCreating = true;
+      this.$emit('update-rules', this.rules, this.rulesidx);
     }, response => {
       this.serverError = true;
     });
