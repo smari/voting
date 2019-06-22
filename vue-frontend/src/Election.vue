@@ -4,7 +4,7 @@
 
   <h2>Settings</h2>
   <b-card no-body>
-    <b-tabs card>
+    <b-tabs v-model="activeTabIndex" card>
       <b-tab v-for="(rules, rulesidx) in election_rules" :key="rulesidx">
         <div slot="title">
           <b-button size="sm" variant="link" @click="deleteElectionRules(rulesidx)">x</b-button>
@@ -68,6 +68,7 @@ export default {
     return {
       doneCreating: false,
       election_rules: [{}],
+      activeTabIndex: 0,
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
   },
@@ -101,12 +102,12 @@ export default {
     recalculate: function() {
       if (this.doneCreating
           && this.election_rules.length > 0
-          && this.election_rules[0].name) {
+          && this.election_rules[this.activeTabIndex].name) {
         this.server.waitingForData = true;
         this.$http.post('/api/election/',
         {
           vote_table: this.vote_table,
-          rules: this.election_rules[0],
+          rules: this.election_rules[this.activeTabIndex],
         }).then(response => {
           if (response.body.error) {
             this.server.errormsg = response.body.error;
@@ -129,7 +130,7 @@ export default {
     get_xlsx: function() {
       this.$http.post('/api/election/getxlsx/', {
         vote_table: this.vote_table,
-        rules: this.election_rules[0],
+        rules: this.election_rules[this.activeTabIndex],
       }).then(response => {
         let link = document.createElement('a')
         link.href = '/api/downloads/get?id=' + response.data.download_id
