@@ -48,6 +48,7 @@ export default {
 
   data: function() {
     return {
+      doneCreating: false,
       rules: {
         adjustment_divider: "",
         primary_divider: "",
@@ -60,12 +61,17 @@ export default {
   watch: {
     'vote_table': {
       handler: function (val, oldVal) {
-        this.recalculate();
+        if (this.doneCreating) {
+          this.recalculate();
+        }
       },
       deep: true
     },
   },
   methods: {
+    created: function() {
+      this.doneCreating = true;
+    },
     updateRules: function(rules, recalc) {
       this.rules = rules;
       if (recalc === true || recalc === undefined) {
