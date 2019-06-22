@@ -66,10 +66,10 @@ export default {
       deep: true
     },
   },
+  created: function() {
+    this.doneCreating = true;
+  },
   methods: {
-    created: function() {
-      this.doneCreating = true;
-    },
     updateRules: function(rules, recalc) {
       this.rules = rules;
       if (recalc === true || recalc === undefined) {
