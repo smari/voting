@@ -3,18 +3,25 @@
     <h1>Simulate elections</h1>
 
     <h2>Electoral system settings</h2>
-    <b-button @click="addElectionRules">Add electoral system</b-button>
-    <b-container v-for="(rules, rulesidx) in election_rules" :key="rulesidx" class="ruleset">
-      <b-row>
-        <b-col cols="10">
+    <b-card no-body>
+      <b-tabs card>
+        <b-tab v-for="(rules, rulesidx) in election_rules" :key="rulesidx">
+          <div slot="title">
+            <b-button size="sm" variant="link" @click="deleteElectionRules(rulesidx)">x</b-button>
+            {{rulesidx}}-{{rules.name}}
+          </div>
           <ElectionSettings :rulesidx="rulesidx" @update-rules="updateElectionRules">
           </ElectionSettings>
-        </b-col>
-        <b-col>
-          <b-button @click="deleteElectionRules(rulesidx)">Delete this system</b-button>
-        </b-col>
-      </b-row>
-    </b-container>
+        </b-tab>
+        <template slot="tabs">
+          <b-button size="sm" @click="addElectionRules"><b>+</b></b-button>
+        </template>
+        <div slot="empty">
+          There are no electoral systems specified.
+          Use the + button to create a new electoral system.
+        </div>
+      </b-tabs>
+    </b-card>
 
     <h2>Simulation settings</h2>
     <SimulationSettings
