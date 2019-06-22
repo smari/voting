@@ -14,12 +14,14 @@
       <b-tab title="Single Election" active>
         <Election
           :vote_table="vote_table"
+          :election_rules="election_rules"
           :server="server">
         </Election>
       </b-tab>
       <b-tab title="Simulation">
         <Simulate
           :vote_table="vote_table"
+          :election_rules="election_rules"
           :server="server">
         </Simulate>
       </b-tab>
@@ -52,13 +54,7 @@ export default {
         constituencies: [],
         votes: [],
       },
-      election_rules: [{
-        name: "",
-        adjustment_divider: "",
-        primary_divider: "",
-        adjustment_threshold: 0.0,
-        adjustment_method: "",
-      }],
+      election_rules: [{}],
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",

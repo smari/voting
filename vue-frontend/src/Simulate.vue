@@ -120,6 +120,7 @@ import SimulationData from './components/SimulationData.vue'
 export default {
   props: {
     "vote_table": { default: {} },
+    "election_rules": { default: [{}] },
     "server": { default: {} },
   },
   components: {
@@ -133,7 +134,6 @@ export default {
   data: function() {
     return {
       distribution_parameter: 0,
-      election_rules: [{}],
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",

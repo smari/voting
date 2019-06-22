@@ -55,6 +55,7 @@ import ElectionSettings from './components/ElectionSettings.vue'
 export default {
   props: {
     "vote_table": { default: {} },
+    "election_rules": { default: [{}] },
     "server": { default: {} },
   },
   components: {
@@ -67,7 +68,6 @@ export default {
   data: function() {
     return {
       doneCreating: false,
-      election_rules: [{}],
       activeTabIndex: 0,
       results: { seat_allocations: [], parties: [], constituencies: []},
     }
