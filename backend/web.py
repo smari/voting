@@ -383,7 +383,11 @@ def set_up_simulation():
         election_rules["parties"] = vote_table["parties"]
         election_rules["constituencies"] = vote_table["constituencies"]
         for const in election_rules["constituencies"]:
+            if "name" not in const or not const["name"]:
+                return False, f"Missing data ('vote_table.constituencies[x].name')"
             for info in ["num_const_seats", "num_adj_seats"]:
+                if info not in const:
+                    return False, f"Missing data ('vote_table.constituencies[x].{info}')"
                 if not const[info]: const[info] = 0
                 if type(const[info]) != int:
                     return False, "Seat specifications must be numbers."
