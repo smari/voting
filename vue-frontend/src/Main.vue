@@ -10,7 +10,7 @@
         <b-tab v-for="(rules, rulesidx) in election_rules" :key="rulesidx">
           <div slot="title">
             <b-button size="sm" variant="link" @click="deleteElectionRules(rulesidx)">x</b-button>
-            {{rulesidx}}-{{rules.name}}
+            {{rulesidx+1}}-{{rules.name}}
           </div>
           <ElectionSettings
             :rulesidx="rulesidx"
