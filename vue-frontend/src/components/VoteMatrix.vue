@@ -57,8 +57,6 @@
 
     <b-button-toolbar key-nav aria-label="Vote tools">
       <b-button-group class="mx-1">
-        <b-btn @click="addConstituency()">Add constituency</b-btn>
-        <b-btn @click="addParty()">Add party</b-btn>
         <b-btn @click="clearVotes()">Clear votes</b-btn>
         <b-btn @click="clearAll()">Reset everything</b-btn>
       </b-button-group>
@@ -89,6 +87,9 @@
           <b-button size="sm" variant="link" @click="deleteParty(partyidx)">×</b-button>
           <input type="text" v-model="matrix.parties[partyidx]">
         </th>
+        <th>
+          <b-btn size="sm" @click="addParty()"><b>+</b></b-btn>
+        </th>
       </tr>
       <tr v-for="(constituency, conidx) in matrix.constituencies">
         <th class="small-12 medium-1 column constname">
@@ -105,6 +106,11 @@
             <input type="text" v-model.number="matrix.votes[conidx][partyidx]">
             </input>
         </td>
+      </tr>
+      <tr>
+        <th>
+          <b-btn size="sm" @click="addConstituency()"><b>+</b></b-btn>
+        </th>
       </tr>
     </table>
   </b-container>
