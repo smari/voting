@@ -24,7 +24,11 @@ export default {
     parties: function() {
       if (this._chart) this._chart.destroy();
       this.renderResultChart();
-    }
+    },
+    seats: function() {
+      if (this._chart) this._chart.destroy();
+      this.renderResultChart();
+    },
   },
   computed: {
     chartData() {
