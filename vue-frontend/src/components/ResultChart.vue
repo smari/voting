@@ -32,12 +32,7 @@ export default {
   },
   computed: {
     chartData() {
-      let seats = Array(this.parties.length).fill(0);
-      for (let c in this.seats) {
-        seats = this.seats[c].map(function (num, idx) {
-          return seats[idx]+num;
-        });
-      }
+      let seats = this.seats[this.seats.length-1].slice(0, -1);
       return {
         labels: this.parties,
         datasets: [
