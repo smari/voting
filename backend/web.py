@@ -374,10 +374,7 @@ def set_up_simulation():
     for rs in data["election_rules"]:
         election_rules = ElectionRules()
 
-        print(data["election_rules"])
-        print(rs)
         for k, v in rs.items():
-            print("Setting election_rules[%s] = %s" % (k, v))
             election_rules[k] = v
 
         election_rules["parties"] = vote_table["parties"]
