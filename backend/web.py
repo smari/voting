@@ -457,9 +457,6 @@ def get_capabilities_dict():
     }
 
 def get_presets_dict():
-    from os import listdir
-    from os.path import isfile, join
-
     try:
         with open('../data/presets.json', encoding='utf-8') as js:
             data = json.load(js)
