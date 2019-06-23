@@ -57,19 +57,19 @@
 
     <b-button-toolbar key-nav aria-label="Vote tools">
       <b-button-group class="mx-1">
-        <b-btn @click="clearVotes()">Clear votes</b-btn>
-        <b-btn @click="clearAll()">Reset everything</b-btn>
-      </b-button-group>
-      <b-button-group class="mx-1">
+        <b-button v-b-modal.modalpreset>Load preset</b-button>
         <b-button v-b-modal.modalupload>Upload votes</b-button>
         <b-button v-b-modal.modalpaste>Paste input</b-button>
-        <b-button v-b-modal.modalpreset>Load preset</b-button>
         <!--b-dropdown id="ddown1" text="Presets" size="sm">
           <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
         </b-dropdown-->
       </b-button-group>
       <b-button-group class="mx-1">
         <b-button @click="saveVotes()">Save voteset</b-button>
+      </b-button-group>
+      <b-button-group class="mx-1">
+        <b-btn @click="clearVotes()">Clear votes</b-btn>
+        <b-btn @click="clearAll()">Delete table</b-btn>
       </b-button-group>
     </b-button-toolbar>
     <table class="votematrix">
