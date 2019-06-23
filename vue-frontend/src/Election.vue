@@ -7,14 +7,16 @@
   <b-container>
     <b-row>
       <ResultMatrix
-        :constituencies="results.constituencies"
-        :parties="results.parties"
-        :values="results.seat_allocations"
+        :constituencies="vote_table.constituencies"
+        :parties="vote_table.parties"
+        :values="results[activeTabIndex].seat_allocations"
         :stddev="false">
       </ResultMatrix>
     </b-row>
     <b-row>
-      <ResultChart :parties="results.parties" :seats="results.seat_allocations">
+      <ResultChart
+        :parties="vote_table.parties"
+        :seats="results[activeTabIndex].seat_allocations">
       </ResultChart>
     </b-row>
   </b-container>
@@ -40,7 +42,7 @@ export default {
 
   data: function() {
     return {
-      results: { seat_allocations: [], parties: [], constituencies: []},
+      results: [],
     }
   },
   watch: {
@@ -65,7 +67,7 @@ export default {
         this.$http.post('/api/election/',
         {
           vote_table: this.vote_table,
-          rules: this.election_rules[this.activeTabIndex],
+          rules: this.election_rules,
         }).then(response => {
           if (response.body.error) {
             this.server.errormsg = response.body.error;
@@ -73,9 +75,7 @@ export default {
           } else {
             this.server.errormsg = '';
             this.server.error = false;
-            this.results["constituencies"] = response.body.rules.constituencies;
-            this.results["parties"] = response.body.rules.parties;
-            this.results["seat_allocations"] = response.body.seat_allocations;
+            this.results = response.body;
             this.server.waitingForData = false;
           }
         }, response => {
@@ -88,7 +88,7 @@ export default {
     get_xlsx: function() {
       this.$http.post('/api/election/getxlsx/', {
         vote_table: this.vote_table,
-        rules: this.election_rules[this.activeTabIndex],
+        rules: [this.election_rules[this.activeTabIndex]],
       }).then(response => {
         let link = document.createElement('a')
         link.href = '/api/downloads/get?id=' + response.data.download_id

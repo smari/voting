@@ -75,16 +75,12 @@ def get_download():
 
 def handle_election():
     data = request.get_json(force=True)
-    rules = ElectionRules()
 
     for section in ["vote_table", "rules"]:
         if section not in data or not data[section]:
             return {"error": f"Missing data ('{section}')"}
 
     vote_table = data["vote_table"]
-
-    for k, v in data["rules"].items():
-        rules[k] = v
 
     for info in [
         "name",
@@ -95,21 +91,6 @@ def handle_election():
         if info not in vote_table or not vote_table[info]:
             return {"error": f"Missing data ('vote_table.{info}')"}
 
-    rules["parties"] = vote_table["parties"]
-    rules["constituencies"] = vote_table["constituencies"]
-    for const in rules["constituencies"]:
-        if "name" not in const or not const["name"]:
-            return {"error": f"Missing data ('vote_table.constituencies[x].name')"}
-        for info in ["num_const_seats", "num_adj_seats"]:
-            if info not in const:
-                return {"error": f"Missing data ('vote_table.constituencies[x].{info}')"}
-            if not const[info]: const[info] = 0
-            if type(const[info]) != int:
-                return {"error": "Seat numbers must be numbers."}
-        if const["num_const_seats"]+const["num_adj_seats"] <= 0:
-            return {"error": "Constituency seats and adjustment seats "
-                             "must add to a nonzero number."}
-
     table_name = vote_table["name"]
     votes = vote_table["votes"]
     for row in votes:
@@ -117,15 +98,39 @@ def handle_election():
             if not row[p]: row[p] = 0
             if type(row[p]) != int: return {"error": "Votes must be numbers."}
 
-    try:
-        election = voting.Election(rules, votes, table_name)
-        election.run()
-    except ZeroDivisionError:
-        return {"error": "Need to have more votes."}
-    except AssertionError:
-        return {"error": "The data is malformed."}
+    elections = []
+    for rs in data["rules"]:
+        rules = ElectionRules()
 
-    return election
+        for k, v in rs.items():
+            rules[k] = v
+
+        rules["parties"] = vote_table["parties"]
+        rules["constituencies"] = vote_table["constituencies"]
+        for const in rules["constituencies"]:
+            if "name" not in const or not const["name"]:
+                return {"error": f"Missing data ('vote_table.constituencies[x].name')"}
+            for info in ["num_const_seats", "num_adj_seats"]:
+                if info not in const:
+                    return {"error": f"Missing data ('vote_table.constituencies[x].{info}')"}
+                if not const[info]: const[info] = 0
+                if type(const[info]) != int:
+                    return {"error": "Seat numbers must be numbers."}
+            if const["num_const_seats"]+const["num_adj_seats"] <= 0:
+                return {"error": "Constituency seats and adjustment seats "
+                                 "must add to a nonzero number."}
+
+        try:
+            election = voting.Election(rules, votes, table_name)
+            election.run()
+        except ZeroDivisionError:
+            return {"error": "Need to have more votes."}
+        except AssertionError:
+            return {"error": "The data is malformed."}
+
+        elections.append(election)
+
+    return elections
 
 @app.route('/api/election/', methods=["POST"])
 def get_election_results():
@@ -134,8 +139,8 @@ def get_election_results():
         print(result["error"])
         return jsonify(result)
 
-    election = result
-    return jsonify(election.get_results_dict())
+    elections = result
+    return jsonify([election.get_results_dict() for election in elections])
 
 @app.route('/api/election/getxlsx/', methods=['POST'])
 def get_election_excel():
@@ -147,6 +152,7 @@ def get_election_excel():
         print(result["error"])
         return jsonify(result)
 
+    election = result[0]
     tmpfilename = tempfile.mktemp(prefix='election-')
     election.to_xlsx(tmpfilename)
     date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
