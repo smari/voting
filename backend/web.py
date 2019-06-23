@@ -469,23 +469,6 @@ def get_presets_dict():
     #    data = {'error': 'Could not load presets due to parse error.'}
 
     return data
-    # presetsdir = "../data/presets/"
-    # try:
-    #     files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
-    #              and f.endswith('.json')]
-    # except Exception as e:
-    #     print("Presets directory read failure: %s" % (e))
-    #     files = []
-    # pr = []
-    # for f in files:
-    #     try:
-    #         with open(presetsdir+f) as json_file:
-    #             data = json.load(json_file)
-    #     except  json.decoder.JSONDecodeError:
-    #         data = {'error': 'Problem parsing json, please fix "{}"'.format(
-    #             presetsdir+f)}
-    #     pr.append(data)
-    # return pr
 
 def run_script(rules):
     if type(rules) in ["str", "unicode"]:
