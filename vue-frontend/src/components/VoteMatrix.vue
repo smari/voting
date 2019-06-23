@@ -45,7 +45,6 @@
     </b-modal>
 
     <b-modal size="lg" id="modalpreset" ref="modalpresetref" title="Load preset" cancel-only>
-
       <b-table hover :items="presets" :fields="presetfields">
         <template slot="actions" slot-scope="row">
           <b-button size="sm" @click.stop="loadPreset(row.item.id); $refs.modalpresetref.hide()" class="mr-1 mt-0 mb-0">
@@ -66,9 +65,6 @@
         <b-button title="Paste input from file with csv format"
           v-b-modal.modalpaste>Paste input
         </b-button>
-        <!--b-dropdown id="ddown1" text="Presets" size="sm">
-          <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
-        </b-dropdown-->
       </b-button-group>
       <b-button-group class="mx-1">
         <b-button title="Download .xlsx file with vote table"
@@ -225,12 +221,6 @@ export default {
       this.$http.post('/api/presets/load/', {'eid': eid}).then(response => {
         this.matrix = response.data;
       })
-    },
-    setPreset: function(idx) {
-      let el = this.presets[idx].election_rules;
-      this.matrix.constituencies = el.constituencies;
-      this.matrix.parties = el.parties;
-      this.matrix.votes = el.votes;
     },
     uploadVotes: function(evt) {
       if (!this.uploadfile) {
