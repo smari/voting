@@ -96,7 +96,7 @@
           <b-button size="sm" variant="link" @click="deleteParty(partyidx)">×</b-button>
           <input type="text" v-model="matrix.parties[partyidx]">
         </th>
-        <th>
+        <th class="growtable">
           <b-btn size="sm" @click="addParty()"><b>+</b></b-btn>
         </th>
       </tr>
@@ -117,7 +117,7 @@
         </td>
       </tr>
       <tr>
-        <th>
+        <th class="growtable">
           <b-btn size="sm" @click="addConstituency()"><b>+</b></b-btn>
         </th>
       </tr>
