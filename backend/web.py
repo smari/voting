@@ -346,7 +346,6 @@ def get_xlsx():
 
 def set_up_simulation():
     data = request.get_json(force=True)
-    rulesets = []
 
     for section in ["vote_table", "election_rules", "simulation_rules"]:
         if section not in data or not data[section]:
@@ -363,6 +362,15 @@ def set_up_simulation():
         if info not in vote_table or not vote_table[info]:
             return False, f"Missing data ('{info}')"
 
+    table_name = vote_table["name"]
+    votes = vote_table["votes"]
+
+    for row in votes:
+        for p in range(len(row)):
+            if not row[p]: row[p] = 0
+            if type(row[p]) != int: return False, "Votes must be numbers."
+
+    rulesets = []
     for rs in data["election_rules"]:
         election_rules = ElectionRules()
 
@@ -384,14 +392,6 @@ def set_up_simulation():
                               "must add to a nonzero number."
 
         rulesets.append(election_rules)
-
-    table_name = vote_table["name"]
-    votes = vote_table["votes"]
-
-    for row in votes:
-        for p in range(len(row)):
-            if not row[p]: row[p] = 0
-            if type(row[p]) != int: return False, "Votes must be numbers."
 
     stability_parameter = 100
     if "stbl_param" in data:
