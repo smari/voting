@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>Simulate elections</h1>
-
     <h2>Simulation settings</h2>
     <SimulationSettings
       @update-rules="updateSimulationRules"
