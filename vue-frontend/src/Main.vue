@@ -34,7 +34,7 @@
       @server-error="serverError">
     </VoteMatrix>
 
-    <b-tabs>
+    <b-tabs style="margin-top:10px">
       <b-tab title="Single Election" active>
         <Election
           :vote_table="vote_table"
