@@ -2,7 +2,7 @@
 <div>
   <h2>Results</h2>
   <b-button size="lg" @click="get_xlsx">Download XLSX file</b-button>
-  <b-container>
+  <b-container v-if="results[activeTabIndex] !== undefined">
     <b-row>
       <ResultMatrix
         :constituencies="vote_table.constituencies"
