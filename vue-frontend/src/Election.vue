@@ -60,6 +60,7 @@ export default {
   methods: {
     recalculate: function() {
       if (this.election_rules.length > 0
+          && this.election_rules.length > this.activeTabIndex
           && this.election_rules[this.activeTabIndex].name) {
         this.server.waitingForData = true;
         this.$http.post('/api/election/',
