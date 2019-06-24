@@ -47,7 +47,7 @@ ADJUSTMENT_METHODS = {
     "pure-vote-ratios": pure_vote_ratios_apportionment,
 }
 ADJUSTMENT_METHOD_NAMES = {
-    "alternating-scaling": "Alternating-Scaling Method",
+    "alternating-scaling": "Optimal method (Alternating-Scaling)",
     "relative-superiority": "Relative Superiority Method",
     "nearest-neighbor": "Nearest Neighbor Method",
     "monge": "Monge algorithm",
