@@ -19,7 +19,8 @@ class ElectionRules(Rules):
             "adjustment_method": ADJUSTMENT_METHODS.keys(),
         }
         self.range_rules = {
-            "adjustment_threshold": [0, 100]
+            "adjustment_threshold": [0, 100],
+            "constituency_threshold": [0, 100],
         }
         self.list_rules = [
             "constituencies", "parties"
@@ -32,6 +33,7 @@ class ElectionRules(Rules):
         self["adj_determine_divider"] = "dhondt"
         self["adj_alloc_divider"] = "dhondt"
         self["adjustment_threshold"] = 5
+        self["constituency_threshold"] = 0
         self["adjustment_method"] = "icelandic-law"
         self["constituencies"] = []
         self["parties"] = []
