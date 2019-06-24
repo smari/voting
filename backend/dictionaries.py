@@ -28,7 +28,7 @@ DIVIDER_RULE_NAMES = {
     "dhondt": "D'Hondt's method",
     "sainte-lague": "Sainte-Laguë method",
     "nordic": "Nordic Sainte-Laguë variant",
-    "imperiali": "Imeriali method",
+    "imperiali": "Imperiali method",
     "danish": "Danish method",
     "huntington-hill": "Huntington-Hill method",
 }
