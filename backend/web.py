@@ -78,7 +78,7 @@ def handle_election():
 
     for section in ["vote_table", "rules"]:
         if section not in data or not data[section]:
-            return {"error": f"Missing data ('{section}')"}
+            raise KeyError(f"Missing data ('{section}')")
 
     vote_table = data["vote_table"]
 
@@ -89,14 +89,14 @@ def handle_election():
         "constituencies",
     ]:
         if info not in vote_table or not vote_table[info]:
-            return {"error": f"Missing data ('vote_table.{info}')"}
+            raise KeyError(f"Missing data ('vote_table.{info}')")
 
     table_name = vote_table["name"]
     votes = vote_table["votes"]
     for row in votes:
         for p in range(len(row)):
             if not row[p]: row[p] = 0
-            if type(row[p]) != int: return {"error": "Votes must be numbers."}
+            if type(row[p]) != int: raise ValueError("Votes must be numbers.")
 
     elections = []
     for rs in data["rules"]:
@@ -109,35 +109,33 @@ def handle_election():
         rules["constituencies"] = vote_table["constituencies"]
         for const in rules["constituencies"]:
             if "name" not in const or not const["name"]:
-                return {"error": f"Missing data ('vote_table.constituencies[x].name')"}
+                raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
             for info in ["num_const_seats", "num_adj_seats"]:
                 if info not in const:
-                    return {"error": f"Missing data ('vote_table.constituencies[x].{info}')"}
+                    raise KeyError(f"Missing data ('vote_table.constituencies[x].{info}')")
                 if not const[info]: const[info] = 0
                 if type(const[info]) != int:
-                    return {"error": "Seat numbers must be numbers."}
+                    raise ValueError("Seat specifications must be numbers.")
             if const["num_const_seats"]+const["num_adj_seats"] <= 0:
-                return {"error": "Constituency seats and adjustment seats "
-                                 "must add to a nonzero number."}
+                raise ValueError("Constituency seats and adjustment seats "
+                                 "must add to a nonzero number.")
 
-        try:
-            election = voting.Election(rules, votes, table_name)
-            election.run()
-        except ZeroDivisionError:
-            return {"error": "Need to have more votes."}
-        except AssertionError:
-            return {"error": "The data is malformed."}
-
+        election = voting.Election(rules, votes, table_name)
+        election.run()
         elections.append(election)
 
     return elections
 
 @app.route('/api/election/', methods=["POST"])
 def get_election_results():
-    result = handle_election()
-    if type(result)==dict and "error" in result:
-        print(result["error"])
-        return jsonify(result)
+    try:
+        result = handle_election()
+    except (KeyError, ValueError, AssertionError, ZeroDivisionError) as e:
+        message = "The data is malformed."  if isinstance(e, AssertionError)\
+            else "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+            else e.args[0]
+        print(message)
+        return jsonify({"error": message})
 
     return jsonify([election.get_results_dict() for election in result])
 
@@ -146,10 +144,13 @@ def get_election_excel():
     global DOWNLOADS
     did = get_new_download_id()
 
-    result = handle_election()
-    if type(result)==dict and "error" in result:
-        print(result["error"])
-        return jsonify(result)
+    try:
+        result = handle_election()
+    except (KeyError, ValueError, AssertionError, ZeroDivisionError) as e:
+        message = "The data is malformed."  if isinstance(e, AssertionError)\
+            else "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+            else e.args[0]
+        return jsonify({"error": message})
 
     election = result[0]
     tmpfilename = tempfile.mktemp(prefix='election-')
@@ -163,13 +164,22 @@ def get_election_excel():
 def save_votes():
     global DOWNLOADS
     did = get_new_download_id()
-    DOWNLOADS[did] = prepare_to_save_vote_table()
+
+    try:
+        result = prepare_to_save_vote_table()
+    except (KeyError, ValueError, AssertionError) as e:
+        message = "The data is malformed." if isinstance(e, AssertionError)\
+            else e.args[0]
+        print(message)
+        return jsonify({"error": message})
+
+    DOWNLOADS[did] = result
     return jsonify({"download_id": did})
 
 def prepare_to_save_vote_table():
     data = request.get_json(force=True)
     if "vote_table" not in data or not data["vote_table"]:
-        return False, f"Missing data (vote_table)"
+        raise KeyError(f"Missing data (vote_table)")
     vote_table = data["vote_table"]
     for info in [
         "name",
@@ -178,7 +188,7 @@ def prepare_to_save_vote_table():
         "constituencies",
     ]:
         if info not in vote_table or not vote_table[info]:
-            return False, f"Missing data ('{info}')"
+            raise KeyError(f"Missing data ('{info}')")
 
     num_constituencies = len(vote_table["constituencies"])
     num_parties = len(vote_table["parties"])
@@ -266,10 +276,14 @@ def start_simulation():
     sid = h.hexdigest()
     thread = threading.Thread(target=run_simulation, args=(sid,))
 
-    success, simulation = set_up_simulation()
-    if not success:
-        print(simulation)
-        return jsonify({"started": False, "error": simulation})
+    try:
+        simulation = set_up_simulation()
+    except (KeyError, ValueError, AssertionError, ZeroDivisionError) as e:
+        message = "The data is malformed."  if isinstance(e, AssertionError)\
+            else "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+            else e.args[0]
+        print(message)
+        return jsonify({"started": False, "error": message})
 
     # Simulation cache expires in 3 hours = 3*3600 = 10800 seconds
     expires = datetime.now() + timedelta(seconds=10800)
@@ -349,7 +363,7 @@ def set_up_simulation():
 
     for section in ["vote_table", "election_rules", "simulation_rules"]:
         if section not in data or not data[section]:
-            return False, f"Missing data ('{section}')"
+            raise KeyError(f"Missing data ('{section}')")
 
     vote_table = data["vote_table"]
 
@@ -360,15 +374,14 @@ def set_up_simulation():
         "constituencies",
     ]:
         if info not in vote_table or not vote_table[info]:
-            return False, f"Missing data ('{info}')"
+            raise KeyError(f"Missing data ('vote_table.{info}')")
 
     table_name = vote_table["name"]
     votes = vote_table["votes"]
-
     for row in votes:
         for p in range(len(row)):
             if not row[p]: row[p] = 0
-            if type(row[p]) != int: return False, "Votes must be numbers."
+            if type(row[p]) != int: raise ValueError("Votes must be numbers.")
 
     rulesets = []
     for rs in data["election_rules"]:
@@ -381,16 +394,16 @@ def set_up_simulation():
         election_rules["constituencies"] = vote_table["constituencies"]
         for const in election_rules["constituencies"]:
             if "name" not in const or not const["name"]:
-                return False, f"Missing data ('vote_table.constituencies[x].name')"
+                raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
             for info in ["num_const_seats", "num_adj_seats"]:
                 if info not in const:
-                    return False, f"Missing data ('vote_table.constituencies[x].{info}')"
+                    raise KeyError(f"Missing data ('vote_table.constituencies[x].{info}')")
                 if not const[info]: const[info] = 0
                 if type(const[info]) != int:
-                    return False, "Seat specifications must be numbers."
+                    raise ValueError("Seat specifications must be numbers.")
             if const["num_const_seats"]+const["num_adj_seats"] <= 0:
-                return False, "Constituency seats and adjustment seats " \
-                              "must add to a nonzero number."
+                raise ValueError("Constituency seats and adjustment seats "
+                                 "must add to a nonzero number.")
 
         rulesets.append(election_rules)
 
@@ -398,20 +411,15 @@ def set_up_simulation():
     if "stbl_param" in data:
         stability_parameter = data["stbl_param"]
         if stability_parameter <= 1:
-            return False, "Stability parameter must be greater than 1."
+            raise ValueError("Stability parameter must be greater than 1.")
 
     simulation_rules = sim.SimulationRules()
     for k, v in data["simulation_rules"].items():
         simulation_rules[k] = v
 
-    try:
-        simulation = sim.Simulation(
-            simulation_rules, rulesets, votes, table_name,
-            stability_parameter)
-    except ZeroDivisionError:
-        return False, "Need to have more votes."
-
-    return True, simulation
+    simulation = sim.Simulation(
+        simulation_rules, rulesets, votes, table_name, stability_parameter)
+    return simulation
 
 
 @app.route('/api/script/', methods=["POST"])
