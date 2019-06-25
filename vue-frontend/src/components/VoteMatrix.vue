@@ -210,11 +210,15 @@ export default {
       this.$http.post('/api/votes/save/', {
         vote_table: this.matrix
       }).then(response => {
-        let link = document.createElement('a')
-        link.href = '/api/downloads/get?id=' + response.data.download_id
-        link.click()
+        if (response.body.error) {
+          this.$emit('server-error', response.body.error);
+        } else {
+          let link = document.createElement('a')
+          link.href = '/api/downloads/get?id=' + response.data.download_id
+          link.click()
+        }
       }, response => {
-        this.server.error = true;
+        console.log("Error:", response);
       })
     },
     loadPreset: function(eid) {
