@@ -106,7 +106,7 @@ def check_vote_table(vote_table):
     for const in vote_table["constituencies"]:
         if "name" not in const or not const["name"]:
             raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
-            name = const["name"]
+        name = const["name"]
         for info in ["num_const_seats", "num_adj_seats"]:
             if info not in const:
                 raise KeyError(f"Missing data ('{info}' for {name})")
