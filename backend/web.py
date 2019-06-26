@@ -73,15 +73,15 @@ def get_download():
         as_attachment=True
     )
 
-def handle_election():
-    data = request.get_json(force=True)
+def check_vote_table(vote_table):
+    """Checks vote_table input, and translates empty cells to zeroes
 
-    for section in ["vote_table", "rules"]:
-        if section not in data or not data[section]:
-            raise KeyError(f"Missing data ('{section}')")
-
-    vote_table = data["vote_table"]
-
+    Raises:
+        KeyError: If vote_table or constituencies are missing a component
+        ValueError: If the dimensions of the table are inconsistent
+            or not enough seats are specified
+        TypeError: If vote or seat counts are not given as numbers
+    """
     for info in [
         "name",
         "votes",
@@ -91,19 +91,43 @@ def handle_election():
         if info not in vote_table or not vote_table[info]:
             raise KeyError(f"Missing data ('vote_table.{info}')")
 
-    table_name = vote_table["name"]
-    votes = vote_table["votes"]
     num_parties = len(vote_table["parties"])
     num_constituencies = len(vote_table["constituencies"])
 
-    if not len(votes) == num_constituencies:
+    if not len(vote_table["votes"]) == num_constituencies:
         raise ValueError("The data is malformed.")
-    for row in votes:
+    for row in vote_table["votes"]:
         if not len(row) == num_parties:
             raise ValueError("The data is malformed.")
         for p in range(len(row)):
             if not row[p]: row[p] = 0
             if type(row[p]) != int: raise TypeError("Votes must be numbers.")
+
+    for const in vote_table["constituencies"]:
+        if "name" not in const or not const["name"]:
+            raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
+        for info in ["num_const_seats", "num_adj_seats"]:
+            if info not in const:
+                raise KeyError(f"Missing data ('vote_table.constituencies[x].{info}')")
+            if not const[info]: const[info] = 0
+            if type(const[info]) != int:
+                raise TypeError("Seat specifications must be numbers.")
+        if const["num_const_seats"]+const["num_adj_seats"] <= 0:
+            raise ValueError("Constituency seats and adjustment seats "
+                             "must add to a nonzero number.")
+
+    return vote_table
+
+def handle_election():
+    data = request.get_json(force=True)
+
+    for section in ["vote_table", "rules"]:
+        if section not in data or not data[section]:
+            raise KeyError(f"Missing data ('{section}')")
+
+    vote_table = check_vote_table(data["vote_table"])
+    table_name = vote_table["name"]
+    votes = vote_table["votes"]
 
     elections = []
     for rs in data["rules"]:
@@ -114,18 +138,6 @@ def handle_election():
 
         rules["parties"] = vote_table["parties"]
         rules["constituencies"] = vote_table["constituencies"]
-        for const in rules["constituencies"]:
-            if "name" not in const or not const["name"]:
-                raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
-            for info in ["num_const_seats", "num_adj_seats"]:
-                if info not in const:
-                    raise KeyError(f"Missing data ('vote_table.constituencies[x].{info}')")
-                if not const[info]: const[info] = 0
-                if type(const[info]) != int:
-                    raise TypeError("Seat specifications must be numbers.")
-            if const["num_const_seats"]+const["num_adj_seats"] <= 0:
-                raise ValueError("Constituency seats and adjustment seats "
-                                 "must add to a nonzero number.")
 
         election = voting.Election(rules, votes, table_name)
         election.run()
@@ -184,21 +196,9 @@ def prepare_to_save_vote_table():
     data = request.get_json(force=True)
     if "vote_table" not in data or not data["vote_table"]:
         raise KeyError(f"Missing data (vote_table)")
-    vote_table = data["vote_table"]
-    for info in [
-        "name",
-        "votes",
-        "parties",
-        "constituencies",
-    ]:
-        if info not in vote_table or not vote_table[info]:
-            raise KeyError(f"Missing data ('{info}')")
 
-    num_constituencies = len(vote_table["constituencies"])
-    num_parties = len(vote_table["parties"])
-    if not (len(vote_table["votes"] == num_constituencies)
-            and all([len(row) == num_parties for row in vote_table["votes"]])):
-        raise ValueError("The data is malformed.")
+    vote_table = check_vote_table(data["vote_table"])
+
     file_matrix = [
         [vote_table["name"], "cons", "adj"] + vote_table["parties"],
     ] + [
@@ -207,7 +207,7 @@ def prepare_to_save_vote_table():
             vote_table["constituencies"][c]["num_const_seats"],
             vote_table["constituencies"][c]["num_adj_seats"],
         ] + vote_table["votes"][c]
-        for c in range(num_constituencies)
+        for c in range(len(vote_table["constituencies"]))
     ]
 
     tmpfilename = tempfile.mktemp(prefix='vote_table-')
@@ -369,30 +369,9 @@ def set_up_simulation():
         if section not in data or not data[section]:
             raise KeyError(f"Missing data ('{section}')")
 
-    vote_table = data["vote_table"]
-
-    for info in [
-        "name",
-        "votes",
-        "parties",
-        "constituencies",
-    ]:
-        if info not in vote_table or not vote_table[info]:
-            raise KeyError(f"Missing data ('vote_table.{info}')")
-
+    vote_table = check_vote_table(data["vote_table"])
     table_name = vote_table["name"]
     votes = vote_table["votes"]
-    num_parties = len(vote_table["parties"])
-    num_constituencies = len(vote_table["constituencies"])
-
-    if not len(votes) == num_constituencies:
-        raise ValueError("The data is malformed.")
-    for row in votes:
-        if not len(row) == num_parties:
-            raise ValueError("The data is malformed.")
-        for p in range(len(row)):
-            if not row[p]: row[p] = 0
-            if type(row[p]) != int: raise TypeError("Votes must be numbers.")
 
     rulesets = []
     for rs in data["election_rules"]:
@@ -403,18 +382,6 @@ def set_up_simulation():
 
         election_rules["parties"] = vote_table["parties"]
         election_rules["constituencies"] = vote_table["constituencies"]
-        for const in election_rules["constituencies"]:
-            if "name" not in const or not const["name"]:
-                raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
-            for info in ["num_const_seats", "num_adj_seats"]:
-                if info not in const:
-                    raise KeyError(f"Missing data ('vote_table.constituencies[x].{info}')")
-                if not const[info]: const[info] = 0
-                if type(const[info]) != int:
-                    raise TypeError("Seat specifications must be numbers.")
-            if const["num_const_seats"]+const["num_adj_seats"] <= 0:
-                raise ValueError("Constituency seats and adjustment seats "
-                                 "must add to a nonzero number.")
 
         rulesets.append(election_rules)
 
