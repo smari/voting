@@ -1,6 +1,6 @@
 
 import json
-from copy import copy
+from copy import copy, deepcopy
 
 from rules import Rules
 from util import load_constituencies
@@ -19,11 +19,11 @@ class ElectionRules(Rules):
             "adjustment_method": ADJUSTMENT_METHODS.keys(),
         }
         self.range_rules = {
-            "adjustment_threshold": [0, 100]
+            "adjustment_threshold": [0, 100],
+            "constituency_threshold": [0, 100],
         }
         self.list_rules = [
-            "constituency_seats", "constituency_adjustment_seats",
-            "constituency_names", "parties"
+            "constituencies", "parties"
         ]
 
         self["name"] = "My electoral system"
@@ -33,10 +33,9 @@ class ElectionRules(Rules):
         self["adj_determine_divider"] = "dhondt"
         self["adj_alloc_divider"] = "dhondt"
         self["adjustment_threshold"] = 5
+        self["constituency_threshold"] = 0
         self["adjustment_method"] = "icelandic-law"
-        self["constituency_seats"] = []
-        self["constituency_adjustment_seats"] = []
-        self["constituency_names"] = []
+        self["constituencies"] = []
         self["parties"] = []
 
         # Display rules
@@ -45,13 +44,8 @@ class ElectionRules(Rules):
         self["output"] = "simple"
 
     def __setitem__(self, key, value):
-        if key == "constituencies":
+        if key == "constituencies" and type(value) == str:
             value = load_constituencies(value)
-            self["constituency_names"] = [x["name"] for x in value]
-            self["constituency_seats"] = [x["num_constituency_seats"]
-                                          for x in value]
-            self["constituency_adjustment_seats"] = [x["num_adjustment_seats"]
-                                                     for x in value]
 
         super(ElectionRules, self).__setitem__(key, value)
 
@@ -105,28 +99,29 @@ class ElectionRules(Rules):
     def generate_ind_const_ruleset(self):
         ref_rs = ElectionRules()
         ref_rs.update(self)
-        ref_rs["constituency_seats"] = copy(self["constituency_seats"])
-        ref_rs["constituency_adjustment_seats"] = []
-        for i in range(len(self["constituency_seats"])):
-            ref_rs["constituency_seats"][i] += self["constituency_adjustment_seats"][i]
-            ref_rs["constituency_adjustment_seats"].append(0)
+        ref_rs["constituencies"] = deepcopy(self["constituencies"])
+        for const in ref_rs["constituencies"]:
+            const["num_const_seats"] += const["num_adj_seats"]
+            const["num_adj_seats"] = 0
         return ref_rs
 
     def generate_one_const_ruleset(self):
         ref_rs = ElectionRules()
         ref_rs.update(self)
-        ref_rs["constituency_seats"] = [sum(self["constituency_seats"])]
-        ref_rs["constituency_adjustment_seats"] = [sum(self["constituency_adjustment_seats"])]
-        ref_rs["constituency_names"] = ["All"]
+        ref_rs["constituencies"] = [{
+            "name": "All",
+            "num_const_seats": sum([const["num_const_seats"]
+                for const in self["constituencies"]]),
+            "num_adj_seats": sum([const["num_adj_seats"]
+                for const in self["constituencies"]]),
+        }]
         return ref_rs
 
     def generate_all_adj_ruleset(self):
         ref_rs = ElectionRules()
         ref_rs.update(self)
-        n = len(self["constituency_names"])
-        ref_rs["constituency_seats"] = [0 for c in range(n)]
-        ref_rs["constituency_adjustment_seats"] \
-            = [self["constituency_seats"][c] \
-               + self["constituency_adjustment_seats"][c]
-               for c in range(n)]
+        ref_rs["constituencies"] = deepcopy(self["constituencies"])
+        for const in ref_rs["constituencies"]:
+            const["num_adj_seats"] += const["num_const_seats"]
+            const["num_const_seats"] = 0
         return ref_rs

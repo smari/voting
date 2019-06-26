@@ -24,16 +24,15 @@ export default {
     parties: function() {
       if (this._chart) this._chart.destroy();
       this.renderResultChart();
-    }
+    },
+    seats: function() {
+      if (this._chart) this._chart.destroy();
+      this.renderResultChart();
+    },
   },
   computed: {
     chartData() {
-      let seats = Array(this.parties.length).fill(0);
-      for (let c in this.seats) {
-        seats = this.seats[c].map(function (num, idx) {
-          return seats[idx]+num;
-        });
-      }
+      let seats = this.seats[this.seats.length-1].slice(0, -1);
       return {
         labels: this.parties,
         datasets: [

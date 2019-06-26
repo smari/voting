@@ -73,57 +73,109 @@ def get_download():
         as_attachment=True
     )
 
+def check_vote_table(vote_table):
+    """Checks vote_table input, and translates empty cells to zeroes
+
+    Raises:
+        KeyError: If vote_table or constituencies are missing a component
+        ValueError: If the dimensions of the table are inconsistent
+            or not enough seats are specified
+        TypeError: If vote or seat counts are not given as numbers
+    """
+    for info in [
+        "name",
+        "votes",
+        "parties",
+        "constituencies",
+    ]:
+        if info not in vote_table or not vote_table[info]:
+            raise KeyError(f"Missing data ('vote_table.{info}')")
+
+    num_parties = len(vote_table["parties"])
+    num_constituencies = len(vote_table["constituencies"])
+
+    if not len(vote_table["votes"]) == num_constituencies:
+        raise ValueError("The vote_table does not match the constituency list.")
+    for row in vote_table["votes"]:
+        if not len(row) == num_parties:
+            raise ValueError("The vote_table does not match the party list.")
+        for p in range(len(row)):
+            if not row[p]: row[p] = 0
+            if type(row[p]) != int: raise TypeError("Votes must be numbers.")
+
+    for const in vote_table["constituencies"]:
+        if "name" not in const or not const["name"]:
+            raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
+            name = const["name"]
+        for info in ["num_const_seats", "num_adj_seats"]:
+            if info not in const:
+                raise KeyError(f"Missing data ('{info}' for {name})")
+            if not const[info]: const[info] = 0
+            if type(const[info]) != int:
+                raise TypeError("Seat specifications must be numbers.")
+        if const["num_const_seats"]+const["num_adj_seats"] <= 0:
+            raise ValueError("Constituency seats and adjustment seats "
+                             "must add to a nonzero number. "
+                             f"This is not the case for {name}.")
+
+    return vote_table
+
 def handle_election():
     data = request.get_json(force=True)
-    rules = ElectionRules()
 
-    for k, v in data["rules"].items():
-        rules[k] = v
+    for section in ["vote_table", "rules"]:
+        if section not in data or not data[section]:
+            raise KeyError(f"Missing data ('{section}')")
 
-    for x in ["constituency_names", "constituency_seats", "parties", "constituency_adjustment_seats"]:
-        if x in data and data[x]:
-            rules[x] = data[x]
-        else:
-            return {"error": "Missing data ('%s')" % x}
+    vote_table = check_vote_table(data["vote_table"])
+    table_name = vote_table["name"]
+    votes = vote_table["votes"]
 
-    if not "votes" in data:
-        return {"error": "Votes missing."}
+    elections = []
+    for rs in data["rules"]:
+        rules = ElectionRules()
 
-    for const in data["votes"]:
-        for party in const:
-            if type(party) != int:
-                return {"error": "Votes must be numbers."}
+        for k, v in rs.items():
+            rules[k] = v
 
-    try:
-        election = voting.Election(rules, data["votes"])
+        rules["parties"] = vote_table["parties"]
+        rules["constituencies"] = vote_table["constituencies"]
+
+        election = voting.Election(rules, votes, table_name)
         election.run()
-    except ZeroDivisionError:
-        return {"error": "Need to have more votes."}
-    except AssertionError:
-        return {"error": "The data is malformed."}
+        elections.append(election)
 
-    return election
+    return elections
 
 @app.route('/api/election/', methods=["POST"])
 def get_election_results():
-    election = handle_election()
-    if type(election)==dict and "error" in election:
-        return jsonify(election)
+    try:
+        result = handle_election()
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
+        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+            else e.args[0]
+        print(message)
+        return jsonify({"error": message})
 
-    return jsonify(election.get_results_dict())
+    return jsonify([election.get_results_dict() for election in result])
 
 @app.route('/api/election/getxlsx/', methods=['POST'])
 def get_election_excel():
     global DOWNLOADS
     did = get_new_download_id()
 
-    election = handle_election()
-    if type(election)==dict and "error" in election:
-        return jsonify(election)
+    try:
+        result = handle_election()
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
+        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+            else e.args[0]
+        return jsonify({"error": message})
 
+    election = result[0]
     tmpfilename = tempfile.mktemp(prefix='election-')
     election.to_xlsx(tmpfilename)
-    attachment_filename=f"election {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx"
+    date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
+    attachment_filename=f"election {date}.xlsx"
     DOWNLOADS[did] = tmpfilename, attachment_filename
     return jsonify({"download_id": did})
 
@@ -131,40 +183,33 @@ def get_election_excel():
 def save_votes():
     global DOWNLOADS
     did = get_new_download_id()
-    DOWNLOADS[did] = prepare_to_save_vote_table()
+
+    try:
+        result = prepare_to_save_vote_table()
+    except (KeyError, TypeError, ValueError) as e:
+        message = e.args[0]
+        print(message)
+        return jsonify({"error": message})
+
+    DOWNLOADS[did] = result
     return jsonify({"download_id": did})
 
 def prepare_to_save_vote_table():
     data = request.get_json(force=True)
     if "vote_table" not in data or not data["vote_table"]:
-        return False, f"Missing data (vote_table)"
-    vote_table = data["vote_table"]
-    for info in [
-        "name",
-        "votes",
-        "parties",
-        "constituency_names",
-        "constituency_seats",
-        "constituency_adjustment_seats"
-    ]:
-        if info not in vote_table or not vote_table[info]:
-            return False, f"Missing data ('{info}')"
+        raise KeyError(f"Missing data (vote_table)")
 
-    num_constituencies = len(vote_table["votes"])
-    num_parties = len(vote_table["parties"])
-    assert(num_constituencies == len(vote_table["constituency_names"]))
-    assert(num_constituencies == len(vote_table["constituency_seats"]))
-    assert(num_constituencies == len(vote_table["constituency_adjustment_seats"]))
-    assert(all([num_parties == len(row) for row in vote_table["votes"]]))
+    vote_table = check_vote_table(data["vote_table"])
+
     file_matrix = [
         [vote_table["name"], "cons", "adj"] + vote_table["parties"],
     ] + [
         [
-            vote_table["constituency_names"][c],
-            vote_table["constituency_seats"][c],
-            vote_table["constituency_adjustment_seats"][c],
+            vote_table["constituencies"][c]["name"],
+            vote_table["constituencies"][c]["num_const_seats"],
+            vote_table["constituencies"][c]["num_adj_seats"],
         ] + vote_table["votes"][c]
-        for c in range(num_constituencies)
+        for c in range(len(vote_table["constituencies"]))
     ]
 
     tmpfilename = tempfile.mktemp(prefix='vote_table-')
@@ -238,10 +283,13 @@ def start_simulation():
     sid = h.hexdigest()
     thread = threading.Thread(target=run_simulation, args=(sid,))
 
-    success, simulation = set_up_simulation()
-    if not success:
-        print(simulation)
-        return jsonify({"started": False, "error": simulation})
+    try:
+        simulation = set_up_simulation()
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
+        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+            else e.args[0]
+        print(message)
+        return jsonify({"started": False, "error": message})
 
     # Simulation cache expires in 3 hours = 3*3600 = 10800 seconds
     expires = datetime.now() + timedelta(seconds=10800)
@@ -318,79 +366,40 @@ def get_xlsx():
 
 def set_up_simulation():
     data = request.get_json(force=True)
-    rulesets = []
 
     for section in ["vote_table", "election_rules", "simulation_rules"]:
         if section not in data or not data[section]:
-            return False, f"Missing data ('{section}')"
+            raise KeyError(f"Missing data ('{section}')")
 
-    vote_table = data["vote_table"]
-
-    for info in [
-        "name",
-        "votes",
-        "parties",
-        "constituency_names",
-        "constituency_seats",
-        "constituency_adjustment_seats"
-    ]:
-        if info not in vote_table or not vote_table[info]:
-            return False, f"Missing data ('{info}')"
-
-    for rs in data["election_rules"]:
-        election_rules = ElectionRules()
-
-        print(data["election_rules"])
-        print(rs)
-        for k, v in rs.items():
-            print("Setting election_rules[%s] = %s" % (k, v))
-            election_rules[k] = v
-
-        for info in ["parties", "constituency_names"]:
-            election_rules[info] = vote_table[info]
-
-        for info in ["constituency_seats", "constituency_adjustment_seats"]:
-            if info in rs and rs[info]:
-                election_rules[info] = rs[info]
-            else:
-                election_rules[info] = vote_table[info]
-
-            for c in range(len(election_rules[info])):
-                if not election_rules[info][c]:
-                    election_rules[info][c]=0
-                if type(election_rules[info][c]) != int:
-                    return False, "Seat specifications must be numbers."
-
-        rulesets.append(election_rules)
-
+    vote_table = check_vote_table(data["vote_table"])
     table_name = vote_table["name"]
     votes = vote_table["votes"]
 
-    for c in range(len(votes)):
-        for p in range(len(votes[c])):
-            if not votes[c][p]:
-                votes[c][p] = 0
-            if type(votes[c][p]) != int:
-                return False, "Votes must be numbers."
+    rulesets = []
+    for rs in data["election_rules"]:
+        election_rules = ElectionRules()
+
+        for k, v in rs.items():
+            election_rules[k] = v
+
+        election_rules["parties"] = vote_table["parties"]
+        election_rules["constituencies"] = vote_table["constituencies"]
+
+        rulesets.append(election_rules)
 
     stability_parameter = 100
     if "stbl_param" in data:
         stability_parameter = data["stbl_param"]
         if stability_parameter <= 1:
-            return False, "Stability parameter must be greater than 1."
+            raise ValueError("Stability parameter must be greater than 1.")
 
     simulation_rules = sim.SimulationRules()
     for k, v in data["simulation_rules"].items():
         simulation_rules[k] = v
 
-    try:
-        simulation = sim.Simulation(
-            simulation_rules, rulesets, votes, table_name,
-            stability_parameter)
-    except ZeroDivisionError:
-        return False, "Need to have more votes."
-
-    return True, simulation
+    simulation = sim.Simulation(
+        simulation_rules, rulesets, votes, table_name, stability_parameter)
+    return simulation
 
 
 @app.route('/api/script/', methods=["POST"])
@@ -436,9 +445,6 @@ def get_capabilities_dict():
     }
 
 def get_presets_dict():
-    from os import listdir
-    from os.path import isfile, join
-
     try:
         with open('../data/presets.json', encoding='utf-8') as js:
             data = json.load(js)
@@ -448,23 +454,6 @@ def get_presets_dict():
     #    data = {'error': 'Could not load presets due to parse error.'}
 
     return data
-    # presetsdir = "../data/presets/"
-    # try:
-    #     files = [f for f in listdir(presetsdir) if isfile(join(presetsdir, f))
-    #              and f.endswith('.json')]
-    # except Exception as e:
-    #     print("Presets directory read failure: %s" % (e))
-    #     files = []
-    # pr = []
-    # for f in files:
-    #     try:
-    #         with open(presetsdir+f) as json_file:
-    #             data = json.load(json_file)
-    #     except  json.decoder.JSONDecodeError:
-    #         data = {'error': 'Problem parsing json, please fix "{}"'.format(
-    #             presetsdir+f)}
-    #     pr.append(data)
-    # return pr
 
 def run_script(rules):
     if type(rules) in ["str", "unicode"]:

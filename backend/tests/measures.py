@@ -17,9 +17,11 @@ class MeasureTest(TestCase):
     def test_all_adj(self):
         #Arrange
         self.e_rules["adjustment_method"] = "icelandic-law"
-        self.e_rules["constituency_names"]            = ["I", "II", "III"]
-        self.e_rules["constituency_seats"]            = [ 1,    1,     1 ]
-        self.e_rules["constituency_adjustment_seats"] = [ 0,    0,     0 ]
+        self.e_rules["constituencies"] = [
+            {"name": "I",   "num_const_seats": 1, "num_adj_seats": 0},
+            {"name": "II",  "num_const_seats": 1, "num_adj_seats": 0},
+            {"name": "III", "num_const_seats": 1, "num_adj_seats": 0},
+        ]
         self.e_rules["parties"] = ["A", "B"]
         self.votes =             [[500, 600],
                                   [200, 400],
@@ -55,9 +57,10 @@ class MeasureTest(TestCase):
     def test_adj_dev(self):
         #Arrange
         self.e_rules["adjustment_method"] = "icelandic-law"
-        self.e_rules["constituency_names"]            = ["I", "II"]
-        self.e_rules["constituency_seats"]            = [ 1,    1 ]
-        self.e_rules["constituency_adjustment_seats"] = [ 1,    1 ]
+        self.e_rules["constituencies"] = [
+            {"name": "I",  "num_const_seats": 1, "num_adj_seats": 1},
+            {"name": "II", "num_const_seats": 1, "num_adj_seats": 1},
+        ]
         self.e_rules["parties"] = ["A", "B"]
         self.votes =             [[1500, 0],
                                   [0, 5000]]

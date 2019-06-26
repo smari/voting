@@ -64,10 +64,7 @@ def write_matrix(worksheet, startrow, startcol, matrix, cformat):
 
 def election_to_xlsx(election, filename):
     """Write detailed information about a single election to an xlsx file."""
-    if "constituencies" in election.rules:
-        const_names = [c["name"] for c in election.rules["constituencies"]]
-    else:
-        const_names = election.rules["constituency_names"]
+    const_names = [c["name"] for c in election.rules["constituencies"]]
     const_names.append("Total")
     parties = election.rules["parties"] + ["Total"]
     xtd_votes = add_totals(election.m_votes)
@@ -114,7 +111,7 @@ def election_to_xlsx(election, filename):
     worksheet.merge_range(toprow,c2,toprow,c2+1,datetime.now(),fmt["time"])
     toprow+=1
     worksheet.merge_range(toprow,c1,toprow,c2-1,"Test name:",fmt["basic_h"])
-    worksheet.write(toprow,c2,"My electoral system",fmt["basic"])
+    worksheet.write(toprow,c2,election.name,fmt["basic"])
 
     startrow = 4
     tables_before = [
@@ -186,7 +183,7 @@ def simulation_to_xlsx(simulation, filename):
         matrix,
         cformat=fmt["cell"]
     ):
-        if heading.endswith("shares"):
+        if heading.endswith("shares") and not heading.lower().startswith("bi"):
             cformat = fmt["share"]
         if heading == "Votes":
             cformat = fmt["base"]
@@ -216,8 +213,10 @@ def simulation_to_xlsx(simulation, filename):
     for r in range(len(simulation.e_rules)):
         sheet_name  = f'{r+1}-{simulation.e_rules[r]["name"]}'
         worksheet   = workbook.add_worksheet(sheet_name)
-        const_names = simulation.e_rules[r]["constituency_names"] + ["Total"]
-        parties     = simulation.e_rules[r]["parties"           ] + ["Total"]
+        const_names = [
+            const["name"] for const in simulation.e_rules[r]["constituencies"]
+        ] + ["Total"]
+        parties = simulation.e_rules[r]["parties"] + ["Total"]
 
         data_matrix = {
             "base": {
@@ -227,6 +226,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.base_allocations[r]["xtd_adj_seats"],
                 "ts": simulation.base_allocations[r]["xtd_total_seats"],
                 "ss": simulation.base_allocations[r]["xtd_seat_shares"],
+                "bs": simulation.base_allocations[r]["xtd_bi_seat_shares"],
             },
             "avg": {
                 "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],
@@ -299,9 +299,9 @@ def simulation_to_xlsx(simulation, filename):
             heading="Desired number of seats",
             xheaders=["cons", "adj", "total"],
             yheaders=const_names,
-            matrix=add_totals([[simulation.e_rules[r]["constituency_seats"][c],
-                     simulation.e_rules[r]["constituency_adjustment_seats"][c]]
-                for c in range(simulation.num_constituencies)])
+            matrix=add_totals([
+                [const["num_const_seats"],const["num_adj_seats"]]
+                for const in simulation.e_rules[r]["constituencies"]])
         )
         bottomrow = max(2+len(const_names), bottomrow)
         toprow += bottomrow+2
@@ -318,6 +318,14 @@ def simulation_to_xlsx(simulation, filename):
                     yheaders=const_names,
                     matrix=data_matrix[category["abbr"]][table["abbr"]],
                     cformat=category["cell_format"]
+                )
+                col += len(parties)+2
+            if "bs" in data_matrix[category["abbr"]]:
+                draw_block(worksheet, row=toprow, col=col,
+                    heading="Biproportional seat shares",
+                    xheaders=parties,
+                    yheaders=const_names,
+                    matrix=data_matrix[category["abbr"]]["bs"]
                 )
                 col += len(parties)+2
             toprow += len(const_names)+3

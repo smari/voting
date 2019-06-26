@@ -16,7 +16,7 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
         - m_prior_allocations: A matrix of where parties have previously
             gotten seats
         - divisor_gen: A generator function generating divisors, e.g. d'Hondt
-        - threshold: A cutoff threshold for participation.
+        - threshold: A cutoff threshold for participation, between 0 and 100.
     """
     m_allocations = deepcopy(m_prior_allocations)
 

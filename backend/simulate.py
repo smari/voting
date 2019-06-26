@@ -104,9 +104,7 @@ class Simulation:
         self.num_parties = len(m_votes[0])
         assert(all([len(c) == self.num_parties for c in m_votes]))
         assert(all([
-            self.num_constituencies == len(ruleset["constituency_names"])
-            and self.num_constituencies == len(ruleset["constituency_seats"])
-            and self.num_constituencies == len(ruleset["constituency_adjustment_seats"])
+            self.num_constituencies == len(ruleset["constituencies"])
             and self.num_parties == len(ruleset["parties"])
             for ruleset in e_rules
         ]))
@@ -221,11 +219,18 @@ class Simulation:
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
+
+            opt_rules = self.e_rules[r].generate_opt_ruleset()
+            opt_election = voting.Election(opt_rules, self.base_votes)
+            opt_results = opt_election.run()
+            bi_seat_shares = self.calculate_bi_seat_shares(r, self.base_votes, opt_results)
+            xtd_bi_seat_shares = add_totals(bi_seat_shares)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
                 "xtd_total_seats": xtd_total_seats,
                 "xtd_seat_shares": xtd_seat_shares,
+                "xtd_bi_seat_shares": xtd_bi_seat_shares,
                 "step_info": election.adj_seats_info,
             })
 

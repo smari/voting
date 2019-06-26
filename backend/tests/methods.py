@@ -49,6 +49,8 @@ class TestAdjustmentMethods(TestCase):
         parties, votes = util.load_votes(votes_file, self.rules["constituencies"])
         self.rules["parties"] = parties
         self.rules_6c["parties"] = parties
+        self.rules["adjustment_threshold"] = 5
+        self.rules_6c["adjustment_threshold"] = 5
         self.votes = votes
 
     def test_alternating_scaling_small(self):

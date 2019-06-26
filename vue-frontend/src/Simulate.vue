@@ -1,39 +1,10 @@
 <template>
   <div>
-    <h1>Simulate elections</h1>
-
-    <h2>Settings</h2>
-    <h3>Simulation settings</h3>
+    <h2>Simulation settings</h2>
     <SimulationSettings
       @update-rules="updateSimulationRules"
       @update-parameter="updateDistributionParameter">
     </SimulationSettings>
-
-    <h3>Simulate elections</h3>
-    <b-button @click="addElectionRules">Add electoral system</b-button>
-    <b-container v-for="(rules, rulesidx) in election_rules" :key="rulesidx" class="ruleset">
-      <b-row>
-        <b-col cols="10">
-          <ElectionSettings :rulesidx="rulesidx" @update-rules="updateElectionRules">
-          </ElectionSettings>
-        </b-col>
-        <b-col>
-          <b-button @click="deleteElectionRules(rulesidx)">Delete this system</b-button>
-        </b-col>
-      </b-row>
-    </b-container>
-
-    <h2>Reference votes</h2>
-    <p>Reference votes are the votes that will be used as mean values for the statistical distribution in the simulation.</p>
-    <VoteMatrix
-      @update-table-name="updateTableName"
-      @update-votes="updateVotes"
-      @update-adjustment-seats="updateAdjustmentSeats"
-      @update-constituency-seats="updateConstituencySeats"
-      @update-parties="updateParties"
-      @update-constituencies="updateConstituencies"
-      @server-error="serverError">
-    </VoteMatrix>
 
     <div style="text-align: center; margin-bottom: 0.7em;">
         <span v-if="simulation_done">
@@ -70,8 +41,8 @@
       <h3>Constituency seats</h3>
       <ResultMatrix v-for="(ruleset, idx) in results.data"
         :key="'const-seats-' + idx"
-        :constituencies="constituency_names"
-        :parties="parties"
+        :constituencies="vote_table.constituencies"
+        :parties="vote_table.parties"
         :values="ruleset.list_measures.const_seats.avg"
         :stddev="ruleset.list_measures.const_seats.std"
         :title="ruleset.name"
@@ -81,8 +52,8 @@
       <h3>Adjustment seats</h3>
       <ResultMatrix v-for="(ruleset, idx) in results.data"
         :key="'adj-seats-' + idx"
-        :constituencies="constituency_names"
-        :parties="parties"
+        :constituencies="vote_table.constituencies"
+        :parties="vote_table.parties"
         :values="ruleset.list_measures.adj_seats.avg"
         :stddev="ruleset.list_measures.adj_seats.std"
         :title="ruleset.name"
@@ -92,8 +63,8 @@
       <h3>Total seats</h3>
       <ResultMatrix v-for="(ruleset, idx) in results.data"
         :key="'total-seats-' + idx"
-        :constituencies="constituency_names"
-        :parties="parties"
+        :constituencies="vote_table.constituencies"
+        :parties="vote_table.parties"
         :values="ruleset.list_measures.total_seats.avg"
         :stddev="ruleset.list_measures.total_seats.std"
         :title="ruleset.name"
@@ -114,41 +85,25 @@
 </template>
 
 <script>
-import VoteMatrix from './components/VoteMatrix.vue'
 import ResultMatrix from './components/ResultMatrix.vue'
-import ElectionSettings from './components/ElectionSettings.vue'
 import SimulationSettings from './components/SimulationSettings.vue'
 import SimulationData from './components/SimulationData.vue'
 
 export default {
+  props: {
+    "vote_table": { default: {} },
+    "election_rules": { default: [{}] },
+    "server": { default: {} },
+  },
   components: {
-    VoteMatrix,
     ResultMatrix,
-    ElectionSettings,
     SimulationSettings,
     SimulationData,
   },
 
   data: function() {
     return {
-      server: {
-        waitingForData: false,
-        error: false,
-      },
       distribution_parameter: 0,
-      constituency_names: [],
-      parties: [],
-      constituency_seats: [],
-      constituency_adjustment_seats: [],
-      election_rules: [
-        {
-          name: "",
-          adjustment_divider: "",
-          primary_divider: "",
-          adjustment_threshold: 0.0,
-          adjustment_method: "",
-        }
-      ],
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",
@@ -157,55 +112,15 @@ export default {
       current_iteration: 0,
       iteration_time: 0,
       inflight: 0,
-      table_name: "",
-      ref_votes: [],
       results: { measures: [], methods: [], data: [] },
     }
   },
   methods: {
-    addElectionRules: function() {
-      this.election_rules.push(
-        {
-          name: "",
-          adjustment_divider: "",
-          primary_divider: "",
-          adjustment_threshold: 0.0,
-          adjustment_method: "",
-        }
-      )
-    },
-    deleteElectionRules: function(idx) {
-      this.election_rules.splice(idx, 1);
-    },
-    updateElectionRules: function(rules, idx) {
-      this.election_rules[idx] = rules;
-    },
     updateSimulationRules: function(rules) {
       this.simulation_rules = rules;
     },
     updateDistributionParameter: function(parameter) {
       this.distribution_parameter = parameter
-    },
-    updateTableName: function(name) {
-      this.table_name = name;
-    },
-    updateVotes: function(votes) {
-      this.ref_votes = votes;
-    },
-    updateConstituencySeats: function(seats) {
-      this.constituency_seats = seats;
-    },
-    updateAdjustmentSeats: function(seats) {
-      this.constituency_adjustment_seats = seats;
-    },
-    updateConstituencies: function(cons) {
-      this.constituency_names = cons;
-    },
-    updateParties: function(parties) {
-      this.parties = parties;
-    },
-    serverError: function(error) {
-      this.server.errormsg = error;
     },
     stop_simulation: function() {
       this.$http.post('/api/simulate/stop/',
@@ -267,14 +182,7 @@ export default {
       this.server.waitingForData = true;
       this.$http.post('/api/simulate/',
         {
-          vote_table: {
-            name: this.table_name,
-            constituency_names: this.constituency_names,
-            constituency_seats: this.constituency_seats,
-            constituency_adjustment_seats: this.constituency_adjustment_seats,
-            parties: this.parties,
-            votes: this.ref_votes
-          },
+          vote_table: this.vote_table,
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
           stbl_param: this.distribution_parameter

@@ -43,7 +43,7 @@ def load_constituencies(confile):
     cons = []
     for row in reader:
         try:
-            assert(int(row[1]) + int(row[2]) >= 0)
+            assert(int(row[1]) + int(row[2]) > 0)
         except Exception as e:
             print(row[1:3])
             raise Exception("Error loading constituency file: "
@@ -51,8 +51,8 @@ def load_constituencies(confile):
                             "must add to a nonzero number.")
         cons.append({
             "name": row[0],
-            "num_constituency_seats": int(row[1]),
-            "num_adjustment_seats": int(row[2])})
+            "num_const_seats": int(row[1]),
+            "num_adj_seats": int(row[2])})
     return cons
 
 def load_votes_from_stream(stream, filename):
@@ -72,7 +72,7 @@ def load_votes_from_stream(stream, filename):
     else:
         return None, None, None
 
-    name_incl = rd[0][0].lower() != u"kjördæmi"
+    name_incl = rd[0][0].lower() != u"kjördæmi" if rd[0][0] else False
     const_seats_incl = rd[0][1].lower() == "cons"
     expected = 2 if const_seats_incl else 1
     adj_seats_incl = rd[0][expected].lower() == "adj"
@@ -103,59 +103,40 @@ def parse_input(
     adj_seats_included = strtobool(str(adj_seats_included))
 
     res = {}
-    table_name = ''
+    start_row = 0
     if name_included or parties_included:
-        if name_included:
-            table_name = input[0][0]
-        if parties_included:
-            res["parties"] = input[0]
-        del(input[0])
-
-    res["table_name"] = determine_table_name(table_name,filename)
-
+        start_row += 1
+    start_col = 0
     if name_included or const_included:
-        if const_included:
-            res["constituencies"] = [row[0] for row in input]
-        for row in input: del(row[0])
-        if parties_included: res["parties"] = res["parties"][1:]
-
+        start_col += 1
     if const_seats_included:
-        res["constituency_seats"] = [parsint(row[0]) for row in input]
-        for row in input: del(row[0])
-        if parties_included: res["parties"] = res["parties"][1:]
-
+        const_col = start_col
+        start_col += 1
     if adj_seats_included:
-        res["constituency_adjustment_seats"] = [parsint(row[0]) for row in input]
-        for row in input: del(row[0])
-        if parties_included: res["parties"] = res["parties"][1:]
+        adj_col = start_col
+        start_col += 1
 
-    res["votes"] = input
+    res["votes"] = [[parsint(v) for v in row[start_col:]]
+                    for row in input[start_row:]]
+
     if parties_included:
-        while not res["parties"][-1]:
+        res["parties"] = input[0][start_col:]
+        while res["parties"] and not res["parties"][-1]:
             res["parties"] = res["parties"][:-1]
-        res["votes"] = [row[:len(res["parties"])] for row in res["votes"]]
-    res["votes"] = [[parsint(v) for v in row] for row in res["votes"]]
-
-    #Make sure data is not malformed
-    num_constituencies = len(res["votes"])
-    num_parties = len(res["votes"][0])
-    assert(all([len(row) == num_parties for row in res["votes"]]))
-    if parties_included:
-        assert(len(res["parties"]) == num_parties)
+        num_parties = len(res["parties"])
+        res["votes"] = [row[:num_parties] for row in res["votes"]]
     else:
+        num_parties = max(len(row) for row in res["votes"])
         res["parties"] = ['']*num_parties
-    if const_included:
-        assert(len(res["constituencies"]) == num_constituencies)
-    else:
-        res["constituencies"] = ['']*num_constituencies
-    if const_seats_included:
-        assert(len(res["constituency_seats"]) == num_constituencies)
-    else:
-        res["constituency_seats"] = [0]*num_constituencies
-    if adj_seats_included:
-        assert(len(res["constituency_adjustment_seats"]) == num_constituencies)
-    else:
-        res["constituency_adjustment_seats"] = [0]*num_constituencies
+
+    res["constituencies"] = [{
+        "name": row[0] if const_included else '',
+        "num_const_seats": parsint(row[const_col]) if const_seats_included else 0,
+        "num_adj_seats": parsint(row[adj_col]) if adj_seats_included else 0,
+    } for row in input[start_row:]]
+
+    table_name = input[0][0] if name_included else ''
+    res["name"] = determine_table_name(table_name,filename)
 
     return res
 

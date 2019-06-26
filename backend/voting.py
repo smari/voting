@@ -13,11 +13,10 @@ from dictionaries import ADJUSTMENT_METHODS
 
 class Election:
     """A single election."""
-    def __init__(self, rules, votes=None):
-        self.num_constituencies = len(rules["constituency_adjustment_seats"])
-        assert(len(rules["constituency_seats"]) == self.num_constituencies)
-        assert(len(rules["constituency_names"]) == self.num_constituencies)
+    def __init__(self, rules, votes=None, name=''):
+        self.num_constituencies = len(rules["constituencies"])
         self.rules = rules
+        self.name = name
         self.set_votes(votes)
 
     def entropy(self):
@@ -43,10 +42,10 @@ class Election:
         # Which seats does each party get in each constituency:
         self.order = []
         # Determine total seats (const + adjustment) in each constituency:
-        self.v_total_seats = [sum(x) for x in
-                              zip(self.rules["constituency_seats"],
-                                  self.rules["constituency_adjustment_seats"])
-                             ]
+        self.v_total_seats = [
+            const["num_const_seats"] + const["num_adj_seats"]
+            for const in self.rules["constituencies"]
+        ]
         # Determine total seats in play:
         self.total_seats = sum(self.v_total_seats)
 
@@ -61,16 +60,20 @@ class Election:
         if self.rules["debug"]:
             print(" + Primary apportionment")
 
-        gen = self.rules.get_generator("primary_divider")
-        const_seats = self.rules["constituency_seats"]
+        constituencies = self.rules["constituencies"]
         parties = self.rules["parties"]
 
         m_allocations = []
         self.last = []
-        for i in range(len(const_seats)):
-            num_seats = const_seats[i]
+        for i in range(len(constituencies)):
+            num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
-                alloc, div = apportion1d(self.m_votes[i], num_seats, [0]*len(parties), gen)
+                alloc, div = apportion1d(
+                    v_votes=self.m_votes[i],
+                    num_total_seats=num_seats,
+                    prior_allocations=[0]*len(parties),
+                    divisor_gen=self.rules.get_generator("primary_divider"),
+                    threshold=self.rules["constituency_threshold"])
                 self.last.append(div[2])
             else:
                 alloc = [0]*len(parties)
@@ -90,21 +93,21 @@ class Election:
         """Eliminate parties that do not reach the adjustment threshold."""
         if self.rules["debug"]:
             print(" + Threshold elimination")
-        threshold = self.rules["adjustment_threshold"]*0.01
-        v_elim_votes = threshold_elimination_totals(self.m_votes, threshold)
-        m_elim_votes = threshold_elimination_constituencies(self.m_votes,
-                                                            threshold)
-        self.v_votes_eliminated = v_elim_votes
-        self.m_votes_eliminated = m_elim_votes
+        self.m_votes_eliminated = threshold_elimination_constituencies(
+            votes=self.m_votes,
+            threshold=self.rules["adjustment_threshold"]
+        )
 
     def run_determine_adjustment_seats(self):
         """Calculate the number of adjustment seats each party gets."""
         if self.rules["debug"]:
             print(" + Determine adjustment seats")
-        v_votes = self.v_votes_eliminated
-        gen = self.rules.get_generator("adj_determine_divider")
-        v_priors = self.v_const_seats_alloc
-        v_seats, _ = apportion1d(v_votes, self.total_seats, v_priors, gen)
+        v_seats, _ = apportion1d(
+            v_votes=self.v_votes,
+            num_total_seats=self.total_seats,
+            prior_allocations=self.v_const_seats_alloc,
+            divisor_gen=self.rules.get_generator("adj_determine_divider"),
+            threshold=self.rules["adjustment_threshold"])
         self.v_adjustment_seats = v_seats
         return v_seats
 
@@ -120,7 +123,7 @@ class Election:
             self.v_adjustment_seats,
             self.m_const_seats_alloc,
             gen,
-            self.rules["adjustment_threshold"]*0.01,
+            threshold=self.rules["adjustment_threshold"],
             orig_votes=self.m_votes,
             last=self.last)
 

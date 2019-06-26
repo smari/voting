@@ -10,14 +10,12 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import App from './App.vue'
-import Election from './Election.vue'
-import Simulate from './Simulate.vue'
+import Main from './Main.vue'
 import Intro from './Intro.vue'
 
 const routes = [
   { path: '/', component: Intro },
-  { path: '/election', component: Election },
-  { path: '/simulate', component: Simulate }
+  { path: '/calc', component: Main }
 ]
 
 var router = new VueRouter({ routes })

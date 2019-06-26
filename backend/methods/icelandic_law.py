@@ -36,7 +36,7 @@ def icelandic_apportionment(m_votes, v_total_seats, v_party_seats,
     seats_info = []
     while num_allocated < total_seats:
         alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc,
-                                divisor_gen, invalid)
+                                divisor_gen, invalid=invalid)
         # 2.6.
         #   (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #   skal jafnframt fella niður allar landstölur þeirra.)
@@ -95,7 +95,7 @@ def print_seats(rules, adj_seats_info):
     data = []
     for i in range(len(adj_seats_info)):
         data.append([i+1,
-                    rules["constituency_names"][adj_seats_info[i][0]],
+                    rules["constituencies"][adj_seats_info[i][0]]["name"],
                     adj_seats_info[i][1],
                     rules["parties"][adj_seats_info[i][2]],
                     "{:.3%}".format(adj_seats_info[i][3])])

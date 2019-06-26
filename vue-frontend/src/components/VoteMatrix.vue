@@ -45,7 +45,6 @@
     </b-modal>
 
     <b-modal size="lg" id="modalpreset" ref="modalpresetref" title="Load preset" cancel-only>
-
       <b-table hover :items="presets" :fields="presetfields">
         <template slot="actions" slot-scope="row">
           <b-button size="sm" @click.stop="loadPreset(row.item.id); $refs.modalpresetref.hide()" class="mr-1 mt-0 mb-0">
@@ -57,27 +56,35 @@
 
     <b-button-toolbar key-nav aria-label="Vote tools">
       <b-button-group class="mx-1">
-        <b-btn @click="addConstituency()">Add constituency</b-btn>
-        <b-btn @click="addParty()">Add party</b-btn>
-        <b-btn @click="clearVotes()">Clear votes</b-btn>
-        <b-btn @click="clearAll()">Reset everything</b-btn>
+        <b-button title="Load existing vote table from server"
+          v-b-modal.modalpreset>Load preset
+        </b-button>
+        <b-button title="Upload vote table file (.xlsx or .csv)"
+          v-b-modal.modalupload>Upload votes
+        </b-button>
+        <b-button title="Paste input from file with csv format"
+          v-b-modal.modalpaste>Paste input
+        </b-button>
       </b-button-group>
       <b-button-group class="mx-1">
-        <b-button v-b-modal.modalupload>Upload votes</b-button>
-        <b-button v-b-modal.modalpaste>Paste input</b-button>
-        <b-button v-b-modal.modalpreset>Load preset</b-button>
-        <!--b-dropdown id="ddown1" text="Presets" size="sm">
-          <b-dropdown-item v-for="(preset, presetidx) in presets" :key="preset.name" @click="setPreset(presetidx)">{{preset.name}}</b-dropdown-item>
-        </b-dropdown-->
+        <b-button title="Download .xlsx file with vote table"
+          @click="saveVotes()">Save votes
+        </b-button>
       </b-button-group>
       <b-button-group class="mx-1">
-        <b-button @click="saveVotes()">Save voteset</b-button>
+        <b-btn title="set all vote counts to zero but preserve frame"
+          @click="clearVotes()">Clear votes
+        </b-btn>
+        <b-btn
+          title="Empty entire table and remove all parties and constituencies"
+          @click="clearAll()">Delete table
+        </b-btn>
       </b-button-group>
     </b-button-toolbar>
     <table class="votematrix">
       <tr class="parties">
         <th class="small-12 medium-1 tablename">
-          <input type="text" v-model="table_name">
+          <input type="text" v-model="matrix.name">
         </th>
         <th>
           <abbr title="Constituency seats"># Cons.</abbr>
@@ -85,26 +92,34 @@
         <th>
           <abbr title="Adjustment seats"># Adj.</abbr>
         </th>
-        <th v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
+        <th v-for="(party, partyidx) in matrix.parties" class="small-12 medium-1 column partyname">
           <b-button size="sm" variant="link" @click="deleteParty(partyidx)">×</b-button>
-          <input type="text" v-model="parties[partyidx]">
+          <input type="text" v-model="matrix.parties[partyidx]">
+        </th>
+        <th class="growtable">
+          <b-btn size="sm" @click="addParty()"><b>+</b></b-btn>
         </th>
       </tr>
-      <tr v-for="(constituency, conidx) in constituencies">
+      <tr v-for="(constituency, conidx) in matrix.constituencies">
         <th class="small-12 medium-1 column constname">
             <b-button size="sm" variant="link" @click="deleteConstituency(conidx)">×</b-button>
-            <input type="text" v-model="constituencies[conidx]"></input>
+            <input type="text" v-model="constituency['name']"></input>
         </th>
         <td class="small-12 medium-2 column partyvotes">
-          <input type="text" v-model.number="constituency_seats[conidx]"></input>
+          <input type="text" v-model.number="constituency['num_const_seats']"></input>
         </td>
         <td class="small-12 medium-2 column partyvotes">
-          <input type="text" v-model.number="constituency_adjustment_seats[conidx]"></input>
+          <input type="text" v-model.number="constituency['num_adj_seats']"></input>
         </td>
-        <td v-for="(party, partyidx) in parties" class="small-12 medium-2 column partyvotes">
-            <input type="text" v-model.number="votes[conidx][partyidx]">
+        <td v-for="(party, partyidx) in matrix.parties" class="small-12 medium-2 column partyvotes">
+            <input type="text" v-model.number="matrix.votes[conidx][partyidx]">
             </input>
         </td>
+      </tr>
+      <tr>
+        <th class="growtable">
+          <b-btn size="sm" @click="addConstituency()"><b>+</b></b-btn>
+        </th>
       </tr>
     </table>
   </b-container>
@@ -113,12 +128,16 @@
 export default {
   data: function () {
     return {
-      constituencies: ["I", "II"],
-      constituency_seats: [10, 10],
-      constituency_adjustment_seats: [2, 3],
-      parties: ["A", "B"],
-      table_name: "My reference votes",
-      votes: [[1500, 2000], [2500, 1700]],
+      matrix: {
+        name: "My reference votes",
+        parties: ["A", "B"],
+        votes: [[1500, 2000],
+                [2500, 1700]],
+        constituencies: [
+          {"name": "I",  "num_const_seats": 10, "num_adj_seats": 2},
+          {"name": "II", "num_const_seats": 10, "num_adj_seats": 3}
+        ],
+      },
       presets: [],
       presetfields: [
         { key: 'name', sortable: true },
@@ -142,119 +161,70 @@ export default {
     }, response => {
       this.$emit('server-error', response.body);
     });
-    this.$emit('update-constituencies', this.constituencies, false);
-    this.$emit('update-parties', this.parties, false);
-    this.$emit('update-table-name', this.table_name, false);
-    this.$emit('update-votes', this.votes, false);
-    this.$emit('update-constituency-seats', this.constituency_seats, false);
-    this.$emit('update-adjustment-seats', this.constituency_adjustment_seats, false);
+    this.$emit('update-vote-table', this.matrix, false);
   },
   watch: {
-    'table_name': {
+    'matrix': {
       handler: function (val, oldVal) {
-        this.$emit('update-table-name', val);
-      }
-    },
-    'votes': {
-      handler: function (val, oldVal) {
-        this.$emit('update-votes', val);
-      },
-      deep: true
-    },
-    'parties': {
-      handler: function (val, oldVal) {
-        this.$emit('update-parties', val);
-      },
-      deep: true
-    },
-    'constituencies': {
-      handler: function (val, oldVal) {
-        this.$emit('update-constituencies', val);
-      },
-      deep: true
-    },
-    'constituency_seats': {
-      handler: function (val, oldVal) {
-        this.$emit('update-constituency-seats', val);
-      },
-      deep: true
-    },
-    'constituency_adjustment_seats': {
-      handler: function (val, oldVal) {
-        this.$emit('update-adjustment-seats', val);
+        this.$emit('update-vote-table', val);
       },
       deep: true
     },
   },
   methods: {
     deleteParty: function(index) {
-      this.parties.splice(index, 1);
-      for (let con in this.votes) {
-        this.votes[con].splice(index, 1);
+      this.matrix.parties.splice(index, 1);
+      for (let con in this.matrix.votes) {
+        this.matrix.votes[con].splice(index, 1);
       }
     },
     deleteConstituency: function(index) {
-      this.constituencies.splice(index, 1);
-      this.votes.splice(index, 1);
-      this.constituency_seats.splice(index, 1);
-      this.constituency_adjustment_seats.splice(index, 1);
+      this.matrix.constituencies.splice(index, 1);
+      this.matrix.votes.splice(index, 1);
     },
     addParty: function() {
-      this.parties.push('');
-      for (let con in this.votes) {
-        this.votes[con].push(0);
+      this.matrix.parties.push('');
+      for (let con in this.matrix.votes) {
+        this.matrix.votes[con].push(0);
       }
     },
     addConstituency: function() {
-      this.constituencies.push('');
-      this.votes.push(Array(this.parties.length).fill(0));
-      this.constituency_seats.push(1);
-      this.constituency_adjustment_seats.push(1);
+      this.matrix.constituencies.push(
+        {"name": '', "num_const_seats": 1, "num_adj_seats": 1});
+      this.matrix.votes.push(Array(this.matrix.parties.length).fill(0));
     },
     clearVotes: function() {
       let v = [];
-      for (let con in this.votes) {
-        v = Array(this.votes[con].length).fill(0);
-        this.$set(this.votes, con, v);
+      for (let con in this.matrix.votes) {
+        v = Array(this.matrix.votes[con].length).fill(0);
+        this.$set(this.matrix.votes, con, v);
       }
     },
     clearAll: function() {
-      this.constituencies = [];
-      this.constituency_seats = [];
-      this.constituency_adjustment_seats = [];
-      this.parties = [];
-      this.votes = [];
+      this.matrix.name = '';
+      this.matrix.constituencies = [];
+      this.matrix.parties = [];
+      this.matrix.votes = [];
     },
     saveVotes: function() {
       this.$http.post('/api/votes/save/', {
-        vote_table: {
-          name: this.table_name,
-          constituency_names: this.constituencies,
-          constituency_seats: this.constituency_seats,
-          constituency_adjustment_seats: this.constituency_adjustment_seats,
-          parties: this.parties,
-          votes: this.votes
-        }
+        vote_table: this.matrix
       }).then(response => {
-        let link = document.createElement('a')
-        link.href = '/api/downloads/get?id=' + response.data.download_id
-        link.click()
+        if (response.body.error) {
+          this.$emit('server-error', response.body.error);
+        } else {
+          let link = document.createElement('a')
+          link.href = '/api/downloads/get?id=' + response.data.download_id
+          link.click()
+        }
       }, response => {
-        this.server.error = true;
+        console.log("Error:", response);
       })
     },
     loadPreset: function(eid) {
       this.$http.post('/api/presets/load/', {'eid': eid}).then(response => {
-        this.handleReceivedVotes(response.data);
+        this.matrix = response.data;
       })
-    },
-    setPreset: function(idx) {
-      let el = this.presets[idx].election_rules;
-      this.constituencies = el.constituency_names;
-      this.parties = el.parties;
-      this.constituency_seats = el.constituency_seats;
-      this.constituency_adjustment_seats = el.constituency_adjustment_seats;
-      this.votes = el.votes;
     },
     uploadVotes: function(evt) {
       if (!this.uploadfile) {
@@ -263,20 +233,8 @@ export default {
       var formData = new FormData();
       formData.append('file', this.uploadfile, this.uploadfile.name);
       this.$http.post('/api/votes/upload/', formData).then(response => {
-        this.handleReceivedVotes(response.data);
+        this.matrix = response.data;
       });
-    },
-    handleReceivedVotes(data) {
-      this.table_name = data.table_name;
-      this.constituencies = data.constituencies;
-      this.parties = data.parties;
-      this.votes = data.votes;
-      if (data.constituency_seats) {
-        this.constituency_seats = data.constituency_seats;
-      }
-      if (data.constituency_adjustment_seats) {
-        this.constituency_adjustment_seats = data.constituency_adjustment_seats;
-      }
     },
     pasteCSV: function(evt) {
       if (!this.paste.csv) {
@@ -284,20 +242,7 @@ export default {
         return;
       }
       this.$http.post('/api/votes/paste/', this.paste).then(response => {
-        this.table_name = response.data.table_name;
-        this.votes = response.data.votes;
-        if (response.data.constituencies) {
-          this.constituencies = response.data.constituencies;
-        }
-        if (response.data.parties) {
-          this.parties = response.data.parties;
-        }
-        if (response.data.constituency_seats) {
-          this.constituency_seats = response.data.constituency_seats;
-        }
-        if (response.data.constituency_adjustment_seats) {
-          this.constituency_adjustment_seats = response.data.constituency_adjustment_seats;
-        }
+        this.matrix = response.data;
       }, response => {
         console.log("Error:", response);
           // Error?

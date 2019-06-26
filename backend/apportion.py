@@ -1,8 +1,8 @@
 from copy import copy
-
+from table_util import find_shares_1d
 
 def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
-                invalid=[]):
+                threshold=0, invalid=[]):
     """
     Perform a one-dimensional apportionment of seats.
     Inputs:
@@ -17,6 +17,7 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
         - a tuple containing current divisors, divisor generators, and the
           smallest used divided vote value.
     """
+    v_votes = threshold_elimination_1d(v_votes, threshold)
     N = len(v_votes)
     divisor_gens = [divisor_gen() for x in range(N)]
     divisors = []
@@ -53,7 +54,7 @@ def threshold_elimination_constituencies(votes, threshold, party_seats=None,
 
     Inputs:
         - votes: Matrix of votes.
-        - threshold: Real value between 0.0 and 1.0 with the cutoff threshold.
+        - threshold: Real value between 0.0 and 100.0 with the cutoff threshold.
         - [party_seats]: seats that should be allocated to each party
         - [priors]: a matrix of prior allocations to each party per
             constituency
@@ -62,19 +63,9 @@ def threshold_elimination_constituencies(votes, threshold, party_seats=None,
     """
     N = len(votes[0])
     totals = [sum(x) for x in zip(*votes)]
-    country_total = sum(totals)
-    percent = [float(t)/country_total for t in totals]
-    m_votes = []
-
-    for c in votes:
-        cons = []
-        for p in range(N):
-            if percent[p] > threshold:
-                v = c[p]
-            else:
-                v = 0
-            cons.append(v)
-        m_votes.append(cons)
+    shares = find_shares_1d(totals)
+    m_votes = [[c[p] if shares[p]*100 > threshold else 0 for p in range(N)]
+               for c in votes]
 
     if not (priors and party_seats):
         return m_votes
@@ -91,11 +82,11 @@ def threshold_elimination_totals(votes, threshold):
     Eliminate parties that do not reach the threshold proportion of
     national votes. Replaces such parties with zeroes.
     """
-    N = len(votes[0])
     totals = [sum(x) for x in zip(*votes)]
-    country_total = sum(totals)
-    percent = [float(t)/country_total for t in totals]
-    cutoff = [totals[p] if percent[p] > threshold else 0
-                for p in range(len(totals))]
+    return threshold_elimination_1d(totals, threshold)
 
+def threshold_elimination_1d(v_votes, threshold):
+    shares = find_shares_1d(v_votes)
+    cutoff = [v_votes[p] if shares[p]*100 > threshold else 0
+                for p in range(len(shares))]
     return cutoff
