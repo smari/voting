@@ -28,7 +28,12 @@ def find_xtd_shares(xtd_table):
     return [[float(v)/c[-1] if c[-1]!=0 else 0 for v in c] for c in xtd_table]
 
 def find_shares(table):
-    return [[float(v)/sum(c) if sum(c)!=0 else 0 for v in c] for c in table]
+    return [find_shares_1d(c) for c in table]
+
+def find_shares_1d(v_votes):
+    assert all(v>=0 for v in v_votes), f"negative values detected in {v_votes}"
+    s = sum(v_votes)
+    return [float(v)/s for v in v_votes] if s!=0 else v_votes
 
 def entropy(votes, allocations, divisor_gen):
     """
