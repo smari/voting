@@ -186,7 +186,7 @@ def save_votes():
 
     try:
         result = prepare_to_save_vote_table()
-    except (KeyError, ValueError) as e:
+    except (KeyError, TypeError, ValueError) as e:
         message = e.args[0]
         print(message)
         return jsonify({"error": message})
