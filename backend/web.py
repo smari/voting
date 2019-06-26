@@ -93,10 +93,17 @@ def handle_election():
 
     table_name = vote_table["name"]
     votes = vote_table["votes"]
+    num_parties = len(vote_table["parties"])
+    num_constituencies = len(vote_table["constituencies"])
+
+    if not len(votes) == num_constituencies:
+        raise ValueError("The data is malformed.")
     for row in votes:
+        if not len(row) == num_parties:
+            raise ValueError("The data is malformed.")
         for p in range(len(row)):
             if not row[p]: row[p] = 0
-            if type(row[p]) != int: raise ValueError("Votes must be numbers.")
+            if type(row[p]) != int: raise TypeError("Votes must be numbers.")
 
     elections = []
     for rs in data["rules"]:
@@ -115,7 +122,7 @@ def handle_election():
                     raise KeyError(f"Missing data ('vote_table.constituencies[x].{info}')")
                 if not const[info]: const[info] = 0
                 if type(const[info]) != int:
-                    raise ValueError("Seat specifications must be numbers.")
+                    raise TypeError("Seat specifications must be numbers.")
             if const["num_const_seats"]+const["num_adj_seats"] <= 0:
                 raise ValueError("Constituency seats and adjustment seats "
                                  "must add to a nonzero number.")
@@ -130,9 +137,8 @@ def handle_election():
 def get_election_results():
     try:
         result = handle_election()
-    except (KeyError, ValueError, AssertionError, ZeroDivisionError) as e:
-        message = "The data is malformed."  if isinstance(e, AssertionError)\
-            else "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
+        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
             else e.args[0]
         print(message)
         return jsonify({"error": message})
@@ -146,9 +152,8 @@ def get_election_excel():
 
     try:
         result = handle_election()
-    except (KeyError, ValueError, AssertionError, ZeroDivisionError) as e:
-        message = "The data is malformed."  if isinstance(e, AssertionError)\
-            else "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
+        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
             else e.args[0]
         return jsonify({"error": message})
 
@@ -167,9 +172,8 @@ def save_votes():
 
     try:
         result = prepare_to_save_vote_table()
-    except (KeyError, ValueError, AssertionError) as e:
-        message = "The data is malformed." if isinstance(e, AssertionError)\
-            else e.args[0]
+    except (KeyError, ValueError) as e:
+        message = e.args[0]
         print(message)
         return jsonify({"error": message})
 
@@ -192,8 +196,9 @@ def prepare_to_save_vote_table():
 
     num_constituencies = len(vote_table["constituencies"])
     num_parties = len(vote_table["parties"])
-    assert(num_constituencies == len(vote_table["votes"]))
-    assert(all([num_parties == len(row) for row in vote_table["votes"]]))
+    if not (len(vote_table["votes"] == num_constituencies)
+            and all([len(row) == num_parties for row in vote_table["votes"]])):
+        raise ValueError("The data is malformed.")
     file_matrix = [
         [vote_table["name"], "cons", "adj"] + vote_table["parties"],
     ] + [
@@ -278,9 +283,8 @@ def start_simulation():
 
     try:
         simulation = set_up_simulation()
-    except (KeyError, ValueError, AssertionError, ZeroDivisionError) as e:
-        message = "The data is malformed."  if isinstance(e, AssertionError)\
-            else "Need to have more votes." if isinstance(e, ZeroDivisionError)\
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
+        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
             else e.args[0]
         print(message)
         return jsonify({"started": False, "error": message})
@@ -378,10 +382,17 @@ def set_up_simulation():
 
     table_name = vote_table["name"]
     votes = vote_table["votes"]
+    num_parties = len(vote_table["parties"])
+    num_constituencies = len(vote_table["constituencies"])
+
+    if not len(votes) == num_constituencies:
+        raise ValueError("The data is malformed.")
     for row in votes:
+        if not len(row) == num_parties:
+            raise ValueError("The data is malformed.")
         for p in range(len(row)):
             if not row[p]: row[p] = 0
-            if type(row[p]) != int: raise ValueError("Votes must be numbers.")
+            if type(row[p]) != int: raise TypeError("Votes must be numbers.")
 
     rulesets = []
     for rs in data["election_rules"]:
@@ -400,7 +411,7 @@ def set_up_simulation():
                     raise KeyError(f"Missing data ('vote_table.constituencies[x].{info}')")
                 if not const[info]: const[info] = 0
                 if type(const[info]) != int:
-                    raise ValueError("Seat specifications must be numbers.")
+                    raise TypeError("Seat specifications must be numbers.")
             if const["num_const_seats"]+const["num_adj_seats"] <= 0:
                 raise ValueError("Constituency seats and adjustment seats "
                                  "must add to a nonzero number.")
