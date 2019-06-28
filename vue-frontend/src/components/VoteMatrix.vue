@@ -1,53 +1,92 @@
 <template>
   <b-container fluid class="votematrix-container">
-    <b-modal size="lg" id="modalupload" title="Upload CSV or XLSX file" @ok="uploadVotes">
-      <p>The file provided must be a CSV or an Excel XLSX file formatted with parties on the first row and constitution names on the first column.</p>
+    <b-modal
+      ize="lg"
+      id="modalupload"
+      title="Upload CSV or XLSX file"
+      @ok="uploadVotes"
+    >
+      <p>
+        The file provided must be a CSV or an Excel XLSX file
+        formatted with parties on the first row
+        and constitution names on the first column.
+      </p>
       <b-img rounded fluid src="/static/img/parties_xlsx.png"/>
-      <p>Optionally, if the second and third columns are named 'cons' or 'adj', they will be understood to be information about the number of constituency seats and adjustment seats, respectively, in each constituency. If you leave them out, you can specify the number of seats manually.</p>
-      <b-form-file v-model="uploadfile" :state="Boolean(uploadfile)" placeholder="Choose a file..."></b-form-file>
+      <p>
+        Optionally, if the second and third columns are named 'cons' or 'adj',
+        they will be understood to be information about
+        the number of constituency seats and adjustment seats,
+        respectively, in each constituency.
+        If you leave them out, you can specify the number of seats manually.
+      </p>
+      <b-form-file
+        v-model="uploadfile"
+        :state="Boolean(uploadfile)"
+        placeholder="Choose a file..."
+      ></b-form-file>
     </b-modal>
 
     <b-modal size="lg" id="modalpaste" title="Paste CSV" @ok="pasteCSV">
-      <p>Here you can paste in comma separated values to override the current vote table.</p>
-      <b-form-textarea id="id_paste_csv"
-                     v-model="paste.csv"
-                     placeholder="Add your vote data"
-                     rows="7">
+      <p>
+        Here you can paste in comma separated values
+        to override the current vote table.
+      </p>
+      <b-form-textarea
+        id="id_paste_csv"
+        v-model="paste.csv"
+        placeholder="Add your vote data"
+        rows="7">
       </b-form-textarea>
       <b-form-checkbox
-                     v-model="paste.has_name"
-                     value="true"
-                     unchecked-value="false">
-      First row begins with name by which to refer to this vote table.
+        v-model="paste.has_name"
+        value="true"
+        unchecked-value="false"
+      >
+        First row begins with name by which to refer to this vote table.
       </b-form-checkbox>
       <b-form-checkbox
-                     v-model="paste.has_parties"
-                     value="true"
-                     unchecked-value="false">
-      First row is a header with party names.
+        v-model="paste.has_parties"
+        value="true"
+        unchecked-value="false"
+      >
+        First row is a header with party names.
       </b-form-checkbox>
       <b-form-checkbox
-                     v-model="paste.has_constituencies"
-                     value="true"
-                     unchecked-value="false">
-      First column contains constituency names.
+        v-model="paste.has_constituencies"
+        value="true"
+        unchecked-value="false"
+      >
+        First column contains constituency names.
       </b-form-checkbox>
-      <b-form-checkbox v-model="paste.has_constituency_seats"
-                       value="true"
-                       unchecked-value="false">
-      Second column contains constituency seats.
+      <b-form-checkbox
+        v-model="paste.has_constituency_seats"
+        value="true"
+        unchecked-value="false"
+      >
+        Second column contains constituency seats.
       </b-form-checkbox>
-      <b-form-checkbox v-model="paste.has_constituency_adjustment_seats"
-                       value="true"
-                       unchecked-value="false">
-      Third column contains adjustment seats.
+      <b-form-checkbox
+        v-model="paste.has_constituency_adjustment_seats"
+        value="true"
+        unchecked-value="false"
+      >
+        Third column contains adjustment seats.
       </b-form-checkbox>
     </b-modal>
 
-    <b-modal size="lg" id="modalpreset" ref="modalpresetref" title="Load preset" cancel-only>
+    <b-modal
+      size="lg"
+      id="modalpreset"
+      ref="modalpresetref"
+      title="Load preset"
+      cancel-only
+    >
       <b-table hover :items="presets" :fields="presetfields">
         <template slot="actions" slot-scope="row">
-          <b-button size="sm" @click.stop="loadPreset(row.item.id); $refs.modalpresetref.hide()" class="mr-1 mt-0 mb-0">
+          <b-button size="sm"
+            @click.stop="loadPreset(row.item.id); $refs.modalpresetref.hide()"
+            class="mr-1 mt-0 mb-0"
+          >
             Load
           </b-button>
         </template>
@@ -56,28 +95,45 @@
 
     <b-button-toolbar key-nav aria-label="Vote tools">
       <b-button-group class="mx-1">
-        <b-button title="Load existing vote table from server"
-          v-b-modal.modalpreset>Load preset
+        <b-button
+          title="Load existing vote table from server"
+          v-b-modal.modalpreset
+        >
+          Load preset
         </b-button>
-        <b-button title="Upload vote table file (.xlsx or .csv)"
-          v-b-modal.modalupload>Upload votes
+        <b-button
+          title="Upload vote table file (.xlsx or .csv)"
+          v-b-modal.modalupload
+        >
+          Upload votes
         </b-button>
-        <b-button title="Paste input from file with csv format"
-          v-b-modal.modalpaste>Paste input
+        <b-button
+          title="Paste input from file with csv format"
+          v-b-modal.modalpaste
+        >
+          Paste input
         </b-button>
       </b-button-group>
       <b-button-group class="mx-1">
-        <b-button title="Download .xlsx file with vote table"
-          @click="saveVotes()">Save votes
+        <b-button
+          title="Download .xlsx file with vote table"
+          @click="saveVotes()"
+        >
+          Save votes
         </b-button>
       </b-button-group>
       <b-button-group class="mx-1">
-        <b-btn title="set all vote counts to zero but preserve frame"
-          @click="clearVotes()">Clear votes
+        <b-btn
+          title="set all vote counts to zero but preserve frame"
+          @click="clearVotes()"
+        >
+          Clear votes
         </b-btn>
         <b-btn
           title="Empty entire table and remove all parties and constituencies"
-          @click="clearAll()">Delete table
+          @click="clearAll()"
+        >
+          Delete table
         </b-btn>
       </b-button-group>
     </b-button-toolbar>
@@ -92,8 +148,17 @@
         <th>
           <abbr title="Adjustment seats"># Adj.</abbr>
         </th>
-        <th v-for="(party, partyidx) in matrix.parties" class="small-12 medium-1 column partyname">
-          <b-button size="sm" variant="link" @click="deleteParty(partyidx)">×</b-button>
+        <th
+          v-for="(party, partyidx) in matrix.parties"
+          class="small-12 medium-1 column partyname"
+        >
+          <b-button
+            size="sm"
+            variant="link"
+            @click="deleteParty(partyidx)"
+          >
+            ×
+          </b-button>
           <input type="text" v-model="matrix.parties[partyidx]">
         </th>
         <th class="growtable">
@@ -102,18 +167,26 @@
       </tr>
       <tr v-for="(constituency, conidx) in matrix.constituencies">
         <th class="small-12 medium-1 column constname">
-            <b-button size="sm" variant="link" @click="deleteConstituency(conidx)">×</b-button>
-            <input type="text" v-model="constituency['name']"></input>
+          <b-button
+            size="sm"
+            variant="link"
+            @click="deleteConstituency(conidx)"
+          >
+            ×
+          </b-button>
+          <input type="text" v-model="constituency['name']">
         </th>
         <td class="small-12 medium-2 column partyvotes">
-          <input type="text" v-model.number="constituency['num_const_seats']"></input>
+          <input type="text" v-model.number="constituency['num_const_seats']">
         </td>
         <td class="small-12 medium-2 column partyvotes">
-          <input type="text" v-model.number="constituency['num_adj_seats']"></input>
+          <input type="text" v-model.number="constituency['num_adj_seats']">
         </td>
-        <td v-for="(party, partyidx) in matrix.parties" class="small-12 medium-2 column partyvotes">
-            <input type="text" v-model.number="matrix.votes[conidx][partyidx]">
-            </input>
+        <td
+          v-for="(party, partyidx) in matrix.parties"
+          class="small-12 medium-2 column partyvotes"
+        >
+          <input type="text" v-model.number="matrix.votes[conidx][partyidx]">
         </td>
       </tr>
       <tr>

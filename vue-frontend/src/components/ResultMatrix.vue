@@ -9,7 +9,11 @@
       </tr>
       <tr class="parties">
         <th class="small-12 medium-1 topleft"></th>
-        <th :colspan="stddev?2:1" v-for="(party, partyidx) in parties" class="small-12 medium-1 column partyname">
+        <th
+          :colspan="stddev?2:1"
+          v-for="(party, partyidx) in parties"
+          class="small-12 medium-1 column partyname"
+        >
           {{ parties[partyidx] }}
         </th>
       </tr>

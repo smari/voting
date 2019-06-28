@@ -8,10 +8,24 @@
 
     <div style="text-align: center; margin-bottom: 0.7em;">
         <span v-if="simulation_done">
-          <b-button size="lg" variant="success" :disabled="!simulation_done" @click="recalculate">Start simulation</b-button>
+          <b-button
+            size="lg"
+            variant="success"
+            :disabled="!simulation_done"
+            @click="recalculate"
+          >
+            Start simulation
+          </b-button>
         </span>
         <span v-if="!simulation_done">
-          <b-button size="lg" variant="danger" :disabled="simulation_done" @click="stop_simulation">Stop simulation</b-button>
+          <b-button
+            size="lg"
+            variant="danger"
+            :disabled="simulation_done"
+            @click="stop_simulation"
+          >
+            Stop simulation
+          </b-button>
         </span>
     </div>
     <div class="row" style="margin-bottom: 0.7em;">
@@ -24,7 +38,8 @@
           :max="simulation_rules.simulation_count"
           :animated="!simulation_done"
           :variant="simulation_done ? 'success':'primary'"
-          show-value></b-progress>
+          show-value>
+        </b-progress>
       </b-col>
       <b-col cols="2">
 
@@ -39,7 +54,8 @@
       <b-button size="lg" :href="get_xlsx_url()">Download XLSX file</b-button>
 
       <h3>Constituency seats</h3>
-      <ResultMatrix v-for="(ruleset, idx) in results.data"
+      <ResultMatrix
+        v-for="(ruleset, idx) in results.data"
         :key="'const-seats-' + idx"
         :constituencies="vote_table.constituencies"
         :parties="vote_table.parties"
@@ -50,7 +66,8 @@
       </ResultMatrix>
 
       <h3>Adjustment seats</h3>
-      <ResultMatrix v-for="(ruleset, idx) in results.data"
+      <ResultMatrix
+        v-for="(ruleset, idx) in results.data"
         :key="'adj-seats-' + idx"
         :constituencies="vote_table.constituencies"
         :parties="vote_table.parties"
@@ -61,7 +78,8 @@
       </ResultMatrix>
 
       <h3>Total seats</h3>
-      <ResultMatrix v-for="(ruleset, idx) in results.data"
+      <ResultMatrix
+        v-for="(ruleset, idx) in results.data"
         :key="'total-seats-' + idx"
         :constituencies="vote_table.constituencies"
         :parties="vote_table.parties"

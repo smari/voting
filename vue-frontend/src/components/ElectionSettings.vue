@@ -4,9 +4,9 @@
       <b-col>
         <b-form-group
           label="Name"
-          description="Give this electoral system a name.">
-          <b-form-input type="text" class="mb-3"
-            v-model="rules.name"/>
+          description="Give this electoral system a name."
+        >
+          <b-form-input type="text" class="mb-3" v-model="rules.name"/>
         </b-form-group>
       </b-col>
     </b-row>
@@ -15,7 +15,8 @@
       <b-col>
         <b-form-group
           label="Threshold"
-          description="What threshold are parties required to reach within a particular constituency to qualify for constituency seats?">
+          description="What threshold are parties required to reach within a particular constituency to qualify for constituency seats?"
+        >
           <b-input-group append="%">
             <b-form-input type="number" min="0" max="100"
               v-model.number="rules.constituency_threshold"/>
@@ -25,7 +26,8 @@
       <b-col>
         <b-form-group
           label="Rule"
-          description="Which rule should be used to allocate constituency seats to lists within each constituency?">
+          description="Which rule should be used to allocate constituency seats to lists within each constituency?"
+        >
           <b-form-select class="mb-3"
             v-model="rules.primary_divider"
             :options="capabilities.divider_rules"/>
@@ -37,7 +39,8 @@
       <b-col>
         <b-form-group
           label="Threshold"
-          description="What threshold are parties required to reach nationally to qualify for adjustment seats?">
+          description="What threshold are parties required to reach nationally to qualify for adjustment seats?"
+        >
           <b-input-group append="%">
             <b-form-input type="number" min="0" max="100"
               v-model.number="rules.adjustment_threshold"/>
@@ -47,7 +50,8 @@
       <b-col>
         <b-form-group
           label="Rule"
-          description="Which rule should be used to divide adjustment seats between parties nationally?">
+          description="Which rule should be used to divide adjustment seats between parties nationally?"
+        >
           <b-form-select class="mb-3"
             v-model="rules.adj_determine_divider"
             :options="capabilities.divider_rules"/>
@@ -59,7 +63,8 @@
       <b-col>
         <b-form-group
           label="Method"
-          description="Which method should be used to allocate adjustment seats?">
+          description="Which method should be used to allocate adjustment seats?"
+        >
           <b-form-select class="mb-3"
             v-model="rules.adjustment_method"
             :options="capabilities.adjustment_methods"/>
@@ -68,7 +73,8 @@
       <b-col>
         <b-form-group
           label="Rule"
-          description="Which rule should be used to allocate adjustment seats to individual lists?">
+          description="Which rule should be used to allocate adjustment seats to individual lists?"
+        >
           <b-form-select class="mb-3"
             v-model="rules.adj_alloc_divider"
             :options="capabilities.divider_rules"/>
