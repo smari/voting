@@ -80,6 +80,13 @@ def check_vote_table(vote_table):
                              "must add to a nonzero number. "
                              f"This is not the case for {name}.")
 
+    seen = set()
+    for const in vote_table["constituencies"]:
+        if const["name"] in seen:
+            raise ValueError("Constituency names must be unique. "
+                             f"{const['name']} is not.")
+        seen.add(const["name"])
+
     return vote_table
 
 def entropy(votes, allocations, divisor_gen):
