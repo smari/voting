@@ -77,6 +77,54 @@
         </fieldset>
       </b-col>
     </b-row>
+    <b-row>
+      <b-col cols="5">
+        <b-form-group
+          label="Seat specification option"
+          description="Which seat distribution should this electoral system use?"
+        >
+          <b-form-select class="mb-3"
+            v-model="rules.seat_spec_option"
+            :options="capabilities.seat_spec_options"/>
+        </b-form-group>
+      </b-col>
+      <b-col>
+        <table class="votematrix">
+          <tr class="parties">
+            <th class="small-12 medium-1 topleft"></th>
+            <th>
+              <abbr title="Constituency seats"># Cons.</abbr>
+            </th>
+            <th>
+              <abbr title="Adjustment seats"># Adj.</abbr>
+            </th>
+          </tr>
+          <tr v-for="(constituency, conidx) in rules.constituencies">
+            <th class="small-12 medium-1 column constname">
+              {{ constituency['name'] }}
+            </th>
+            <td class="small-12 medium-2 column partyvotes">
+              <span v-if="rules.seat_spec_option != 'custom'">
+                {{ constituency['num_const_seats'] }}
+              </span>
+              <span v-if="rules.seat_spec_option == 'custom'">
+                <input type="text"
+                  v-model.number="constituency['num_const_seats']">
+              </span>
+            </td>
+            <td class="small-12 medium-2 column partyvotes">
+              <span v-if="rules.seat_spec_option != 'custom'">
+                {{ constituency['num_adj_seats'] }}
+              </span>
+              <span v-if="rules.seat_spec_option == 'custom'">
+                <input type="text"
+                  v-model.number="constituency['num_adj_seats']">
+              </span>
+            </td>
+          </tr>
+        </table>
+      </b-col>
+    </b-row>
   </b-form>
 </template>
 

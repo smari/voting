@@ -65,6 +65,14 @@ GENERATING_METHOD_NAMES = {
     "beta": "Beta distribution"
 }
 
+SEAT_SPECIFICATION_OPTIONS = {
+    "defer":     "Defer to vote table",
+    "all_const": "Make all seats constituency seats",
+    "all_adj":   "Make all seats adjustment seats",
+    "one_const": "Combine all constituencies into one",
+    "custom":    "Specify seat distribution manually for this particular electoral system",
+}
+
 MEASURES = {
     "dev_opt":         "Allocation by the optimal method",
     "dev_law":         "Allocation by Icelandic Law",

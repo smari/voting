@@ -75,6 +75,29 @@ export default {
             this.server.errormsg = '';
             this.server.error = false;
             this.results = response.body;
+
+            for (var i=0; i<response.body.length; i++){
+              let old_const = this.election_rules[i].constituencies;
+              let new_const = response.body[i].rules.constituencies;
+              let modified = false;
+              if (new_const.length == old_const.length) {
+                for (var j=0; j<new_const.length; j++) {
+                  let old_c = old_const[j];
+                  let new_c = new_const[j];
+                  if (old_c.name != new_c.name
+                      || old_c.num_const_seats != new_c.num_const_seats
+                      || old_c.num_adj_seats != new_c.num_adj_seats) {
+                    modified = true;
+                  }
+                }
+              }
+              else if (new_const.length>0) {
+                modified = true;
+              }
+              if (modified){
+                this.$emit('update-rules', response.body[i].rules, i);
+              }
+            }
             this.server.waitingForData = false;
           }
         }, response => {

@@ -4,8 +4,8 @@ from copy import copy, deepcopy
 
 from rules import Rules
 from util import load_constituencies
-from dictionaries import DIVIDER_RULES
-from dictionaries import ADJUSTMENT_METHODS
+from dictionaries import DIVIDER_RULES, ADJUSTMENT_METHODS
+from dictionaries import SEAT_SPECIFICATION_OPTIONS
 
 class ElectionRules(Rules):
     """A set of rules for an election to follow."""
@@ -17,6 +17,7 @@ class ElectionRules(Rules):
             "adj_determine_divider": DIVIDER_RULES.keys(),
             "adj_alloc_divider": DIVIDER_RULES.keys(),
             "adjustment_method": ADJUSTMENT_METHODS.keys(),
+            "seat_spec_option": SEAT_SPECIFICATION_OPTIONS.keys(),
         }
         self.range_rules = {
             "adjustment_threshold": [0, 100],
@@ -35,6 +36,7 @@ class ElectionRules(Rules):
         self["adjustment_threshold"] = 5
         self["constituency_threshold"] = 0
         self["adjustment_method"] = "icelandic-law"
+        self["seat_spec_option"] = "defer"
         self["constituencies"] = []
         self["parties"] = []
 

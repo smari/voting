@@ -46,7 +46,8 @@
           :server="server"
           :vote_table="vote_table"
           :election_rules="election_rules"
-          :activeTabIndex="activeTabIndex">
+          :activeTabIndex="activeTabIndex"
+          @update-rules="updateElectionRules">
         </Election>
       </b-tab>
       <b-tab title="Simulation">
