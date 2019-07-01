@@ -43,17 +43,17 @@
     <b-tabs style="margin-top:10px">
       <b-tab title="Single Election" active>
         <Election
+          :server="server"
           :vote_table="vote_table"
           :election_rules="election_rules"
-          :activeTabIndex="activeTabIndex"
-          :server="server">
+          :activeTabIndex="activeTabIndex">
         </Election>
       </b-tab>
       <b-tab title="Simulation">
         <Simulate
+          :server="server"
           :vote_table="vote_table"
-          :election_rules="election_rules"
-          :server="server">
+          :election_rules="election_rules">
         </Simulate>
       </b-tab>
     </b-tabs>
@@ -104,6 +104,9 @@ export default {
     }
   },
   methods: {
+    serverError: function(error) {
+      this.server.errormsg = error;
+    },
     addElectionRules: function() {
       this.election_rules.push({})
     },
@@ -116,9 +119,6 @@ export default {
     },
     updateVoteTable: function(table) {
       this.vote_table = table;
-    },
-    serverError: function(error) {
-      this.server.errormsg = error;
     },
   }
 }

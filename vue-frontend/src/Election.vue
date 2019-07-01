@@ -28,10 +28,10 @@ import ResultChart from './components/ResultChart.vue'
 
 export default {
   props: {
+    "server": { default: {} },
     "vote_table": { default: {} },
     "election_rules": { default: [{}] },
     "activeTabIndex": { default: 0 },
-    "server": { default: {} },
   },
   components: {
     ResultMatrix,
