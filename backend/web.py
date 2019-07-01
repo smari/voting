@@ -18,8 +18,9 @@ import dictionaries
 from electionRules import ElectionRules
 import util
 from excel_util import save_votes_to_xlsx
-from table_util import check_vote_table
+from table_util import check_vote_table, add_totals
 import voting
+from voting import Election
 import simulate as sim
 
 class CustomFlask(Flask):
@@ -95,7 +96,35 @@ def handle_election():
         rules["parties"] = vote_table["parties"]
         rules["constituencies"] = vote_table["constituencies"]
 
-        election = voting.Election(rules, votes, table_name)
+        option = rs["seat_spec_option"]
+
+        if option == "defer":
+            election = Election(rules, votes, table_name)
+        elif option == "all_const":
+            rules = rules.generate_ind_const_ruleset()
+            election = Election(rules, votes, table_name)
+        elif option == "all_adj":
+            rules = rules.generate_all_adj_ruleset()
+            election = Election(rules, votes, table_name)
+        elif option == "one_const":
+            rules["constituencies"] = rs["constituencies"]
+            rules = rules.generate_one_const_ruleset()
+            xtd_votes = add_totals(votes)
+            total_votes = xtd_votes[-1][:-1]
+            election = Election(rules, [total_votes], table_name)
+        else:
+            assert option == "custom", (
+                f"unexpected seat_spec_option encountered: {option}")
+            rules["constituencies"] = []
+            for const in vote_table["constituencies"]:
+                match = const
+                for modified_const in rs["constituencies"]:
+                    if modified_const["name"] == const["name"]:
+                        match = modified_const
+                        break
+                rules["constituencies"].append(match)
+            election = Election(rules, votes, table_name)
+
         election.run()
         elections.append(election)
 
