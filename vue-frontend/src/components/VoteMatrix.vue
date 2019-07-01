@@ -1,7 +1,7 @@
 <template>
   <b-container fluid class="votematrix-container">
     <b-modal
-      ize="lg"
+      size="lg"
       id="modalupload"
       title="Upload CSV or XLSX file"
       @ok="uploadVotes"
