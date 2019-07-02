@@ -1,4 +1,21 @@
 
+
+from dictionaries import SEAT_SPECIFICATION_OPTIONS
+
+
+def check_input(data, sections):
+    for section in sections:
+        if section not in data or not data[section]:
+            raise KeyError(f"Missing data ('{section}')")
+
+    if "vote_table" in sections:
+        data["vote_table"] = check_vote_table(data["vote_table"])
+
+    if "rules" in sections:
+        data["rules"] = check_rules(data["rules"])
+
+    return data
+
 def check_vote_table(vote_table):
     """Checks vote_table input, and translates empty cells to zeroes
 
@@ -52,3 +69,42 @@ def check_vote_table(vote_table):
         seen.add(const["name"])
 
     return vote_table
+
+def check_rules(electoral_systems):
+    """Checks election rules constituency input, and translates empty cells to 0
+
+    Raises:
+        KeyError: If constituencies are missing a component
+        TypeError: If seat counts are not given as numbers
+        ValueError: If not enough seats are specified
+    """
+    for electoral_system in electoral_systems:
+        option = electoral_system["seat_spec_option"]
+        assert option in SEAT_SPECIFICATION_OPTIONS.keys(), (
+            f"Unexpected seat specification option encountered: {option}.")
+        #if option == "custom":
+        #We only really need to check input if option is "custom",
+        #because in case of the other options this won't be evaluated anyway,
+        #except for option "one_const", but even then,
+        #the frontend can't reach a state where that option would be corrupted.
+        #But let's just check all, to be helpful also
+        #in case POST data does not come from frontend but elsewhere.
+        for const in electoral_system["constituencies"]:
+            if "name" not in const or not const["name"]:
+                #can never happen in case of input from frontend
+                raise KeyError(f"Missing data ('constituencies[x].name' in "
+                    f"electoral system {electoral_system['name']})")
+            name = const["name"]
+            for info in ["num_const_seats", "num_adj_seats"]:
+                if info not in const:
+                    raise KeyError(f"Missing data ('{info}' for {name} in "
+                        f"electoral system {electoral_system['name']})")
+                if not const[info]: const[info]=0
+                if type(const[info]) != int:
+                    raise TypeError("Seat specifications must be numbers.")
+            if (const["num_const_seats"] + const["num_adj_seats"] <= 0):
+                raise ValueError("Constituency seats and adjustment seats "
+                     "must add to a nonzero number. "
+                     f"This is not the case for {name} in "
+                     f"electoral system {electoral_system['name']}.")
+    return electoral_systems

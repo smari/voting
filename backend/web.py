@@ -18,7 +18,8 @@ import dictionaries
 from electionRules import ElectionRules
 import util
 from excel_util import save_votes_to_xlsx
-from table_util import check_vote_table, add_totals
+from input_util import check_input, check_vote_table
+from table_util import add_totals
 import voting
 from voting import Election
 import simulate as sim
@@ -77,12 +78,9 @@ def get_download():
 
 def handle_election():
     data = request.get_json(force=True)
+    data = check_input(data, ["vote_table", "rules"])
 
-    for section in ["vote_table", "rules"]:
-        if section not in data or not data[section]:
-            raise KeyError(f"Missing data ('{section}')")
-
-    vote_table = check_vote_table(data["vote_table"])
+    vote_table = data["vote_table"]
     table_name = vote_table["name"]
     votes = vote_table["votes"]
 
@@ -114,7 +112,7 @@ def handle_election():
             election = Election(rules, [total_votes], table_name)
         else:
             assert option == "custom", (
-                f"unexpected seat_spec_option encountered: {option}")
+                f"Unexpected seat_spec_option encountered: {option}.")
             rules["constituencies"] = []
             for const in vote_table["constituencies"]:
                 match = const
