@@ -4,6 +4,7 @@ from random import uniform
 
 import logging
 import simulate
+from dictionaries import MEASURES, LIST_MEASURES, AGGREGATES
 import voting
 import util
 
@@ -93,12 +94,12 @@ class SimulationTest(TestCase):
                 self.assertEqual(vote_data['cnt'][const][party], 1)
                 self.assertEqual(vote_data['var'][const][party], 0)
                 self.assertEqual(vote_data['std'][const][party], 0)
-                for m in simulate.LIST_MEASURES.keys():
+                for m in LIST_MEASURES.keys():
                     self.assertEqual(list_measures[m]['cnt'][const][party], 1)
                     self.assertEqual(list_measures[m]['var'][const][party], 0)
                     self.assertEqual(list_measures[m]['std'][const][party], 0)
         measures = result['data'][0]['measures']
-        for m in simulate.MEASURES.keys():
+        for m in MEASURES.keys():
             self.assertEqual(measures[m]['cnt'], 1)
             self.assertEqual(measures[m]['var'], 0)
             self.assertEqual(measures[m]['std'], 0)
@@ -122,12 +123,12 @@ class SimulationTest(TestCase):
                 self.assertEqual(vote_data['cnt'][const][party], 1)
                 self.assertEqual(vote_data['var'][const][party], 0)
                 self.assertEqual(vote_data['std'][const][party], 0)
-                for m in simulate.LIST_MEASURES.keys():
+                for m in LIST_MEASURES.keys():
                     self.assertEqual(list_measures[m]['cnt'][const][party], 1)
                     self.assertEqual(list_measures[m]['var'][const][party], 0)
                     self.assertEqual(list_measures[m]['std'][const][party], 0)
         measures = result['data'][0]['measures']
-        for m in simulate.MEASURES.keys():
+        for m in MEASURES.keys():
             self.assertEqual(measures[m]['cnt'], 1)
             self.assertEqual(measures[m]['var'], 0)
             self.assertEqual(measures[m]['std'], 0)
@@ -149,9 +150,31 @@ class SimulationTest(TestCase):
                 self.assertGreater(vote_data['max'][const][party], 0)
                 self.assertGreater(vote_data['min'][const][party], 0)
                 self.assertEqual(vote_data['cnt'][const][party], 100)
-                for m in simulate.LIST_MEASURES.keys():
+                for m in LIST_MEASURES.keys():
                     self.assertEqual(list_measures[m]['cnt'][const][party], 100)
         measures = result['data'][0]['measures']
-        for m in simulate.MEASURES.keys():
+        for m in MEASURES.keys():
             self.assertEqual(measures[m]['cnt'], 100)
         self.assertEqual(result['time_data']['cnt'], 100)
+
+    def test_simulate_with_custom_seat_specs(self):
+        #Arrange
+        self.e_rules["seat_spec_option"] = "one_const"
+        self.s_rules["simulation_count"] = 100
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
+        #Act
+        sim.simulate()
+        #Assert
+        self.assertEqual(len(sim.e_rules[0]["constituencies"]), 1)
+        result = sim.get_results_dict()
+        list_measures = result["data"][0]["list_measures"]
+        for m in LIST_MEASURES.keys():
+            for aggr in AGGREGATES.keys():
+                self.assertEqual(len(list_measures[m][aggr]), 2)
+        for r in range(sim.num_rulesets):
+            #list_measures = result["data"][r]["list_measures"]
+            for m in LIST_MEASURES.keys():
+                for aggr in AGGREGATES.keys():
+                    self.assertEqual(
+                        len(result["data"][r]["list_measures"][m][aggr]),
+                        1+len(sim.e_rules[r]["constituencies"]))
