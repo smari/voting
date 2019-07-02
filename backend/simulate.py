@@ -100,10 +100,10 @@ class SimulationRules(Rules):
 class Simulation:
     """Simulate a set of elections."""
     def __init__(self, sim_rules, e_rules, vote_table, stbl_param=100):
-        self.election_handler = ElectionHandler(vote_table, e_rules)
-        self.e_rules = [el.rules for el in self.election_handler.elections]
+        self.e_handler = ElectionHandler(vote_table, e_rules)
+        self.e_rules = [el.rules for el in self.e_handler.elections]
         self.num_rulesets = len(self.e_rules)
-        self.vote_table = self.election_handler.vote_table
+        self.vote_table = self.e_handler.vote_table
         self.constituencies = self.vote_table["constituencies"]
         self.num_constituencies = len(self.constituencies)
         self.parties = self.vote_table["parties"]
@@ -214,7 +214,7 @@ class Simulation:
     def run_initial_elections(self):
         self.base_allocations = []
         for r in range(self.num_rulesets):
-            election = self.election_handler.elections[r]
+            election = self.e_handler.elections[r]
             xtd_total_seats = add_totals(election.results)
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
@@ -271,9 +271,9 @@ class Simulation:
 
     def collect_measures(self, votes):
         self.collect_votes(votes)
-        self.election_handler.set_votes(votes)
+        self.e_handler.set_votes(votes)
         for ruleset in range(self.num_rulesets):
-            election = self.election_handler.elections[ruleset]
+            election = self.e_handler.elections[ruleset]
             self.collect_list_measures(ruleset, election)
             self.collect_general_measures(ruleset, election.m_votes, election)
 
@@ -334,7 +334,7 @@ class Simulation:
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
     def calculate_bi_seat_shares(self, ruleset, votes, opt_results):
-        election = self.election_handler.elections[ruleset]
+        election = self.e_handler.elections[ruleset]
 
         bi_seat_shares = deepcopy(votes)
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
