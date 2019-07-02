@@ -1,9 +1,5 @@
 <template>
   <div>
-    <b-alert :show="server.waitingForData">Loading...</b-alert>
-    <b-alert :show="server.error" dismissible @dismissed="server.error=false" variant="danger">Server error. Try again in a few seconds...</b-alert>
-    <b-alert :show="server.errormsg != ''" dismissible @dismissed="server.errormsg=''" variant="danger">Server error. {{server.errormsg}}</b-alert>
-
     <h2>Electoral system settings</h2>
     <b-card no-body>
       <b-tabs v-model="activeTabIndex" card>
@@ -33,6 +29,10 @@
         </div>
       </b-tabs>
     </b-card>
+
+    <b-alert :show="server.waitingForData">Loading...</b-alert>
+    <b-alert :show="server.error" dismissible @dismissed="server.error=false" variant="danger">Server error. Try again in a few seconds...</b-alert>
+    <b-alert :show="server.errormsg != ''" dismissible @dismissed="server.errormsg=''" variant="danger">Server error. {{server.errormsg}}</b-alert>
 
     <h2>Votes</h2>
     <VoteMatrix
