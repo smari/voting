@@ -100,8 +100,8 @@ class Simulation:
     def __init__(self, sim_rules, e_rules, vote_table, stbl_param=100):
         self.num_total_simulations = sim_rules["simulation_count"]
         self.num_rulesets = len(e_rules)
-        self.num_constituencies = len(vote_table["votes"])
-        self.num_parties = len(vote_table["votes"][0])
+        self.num_constituencies = len(vote_table["constituencies"])
+        self.num_parties = len(vote_table["parties"])
         assert(all([len(c) == self.num_parties for c in vote_table["votes"]]))
         assert(all([
             self.num_constituencies == len(ruleset["constituencies"])
