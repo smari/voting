@@ -97,6 +97,10 @@ class Election:
             votes=self.m_votes,
             threshold=self.rules["adjustment_threshold"]
         )
+        self.v_votes_eliminated = threshold_elimination_totals(
+            votes=self.m_votes,
+            threshold=self.rules["adjustment_threshold"]
+        )
 
     def run_determine_adjustment_seats(self):
         """Calculate the number of adjustment seats each party gets."""
