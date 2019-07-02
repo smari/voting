@@ -252,7 +252,7 @@ def simulation_to_xlsx(simulation, filename):
                 {"label": date_label,
                     "data": datetime.now()},
                 {"label": "Reference votes:",
-                    "data": simulation.vote_table_name},
+                    "data": simulation.vote_table["name"]},
                 {"label": "Electoral system:",
                     "data": simulation.e_rules[r]["name"]},
                 {"label": "Adjustment method:",

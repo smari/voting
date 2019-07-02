@@ -110,7 +110,7 @@ class Simulation:
         ]))
         self.sim_rules = sim_rules
         self.e_rules = e_rules
-        self.vote_table_name = vote_table["name"]
+        self.vote_table = vote_table
         self.base_votes = vote_table["votes"]
         self.xtd_votes = add_totals(self.base_votes)
         self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
