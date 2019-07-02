@@ -317,9 +317,6 @@ def set_up_simulation():
         for k, v in rs.items():
             election_rules[k] = v
 
-        election_rules["parties"] = vote_table["parties"]
-        election_rules["constituencies"] = vote_table["constituencies"]
-
         rulesets.append(election_rules)
 
     stability_parameter = 100
