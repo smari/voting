@@ -10,20 +10,22 @@ import util
 
 class SimulationTest(TestCase):
     def setUp(self):
-        self.e_rules = voting.ElectionRules()
-        self.e_rules["constituencies"] = [
-            {"name": "I",   "num_const_seats": 5, "num_adj_seats": 1},
-            {"name": "II",  "num_const_seats": 6, "num_adj_seats": 2},
-            {"name": "III", "num_const_seats": 4, "num_adj_seats": 1},
-        ]
-        self.e_rules["parties"] = ["A", "B"]
-        self.votes = [[500, 300], [200, 400], [350, 450]]
         self.vote_table = {
             "name": "Simulation test",
-            "parties": self.e_rules["parties"],
-            "votes": self.votes,
-            "constituencies": self.e_rules["constituencies"],
+            "parties": ["A", "B"],
+            "votes":  [[500, 300],
+                       [200, 400],
+                       [350, 450]],
+            "constituencies": [
+                {"name": "I",   "num_const_seats": 5, "num_adj_seats": 1},
+                {"name": "II",  "num_const_seats": 6, "num_adj_seats": 2},
+                {"name": "III", "num_const_seats": 4, "num_adj_seats": 1},
+            ],
         }
+        self.votes = self.vote_table["votes"]
+        self.e_rules = voting.ElectionRules()
+        self.e_rules["parties"] = self.vote_table["parties"]
+        self.e_rules["constituencies"] = self.vote_table["constituencies"]
         self.s_rules = simulate.SimulationRules()
         self.s_rules["simulation_count"] = 100
 
