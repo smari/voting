@@ -78,17 +78,19 @@ def check_rules(electoral_systems):
         TypeError: If seat counts are not given as numbers
         ValueError: If not enough seats are specified
     """
+    if not electoral_systems:
+        raise ValueError("Must have at least one electoral system.")
     for electoral_system in electoral_systems:
-        option = electoral_system["seat_spec_option"]
-        assert option in SEAT_SPECIFICATION_OPTIONS.keys(), (
-            f"Unexpected seat specification option encountered: {option}.")
-        #if option == "custom":
-        #We only really need to check input if option is "custom",
-        #because in case of the other options this won't be evaluated anyway,
-        #except for option "one_const", but even then,
-        #the frontend can't reach a state where that option would be corrupted.
-        #But let's just check all, to be helpful also
-        #in case POST data does not come from frontend but elsewhere.
+        # option = electoral_system["seat_spec_option"]
+        # assert option in SEAT_SPECIFICATION_OPTIONS.keys(), (
+        #     f"Unexpected seat specification option encountered: {option}.")
+        # if option == "custom":
+        # We only really need to check input if option is "custom",
+        # because in case of the other options this won't be evaluated anyway,
+        # except for option "one_const", and even then,
+        # the frontend can't reach a state where that option would be corrupted.
+        # But let's just check all, to be helpful also
+        # in case POST data does not come from frontend but elsewhere.
         for const in electoral_system["constituencies"]:
             if "name" not in const or not const["name"]:
                 #can never happen in case of input from frontend
