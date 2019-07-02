@@ -309,8 +309,6 @@ def set_up_simulation():
             raise KeyError(f"Missing data ('{section}')")
 
     vote_table = check_vote_table(data["vote_table"])
-    table_name = vote_table["name"]
-    votes = vote_table["votes"]
 
     rulesets = []
     for rs in data["election_rules"]:
@@ -335,7 +333,7 @@ def set_up_simulation():
         simulation_rules[k] = v
 
     simulation = sim.Simulation(
-        simulation_rules, rulesets, votes, table_name, stability_parameter)
+        simulation_rules, rulesets, vote_table, stability_parameter)
     return simulation
 
 

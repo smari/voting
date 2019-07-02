@@ -18,6 +18,12 @@ class SimulationTest(TestCase):
         ]
         self.e_rules["parties"] = ["A", "B"]
         self.votes = [[500, 300], [200, 400], [350, 450]]
+        self.vote_table = {
+            "name": "Simulation test",
+            "parties": self.e_rules["parties"],
+            "votes": self.votes,
+            "constituencies": self.e_rules["constituencies"],
+        }
         self.s_rules = simulate.SimulationRules()
         self.s_rules["simulation_count"] = 100
 
@@ -28,7 +34,7 @@ class SimulationTest(TestCase):
     def test_generate_votes_average(self):
         n = 1000
         self.s_rules["simulation_count"] = n
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, 100)
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
         gen = sim.gen_votes()
         r = []
         r_avg = []
@@ -61,7 +67,7 @@ class SimulationTest(TestCase):
     def test_simulate_not_at_all(self):
         #Arrange
         self.s_rules["simulation_count"] = 0
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, 100)
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
         #Act
         sim.simulate()
         #Assert
@@ -98,7 +104,7 @@ class SimulationTest(TestCase):
     def test_simulate_once(self):
         #Arrange
         self.s_rules["simulation_count"] = 1
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, 100)
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
         #Act
         sim.simulate()
         #Assert
@@ -127,7 +133,7 @@ class SimulationTest(TestCase):
     def test_simulate(self):
         #Arrange
         self.s_rules["simulation_count"] = 100
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, 100)
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
         #Act
         sim.simulate()
         #Assert
