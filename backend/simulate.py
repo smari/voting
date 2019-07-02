@@ -274,30 +274,29 @@ class Simulation:
         self.election_handler.set_votes(votes)
         for ruleset in range(self.num_rulesets):
             election = self.election_handler.elections[ruleset]
-            results = election.results
-            self.collect_list_measures(ruleset, results, election)
-            self.collect_general_measures(ruleset, election.m_votes, results, election)
+            self.collect_list_measures(ruleset, election)
+            self.collect_general_measures(ruleset, election.m_votes, election)
 
-    def collect_list_measures(self, ruleset, results, election):
+    def collect_list_measures(self, ruleset, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
-        total_seats_alloc = add_totals(results)
+        total_seats_alloc = add_totals(election.results)
         for c in range(1+election.num_constituencies):
             for p in range(1+self.num_parties):
                 cs  = const_seats_alloc[c][p]
                 ts  = total_seats_alloc[c][p]
-                adj = ts-const_seats_alloc[c][p]
+                adj = ts - cs
                 sh  = float(ts)/total_seats_alloc[c][-1]
                 self.aggregate_list(ruleset, "const_seats", c, p, cs)
                 self.aggregate_list(ruleset, "total_seats", c, p, ts)
                 self.aggregate_list(ruleset, "adj_seats", c, p, adj)
                 self.aggregate_list(ruleset, "seat_shares", c, p, sh)
 
-    def collect_general_measures(self, ruleset, votes, results, election):
+    def collect_general_measures(self, ruleset, votes, election):
         """Various tests to determine the quality of the given method."""
         self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
         opt_results = self.entropy(ruleset, votes, election.entropy())
-        self.deviation_measures(ruleset, votes, results, opt_results)
-        self.other_measures(ruleset, votes, results, opt_results)
+        self.deviation_measures(ruleset, votes, election.results, opt_results)
+        self.other_measures(ruleset, votes, election.results, opt_results)
 
     def entropy(self, ruleset, votes, entropy):
         opt_rules = self.e_rules[ruleset].generate_opt_ruleset()
@@ -335,8 +334,7 @@ class Simulation:
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
     def calculate_bi_seat_shares(self, ruleset, votes, opt_results):
-        v_total_seats = self.election_handler.elections[ruleset].v_total_seats
-        num_constituencies = len(v_total_seats)
+        election = self.election_handler.elections[ruleset]
 
         bi_seat_shares = deepcopy(votes)
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
@@ -344,10 +342,10 @@ class Simulation:
         error = 1
         while round(error, 5) != 0.0:
             error = 0
-            for c in range(num_constituencies):
+            for c in range(election.num_constituencies):
                 s = sum(bi_seat_shares[c])
                 if s != 0:
-                    mult = float(v_total_seats[c])/s
+                    mult = float(election.v_total_seats[c])/s
                     error += abs(1-mult)
                     for p in range(self.num_parties):
                         bi_seat_shares[c][p] *= rein + mult*(1-rein)
@@ -356,7 +354,7 @@ class Simulation:
                 if s != 0:
                     mult = float(seats_party_opt[p])/s
                     error += abs(1-mult)
-                    for c in range(num_constituencies):
+                    for c in range(election.num_constituencies):
                         bi_seat_shares[c][p] *= rein + mult*(1-rein)
 
         try:
@@ -365,8 +363,8 @@ class Simulation:
         except AssertionError:
             pass
         try:
-            assert(all([sum(bi_seat_shares[c]) == v_total_seats[c]
-                        for c in range(num_constituencies)]))
+            assert(all([sum(bi_seat_shares[c]) == election.v_total_seats[c]
+                        for c in range(election.num_constituencies)]))
         except AssertionError:
             pass
 
