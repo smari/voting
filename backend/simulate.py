@@ -7,6 +7,7 @@ from copy import copy, deepcopy
 
 from table_util import matrix_subtraction, add_totals, find_xtd_shares
 from excel_util import simulation_to_xlsx
+from input_util import check_rules, check_vote_table
 from rules import Rules
 from dictionaries import GENERATING_METHODS
 from dictionaries import MEASURES, DEVIATION_MEASURES, STANDARDIZED_MEASURES, \
@@ -98,22 +99,18 @@ class SimulationRules(Rules):
 class Simulation:
     """Simulate a set of elections."""
     def __init__(self, sim_rules, e_rules, vote_table, stbl_param=100):
-        self.num_total_simulations = sim_rules["simulation_count"]
-        self.num_rulesets = len(e_rules)
-        self.num_constituencies = len(vote_table["constituencies"])
-        self.num_parties = len(vote_table["parties"])
-        assert(all([len(c) == self.num_parties for c in vote_table["votes"]]))
-        assert(all([
-            self.num_constituencies == len(ruleset["constituencies"])
-            and self.num_parties == len(ruleset["parties"])
-            for ruleset in e_rules
-        ]))
-        self.sim_rules = sim_rules
-        self.e_rules = e_rules
-        self.vote_table = vote_table
-        self.base_votes = vote_table["votes"]
+        self.e_rules = check_rules(e_rules)
+        self.num_rulesets = len(self.e_rules)
+        self.vote_table = check_vote_table(vote_table)
+        self.constituencies = self.vote_table["constituencies"]
+        self.num_constituencies = len(self.constituencies)
+        self.parties = self.vote_table["parties"]
+        self.num_parties = len(self.parties)
+        self.base_votes = self.vote_table["votes"]
         self.xtd_votes = add_totals(self.base_votes)
         self.xtd_vote_shares = find_xtd_shares(self.xtd_votes)
+        self.sim_rules = sim_rules
+        self.num_total_simulations = self.sim_rules["simulation_count"]
         self.variate = self.sim_rules["gen_method"]
         self.stbl_param = stbl_param
         self.iteration = 0
