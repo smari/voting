@@ -5,8 +5,8 @@
   <b-container v-if="results[activeTabIndex] !== undefined">
     <b-row>
       <ResultMatrix
-        :constituencies="vote_table.constituencies"
         :parties="vote_table.parties"
+        :constituencies="results[activeTabIndex].rules.constituencies"
         :values="results[activeTabIndex].seat_allocations"
         :stddev="false">
       </ResultMatrix>
