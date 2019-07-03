@@ -39,22 +39,20 @@ class ElectionHandler:
             rules = ElectionRules()
             rules.update(electoral_system)
             rules["parties"] = self.parties
+            votes = self.votes
             option = electoral_system["seat_spec_option"]
             if option == "defer":
                 rules["constituencies"] = self.constituencies
-                election = Election(rules, self.votes, self.name)
             elif option == "all_const":
                 rules["constituencies"] = self.constituencies
                 rules = rules.generate_ind_const_ruleset()
-                election = Election(rules, self.votes, self.name)
             elif option == "all_adj":
                 rules["constituencies"] = self.constituencies
                 rules = rules.generate_all_adj_ruleset()
-                election = Election(rules, self.votes, self.name)
             elif option == "one_const":
                 rules = rules.generate_one_const_ruleset()
                 total_votes = self.xtd_votes[-1][:-1]
-                election = Election(rules, [total_votes], self.name)
+                votes = [total_votes]
             else:
                 assert option == "custom", (
                     f"unexpected seat_spec_option encountered: {option}")
@@ -66,7 +64,7 @@ class ElectionHandler:
                             match = modified_const
                             break
                     rules["constituencies"].append(match)
-                election = Election(rules, self.votes, self.name)
+            election = Election(rules, votes, self.name)
             self.elections.append(election)
         self.run_elections()
 
