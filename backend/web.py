@@ -20,9 +20,7 @@ from electionHandler import ElectionHandler
 import util
 from excel_util import save_votes_to_xlsx
 from input_util import check_input, check_vote_table, check_rules
-from table_util import add_totals
 import voting
-from voting import Election
 import simulate as sim
 
 class CustomFlask(Flask):
