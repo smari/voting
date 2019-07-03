@@ -4,6 +4,7 @@ from electionRules import ElectionRules
 from voting import Election
 from table_util import add_totals
 from input_util import check_vote_table, check_rules
+from excel_util import elections_to_xlsx
 
 class ElectionHandler:
     """A handler for comparing electoral system results of a single election
@@ -72,3 +73,6 @@ class ElectionHandler:
     def run_elections(self):
         for election in self.elections:
             election.run()
+
+    def to_xlsx(self, filename):
+        elections_to_xlsx(self.elections, filename)

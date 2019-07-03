@@ -61,6 +61,8 @@ def write_matrix(worksheet, startrow, startcol, matrix, cformat):
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat)
 
+def elections_to_xlsx(elections, filename):
+    raise NotImplementedError
 
 def election_to_xlsx(election, filename):
     """Write detailed information about a single election to an xlsx file."""
