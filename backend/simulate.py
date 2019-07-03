@@ -311,9 +311,9 @@ class Simulation:
         self.deviation(ruleset, "law", election.m_votes, election.results)
         self.deviation(ruleset, "ind_const", election.m_votes, election.results)
         self.deviation(ruleset, "all_adj", election.m_votes, election.results)
-        v_votes = [[sum([c[p] for c in election.m_votes]) for p in range(self.num_parties)]]
+        v_votes = [sum(x) for x in zip(*election.m_votes)]
         v_results = [sum(x) for x in zip(*election.results)]
-        self.deviation(ruleset, "one_const", v_votes, [v_results])
+        self.deviation(ruleset, "one_const", [v_votes], [v_results])
 
     def other_measures(self, ruleset, election, opt_results):
         bi_seat_shares = self.calculate_bi_seat_shares(ruleset, election, opt_results)
