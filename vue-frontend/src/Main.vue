@@ -147,18 +147,6 @@ export default {
       election_rules: [{}],
       activeTabIndex: 0,
       uploadfile: null,
-      simulation_rules: {
-        simulation_count: 0,
-        gen_method: "",
-        distribution_parameter: 0,
-      },
-      simulation_results: {
-        done: true,
-        current_iteration: 0,
-        iteration_time: 0,
-        inflight: 0,
-      },
-      //results: { measures: [], methods: [], data: [] },
     }
   },
   methods: {
