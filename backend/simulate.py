@@ -163,7 +163,6 @@ class Simulation:
             self.list_data[ruleset][measure]["max"][const][party] = value
             self.list_data[ruleset][measure]["min"][const][party] = value
 
-
     def analyze_list(self, ruleset, measure, const, party):
         n = float(self.list_data[ruleset][measure]["cnt"][const][party])
         s = float(self.list_data[ruleset][measure]["sum"][const][party])
@@ -219,7 +218,7 @@ class Simulation:
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
 
-            opt_rules = self.e_rules[r].generate_opt_ruleset()
+            opt_rules = election.rules.generate_opt_ruleset()
             opt_election = voting.Election(opt_rules, election.m_votes)
             opt_results = opt_election.run()
             bi_seat_shares = self.calculate_bi_seat_shares(r, election, opt_results)
