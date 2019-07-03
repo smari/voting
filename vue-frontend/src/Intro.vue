@@ -2,6 +2,10 @@
 <b-container>
   <h1>Voting system simulator</h1>
 
+  <span>
+    Version: 1.1.0. Time of release: 2019.07.03-00:46
+  </span>
+
   <p>
     Hello! This is a voting system simulator.
     Above, you can go to <b><a href="#/calc">Calculator</a></b>.
