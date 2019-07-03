@@ -96,11 +96,13 @@
     <b-button-toolbar key-nav aria-label="Vote tools">
       <b-button-group class="mx-1">
         <b-button
-          title="Load existing vote table from server"
-          v-b-modal.modalpreset
+          title="Download .xlsx file with vote table"
+          @click="saveVotes()"
         >
-          Load preset
+          Save votes
         </b-button>
+      </b-button-group>
+      <b-button-group class="mx-1">
         <b-button
           title="Upload vote table file (.xlsx or .csv)"
           v-b-modal.modalupload
@@ -108,19 +110,17 @@
           Upload votes
         </b-button>
         <b-button
+          title="Load existing vote table from server"
+          v-b-modal.modalpreset
+        >
+          Load preset
+        </b-button>
+        <!--b-button
           title="Paste input from file with csv format"
           v-b-modal.modalpaste
         >
           Paste input
-        </b-button>
-      </b-button-group>
-      <b-button-group class="mx-1">
-        <b-button
-          title="Download .xlsx file with vote table"
-          @click="saveVotes()"
-        >
-          Save votes
-        </b-button>
+        </b-button-->
       </b-button-group>
       <b-button-group class="mx-1">
         <b-btn
