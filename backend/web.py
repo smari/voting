@@ -310,21 +310,17 @@ def set_up_simulation():
     rulesets = []
     for rs in data["election_rules"]:
         election_rules = ElectionRules()
-
-        for k, v in rs.items():
-            election_rules[k] = v
-
+        election_rules.update(rs)
         rulesets.append(election_rules)
+
+    simulation_rules = sim.SimulationRules()
+    simulation_rules.update(data["simulation_rules"])
 
     stability_parameter = 100
     if "stbl_param" in data:
         stability_parameter = data["stbl_param"]
         if stability_parameter <= 1:
             raise ValueError("Stability parameter must be greater than 1.")
-
-    simulation_rules = sim.SimulationRules()
-    for k, v in data["simulation_rules"].items():
-        simulation_rules[k] = v
 
     simulation = sim.Simulation(
         simulation_rules, rulesets, vote_table, stability_parameter)
