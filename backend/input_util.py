@@ -7,13 +7,6 @@ def check_input(data, sections):
     for section in sections:
         if section not in data or not data[section]:
             raise KeyError(f"Missing data ('{section}')")
-
-    if "vote_table" in sections:
-        data["vote_table"] = check_vote_table(data["vote_table"])
-
-    if "rules" in sections:
-        data["rules"] = check_rules(data["rules"])
-
     return data
 
 def check_vote_table(vote_table):

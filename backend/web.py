@@ -303,12 +303,9 @@ def get_xlsx():
 
 def set_up_simulation():
     data = request.get_json(force=True)
-
-    for section in ["vote_table", "election_rules", "simulation_rules"]:
-        if section not in data or not data[section]:
-            raise KeyError(f"Missing data ('{section}')")
-
-    vote_table = check_vote_table(data["vote_table"])
+    data = check_input(data,
+        ["vote_table", "election_rules", "simulation_rules"])
+    vote_table = data["vote_table"]
 
     rulesets = []
     for rs in data["election_rules"]:
