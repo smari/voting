@@ -19,7 +19,7 @@ from electionRules import ElectionRules
 from electionHandler import ElectionHandler
 import util
 from excel_util import save_votes_to_xlsx
-from input_util import check_input, check_vote_table
+from input_util import check_input, check_vote_table, check_rules
 from table_util import add_totals
 import voting
 from voting import Election
@@ -115,6 +115,81 @@ def get_election_excel():
     attachment_filename=f"election {date}.xlsx"
     DOWNLOADS[did] = tmpfilename, attachment_filename
     return jsonify({"download_id": did})
+
+@app.route('/api/esettings/save/', methods=['POST'])
+def save_e_settings():
+    global DOWNLOADS
+
+    try:
+        result = prepare_to_save_e_settings()
+    except (KeyError, TypeError, ValueError) as e:
+        message = e.args[0]
+        print(message)
+        return jsonify({"error": message})
+
+    did = get_new_download_id()
+    DOWNLOADS[did] = result
+    return jsonify({"download_id": did})
+
+def prepare_to_save_e_settings():
+    data = request.get_json(force=True)
+    if "e_settings" not in data or not data["e_settings"]:
+        raise KeyError(f"Missing data (e_settings)")
+
+    settings = data["e_settings"]
+    if type(settings) != list: settings = [settings]
+    settings = check_rules(settings)
+
+    names = []
+    file_content = []
+    for setting in settings:
+        names.append(setting["name"])
+        file_content.append({
+            "name":                         setting["name"],
+            "seat_spec_option":             setting["seat_spec_option"],
+            "constituencies":               setting["constituencies"],
+            "constituency_threshold":       setting["constituency_threshold"],
+            "constituency_allocation_rule": setting["primary_divider"],
+            "adjustment_threshold":         setting["adjustment_threshold"],
+            "adjustment_division_rule":     setting["adj_determine_divider"],
+            "adjustment_method":            setting["adjustment_method"],
+            "adjustment_allocation_rule":   setting["adj_alloc_divider"],
+        })
+
+    tmpfilename = tempfile.mktemp(prefix='e_settings-')
+    with open(tmpfilename, 'w', encoding='utf-8') as jsonfile:
+        json.dump(file_content, jsonfile, ensure_ascii=False, indent=2)
+    filename = secure_filename(".".join(names))
+    date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
+    attachment_filename=f"{filename} {date}.json"
+    return tmpfilename, attachment_filename
+
+@app.route('/api/esettings/upload/', methods=['POST'])
+def upload_e_settings():
+    if 'file' not in request.files:
+        return jsonify({'error': 'must upload a file.'})
+    f = request.files['file']
+    file_content = json.load(f.stream)
+    if type(file_content) != list: file_content = [file_content]
+
+    keys = ["name", "seat_spec_option", "constituencies",
+            "constituency_threshold", "constituency_allocation_rule",
+            "adjustment_threshold", "adjustment_division_rule",
+            "adjustment_method", "adjustment_allocation_rule"]
+    settings = []
+    for item in file_content:
+        for info in keys:
+            if info not in item:
+                raise KeyError(f"{info} is missing from a setting in file.")
+        setting = ElectionRules()
+        setting.update(item)
+        setting["primary_divider"] = item["constituency_allocation_rule"]
+        setting["adj_determine_divider"] = item["adjustment_division_rule"]
+        setting["adj_alloc_divider"] = item["adjustment_allocation_rule"]
+        settings.append(setting)
+
+    settings = check_rules(settings)
+    return jsonify(settings)
 
 @app.route('/api/votes/save/', methods=['POST'])
 def save_votes():

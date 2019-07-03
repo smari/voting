@@ -153,7 +153,9 @@ export default {
   created: function() {
     this.$http.get('/api/capabilities').then(response => {
       this.capabilities = response.body.capabilities;
-      this.$emit('update-rules', response.body.election_rules, this.rulesidx);
+      if (!("name" in this.rules)){
+        this.$emit('update-rules', response.body.election_rules, this.rulesidx);
+      }
       this.doneCreating = true;
     }, response => {
       this.serverError = true;

@@ -1,6 +1,62 @@
 <template>
   <div>
     <h2>Electoral system settings</h2>
+    <b-modal
+      size="lg"
+      id="modaluploadesettings"
+      title="Upload JSON file"
+      @ok="uploadSettings"
+    >
+      <p>
+        The file provided must be a JSON file
+        formatted like a file downloaded from here, with the Save button.
+      </p>
+      <b-form-file
+        v-model="uploadfile"
+        :state="Boolean(uploadfile)"
+        placeholder="Choose a file..."
+      ></b-form-file>
+    </b-modal>
+    <b-modal
+      size="lg"
+      id="modaluploadesettingsreplace"
+      title="Upload JSON file"
+      @ok="uploadSettingsAndReplace"
+    >
+      <p>
+        The file provided must be a JSON file
+        formatted like a file downloaded from here, with the Save button.
+      </p>
+      <b-form-file
+        v-model="uploadfile"
+        :state="Boolean(uploadfile)"
+        placeholder="Choose a file..."
+      ></b-form-file>
+    </b-modal>
+    <b-button-toolbar key-nav aria-label="Electoral settings tools">
+      <b-button-group class="mx-1">
+        <b-button
+          title="Save current settings to file"
+          @click="saveSettings()"
+        >
+          Save all
+        </b-button>
+      </b-button-group>
+      <b-button-group class="mx-1">
+        <b-button
+          title="Upload additional settings from file (.json)"
+          v-b-modal.modaluploadesettings
+        >
+          Add settings
+        </b-button>
+        <b-button
+          title="Upload new settings from file (.json), replacing the current settings"
+          v-b-modal.modaluploadesettingsreplace
+        >
+          Replace
+        </b-button>
+      </b-button-group>
+    </b-button-toolbar>
     <b-card no-body>
       <b-tabs v-model="activeTabIndex" card>
         <b-tab v-for="(rules, rulesidx) in election_rules" :key="rulesidx">
@@ -90,6 +146,7 @@ export default {
       },
       election_rules: [{}],
       activeTabIndex: 0,
+      uploadfile: null,
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",
@@ -117,6 +174,47 @@ export default {
     updateElectionRules: function(rules, idx) {
       this.$set(this.election_rules, idx, rules);
       //this works too: this.election_rules.splice(idx, 1, rules);
+    },
+    saveSettings: function() {
+      this.$http.post('/api/esettings/save/', {
+        e_settings: this.election_rules
+      }).then(response => {
+        if (response.body.error) {
+          this.server.errormsg = response.body.error;
+          //this.$emit('server-error', response.body.error);
+        } else {
+          let link = document.createElement('a')
+          link.href = '/api/downloads/get?id=' + response.data.download_id
+          link.click()
+        }
+      }, response => {
+        console.log("Error:", response);
+      })
+    },
+    uploadSettings: function(evt) {
+      if (!this.uploadfile) {
+        evt.preventDefault();
+      }
+      var formData = new FormData();
+      formData.append('file', this.uploadfile, this.uploadfile.name);
+      this.$http.post('/api/esettings/upload/', formData).then(response => {
+        for (const setting of response.data){
+          this.election_rules.push(setting);
+        }
+      });
+    },
+    uploadSettingsAndReplace: function(evt) {
+      if (!this.uploadfile) {
+        evt.preventDefault();
+      }
+      var formData = new FormData();
+      formData.append('file', this.uploadfile, this.uploadfile.name);
+      this.$http.post('/api/esettings/upload/', formData).then(response => {
+        this.election_rules = []
+        for (const setting of response.data){
+          this.election_rules.push(setting);
+        }
+      });
     },
     updateVoteTable: function(table) {
       this.vote_table = table;
