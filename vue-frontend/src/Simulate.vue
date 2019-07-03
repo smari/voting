@@ -57,7 +57,7 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'const-seats-' + idx"
-        :constituencies="vote_table.constituencies"
+        :constituencies="election_rules[idx].constituencies"
         :parties="vote_table.parties"
         :values="ruleset.list_measures.const_seats.avg"
         :stddev="ruleset.list_measures.const_seats.std"
@@ -69,7 +69,7 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'adj-seats-' + idx"
-        :constituencies="vote_table.constituencies"
+        :constituencies="election_rules[idx].constituencies"
         :parties="vote_table.parties"
         :values="ruleset.list_measures.adj_seats.avg"
         :stddev="ruleset.list_measures.adj_seats.std"
@@ -81,7 +81,7 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'total-seats-' + idx"
-        :constituencies="vote_table.constituencies"
+        :constituencies="election_rules[idx].constituencies"
         :parties="vote_table.parties"
         :values="ruleset.list_measures.total_seats.avg"
         :stddev="ruleset.list_measures.total_seats.std"
@@ -180,7 +180,7 @@ export default {
             this.server.error = false;
             this.simulation_done = response.body.done;
             this.current_iteration = response.body.iteration;
-            this.iteration_time = response.body.iteration_time
+            this.iteration_time = response.body.iteration_time;
             this.results = response.body.results;
             console.log(this.results);
             this.server.waitingForData = false;
