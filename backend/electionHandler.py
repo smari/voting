@@ -66,5 +66,9 @@ class ElectionHandler:
                             break
                     rules["constituencies"].append(match)
                 election = Election(rules, self.votes, self.name)
-            election.run()
             self.elections.append(election)
+        self.run_elections()
+
+    def run_elections(self):
+        for election in self.elections:
+            election.run()
