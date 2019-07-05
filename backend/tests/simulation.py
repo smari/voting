@@ -25,8 +25,6 @@ class SimulationTest(TestCase):
         }
         self.votes = self.vote_table["votes"]
         self.e_rules = voting.ElectionRules()
-        self.e_rules["parties"] = self.vote_table["parties"]
-        self.e_rules["constituencies"] = self.vote_table["constituencies"]
         self.s_rules = simulate.SimulationRules()
         self.s_rules["simulation_count"] = 100
 
@@ -159,20 +157,36 @@ class SimulationTest(TestCase):
 
     def test_simulate_with_custom_seat_specs(self):
         #Arrange
-        self.e_rules["seat_spec_option"] = "one_const"
         self.s_rules["simulation_count"] = 100
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
+        all_const = voting.ElectionRules()
+        all_const["seat_spec_option"] = "all_const"
+        all_adj = voting.ElectionRules()
+        all_adj["seat_spec_option"] = "all_adj"
+        one_const = voting.ElectionRules()
+        one_const["seat_spec_option"] = "one_const"
+        one_const["constituencies"] = self.vote_table["constituencies"]
+        custom = voting.ElectionRules()
+        custom["seat_spec_option"] = "custom"
+        custom["constituencies"] = [
+            {"name": "I",   "num_const_seats": 15, "num_adj_seats": 11},
+            {"name": "III", "num_const_seats": 14, "num_adj_seats": 19},
+            {"name": "IX", "num_const_seats": 140, "num_adj_seats": 31},
+            {"name": "XXXI", "num_const_seats": 1, "num_adj_seats": 10},
+            {"name": "XLII", "num_const_seats": 4, "num_adj_seats": 42},
+            {"name": "MMXIX", "num_const_seats": 20, "num_adj_seats": 19},
+        ]
+        e_systems = [self.e_rules, all_const, all_adj, one_const, custom]
+        sim = simulate.Simulation(self.s_rules, e_systems, self.vote_table)
         #Act
         sim.simulate()
         #Assert
-        self.assertEqual(len(sim.e_rules[0]["constituencies"]), 1)
+        self.assertEqual(len(sim.e_rules[0]["constituencies"]), 3)
+        self.assertEqual(len(sim.e_rules[1]["constituencies"]), 3)
+        self.assertEqual(len(sim.e_rules[2]["constituencies"]), 3)
+        self.assertEqual(len(sim.e_rules[3]["constituencies"]), 1)
+        self.assertEqual(len(sim.e_rules[4]["constituencies"]), 3)
         result = sim.get_results_dict()
-        list_measures = result["data"][0]["list_measures"]
-        for m in LIST_MEASURES.keys():
-            for aggr in AGGREGATES.keys():
-                self.assertEqual(len(list_measures[m][aggr]), 2)
         for r in range(sim.num_rulesets):
-            #list_measures = result["data"][r]["list_measures"]
             for m in LIST_MEASURES.keys():
                 for aggr in AGGREGATES.keys():
                     self.assertEqual(
