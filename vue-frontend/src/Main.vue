@@ -9,7 +9,9 @@
     >
       <p>
         The file provided must be a JSON file
-        formatted like a file downloaded from here, with the Save button.
+        formatted like a file downloaded from here, using the Save button.
+        The electoral systems contained in the file
+        will be added to those you have already specified.
       </p>
       <b-form-file
         v-model="uploadfile"
@@ -25,7 +27,9 @@
     >
       <p>
         The file provided must be a JSON file
-        formatted like a file downloaded from here, with the Save button.
+        formatted like a file downloaded from here, using the Save button.
+        The electoral systems contained in the file
+        will replace those you have already specified.
       </p>
       <b-form-file
         v-model="uploadfile"
@@ -47,7 +51,7 @@
           title="Upload additional settings from file (.json)"
           v-b-modal.modaluploadesettings
         >
-          Add settings
+          Upload
         </b-button>
         <b-button
           title="Upload new settings from file (.json), replacing the current settings"
