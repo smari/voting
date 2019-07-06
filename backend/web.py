@@ -131,28 +131,30 @@ def save_e_settings():
 
 def prepare_to_save_e_settings():
     data = request.get_json(force=True)
-    if "e_settings" not in data or not data["e_settings"]:
-        raise KeyError(f"Missing data (e_settings)")
+    check_input(data, ["e_settings"])
 
     settings = data["e_settings"]
     if type(settings) != list: settings = [settings]
     settings = check_rules(settings)
 
+    #no need to expose more than the following keys
+    keys = [
+        "name", "seat_spec_option", "constituencies",
+        "constituency_threshold", #"constituency_allocation_rule",
+        "adjustment_threshold", #"adjustment_division_rule",
+        "adjustment_method", #"adjustment_allocation_rule"
+    ]
+
     names = []
     file_content = []
     for setting in settings:
         names.append(setting["name"])
-        file_content.append({
-            "name":                         setting["name"],
-            "seat_spec_option":             setting["seat_spec_option"],
-            "constituencies":               setting["constituencies"],
-            "constituency_threshold":       setting["constituency_threshold"],
-            "constituency_allocation_rule": setting["primary_divider"],
-            "adjustment_threshold":         setting["adjustment_threshold"],
-            "adjustment_division_rule":     setting["adj_determine_divider"],
-            "adjustment_method":            setting["adjustment_method"],
-            "adjustment_allocation_rule":   setting["adj_alloc_divider"],
-        })
+        #file_content.append({key: setting[key] for key in keys})
+        item = {key: setting[key] for key in keys}
+        item["constituency_allocation_rule"] = setting["primary_divider"]
+        item["adjustment_division_rule"]     = setting["adj_determine_divider"]
+        item["adjustment_allocation_rule"]   = setting["adj_alloc_divider"]
+        file_content.append(item)
 
     tmpfilename = tempfile.mktemp(prefix='e_settings-')
     with open(tmpfilename, 'w', encoding='utf-8') as jsonfile:
