@@ -5,21 +5,33 @@
         <b-col>
           <b-form-group
             label="Number of simulations"
-            description="How many simulations should be run? Select 0 to use only reference data instead of any simulated data.">
-            <b-form-input type="number" v-model.number="rules.simulation_rules.simulation_count" min="0"/>
+            description="How many simulations should be run? Select 0 to use only reference data instead of any simulated data."
+          >
+            <b-form-input
+              type="number"
+              v-model.number="rules.simulation_rules.simulation_count"
+              min="0"/>
           </b-form-group>
         </b-col>
         <b-col>
-          <b-form-group label="Generating method" description="Which method should be used to generate random votes (based on the supplied vote table)?">
-            <b-form-select v-model="rules.simulation_rules.gen_method" :options="rules.capabilities.generating_methods" class="mb-3"/>
+          <b-form-group
+            label="Generating method"
+            description="Which method should be used to generate random votes (based on the supplied vote table)?"
+          >
+            <b-form-select
+              v-model="rules.simulation_rules.gen_method"
+              :options="rules.capabilities.generating_methods"
+              class="mb-3"/>
           </b-form-group>
         </b-col>
         <b-col>
           <b-form-group
             label="Stability parameter"
-            description="To influence the standard deviation of the distribution, please provide a number greater than 1 (does not need to be an integer, and values close to 1 are allowed, such as 1.0001). This number represents stability, in some sense. Higher values result in lower standard deviation, and vice versa.">
+            description="To influence the standard deviation of the distribution, please provide a number greater than 1 (does not need to be an integer, and values close to 1 are allowed, such as 1.0001). This number represents stability, in some sense. Higher values result in lower standard deviation, and vice versa."
+          >
             <b-input-group>
-              <b-form-input type="text"
+              <b-form-input
+                type="text"
                 v-model.number="distribution_parameter"/>
             </b-input-group>
           </b-form-group>

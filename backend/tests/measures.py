@@ -16,20 +16,26 @@ class MeasureTest(TestCase):
 
     def test_all_adj(self):
         #Arrange
+        self.vote_table = {
+            "name": "Measure test",
+            "parties": ["A", "B"],
+            "votes":  [[500, 600],
+                       [200, 400],
+                       [350, 450]],
+            "constituencies": [
+                {"name": "I",   "num_const_seats": 1, "num_adj_seats": 0},
+                {"name": "II",  "num_const_seats": 1, "num_adj_seats": 0},
+                {"name": "III", "num_const_seats": 1, "num_adj_seats": 0},
+            ],
+        }
+        self.votes = self.vote_table["votes"]
+        self.e_rules["parties"] = self.vote_table["parties"]
+        self.e_rules["constituencies"] = self.vote_table["constituencies"]
         self.e_rules["adjustment_method"] = "icelandic-law"
-        self.e_rules["constituencies"] = [
-            {"name": "I",   "num_const_seats": 1, "num_adj_seats": 0},
-            {"name": "II",  "num_const_seats": 1, "num_adj_seats": 0},
-            {"name": "III", "num_const_seats": 1, "num_adj_seats": 0},
-        ]
-        self.e_rules["parties"] = ["A", "B"]
-        self.votes =             [[500, 600],
-                                  [200, 400],
-                                  [350, 450]]
         election = voting.Election(self.e_rules, self.votes)
         comparison_rules = self.e_rules.generate_all_adj_ruleset()
         comparison_election = voting.Election(comparison_rules, self.votes)
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, '')
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
 
         #Act
         base_results = election.run()
@@ -56,19 +62,25 @@ class MeasureTest(TestCase):
 
     def test_adj_dev(self):
         #Arrange
+        self.vote_table = {
+            "name": "Measure test",
+            "parties": [ "A",  "B"],
+            "votes":  [[1500,    0],
+                       [   0, 5000]],
+            "constituencies": [
+                {"name": "I",  "num_const_seats": 1, "num_adj_seats": 1},
+                {"name": "II", "num_const_seats": 1, "num_adj_seats": 1},
+            ],
+        }
+        self.votes = self.vote_table["votes"]
+        self.e_rules["parties"] = self.vote_table["parties"]
+        self.e_rules["constituencies"] = self.vote_table["constituencies"]
         self.e_rules["adjustment_method"] = "icelandic-law"
-        self.e_rules["constituencies"] = [
-            {"name": "I",  "num_const_seats": 1, "num_adj_seats": 1},
-            {"name": "II", "num_const_seats": 1, "num_adj_seats": 1},
-        ]
-        self.e_rules["parties"] = ["A", "B"]
-        self.votes =             [[1500, 0],
-                                  [0, 5000]]
         election = voting.Election(self.e_rules, self.votes)
         comparison_rules = self.e_rules.generate_one_const_ruleset()
         v_votes = [sum(x) for x in zip(*self.votes)]
         comparison_election = voting.Election(comparison_rules, [v_votes])
-        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.votes, '')
+        sim = simulate.Simulation(self.s_rules, [self.e_rules], self.vote_table)
 
         #Act
         base_results = election.run()

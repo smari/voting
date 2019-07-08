@@ -28,7 +28,7 @@ DIVIDER_RULE_NAMES = {
     "dhondt": "D'Hondt's method",
     "sainte-lague": "Sainte-Laguë method",
     "nordic": "Nordic Sainte-Laguë variant",
-    "imperiali": "Imperiali method",
+    #"imperiali": "Imperiali method",
     "danish": "Danish method",
     "huntington-hill": "Huntington-Hill method",
 }
@@ -63,6 +63,14 @@ GENERATING_METHODS = {
 }
 GENERATING_METHOD_NAMES = {
     "beta": "Beta distribution"
+}
+
+SEAT_SPECIFICATION_OPTIONS = {
+    "defer":     "Defer to vote table",
+    "all_const": "Make all seats constituency seats",
+    "all_adj":   "Make all seats adjustment seats",
+    "one_const": "Combine all constituencies into one",
+    "custom":    "Specify seat distribution manually for this particular electoral system",
 }
 
 MEASURES = {

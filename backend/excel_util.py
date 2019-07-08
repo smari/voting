@@ -61,6 +61,8 @@ def write_matrix(worksheet, startrow, startcol, matrix, cformat):
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat)
 
+def elections_to_xlsx(elections, filename):
+    raise NotImplementedError
 
 def election_to_xlsx(election, filename):
     """Write detailed information about a single election to an xlsx file."""
@@ -209,6 +211,8 @@ def simulation_to_xlsx(simulation, filename):
         {"abbr": "ts", "heading": "Total seats"       },
         {"abbr": "ss", "heading": "Seat shares"       },
     ]
+    base_const_names = [const["name"] for const in simulation.constituencies]\
+                        + ["Total"]
 
     for r in range(len(simulation.e_rules)):
         sheet_name  = f'{r+1}-{simulation.e_rules[r]["name"]}'
@@ -252,7 +256,7 @@ def simulation_to_xlsx(simulation, filename):
                 {"label": date_label,
                     "data": datetime.now()},
                 {"label": "Reference votes:",
-                    "data": simulation.vote_table_name},
+                    "data": simulation.vote_table["name"]},
                 {"label": "Electoral system:",
                     "data": simulation.e_rules[r]["name"]},
                 {"label": "Adjustment method:",
@@ -312,10 +316,11 @@ def simulation_to_xlsx(simulation, filename):
                 category["heading"], fmt["r"])
             col = 2
             for table in tables:
+                is_vote_table = table["heading"].startswith("Vote")
                 draw_block(worksheet, row=toprow, col=col,
                     heading=table["heading"],
                     xheaders=parties,
-                    yheaders=const_names,
+                    yheaders=base_const_names if is_vote_table else const_names,
                     matrix=data_matrix[category["abbr"]][table["abbr"]],
                     cformat=category["cell_format"]
                 )

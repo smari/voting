@@ -16,8 +16,10 @@ import csv
 
 import dictionaries
 from electionRules import ElectionRules
+from electionHandler import ElectionHandler
 import util
 from excel_util import save_votes_to_xlsx
+from input_util import check_input, check_vote_table, check_rules
 import voting
 import simulate as sim
 
@@ -73,79 +75,12 @@ def get_download():
         as_attachment=True
     )
 
-def check_vote_table(vote_table):
-    """Checks vote_table input, and translates empty cells to zeroes
-
-    Raises:
-        KeyError: If vote_table or constituencies are missing a component
-        ValueError: If the dimensions of the table are inconsistent
-            or not enough seats are specified
-        TypeError: If vote or seat counts are not given as numbers
-    """
-    for info in [
-        "name",
-        "votes",
-        "parties",
-        "constituencies",
-    ]:
-        if info not in vote_table or not vote_table[info]:
-            raise KeyError(f"Missing data ('vote_table.{info}')")
-
-    num_parties = len(vote_table["parties"])
-    num_constituencies = len(vote_table["constituencies"])
-
-    if not len(vote_table["votes"]) == num_constituencies:
-        raise ValueError("The vote_table does not match the constituency list.")
-    for row in vote_table["votes"]:
-        if not len(row) == num_parties:
-            raise ValueError("The vote_table does not match the party list.")
-        for p in range(len(row)):
-            if not row[p]: row[p] = 0
-            if type(row[p]) != int: raise TypeError("Votes must be numbers.")
-
-    for const in vote_table["constituencies"]:
-        if "name" not in const or not const["name"]:
-            raise KeyError(f"Missing data ('vote_table.constituencies[x].name')")
-            name = const["name"]
-        for info in ["num_const_seats", "num_adj_seats"]:
-            if info not in const:
-                raise KeyError(f"Missing data ('{info}' for {name})")
-            if not const[info]: const[info] = 0
-            if type(const[info]) != int:
-                raise TypeError("Seat specifications must be numbers.")
-        if const["num_const_seats"]+const["num_adj_seats"] <= 0:
-            raise ValueError("Constituency seats and adjustment seats "
-                             "must add to a nonzero number. "
-                             f"This is not the case for {name}.")
-
-    return vote_table
-
 def handle_election():
     data = request.get_json(force=True)
+    data = check_input(data, ["vote_table", "rules"])
 
-    for section in ["vote_table", "rules"]:
-        if section not in data or not data[section]:
-            raise KeyError(f"Missing data ('{section}')")
-
-    vote_table = check_vote_table(data["vote_table"])
-    table_name = vote_table["name"]
-    votes = vote_table["votes"]
-
-    elections = []
-    for rs in data["rules"]:
-        rules = ElectionRules()
-
-        for k, v in rs.items():
-            rules[k] = v
-
-        rules["parties"] = vote_table["parties"]
-        rules["constituencies"] = vote_table["constituencies"]
-
-        election = voting.Election(rules, votes, table_name)
-        election.run()
-        elections.append(election)
-
-    return elections
+    handler = ElectionHandler(data["vote_table"], data["rules"])
+    return handler.elections
 
 @app.route('/api/election/', methods=["POST"])
 def get_election_results():
@@ -178,6 +113,83 @@ def get_election_excel():
     attachment_filename=f"election {date}.xlsx"
     DOWNLOADS[did] = tmpfilename, attachment_filename
     return jsonify({"download_id": did})
+
+@app.route('/api/esettings/save/', methods=['POST'])
+def save_e_settings():
+    global DOWNLOADS
+
+    try:
+        result = prepare_to_save_e_settings()
+    except (KeyError, TypeError, ValueError) as e:
+        message = e.args[0]
+        print(message)
+        return jsonify({"error": message})
+
+    did = get_new_download_id()
+    DOWNLOADS[did] = result
+    return jsonify({"download_id": did})
+
+def prepare_to_save_e_settings():
+    data = request.get_json(force=True)
+    check_input(data, ["e_settings"])
+
+    settings = data["e_settings"]
+    if type(settings) != list: settings = [settings]
+    settings = check_rules(settings)
+
+    #no need to expose more than the following keys
+    keys = [
+        "name", "seat_spec_option", "constituencies",
+        "constituency_threshold", #"constituency_allocation_rule",
+        "adjustment_threshold", #"adjustment_division_rule",
+        "adjustment_method", #"adjustment_allocation_rule"
+    ]
+
+    names = []
+    file_content = []
+    for setting in settings:
+        names.append(setting["name"])
+        #file_content.append({key: setting[key] for key in keys})
+        item = {key: setting[key] for key in keys}
+        item["constituency_allocation_rule"] = setting["primary_divider"]
+        item["adjustment_division_rule"]     = setting["adj_determine_divider"]
+        item["adjustment_allocation_rule"]   = setting["adj_alloc_divider"]
+        file_content.append(item)
+
+    tmpfilename = tempfile.mktemp(prefix='e_settings-')
+    with open(tmpfilename, 'w', encoding='utf-8') as jsonfile:
+        json.dump(file_content, jsonfile, ensure_ascii=False, indent=2)
+    filename = secure_filename(".".join(names))
+    date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
+    attachment_filename=f"{filename} {date}.json"
+    return tmpfilename, attachment_filename
+
+@app.route('/api/esettings/upload/', methods=['POST'])
+def upload_e_settings():
+    if 'file' not in request.files:
+        return jsonify({'error': 'must upload a file.'})
+    f = request.files['file']
+    file_content = json.load(f.stream)
+    if type(file_content) != list: file_content = [file_content]
+
+    keys = ["name", "seat_spec_option", "constituencies",
+            "constituency_threshold", "constituency_allocation_rule",
+            "adjustment_threshold", "adjustment_division_rule",
+            "adjustment_method", "adjustment_allocation_rule"]
+    settings = []
+    for item in file_content:
+        for info in keys:
+            if info not in item:
+                raise KeyError(f"{info} is missing from a setting in file.")
+        setting = ElectionRules()
+        setting.update(item)
+        setting["primary_divider"] = item["constituency_allocation_rule"]
+        setting["adj_determine_divider"] = item["adjustment_division_rule"]
+        setting["adj_alloc_divider"] = item["adjustment_allocation_rule"]
+        settings.append(setting)
+
+    settings = check_rules(settings)
+    return jsonify(settings)
 
 @app.route('/api/votes/save/', methods=['POST'])
 def save_votes():
@@ -366,26 +378,18 @@ def get_xlsx():
 
 def set_up_simulation():
     data = request.get_json(force=True)
-
-    for section in ["vote_table", "election_rules", "simulation_rules"]:
-        if section not in data or not data[section]:
-            raise KeyError(f"Missing data ('{section}')")
-
-    vote_table = check_vote_table(data["vote_table"])
-    table_name = vote_table["name"]
-    votes = vote_table["votes"]
+    data = check_input(data,
+        ["vote_table", "election_rules", "simulation_rules"])
+    vote_table = data["vote_table"]
 
     rulesets = []
     for rs in data["election_rules"]:
         election_rules = ElectionRules()
-
-        for k, v in rs.items():
-            election_rules[k] = v
-
-        election_rules["parties"] = vote_table["parties"]
-        election_rules["constituencies"] = vote_table["constituencies"]
-
+        election_rules.update(rs)
         rulesets.append(election_rules)
+
+    simulation_rules = sim.SimulationRules()
+    simulation_rules.update(data["simulation_rules"])
 
     stability_parameter = 100
     if "stbl_param" in data:
@@ -393,12 +397,8 @@ def set_up_simulation():
         if stability_parameter <= 1:
             raise ValueError("Stability parameter must be greater than 1.")
 
-    simulation_rules = sim.SimulationRules()
-    for k, v in data["simulation_rules"].items():
-        simulation_rules[k] = v
-
     simulation = sim.Simulation(
-        simulation_rules, rulesets, votes, table_name, stability_parameter)
+        simulation_rules, rulesets, vote_table, stability_parameter)
     return simulation
 
 
@@ -440,7 +440,8 @@ def get_capabilities_dict():
         "capabilities": {
             "divider_rules": dictionaries.DIVIDER_RULE_NAMES,
             "adjustment_methods": dictionaries.ADJUSTMENT_METHOD_NAMES,
-            "generating_methods": dictionaries.GENERATING_METHOD_NAMES
+            "generating_methods": dictionaries.GENERATING_METHOD_NAMES,
+            "seat_spec_options": dictionaries.SEAT_SPECIFICATION_OPTIONS,
         },
     }
 
