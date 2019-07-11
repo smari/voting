@@ -42,12 +42,12 @@ class Election:
         # Which seats does each party get in each constituency:
         self.order = []
         # Determine total seats (const + adjustment) in each constituency:
-        self.v_total_seats = [
+        self.v_desired_row_sums = [
             const["num_const_seats"] + const["num_adj_seats"]
             for const in self.rules["constituencies"]
         ]
         # Determine total seats in play:
-        self.total_seats = sum(self.v_total_seats)
+        self.total_seats = sum(self.v_desired_row_sums)
 
         self.run_primary_apportionment()
         self.run_threshold_elimination()
@@ -112,7 +112,7 @@ class Election:
             prior_allocations=self.v_const_seats_alloc,
             divisor_gen=self.rules.get_generator("adj_determine_divider"),
             threshold=self.rules["adjustment_threshold"])
-        self.v_party_seats = v_seats
+        self.v_desired_col_sums = v_seats
         return v_seats
 
     def run_adjustment_apportionment(self):
@@ -123,8 +123,8 @@ class Election:
         gen = self.rules.get_generator("adj_alloc_divider")
 
         results, asi = method(self.m_votes_eliminated,
-            self.v_total_seats,
-            self.v_party_seats,
+            self.v_desired_row_sums,
+            self.v_desired_col_sums,
             self.m_const_seats_alloc,
             gen,
             threshold=self.rules["adjustment_threshold"],
@@ -137,7 +137,7 @@ class Election:
         self.gen = gen
 
         v_results = [sum(x) for x in zip(*results)]
-        devs = [abs(a-b) for a, b in zip(self.v_party_seats, v_results)]
+        devs = [abs(a-b) for a, b in zip(self.v_desired_col_sums, v_results)]
         self.adj_dev = sum(devs)
 
         if self.rules["show_entropy"]:

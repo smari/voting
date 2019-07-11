@@ -351,7 +351,7 @@ class Simulation:
                     for c in range(election.num_constituencies):
                         s = sum(bi_seat_shares[c])
                         if s != 0:
-                            mult = float(election.v_total_seats[c])/s
+                            mult = float(election.v_desired_row_sums[c])/s
                             error += abs(1-mult)
                             mult += rein*(1-mult)
                             for p in range(self.num_parties):
@@ -371,7 +371,7 @@ class Simulation:
         except AssertionError:
             pass
         try:
-            assert [sum(x) for x in bi_seat_shares] == election.v_total_seats
+            assert [sum(x) for x in bi_seat_shares] == election.v_desired_row_sums
         except AssertionError:
             pass
 
