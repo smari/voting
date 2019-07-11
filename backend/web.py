@@ -114,8 +114,8 @@ def get_election_excel():
     DOWNLOADS[did] = tmpfilename, attachment_filename
     return jsonify({"download_id": did})
 
-@app.route('/api/esettings/save/', methods=['POST'])
-def save_e_settings():
+@app.route('/api/settings/save/', methods=['POST'])
+def save_settings():
     global DOWNLOADS
 
     try:
@@ -129,7 +129,7 @@ def save_e_settings():
     DOWNLOADS[did] = result
     return jsonify({"download_id": did})
 
-def prepare_to_save_e_settings():
+def prepare_to_save_settings():
     data = request.get_json(force=True)
     check_input(data, ["e_settings", "sim_settings"])
 
@@ -169,8 +169,8 @@ def prepare_to_save_e_settings():
     attachment_filename=f"{filename} {date}.json"
     return tmpfilename, attachment_filename
 
-@app.route('/api/esettings/upload/', methods=['POST'])
-def upload_e_settings():
+@app.route('/api/settings/upload/', methods=['POST'])
+def upload_settings():
     if 'file' not in request.files:
         return jsonify({'error': 'must upload a file.'})
     f = request.files['file']

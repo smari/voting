@@ -178,7 +178,7 @@ export default {
       this.simulation_rules = rules;
     },
     saveSettings: function() {
-      this.$http.post('/api/esettings/save/', {
+      this.$http.post('/api/settings/save/', {
         e_settings: this.election_rules,
         sim_settings: this.simulation_rules,
       }).then(response => {
@@ -208,7 +208,7 @@ export default {
       }
       var formData = new FormData();
       formData.append('file', this.uploadfile, this.uploadfile.name);
-      this.$http.post('/api/esettings/upload/', formData).then(response => {
+      this.$http.post('/api/settings/upload/', formData).then(response => {
         if (replace){
           this.election_rules = [];
         }
