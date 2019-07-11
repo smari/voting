@@ -9,7 +9,7 @@
           >
             <b-form-input
               type="number"
-              v-model.number="rules.simulation_rules.simulation_count"
+              v-model.number="rules.simulation_count"
               min="0"/>
           </b-form-group>
         </b-col>
@@ -19,8 +19,8 @@
             description="Which method should be used to generate random votes (based on the supplied vote table)?"
           >
             <b-form-select
-              v-model="rules.simulation_rules.gen_method"
-              :options="rules.capabilities.generating_methods"
+              v-model="rules.gen_method"
+              :options="capabilities.generating_methods"
               class="mb-3"/>
           </b-form-group>
         </b-col>
@@ -46,7 +46,8 @@ export default {
   data: function () {
     return {
       doneCreating: false,
-      rules: { capabilities: {}, simulation_rules: {} },
+      rules: {},
+      capabilities: {},
       distribution_parameter: 0,
     }
   },
@@ -54,7 +55,7 @@ export default {
     'rules': {
       handler: function (val, oldVal) {
         if (this.doneCreating) {
-          this.$emit('update-rules', val.simulation_rules);
+          this.$emit('update-rules', val);
         }
       },
       deep: true
@@ -70,7 +71,8 @@ export default {
   },
   created: function() {
     this.$http.get('/api/capabilities').then(response => {
-      this.rules = response.body;
+      this.rules = response.body.simulation_rules;
+      this.capabilities = response.body.capabilities;
       this.distribution_parameter = 100;
       this.doneCreating = true;
     }, response => {
