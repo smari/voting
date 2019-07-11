@@ -216,7 +216,7 @@ def simulation_to_xlsx(simulation, filename):
 
     for r in range(len(simulation.e_rules)):
         sheet_name  = f'{r+1}-{simulation.e_rules[r]["name"]}'
-        worksheet   = workbook.add_worksheet(sheet_name)
+        worksheet   = workbook.add_worksheet(sheet_name[:31])
         const_names = [
             const["name"] for const in simulation.e_rules[r]["constituencies"]
         ] + ["Total"]
