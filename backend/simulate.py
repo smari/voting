@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from math import sqrt, exp
 from copy import copy, deepcopy
 
-from table_util import matrix_subtraction, add_totals, find_xtd_shares
+from table_util import matrix_subtraction, scale_matrix, add_totals, find_xtd_shares
 from excel_util import simulation_to_xlsx
 from rules import Rules
 from dictionaries import GENERATING_METHODS
@@ -91,9 +91,16 @@ class SimulationRules(Rules):
     def __init__(self):
         super(SimulationRules, self).__init__()
         # Simulation rules
+        self.value_rules = {
+            #Fair share constraints:
+            "row_constraints": {True, False},
+            "col_constraints": {True, False},
+        }
         self["simulate"] = False
         self["simulation_count"] = 1000
         self["gen_method"] = "beta"
+        self["row_constraints"] = True
+        self["col_constraints"] = True
 
 
 class Simulation:
@@ -332,26 +339,32 @@ class Simulation:
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
     def calculate_bi_seat_shares(self, ruleset, election, opt_results):
-        bi_seat_shares = deepcopy(election.m_votes)
+        scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
+        bi_seat_shares = scale_matrix(election.m_votes, scalar)
         seats_party_opt = [sum(x) for x in zip(*opt_results)]
         rein = 0
         error = 1
-        while round(error, 5) != 0.0:
-            error = 0
-            for c in range(election.num_constituencies):
-                s = sum(bi_seat_shares[c])
-                if s != 0:
-                    mult = float(election.v_total_seats[c])/s
-                    error += abs(1-mult)
-                    for p in range(self.num_parties):
-                        bi_seat_shares[c][p] *= rein + mult*(1-rein)
-            for p in range(self.num_parties):
-                s = sum([c[p] for c in bi_seat_shares])
-                if s != 0:
-                    mult = float(seats_party_opt[p])/s
-                    error += abs(1-mult)
+        if self.num_parties > 1 and election.num_constituencies > 1:
+            while round(error, 5) != 0.0:
+                error = 0
+                if self.sim_rules["row_constraints"]:
                     for c in range(election.num_constituencies):
-                        bi_seat_shares[c][p] *= rein + mult*(1-rein)
+                        s = sum(bi_seat_shares[c])
+                        if s != 0:
+                            mult = float(election.v_total_seats[c])/s
+                            error += abs(1-mult)
+                            mult += rein*(1-mult)
+                            for p in range(self.num_parties):
+                                bi_seat_shares[c][p] *= mult
+                if self.sim_rules["col_constraints"]:
+                    for p in range(self.num_parties):
+                        s = sum([c[p] for c in bi_seat_shares])
+                        if s != 0:
+                            mult = float(seats_party_opt[p])/s
+                            error += abs(1-mult)
+                            mult += rein*(1-mult)
+                            for c in range(election.num_constituencies):
+                                bi_seat_shares[c][p] *= mult
 
         try:
             assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]

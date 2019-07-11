@@ -2,6 +2,8 @@
   <div>
     <h2>Simulation settings</h2>
     <SimulationSettings
+      :num_parties="vote_table.parties.length"
+      :num_constituencies="vote_table.constituencies.length"
       @update-rules="updateSimulationRules"
       @update-parameter="updateDistributionParameter">
     </SimulationSettings>

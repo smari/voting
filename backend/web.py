@@ -19,7 +19,7 @@ from electionRules import ElectionRules
 from electionHandler import ElectionHandler
 import util
 from excel_util import save_votes_to_xlsx
-from input_util import check_input, check_vote_table, check_rules
+from input_util import check_input, check_vote_table, check_rules, check_simulation_rules
 import voting
 import simulate as sim
 
@@ -389,7 +389,7 @@ def set_up_simulation():
         rulesets.append(election_rules)
 
     simulation_rules = sim.SimulationRules()
-    simulation_rules.update(data["simulation_rules"])
+    simulation_rules.update(check_simulation_rules(data["simulation_rules"]))
 
     stability_parameter = 100
     if "stbl_param" in data:

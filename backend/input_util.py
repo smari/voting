@@ -1,4 +1,5 @@
 
+from distutils.util import strtobool
 
 from dictionaries import SEAT_SPECIFICATION_OPTIONS
 
@@ -103,3 +104,11 @@ def check_rules(electoral_systems):
                      f"This is not the case for {name} in "
                      f"electoral system {electoral_system['name']}.")
     return electoral_systems
+
+def check_simulation_rules(sim_rules):
+    for key in ["simulation_count", "gen_method", "row_constraints", "col_constraints"]:
+        if key not in sim_rules:
+            raise KeyError(f"Missing data ('simulation_rules.{key}')")
+    for key in ["row_constraints", "col_constraints"]:
+        sim_rules[key] = bool(strtobool(str(sim_rules[key])))
+    return sim_rules

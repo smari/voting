@@ -15,6 +15,9 @@ def matrix_subtraction(A, B):
         for i in range(m)
     ]
 
+def scale_matrix(A, c):
+    return [[a*c for a in row] for row in A]
+
 def add_totals(m):
     """Add sums of rows and columns to a table."""
     nm = deepcopy(m)
