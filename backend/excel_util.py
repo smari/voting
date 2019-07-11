@@ -272,13 +272,17 @@ def simulation_to_xlsx(simulation, filename):
                 {"label": "Threshold for dividing adjustment seats:",
                     "data": simulation.e_rules[r]["adjustment_threshold"]},
             ]},
-            {"left_span": 3, "right_span": 3, "info": [
+            {"left_span": 5, "right_span": 3, "info": [
                 {"label": "Number of simulations:",
                     "data": simulation.num_total_simulations},
                 {"label": "Generating method:",
                     "data": GMN[simulation.variate]},
                 {"label": "Stability parameter:",
                     "data": simulation.stbl_param},
+                {"label": "Constituency constraints on fair shares:",
+                    "data": simulation.sim_rules["row_constraints"]},
+                {"label": "Party constraints on fair shares:",
+                    "data": simulation.sim_rules["col_constraints"]},
             ]},
         ]
 
