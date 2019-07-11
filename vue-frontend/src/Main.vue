@@ -114,7 +114,9 @@
         <Simulate
           :server="server"
           :vote_table="vote_table"
-          :election_rules="election_rules">
+          :election_rules="election_rules"
+          :simulation_rules="simulation_rules"
+          @update-rules="updateSimulationRules">
         </Simulate>
       </b-tab>
     </b-tabs>
@@ -151,6 +153,11 @@ export default {
       election_rules: [{}],
       activeTabIndex: 0,
       uploadfile: null,
+      simulation_rules: {
+        simulation_count: 0,
+        gen_method: "",
+        distribution_parameter: 0,
+      },
     }
   },
   methods: {
@@ -167,9 +174,13 @@ export default {
       this.$set(this.election_rules, idx, rules);
       //this works too: this.election_rules.splice(idx, 1, rules);
     },
+    updateSimulationRules: function(rules) {
+      this.simulation_rules = rules;
+    },
     saveSettings: function() {
       this.$http.post('/api/esettings/save/', {
-        e_settings: this.election_rules
+        e_settings: this.election_rules,
+        sim_settings: this.simulation_rules,
       }).then(response => {
         if (response.body.error) {
           this.server.errormsg = response.body.error;
@@ -190,8 +201,11 @@ export default {
       var formData = new FormData();
       formData.append('file', this.uploadfile, this.uploadfile.name);
       this.$http.post('/api/esettings/upload/', formData).then(response => {
-        for (const setting of response.data){
+        for (const setting of response.data.e_settings){
           this.election_rules.push(setting);
+        }
+        if (response.data.sim_settings){
+          this.simulation_rules = response.data.sim_settings;
         }
       });
     },
@@ -202,9 +216,12 @@ export default {
       var formData = new FormData();
       formData.append('file', this.uploadfile, this.uploadfile.name);
       this.$http.post('/api/esettings/upload/', formData).then(response => {
-        this.election_rules = []
-        for (const setting of response.data){
+        this.election_rules = [];
+        for (const setting of response.data.e_settings){
           this.election_rules.push(setting);
+        }
+        if (response.data.sim_settings){
+          this.simulation_rules = response.data.sim_settings;
         }
       });
     },

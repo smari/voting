@@ -4,6 +4,7 @@
     <SimulationSettings
       :num_parties="vote_table.parties.length"
       :num_constituencies="vote_table.constituencies.length"
+      :rules="simulation_rules"
       @update-rules="updateSimulationRules">
     </SimulationSettings>
 
@@ -112,6 +113,7 @@ export default {
   props: {
     "vote_table": { default: {} },
     "election_rules": { default: [{}] },
+    "simulation_rules": { default: {} },
     "server": { default: {} },
   },
   components: {
@@ -122,11 +124,6 @@ export default {
 
   data: function() {
     return {
-      simulation_rules: {
-        simulation_count: 0,
-        gen_method: "",
-        distribution_parameter: 0,
-      },
       simulation_done: true,
       current_iteration: 0,
       iteration_time: 0,
@@ -136,7 +133,7 @@ export default {
   },
   methods: {
     updateSimulationRules: function(rules) {
-      this.simulation_rules = rules;
+      this.$emit('update-rules', rules);
     },
     stop_simulation: function() {
       this.$http.post('/api/simulate/stop/',

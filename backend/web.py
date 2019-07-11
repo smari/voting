@@ -131,7 +131,7 @@ def save_e_settings():
 
 def prepare_to_save_e_settings():
     data = request.get_json(force=True)
-    check_input(data, ["e_settings"])
+    check_input(data, ["e_settings", "sim_settings"])
 
     settings = data["e_settings"]
     if type(settings) != list: settings = [settings]
@@ -146,15 +146,20 @@ def prepare_to_save_e_settings():
     ]
 
     names = []
-    file_content = []
+    electoral_system_list = []
     for setting in settings:
         names.append(setting["name"])
-        #file_content.append({key: setting[key] for key in keys})
+        #electoral_system_list.append({key: setting[key] for key in keys})
         item = {key: setting[key] for key in keys}
         item["constituency_allocation_rule"] = setting["primary_divider"]
         item["adjustment_division_rule"]     = setting["adj_determine_divider"]
         item["adjustment_allocation_rule"]   = setting["adj_alloc_divider"]
-        file_content.append(item)
+        electoral_system_list.append(item)
+
+    file_content = {
+        "e_settings": electoral_system_list,
+        "sim_settings": check_simulation_rules(data["sim_settings"]),
+    }
 
     tmpfilename = tempfile.mktemp(prefix='e_settings-')
     with open(tmpfilename, 'w', encoding='utf-8') as jsonfile:
@@ -170,14 +175,21 @@ def upload_e_settings():
         return jsonify({'error': 'must upload a file.'})
     f = request.files['file']
     file_content = json.load(f.stream)
-    if type(file_content) != list: file_content = [file_content]
+    if type(file_content) == dict and "e_settings" in file_content:
+        electoral_system_list = file_content["e_settings"]
+        assert "sim_settings" in file_content
+        sim_settings = check_simulation_rules(file_content["sim_settings"])
+    else:
+        electoral_system_list = file_content
+        sim_settings = None
+    assert type(electoral_system_list) == list
 
     keys = ["name", "seat_spec_option", "constituencies",
             "constituency_threshold", "constituency_allocation_rule",
             "adjustment_threshold", "adjustment_division_rule",
             "adjustment_method", "adjustment_allocation_rule"]
     settings = []
-    for item in file_content:
+    for item in electoral_system_list:
         for info in keys:
             if info not in item:
                 raise KeyError(f"{info} is missing from a setting in file.")
@@ -189,7 +201,7 @@ def upload_e_settings():
         settings.append(setting)
 
     settings = check_rules(settings)
-    return jsonify(settings)
+    return jsonify({"e_settings": settings, "sim_settings": sim_settings})
 
 @app.route('/api/votes/save/', methods=['POST'])
 def save_votes():

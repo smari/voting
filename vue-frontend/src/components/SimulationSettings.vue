@@ -69,11 +69,11 @@ export default {
   props: [
     "num_parties",
     "num_constituencies",
+    "rules",
   ],
   data: function () {
     return {
       doneCreating: false,
-      rules: {},
       capabilities: {},
     }
   },
@@ -89,8 +89,8 @@ export default {
   },
   created: function() {
     this.$http.get('/api/capabilities').then(response => {
-      this.rules = response.body.simulation_rules;
       this.capabilities = response.body.capabilities;
+      this.$emit('update-rules', response.body.simulation_rules);
       this.doneCreating = true;
     }, response => {
       this.serverError = true;
