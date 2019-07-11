@@ -15,6 +15,7 @@ class Election:
     """A single election."""
     def __init__(self, rules, votes=None, name=''):
         self.num_constituencies = len(rules["constituencies"])
+        self.num_parties = len(rules["parties"])
         self.rules = rules
         self.name = name
         self.set_votes(votes)
@@ -23,9 +24,8 @@ class Election:
         return entropy(self.m_votes, self.results, self.gen)
 
     def set_votes(self, votes):
-        assert(len(votes) == self.num_constituencies)
-        assert(all([len(x) == len(self.rules["parties"])
-                    for x in votes]))
+        assert len(votes) == self.num_constituencies
+        assert all(len(row) == self.num_parties for row in votes)
         self.m_votes = votes
         self.v_votes = [sum(x) for x in zip(*votes)]
 
@@ -65,18 +65,18 @@ class Election:
 
         m_allocations = []
         self.last = []
-        for i in range(len(constituencies)):
+        for i in range(self.num_constituencies):
             num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
                 alloc, div = apportion1d(
                     v_votes=self.m_votes[i],
                     num_total_seats=num_seats,
-                    prior_allocations=[0]*len(parties),
+                    prior_allocations=[0]*self.num_parties,
                     divisor_gen=self.rules.get_generator("primary_divider"),
                     threshold=self.rules["constituency_threshold"])
                 self.last.append(div[2])
             else:
-                alloc = [0]*len(parties)
+                alloc = [0]*self.num_parties
                 self.last.append(0)
             m_allocations.append(alloc)
             # self.order.append(seats)
