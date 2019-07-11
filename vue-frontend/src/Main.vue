@@ -14,6 +14,7 @@
         will be added to those you have already specified.
       </p>
       <b-form-file
+        ref="appendFromFile"
         v-model="uploadfile"
         :state="Boolean(uploadfile)"
         placeholder="Choose a file..."
@@ -32,6 +33,7 @@
         will replace those you have already specified.
       </p>
       <b-form-file
+        ref="replaceFromFile"
         v-model="uploadfile"
         :state="Boolean(uploadfile)"
         placeholder="Choose a file..."
@@ -219,6 +221,8 @@ export default {
           this.simulation_rules = response.data.sim_settings;
         }
       });
+      this.$refs['appendFromFile'].reset();
+      this.$refs['replaceFromFile'].reset();
     },
     updateVoteTable: function(table) {
       this.vote_table = table;
