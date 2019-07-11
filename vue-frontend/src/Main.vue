@@ -199,10 +199,12 @@ export default {
     uploadSettingsAndAppend: function(evt) {
       var replace = false;
       this.uploadSettings(evt, replace);
+      this.$refs['appendFromFile'].reset();
     },
     uploadSettingsAndReplace: function(evt) {
       var replace = true;
       this.uploadSettings(evt, replace);
+      this.$refs['replaceFromFile'].reset();
     },
     uploadSettings: function(evt, replace) {
       if (!this.uploadfile) {
@@ -221,8 +223,6 @@ export default {
           this.simulation_rules = response.data.sim_settings;
         }
       });
-      this.$refs['appendFromFile'].reset();
-      this.$refs['replaceFromFile'].reset();
     },
     updateVoteTable: function(table) {
       this.vote_table = table;
