@@ -5,7 +5,7 @@
       size="lg"
       id="modaluploadesettings"
       title="Upload JSON file"
-      @ok="uploadSettings"
+      @ok="uploadSettingsAndAppend"
     >
       <p>
         The file provided must be a JSON file
@@ -194,29 +194,24 @@ export default {
         console.log("Error:", response);
       })
     },
-    uploadSettings: function(evt) {
-      if (!this.uploadfile) {
-        evt.preventDefault();
-      }
-      var formData = new FormData();
-      formData.append('file', this.uploadfile, this.uploadfile.name);
-      this.$http.post('/api/esettings/upload/', formData).then(response => {
-        for (const setting of response.data.e_settings){
-          this.election_rules.push(setting);
-        }
-        if (response.data.sim_settings){
-          this.simulation_rules = response.data.sim_settings;
-        }
-      });
+    uploadSettingsAndAppend: function(evt) {
+      var replace = false;
+      this.uploadSettings(evt, replace);
     },
     uploadSettingsAndReplace: function(evt) {
+      var replace = true;
+      this.uploadSettings(evt, replace);
+    },
+    uploadSettings: function(evt, replace) {
       if (!this.uploadfile) {
         evt.preventDefault();
       }
       var formData = new FormData();
       formData.append('file', this.uploadfile, this.uploadfile.name);
       this.$http.post('/api/esettings/upload/', formData).then(response => {
-        this.election_rules = [];
+        if (replace){
+          this.election_rules = [];
+        }
         for (const setting of response.data.e_settings){
           this.election_rules.push(setting);
         }
