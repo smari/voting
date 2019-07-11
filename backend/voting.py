@@ -112,7 +112,7 @@ class Election:
             prior_allocations=self.v_const_seats_alloc,
             divisor_gen=self.rules.get_generator("adj_determine_divider"),
             threshold=self.rules["adjustment_threshold"])
-        self.v_adjustment_seats = v_seats
+        self.v_party_seats = v_seats
         return v_seats
 
     def run_adjustment_apportionment(self):
@@ -124,7 +124,7 @@ class Election:
 
         results, asi = method(self.m_votes_eliminated,
             self.v_total_seats,
-            self.v_adjustment_seats,
+            self.v_party_seats,
             self.m_const_seats_alloc,
             gen,
             threshold=self.rules["adjustment_threshold"],
@@ -137,7 +137,7 @@ class Election:
         self.gen = gen
 
         v_results = [sum(x) for x in zip(*results)]
-        devs = [abs(a-b) for a, b in zip(self.v_adjustment_seats, v_results)]
+        devs = [abs(a-b) for a, b in zip(self.v_party_seats, v_results)]
         self.adj_dev = sum(devs)
 
         if self.rules["show_entropy"]:
