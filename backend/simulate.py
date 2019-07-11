@@ -367,13 +367,11 @@ class Simulation:
                                 bi_seat_shares[c][p] *= mult
 
         try:
-            assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]
-                        for p in range(self.num_parties)]))
+            assert [sum(x) for x in zip(*bi_seat_shares)] == seats_party_opt
         except AssertionError:
             pass
         try:
-            assert(all([sum(bi_seat_shares[c]) == election.v_total_seats[c]
-                        for c in range(election.num_constituencies)]))
+            assert [sum(x) for x in bi_seat_shares] == election.v_total_seats
         except AssertionError:
             pass
 
