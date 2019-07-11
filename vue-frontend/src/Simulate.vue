@@ -4,8 +4,7 @@
     <SimulationSettings
       :num_parties="vote_table.parties.length"
       :num_constituencies="vote_table.constituencies.length"
-      @update-rules="updateSimulationRules"
-      @update-parameter="updateDistributionParameter">
+      @update-rules="updateSimulationRules">
     </SimulationSettings>
 
     <div style="text-align: center; margin-bottom: 0.7em;">
@@ -123,10 +122,10 @@ export default {
 
   data: function() {
     return {
-      distribution_parameter: 0,
       simulation_rules: {
         simulation_count: 0,
         gen_method: "",
+        distribution_parameter: 0,
       },
       simulation_done: true,
       current_iteration: 0,
@@ -138,9 +137,6 @@ export default {
   methods: {
     updateSimulationRules: function(rules) {
       this.simulation_rules = rules;
-    },
-    updateDistributionParameter: function(parameter) {
-      this.distribution_parameter = parameter
     },
     stop_simulation: function() {
       this.$http.post('/api/simulate/stop/',
@@ -205,7 +201,6 @@ export default {
           vote_table: this.vote_table,
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
-          stbl_param: this.distribution_parameter
         }).then(response => {
           if (response.body.error) {
             this.server.errormsg = response.body.error;

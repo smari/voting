@@ -32,7 +32,7 @@
             <b-input-group>
               <b-form-input
                 type="text"
-                v-model.number="distribution_parameter"/>
+                v-model.number="rules.distribution_parameter"/>
             </b-input-group>
           </b-form-group>
         </b-col>
@@ -75,7 +75,6 @@ export default {
       doneCreating: false,
       rules: {},
       capabilities: {},
-      distribution_parameter: 0,
     }
   },
   watch: {
@@ -87,20 +86,11 @@ export default {
       },
       deep: true
     },
-    'distribution_parameter': {
-      handler: function (val, oldVal) {
-        if (this.doneCreating) {
-          this.$emit('update-parameter', val);
-        }
-      },
-      deep: true
-    }
   },
   created: function() {
     this.$http.get('/api/capabilities').then(response => {
       this.rules = response.body.simulation_rules;
       this.capabilities = response.body.capabilities;
-      this.distribution_parameter = 100;
       this.doneCreating = true;
     }, response => {
       this.serverError = true;

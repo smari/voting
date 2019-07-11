@@ -106,9 +106,21 @@ def check_rules(electoral_systems):
     return electoral_systems
 
 def check_simulation_rules(sim_rules):
+    """Checks simulation rules, and translates checkbox values to bool values
+
+    Raises:
+        KeyError: If simulation rules are missing a component
+        ValueError: If stability parameter is too low
+    """
     for key in ["simulation_count", "gen_method", "row_constraints", "col_constraints"]:
         if key not in sim_rules:
             raise KeyError(f"Missing data ('simulation_rules.{key}')")
+    if sim_rules["gen_method"] == "beta":
+        if "distribution_parameter" not in sim_rules:
+            raise KeyError("Missing data ('simulation_rules.distribution_parameter')")
+        stability_parameter = sim_rules["distribution_parameter"]
+        if stability_parameter <= 1:
+            raise ValueError("Stability parameter must be greater than 1.")
     for key in ["row_constraints", "col_constraints"]:
         sim_rules[key] = bool(strtobool(str(sim_rules[key])))
     return sim_rules

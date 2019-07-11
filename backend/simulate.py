@@ -99,13 +99,14 @@ class SimulationRules(Rules):
         self["simulate"] = False
         self["simulation_count"] = 1000
         self["gen_method"] = "beta"
+        self["distribution_parameter"] = 100
         self["row_constraints"] = True
         self["col_constraints"] = True
 
 
 class Simulation:
     """Simulate a set of elections."""
-    def __init__(self, sim_rules, e_rules, vote_table, stbl_param=100):
+    def __init__(self, sim_rules, e_rules, vote_table):
         self.e_handler = ElectionHandler(vote_table, e_rules)
         self.e_rules = [el.rules for el in self.e_handler.elections]
         self.num_rulesets = len(self.e_rules)
@@ -120,7 +121,7 @@ class Simulation:
         self.sim_rules = sim_rules
         self.num_total_simulations = self.sim_rules["simulation_count"]
         self.variate = self.sim_rules["gen_method"]
-        self.stbl_param = stbl_param
+        self.stbl_param = self.sim_rules["distribution_parameter"]
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)

@@ -391,14 +391,7 @@ def set_up_simulation():
     simulation_rules = sim.SimulationRules()
     simulation_rules.update(check_simulation_rules(data["simulation_rules"]))
 
-    stability_parameter = 100
-    if "stbl_param" in data:
-        stability_parameter = data["stbl_param"]
-        if stability_parameter <= 1:
-            raise ValueError("Stability parameter must be greater than 1.")
-
-    simulation = sim.Simulation(
-        simulation_rules, rulesets, vote_table, stability_parameter)
+    simulation = sim.Simulation(simulation_rules, rulesets, vote_table)
     return simulation
 
 
