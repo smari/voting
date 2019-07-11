@@ -57,9 +57,9 @@ class TestAdjustmentMethods(TestCase):
         results, _ = alternating_scaling(
             m_votes=[[1500,    0],
                      [   0, 5000]],
-            v_total_seats=             [2,
+            v_desired_row_sums=        [2,
                                         2],
-            v_party_seats=       [1,3],
+            v_desired_col_sums=  [1,3],
             m_prior_allocations=[[1,0],
                                  [0,1]],
             divisor_gen=division_rules.dhondt_gen,
@@ -74,9 +74,9 @@ class TestAdjustmentMethods(TestCase):
         results, _ = alternating_scaling(
             m_votes=[[1500,    0],
                      [   0, 5000]],
-            v_total_seats=             [2,
+            v_desired_row_sums=        [2,
                                         2],
-            v_party_seats=       [1,3],
+            v_desired_col_sums=  [1,3],
             m_prior_allocations=[[1,0],
                                  [0,2]],
             divisor_gen=division_rules.dhondt_gen,
