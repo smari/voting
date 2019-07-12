@@ -185,7 +185,7 @@ def simulation_to_xlsx(simulation, filename):
         matrix,
         cformat=fmt["cell"]
     ):
-        if heading.endswith("shares") and not heading.lower().startswith("bi"):
+        if heading.endswith("shares") and not heading.lower().startswith("fair"):
             cformat = fmt["share"]
         if heading == "Votes":
             cformat = fmt["base"]
