@@ -251,6 +251,8 @@ def simulation_to_xlsx(simulation, filename):
         }
 
         date_label = "Date:"
+        row_constraints = simulation.sim_rules["row_constraints"] and simulation.num_parties > 1
+        col_constraints = simulation.sim_rules["col_constraints"] and simulation.num_constituencies > 1
         info_groups = [
             {"left_span": 3, "right_span": 5, "info": [
                 {"label": date_label,
@@ -280,9 +282,9 @@ def simulation_to_xlsx(simulation, filename):
                 {"label": "Stability parameter:",
                     "data": simulation.stbl_param},
                 {"label": "Constituency constraints on fair shares:",
-                    "data": simulation.sim_rules["row_constraints"]},
+                    "data": "Yes" if row_constraints else "No"},
                 {"label": "Party constraints on fair shares:",
-                    "data": simulation.sim_rules["col_constraints"]},
+                    "data": "Yes" if col_constraints else "No"},
             ]},
         ]
 
