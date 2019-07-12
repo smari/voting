@@ -333,7 +333,7 @@ def simulation_to_xlsx(simulation, filename):
                 col += len(parties)+2
             if "bs" in data_matrix[category["abbr"]]:
                 draw_block(worksheet, row=toprow, col=col,
-                    heading="Biproportional seat shares",
+                    heading="Fair seat shares",
                     xheaders=parties,
                     yheaders=const_names,
                     matrix=data_matrix[category["abbr"]]["bs"]
