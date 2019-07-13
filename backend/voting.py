@@ -5,6 +5,7 @@ This module contains the core voting system logic.
 from tabulate import tabulate
 
 from table_util import entropy, add_totals
+from solution_util import solution_exists
 from excel_util import election_to_xlsx
 from apportion import apportion1d, threshold_elimination_totals, \
     threshold_elimination_constituencies
@@ -121,15 +122,26 @@ class Election:
         method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
         self.gen = self.rules.get_generator("adj_alloc_divider")
 
-        self.results, self.adj_seats_info = method(
-            self.m_votes_eliminated,
-            self.v_desired_row_sums,
-            self.v_desired_col_sums,
-            self.m_const_seats_alloc,
-            self.gen,
-            threshold=self.rules["adjustment_threshold"],
-            orig_votes=self.m_votes,
-            last=self.last)
+        self.solvable = solution_exists(
+            votes=self.m_votes_eliminated,
+            row_constraints=self.v_desired_row_sums,
+            col_constraints=self.v_desired_col_sums,
+            prior_allocations=self.m_const_seats_alloc)
+
+        #Some methods return a solution violating the constraints if necessary
+        try:
+            self.results, self.adj_seats_info = method(
+                self.m_votes_eliminated,
+                self.v_desired_row_sums,
+                self.v_desired_col_sums,
+                self.m_const_seats_alloc,
+                self.gen,
+                threshold=self.rules["adjustment_threshold"],
+                orig_votes=self.m_votes,
+                last=self.last)
+        except ZeroDivisionError:
+            self.results = self.m_const_seats_alloc
+            self.adj_seats_info = []
 
         v_results = [sum(x) for x in zip(*self.results)]
         devs = [abs(a-b) for a, b in zip(self.v_desired_col_sums, v_results)]

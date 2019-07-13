@@ -86,9 +86,8 @@ def handle_election():
 def get_election_results():
     try:
         result = handle_election()
-    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
-        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
-            else e.args[0]
+    except (KeyError, TypeError, ValueError) as e:
+        message = e.args[0]
         print(message)
         return jsonify({"error": message})
 
@@ -101,10 +100,8 @@ def get_election_excel():
 
     try:
         result = handle_election()
-    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
-        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
-            else e.args[0]
-        return jsonify({"error": message})
+    except (KeyError, TypeError, ValueError) as e:
+        return jsonify({"error": e.args[0]})
 
     election = result[0]
     tmpfilename = tempfile.mktemp(prefix='election-')
@@ -309,9 +306,8 @@ def start_simulation():
 
     try:
         simulation = set_up_simulation()
-    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
-        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
-            else e.args[0]
+    except (KeyError, TypeError, ValueError) as e:
+        message = e.args[0]
         print(message)
         return jsonify({"started": False, "error": message})
 
