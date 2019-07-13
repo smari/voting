@@ -225,7 +225,7 @@ class Simulation:
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
-            bi_seat_shares = self.calculate_bi_seat_shares(r, election)
+            bi_seat_shares = self.calculate_bi_seat_shares(election)
             xtd_bi_seat_shares = add_totals(bi_seat_shares)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
@@ -319,7 +319,7 @@ class Simulation:
         self.deviation(ruleset, "one_const", [election.v_votes], [v_results])
 
     def other_measures(self, ruleset, election):
-        bi_seat_shares = self.calculate_bi_seat_shares(ruleset, election)
+        bi_seat_shares = self.calculate_bi_seat_shares(election)
         scale = 1.0/sum([
             1.0/s for c in bi_seat_shares for s in c if s!=0
         ])
@@ -335,7 +335,7 @@ class Simulation:
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
-    def calculate_bi_seat_shares(self, ruleset, election):
+    def calculate_bi_seat_shares(self, election):
         scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
         bi_seat_shares = scale_matrix(election.m_votes, scalar)
         assert election.solvable
