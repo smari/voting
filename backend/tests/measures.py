@@ -60,13 +60,13 @@ class MeasureTest(TestCase):
         measures = sim_result['data'][0]['measures']
         self.assertEqual(measures['dev_all_adj']['avg'], deviation)
 
-    def test_adj_dev(self):
+    def test_adj_dev_with_no_deviation(self):
         #Arrange
         self.vote_table = {
             "name": "Measure test",
             "parties": [ "A",  "B"],
-            "votes":  [[1500,    0],
-                       [   0, 5000]],
+            "votes":  [[1500, 1000],
+                       [1000, 5000]],
             "constituencies": [
                 {"name": "I",  "num_const_seats": 1, "num_adj_seats": 1},
                 {"name": "II", "num_const_seats": 1, "num_adj_seats": 1},
@@ -93,6 +93,45 @@ class MeasureTest(TestCase):
         self.assertEqual(list_measures["total_seats"]['avg'],
                          add_totals(base_results))
 
+        self.assertEqual(base_results,       [[1, 1],
+                                              [0, 2]])
+        base_totals = [sum(x) for x in zip(*base_results)]
+        self.assertEqual(base_totals,         [1, 3])
+        self.assertEqual(comparison_results, [[1, 3]])
+        deviation = simulate.dev([base_totals], comparison_results)
+        self.assertEqual(deviation, 0)
+
+        self.assertEqual(deviation, election.adj_dev)
+
+        measures = sim_result['data'][0]['measures']
+        self.assertEqual(measures['adj_dev']['avg'], deviation)
+
+    def test_adj_dev_with_deviation(self):
+        #Arrange
+        self.vote_table = {
+            "name": "Measure test",
+            "parties": [ "A",  "B"],
+            "votes":  [[1500,    0],
+                       [   0, 5000]],
+            "constituencies": [
+                {"name": "I",  "num_const_seats": 1, "num_adj_seats": 1},
+                {"name": "II", "num_const_seats": 1, "num_adj_seats": 1},
+            ],
+        }
+        self.votes = self.vote_table["votes"]
+        self.e_rules["parties"] = self.vote_table["parties"]
+        self.e_rules["constituencies"] = self.vote_table["constituencies"]
+        self.e_rules["adjustment_method"] = "icelandic-law"
+        election = voting.Election(self.e_rules, self.votes)
+        comparison_rules = self.e_rules.generate_one_const_ruleset()
+        v_votes = [sum(x) for x in zip(*self.votes)]
+        comparison_election = voting.Election(comparison_rules, [v_votes])
+
+        #Act
+        base_results = election.run()
+        comparison_results = comparison_election.run()
+
+        #Assert
         self.assertEqual(base_results,       [[2, 0],
                                               [0, 2]])
         base_totals = [sum(x) for x in zip(*base_results)]
@@ -101,5 +140,4 @@ class MeasureTest(TestCase):
         deviation = simulate.dev([base_totals], comparison_results)
         self.assertEqual(deviation, 2)
 
-        measures = sim_result['data'][0]['measures']
-        self.assertEqual(measures['adj_dev']['avg'], deviation)
+        self.assertEqual(deviation, election.adj_dev)
