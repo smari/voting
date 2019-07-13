@@ -276,8 +276,8 @@ class Simulation:
                 self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
 
     def collect_measures(self, votes):
-        self.collect_votes(votes)
         self.e_handler.set_votes(votes)
+        self.collect_votes(votes)
         for ruleset in range(self.num_rulesets):
             election = self.e_handler.elections[ruleset]
             self.collect_list_measures(ruleset, election)
@@ -440,7 +440,11 @@ class Simulation:
                 break
             self.iteration = i + 1
             votes = next(gen)
-            self.collect_measures(votes)
+            try:
+                self.collect_measures(votes)
+            except ValueError:
+                #TODO: count such errors
+                continue
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
             self.aggregate_measure(-1, "time", self.iteration_time.total_seconds())
