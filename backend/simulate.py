@@ -229,7 +229,7 @@ class Simulation:
             opt_rules = election.rules.generate_opt_ruleset()
             opt_election = voting.Election(opt_rules, election.m_votes)
             opt_results = opt_election.run()
-            bi_seat_shares = self.calculate_bi_seat_shares(r, election, opt_results)
+            bi_seat_shares = self.calculate_bi_seat_shares(r, election)
             xtd_bi_seat_shares = add_totals(bi_seat_shares)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
@@ -302,7 +302,7 @@ class Simulation:
         self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
         opt_results = self.entropy(ruleset, election)
         self.deviation_measures(ruleset, election, opt_results)
-        self.other_measures(ruleset, election, opt_results)
+        self.other_measures(ruleset, election)
 
     def entropy(self, ruleset, election):
         opt_rules = election.rules.generate_opt_ruleset()
@@ -322,8 +322,8 @@ class Simulation:
         v_results = [sum(x) for x in zip(*election.results)]
         self.deviation(ruleset, "one_const", [election.v_votes], [v_results])
 
-    def other_measures(self, ruleset, election, opt_results):
-        bi_seat_shares = self.calculate_bi_seat_shares(ruleset, election, opt_results)
+    def other_measures(self, ruleset, election):
+        bi_seat_shares = self.calculate_bi_seat_shares(ruleset, election)
         scale = 1.0/sum([
             1.0/s for c in bi_seat_shares for s in c if s!=0
         ])
@@ -339,7 +339,7 @@ class Simulation:
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
-    def calculate_bi_seat_shares(self, ruleset, election, opt_results):
+    def calculate_bi_seat_shares(self, ruleset, election):
         scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
         bi_seat_shares = scale_matrix(election.m_votes, scalar)
         assert election.solvable
