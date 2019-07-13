@@ -430,6 +430,7 @@ class Simulation:
         gen = self.gen_votes()
         if self.num_total_simulations == 0:
             self.collect_measures(self.base_votes)
+        self.iterations_with_no_solution = 0
         for i in range(self.num_total_simulations):
             round_start = datetime.now()
             if self.terminate:
@@ -439,7 +440,7 @@ class Simulation:
             try:
                 self.collect_measures(votes)
             except ValueError:
-                #TODO: count such errors
+                self.iterations_with_no_solution += 1
                 continue
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
