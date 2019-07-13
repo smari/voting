@@ -106,37 +106,32 @@ class Election:
         """Calculate the number of adjustment seats each party gets."""
         if self.rules["debug"]:
             print(" + Determine adjustment seats")
-        v_seats, _ = apportion1d(
+        self.v_desired_col_sums, _ = apportion1d(
             v_votes=self.v_votes,
             num_total_seats=self.total_seats,
             prior_allocations=self.v_const_seats_alloc,
             divisor_gen=self.rules.get_generator("adj_determine_divider"),
             threshold=self.rules["adjustment_threshold"])
-        self.v_desired_col_sums = v_seats
-        return v_seats
+        return self.v_desired_col_sums
 
     def run_adjustment_apportionment(self):
         """Conduct adjustment seat apportionment."""
         if self.rules["debug"]:
             print(" + Apportion adjustment seats")
         method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
-        gen = self.rules.get_generator("adj_alloc_divider")
+        self.gen = self.rules.get_generator("adj_alloc_divider")
 
-        results, asi = method(self.m_votes_eliminated,
+        self.results, self.adj_seats_info = method(
+            self.m_votes_eliminated,
             self.v_desired_row_sums,
             self.v_desired_col_sums,
             self.m_const_seats_alloc,
-            gen,
+            self.gen,
             threshold=self.rules["adjustment_threshold"],
             orig_votes=self.m_votes,
             last=self.last)
 
-        self.adj_seats_info = asi
-
-        self.results = results
-        self.gen = gen
-
-        v_results = [sum(x) for x in zip(*results)]
+        v_results = [sum(x) for x in zip(*self.results)]
         devs = [abs(a-b) for a, b in zip(self.v_desired_col_sums, v_results)]
         self.adj_dev = sum(devs)
 
