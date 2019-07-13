@@ -342,7 +342,7 @@ class Simulation:
     def calculate_bi_seat_shares(self, ruleset, election, opt_results):
         scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
         bi_seat_shares = scale_matrix(election.m_votes, scalar)
-        seats_party_opt = [sum(x) for x in zip(*opt_results)]
+        assert election.solvable
         rein = 0
         error = 1
         if self.num_parties > 1 and election.num_constituencies > 1:
@@ -361,14 +361,14 @@ class Simulation:
                     for p in range(self.num_parties):
                         s = sum([c[p] for c in bi_seat_shares])
                         if s != 0:
-                            mult = float(seats_party_opt[p])/s
+                            mult = float(election.v_desired_col_sums[p])/s
                             error += abs(1-mult)
                             mult += rein*(1-mult)
                             for c in range(election.num_constituencies):
                                 bi_seat_shares[c][p] *= mult
 
         try:
-            assert [sum(x) for x in zip(*bi_seat_shares)] == seats_party_opt
+            assert [sum(x) for x in zip(*bi_seat_shares)] == election.v_desired_col_sums
         except AssertionError:
             pass
         try:
