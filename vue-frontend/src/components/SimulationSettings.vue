@@ -40,8 +40,8 @@
       <b-row v-if="num_parties>1 && num_constituencies>1">
         <b-col>
           <b-form-group
-            label="Fair seat share scaling"
-            description="Some of the quality measures require comparing the final seat allocation to an ideal 'fair seat share' matrix, where the entries are not rounded to an integer value. For that purpose, the votes are scaled such that the shares sum up to the proper total number of seats, and optionally, for each constituency or each party or both (using the specified number of seats for constituencies, and the required total number of seats for each party, as determined by the chosen rule for dividing adjustment seats). By default, both constraints are applied, in which case the shares will be scaled alternatively by rows and columns until they converge to a matrix fulfilling both constraints. This corresponds to the optimal biproportional seat allocation as found by the Alternating Scaling method. However, the user might be interested in other variations as well, for example scaling only by constituencies."
+            label="Ideal seat share scaling"
+            description="Ideal seat shares are used for comparison purposes. Scaling by constituencies adjusts the shares so that they sum up to the correct number of seats for each constituency, and similar for parties. If neither is selected, the vote table is just scaled as a whole (see more on the Instructions page)."
           >
             <b-form-checkbox
               v-model="rules.row_constraints"
