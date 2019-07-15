@@ -137,6 +137,11 @@
     (for the allocation of the adjustment seats).
     However, the user might be interested in other variations as well,
     for example scaling only by constituencies.
+    And in the one-dimensional case,
+    for example where there is only one constituency,
+    it would not even make sense to scale in both dimensions,
+    because that would force the shares themselves to be integer-valued,
+    simply copying the sum constraints, and thus saying nothing of interest.
   </p>
   <p>
     The <b>vote table</b> you supply will be used
