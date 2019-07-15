@@ -282,16 +282,19 @@ class Simulation:
     def collect_list_measures(self, ruleset, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
         total_seats_alloc = add_totals(election.results)
+        ideal_seat_shares = add_totals(self.calculate_bi_seat_shares(election))
         for c in range(1+election.num_constituencies):
             for p in range(1+self.num_parties):
                 cs  = const_seats_alloc[c][p]
                 ts  = total_seats_alloc[c][p]
                 adj = ts - cs
                 sh  = float(ts)/total_seats_alloc[c][-1]
+                ids = ideal_seat_shares[c][p]
                 self.aggregate_list(ruleset, "const_seats", c, p, cs)
                 self.aggregate_list(ruleset, "total_seats", c, p, ts)
-                self.aggregate_list(ruleset, "adj_seats", c, p, adj)
+                self.aggregate_list(ruleset, "adj_seats",   c, p, adj)
                 self.aggregate_list(ruleset, "seat_shares", c, p, sh)
+                self.aggregate_list(ruleset, "ideal_seats", c, p, ids)
 
     def collect_general_measures(self, ruleset, election):
         """Various tests to determine the quality of the given method."""

@@ -185,8 +185,10 @@ def simulation_to_xlsx(simulation, filename):
         matrix,
         cformat=fmt["cell"]
     ):
-        if heading.endswith("shares") and not heading.lower().startswith("fair"):
+        if heading.endswith("shares"):
             cformat = fmt["share"]
+        if heading.lower().startswith("ideal"):
+            cformat = fmt["cell"]
         if heading == "Votes":
             cformat = fmt["base"]
         worksheet.merge_range(
@@ -210,6 +212,7 @@ def simulation_to_xlsx(simulation, filename):
         {"abbr": "as", "heading": "Adjustment seats"  },
         {"abbr": "ts", "heading": "Total seats"       },
         {"abbr": "ss", "heading": "Seat shares"       },
+        {"abbr": "bs", "heading": "Ideal seat shares" },
     ]
     base_const_names = [const["name"] for const in simulation.constituencies]\
                         + ["Total"]
@@ -239,6 +242,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.list_data[ r]["adj_seats"  ]["avg"],
                 "ts": simulation.list_data[ r]["total_seats"]["avg"],
                 "ss": simulation.list_data[ r]["seat_shares"]["avg"],
+                "bs": simulation.list_data[ r]["ideal_seats"]["avg"],
             },
             "std": {
                 "v" : simulation.list_data[-1]["sim_votes"  ]["std"],
@@ -247,6 +251,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.list_data[ r]["adj_seats"  ]["std"],
                 "ts": simulation.list_data[ r]["total_seats"]["std"],
                 "ss": simulation.list_data[ r]["seat_shares"]["std"],
+                "bs": simulation.list_data[ r]["ideal_seats"]["std"],
             },
         }
 
@@ -281,9 +286,9 @@ def simulation_to_xlsx(simulation, filename):
                     "data": GMN[simulation.variate]},
                 {"label": "Stability parameter:",
                     "data": simulation.stbl_param},
-                {"label": "Constituency constraints on fair shares:",
+                {"label": "Ideal seat shares scaled by constituencies:",
                     "data": "Yes" if row_constraints else "No"},
-                {"label": "Party constraints on fair shares:",
+                {"label": "Ideal seat shares scaled by parties:",
                     "data": "Yes" if col_constraints else "No"},
             ]},
         ]
@@ -329,14 +334,6 @@ def simulation_to_xlsx(simulation, filename):
                     yheaders=base_const_names if is_vote_table else const_names,
                     matrix=data_matrix[category["abbr"]][table["abbr"]],
                     cformat=category["cell_format"]
-                )
-                col += len(parties)+2
-            if "bs" in data_matrix[category["abbr"]]:
-                draw_block(worksheet, row=toprow, col=col,
-                    heading="Fair seat shares",
-                    xheaders=parties,
-                    yheaders=const_names,
-                    matrix=data_matrix[category["abbr"]]["bs"]
                 )
                 col += len(parties)+2
             toprow += len(const_names)+3
