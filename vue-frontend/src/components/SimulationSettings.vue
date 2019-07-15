@@ -40,22 +40,22 @@
       <b-row v-if="num_parties>1 && num_constituencies>1">
         <b-col>
           <b-form-group
-            label="Fair share constraints"
-            description="Some of the measures we apply compare the resulting seat allocation to an ideal 'fair share' matrix, where the number of seats for each list is not restricted to an integer value. These fair shares can be calculated simply by scaling the vote matrix as a whole, so that each list gets exactly the same portion of the total seats as it has of the total votes. In general, this would mean that the rows and columns don't necessarily sum to an integer, let alone the same number that has been determined as a required total number of seats for the given row (specified number of seats for each constituency) or column (determined number of seats for each party, as calculated with the chosen rule for dividing adjustment seats). Alternatively, the fair shares can be calculated in such a way as to make sure the rows and/or columns sum to the correct total. These alternatives are only relevant in case there are at least 2 of both constituencies and parties. If both constraints are applied, the fair shares will be calculated by alternatively scaling by rows and columns until they converge to a matrix fulfilling both constraints."
+            label="Fair seat share scaling"
+            description="Some of the quality measures require comparing the final seat allocation to an ideal 'fair seat share' matrix, where the entries are not rounded to an integer value. For that purpose, the votes are scaled such that the shares sum up to the proper total number of seats, and optionally, for each constituency or each party or both (using the specified number of seats for constituencies, and the required total number of seats for each party, as determined by the chosen rule for dividing adjustment seats). By default, both constraints are applied, in which case the shares will be scaled alternatively by rows and columns until they converge to a matrix fulfilling both constraints. This corresponds to the optimal biproportional seat allocation as found by the Alternating Scaling method. However, the user might be interested in other variations as well, for example scaling only by constituencies."
           >
             <b-form-checkbox
               v-model="rules.row_constraints"
               value="true"
               unchecked-value="false"
             >
-              On constituencies
+              By constituencies
             </b-form-checkbox>
             <b-form-checkbox
               v-model="rules.col_constraints"
               value="true"
               unchecked-value="false"
             >
-              On parties
+              By parties
             </b-form-checkbox>
           </b-form-group>
         </b-col>
