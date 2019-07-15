@@ -41,7 +41,7 @@
         <b-col>
           <b-form-group
             label="Ideal seat share scaling"
-            description="Ideal seat shares are used for comparison purposes. Scaling by constituencies adjusts the shares so that they sum up to the correct number of seats for each constituency, and similar for parties. If neither is selected, the vote table is just scaled as a whole (see more on the Instructions page)."
+            description="Ideal seat shares are used for comparison purposes. Scaling by constituencies adjusts the shares so that they sum up to the correct number of seats for each constituency, and similarly for parties. If neither is selected, the vote table is just scaled as a whole (see the Instructions page for more details)."
           >
             <b-form-checkbox
               v-model="rules.row_constraints"
