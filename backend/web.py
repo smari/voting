@@ -116,7 +116,7 @@ def save_settings():
     global DOWNLOADS
 
     try:
-        result = prepare_to_save_e_settings()
+        result = prepare_to_save_settings()
     except (KeyError, TypeError, ValueError) as e:
         message = e.args[0]
         print(message)
