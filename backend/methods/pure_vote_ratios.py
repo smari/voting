@@ -3,13 +3,13 @@ from copy import deepcopy
 from apportion import apportion1d
 import random
 
-def pure_vote_ratios_apportionment(m_votes, v_const_seats, v_party_seats,
+def pure_vote_ratios_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
                             m_prior_allocations, divisor_gen, threshold=None,
                             orig_votes=None, **kwargs):
 	m_allocations = deepcopy(m_prior_allocations)
 
 	num_allocated = sum([sum(c) for c in m_allocations])
-	total_seats = sum(v_const_seats)
+	total_seats = sum(v_desired_row_sums)
 
 	for n in range(total_seats-num_allocated):
 		m_seat_props = []
@@ -25,7 +25,7 @@ def pure_vote_ratios_apportionment(m_votes, v_const_seats, v_party_seats,
 				m_seat_props[const].append(a)
 			maximums.append(max(m_seat_props[const]))
 
-			if sum(m_allocations[const]) == v_const_seats[const]:
+			if sum(m_allocations[const]) == v_desired_row_sums[const]:
 				m_seat_props[const] = [0]*len(m_votes[const])
 				maximums[const] = 0
 

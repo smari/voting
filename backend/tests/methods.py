@@ -7,6 +7,9 @@ from electionRules import ElectionRules
 from voting import Election
 
 from methods.alternating_scaling import *
+from methods.norwegian_law import norwegian_apportionment
+from methods.norwegian_icelandic import norw_ice_apportionment
+from methods.pure_vote_ratios import pure_vote_ratios_apportionment
 
 
 class AdjustmentMethodsTestMeta(type):
@@ -83,9 +86,9 @@ class TestAdjustmentMethods(TestCase):
 
     def test_alternating_scaling_hafnarfj(self):
         #Arrange
-        col_sums = [10,
+        row_sums = [10,
                     1]
-        row_sums =  [  1,    1,    5,   1,   1,   0,    2,   0]
+        col_sums =  [  1,    1,    5,   1,   1,   0,    2,   0]
         votes    = [[926, 1098, 3900, 906, 878, 754, 2331, 776],
                     [926, 1098, 3900, 906, 878, 754, 2331, 776]]
         priors   = [[  1,    1,    4,   1,   1,   0,    2,   0],
@@ -96,9 +99,9 @@ class TestAdjustmentMethods(TestCase):
         #Act
         results, _ = alternating_scaling(
             m_votes=votes,
+            v_desired_row_sums=row_sums,
+            v_desired_col_sums=col_sums,
             m_prior_allocations=priors,
-            v_desired_col_sums=row_sums,
-            v_desired_row_sums=col_sums,
             divisor_gen=division_rules.dhondt_gen,
             threshold=5
         )
@@ -290,6 +293,84 @@ class TestAdjustmentMethods(TestCase):
                                    [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,4,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_norwegian_law_small(self):
+        #Arrange
+        row_sums =        [1,
+                           1]
+        col_sums =  [0, 2]
+        votes    = [[1, 1],
+                    [1, 4]]
+        priors   = [[0, 0],
+                    [0, 1]]
+        expected = [[0, 1],
+                    [0, 1]]
+
+        #Act
+        results, _ = norwegian_apportionment(
+            m_votes=votes,
+            orig_votes=votes,
+            v_desired_row_sums=row_sums,
+            v_desired_col_sums=col_sums,
+            m_prior_allocations=priors,
+            divisor_gen=division_rules.dhondt_gen,
+            threshold=5
+        )
+
+        #Assert
+        self.assertEqual(expected, results)
+
+    def test_norw_ice_small(self):
+        #Arrange
+        row_sums =        [1,
+                           1]
+        col_sums =  [0, 2]
+        votes    = [[1, 1],
+                    [1, 4]]
+        priors   = [[0, 0],
+                    [0, 1]]
+        expected = [[0, 1],
+                    [0, 1]]
+
+        #Act
+        results, _ = norw_ice_apportionment(
+            m_votes=votes,
+            orig_votes=votes,
+            v_desired_row_sums=row_sums,
+            v_desired_col_sums=col_sums,
+            m_prior_allocations=priors,
+            divisor_gen=division_rules.dhondt_gen,
+            threshold=5
+        )
+
+        #Assert
+        self.assertEqual(expected, results)
+
+    def test_pure_votes_small(self):
+        #Arrange
+        row_sums =        [1,
+                           1]
+        col_sums =  [0, 2]
+        votes    = [[1, 1],
+                    [1, 4]]
+        priors   = [[0, 0],
+                    [0, 1]]
+        expected = [[0, 1],
+                    [0, 1]]
+
+        #Act
+        results, _ = pure_vote_ratios_apportionment(
+            m_votes=votes,
+            orig_votes=votes,
+            v_desired_row_sums=row_sums,
+            v_desired_col_sums=col_sums,
+            m_prior_allocations=priors,
+            divisor_gen=division_rules.dhondt_gen,
+            threshold=5
+        )
+
+        #Assert
+        self.assertEqual(expected, results)
+
 
 class DividerRulesTestMeta(type):
     def __new__(cls, name, bases, attrs):
