@@ -177,16 +177,16 @@ class Simulation:
         t = float(self.list_data[ruleset][measure]["sqs"][const][party])
         avg = s/n                 if n>0 else 0
         var = (t - s*avg) / (n-1) if n>1 else 0
-        if -0.0000001 < var and var < 0:
+        if var < 0:
+            if var < -0.0000001:
+                logging.warning(f'Negative variance encountered: {var}. '
+                    f'Measure: {measure}, const: {const}, party: {party}')
+            if var < -0.01:
+                message = "Variance very negative. What's going on here?"
+                logging.error(message)
+                raise ValueError(message)
             var = 0
-
-        # TODO: remove when resolved.
-        try:
-            std = sqrt(var)
-        except ValueError:
-            logging.error(f'Error calculating square root of: {var}')
-            raise
-
+        std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
