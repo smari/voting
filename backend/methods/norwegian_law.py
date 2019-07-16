@@ -26,8 +26,7 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
                 for k in range(m_allocations[c][p]+1):
                     x = next(div)
                 if m_votes[c][p] != 0:
-                    seat_factor = v_desired_row_sums[c]-1
-                    if seat_factor == 0: seat_factor = 1
+                    seat_factor = max(1, v_desired_row_sums[c]-1)
                     a = float(orig_votes[c][p])*seat_factor/s/x
                 else:
                     a = 0
