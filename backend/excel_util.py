@@ -212,7 +212,7 @@ def simulation_to_xlsx(simulation, filename):
         {"abbr": "as", "heading": "Adjustment seats"  },
         {"abbr": "ts", "heading": "Total seats"       },
         {"abbr": "ss", "heading": "Seat shares"       },
-        {"abbr": "bs", "heading": "Ideal seat shares" },
+        {"abbr": "id", "heading": "Ideal seat shares" },
     ]
     base_const_names = [const["name"] for const in simulation.constituencies]\
                         + ["Total"]
@@ -233,7 +233,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.base_allocations[r]["xtd_adj_seats"],
                 "ts": simulation.base_allocations[r]["xtd_total_seats"],
                 "ss": simulation.base_allocations[r]["xtd_seat_shares"],
-                "bs": simulation.base_allocations[r]["xtd_bi_seat_shares"],
+                "id": simulation.base_allocations[r]["xtd_bi_seat_shares"],
             },
             "avg": {
                 "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],
@@ -242,7 +242,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.list_data[ r]["adj_seats"  ]["avg"],
                 "ts": simulation.list_data[ r]["total_seats"]["avg"],
                 "ss": simulation.list_data[ r]["seat_shares"]["avg"],
-                "bs": simulation.list_data[ r]["ideal_seats"]["avg"],
+                "id": simulation.list_data[ r]["ideal_seats"]["avg"],
             },
             "std": {
                 "v" : simulation.list_data[-1]["sim_votes"  ]["std"],
@@ -251,7 +251,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.list_data[ r]["adj_seats"  ]["std"],
                 "ts": simulation.list_data[ r]["total_seats"]["std"],
                 "ss": simulation.list_data[ r]["seat_shares"]["std"],
-                "bs": simulation.list_data[ r]["ideal_seats"]["std"],
+                "id": simulation.list_data[ r]["ideal_seats"]["std"],
             },
         }
 
