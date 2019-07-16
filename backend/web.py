@@ -339,7 +339,9 @@ def check_simulation():
             "iteration": simulation.iteration,
             "iteration_time": simulation.iteration_time.seconds + (simulation.iteration_time.microseconds/1000000.0),
             "target": simulation.sim_rules["simulation_count"],
-            "results": simulation.get_results_dict()
+            "results": simulation.get_results_dict(),
+            "parties": simulation.parties,
+            "e_rules": simulation.e_rules,
         })
 
 @app.route('/api/simulate/stop/', methods=['GET', 'POST'])

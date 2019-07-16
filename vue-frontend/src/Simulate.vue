@@ -59,8 +59,8 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'const-seats-' + idx"
-        :constituencies="election_rules[idx].constituencies"
-        :parties="vote_table.parties"
+        :constituencies="results.e_rules[idx].constituencies"
+        :parties="results.parties"
         :values="ruleset.list_measures.const_seats.avg"
         :stddev="ruleset.list_measures.const_seats.std"
         :title="ruleset.name"
@@ -71,8 +71,8 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'adj-seats-' + idx"
-        :constituencies="election_rules[idx].constituencies"
-        :parties="vote_table.parties"
+        :constituencies="results.e_rules[idx].constituencies"
+        :parties="results.parties"
         :values="ruleset.list_measures.adj_seats.avg"
         :stddev="ruleset.list_measures.adj_seats.std"
         :title="ruleset.name"
@@ -83,8 +83,8 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'total-seats-' + idx"
-        :constituencies="election_rules[idx].constituencies"
-        :parties="vote_table.parties"
+        :constituencies="results.e_rules[idx].constituencies"
+        :parties="results.parties"
         :values="ruleset.list_measures.total_seats.avg"
         :stddev="ruleset.list_measures.total_seats.std"
         :title="ruleset.name"
@@ -128,7 +128,7 @@ export default {
       current_iteration: 0,
       iteration_time: 0,
       inflight: 0,
-      results: { measures: [], methods: [], data: [] },
+      results: { measures: [], methods: [], data: [], parties: [], e_rules: [] },
     }
   },
   methods: {
@@ -177,6 +177,8 @@ export default {
             this.current_iteration = response.body.iteration;
             this.iteration_time = response.body.iteration_time;
             this.results = response.body.results;
+            this.results.parties = response.body.parties;
+            this.results.e_rules = response.body.e_rules;
             console.log(this.results);
             this.server.waitingForData = false;
             if (this.simulation_done) {
