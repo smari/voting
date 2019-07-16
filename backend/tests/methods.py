@@ -63,7 +63,7 @@ class TestAdjustmentMethods(TestCase):
             m_prior_allocations=[[1,0],
                                  [0,1]],
             divisor_gen=division_rules.dhondt_gen,
-            threshold=0.05
+            threshold=5
         )
         self.assertNotEqual(results, [[2,0],
                                       [1,1]])
@@ -80,10 +80,35 @@ class TestAdjustmentMethods(TestCase):
             m_prior_allocations=[[1,0],
                                  [0,2]],
             divisor_gen=division_rules.dhondt_gen,
-            threshold=0.05
+            threshold=5
         )
         self.assertEqual(results, [[2,0],
                                    [0,2]])
+
+    def test_alternating_scaling_hafnarfj(self):
+        #Arrange
+        col_sums = [10,
+                    1]
+        row_sums =  [  1,    1,    5,   1,   1,   0,    2,   0]
+        votes    = [[926, 1098, 3900, 906, 878, 754, 2331, 776],
+                    [926, 1098, 3900, 906, 878, 754, 2331, 776]]
+        priors   = [[  1,    1,    4,   1,   1,   0,    2,   0],
+                    [  0,    0,    0,   0,   0,   0,    0,   0]]
+        expected = [[  1,    1,    4,   1,   1,   0,    2,   0],
+                    [  0,    0,    1,   0,   0,   0,    0,   0]]
+
+        #Act
+        results, _ = alternating_scaling(
+            m_votes=votes,
+            m_prior_allocations=priors,
+            v_desired_col_sums=row_sums,
+            v_desired_row_sums=col_sums,
+            divisor_gen=division_rules.dhondt_gen,
+            threshold=5
+        )
+
+        #Assert
+        self.assertEqual(expected, results)
 
     def test_alternating_scaling(self):
         self.rules["adjustment_method"] = "alternating-scaling"
