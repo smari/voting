@@ -8,7 +8,6 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
     """Apportion based on Norwegian law."""
 
     m_allocations = deepcopy(m_prior_allocations)
-    v_allocations = [sum(x) for x in zip(*m_allocations)]
 
     num_allocated = sum([sum(c) for c in m_allocations])
     total_seats = sum(v_desired_row_sums)
@@ -42,7 +41,6 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
         party = m_seat_props[const].index(maximum)
 
         m_allocations[const][party] += 1
-        v_allocations[party] += 1
 
 
     return m_allocations, None
