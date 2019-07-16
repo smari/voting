@@ -36,7 +36,7 @@ class ElectionRules(Rules):
         self["adjustment_threshold"] = 5
         self["constituency_threshold"] = 0
         self["adjustment_method"] = "icelandic-law"
-        self["seat_spec_option"] = "defer"
+        self["seat_spec_option"] = "refer"
         self["constituencies"] = []
         self["parties"] = []
 

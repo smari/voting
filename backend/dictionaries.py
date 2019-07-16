@@ -66,7 +66,7 @@ GENERATING_METHOD_NAMES = {
 }
 
 SEAT_SPECIFICATION_OPTIONS = {
-    "defer":     "Defer to vote table",
+    "refer":     "Refer to vote table",
     "all_const": "Make all seats constituency seats",
     "all_adj":   "Make all seats adjustment seats",
     "one_const": "Combine all constituencies into one",

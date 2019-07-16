@@ -43,7 +43,7 @@ class ElectionHandler:
             rules["parties"] = self.parties
             votes = self.votes
             option = electoral_system["seat_spec_option"]
-            if option == "defer":
+            if option == "refer":
                 rules["constituencies"] = self.constituencies
             elif option == "all_const":
                 rules["constituencies"] = self.constituencies
