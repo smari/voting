@@ -87,6 +87,9 @@ def alternating_scaling(m_votes, v_desired_row_sums, v_desired_col_sums,
         if const_done and party_done:
             break
 
+    if not (const_done and party_done):
+        raise RuntimeError("AS does not seem to be converging.")
+
 
     # Finally, use party_multipliers and const_multipliers to arrive at
     #  final apportionment:
