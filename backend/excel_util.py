@@ -204,6 +204,10 @@ def simulation_to_xlsx(simulation, filename):
          "heading": "Averages from simulation"           },
         {"abbr": "std",  "cell_format": fmt["sim"],
          "heading": "Standard deviations from simulation"},
+        {"abbr": "min",  "cell_format": fmt["sim"],
+         "heading": "Minimum value from simulation"},
+        {"abbr": "max",  "cell_format": fmt["sim"],
+         "heading": "Maximum value from simulation"},
     ]
     tables = [
         {"abbr": "v",  "heading": "Votes"             },
@@ -252,6 +256,24 @@ def simulation_to_xlsx(simulation, filename):
                 "ts": simulation.list_data[ r]["total_seats"]["std"],
                 "ss": simulation.list_data[ r]["seat_shares"]["std"],
                 "id": simulation.list_data[ r]["ideal_seats"]["std"],
+            },
+            "min": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["min"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["min"],
+                "cs": simulation.list_data[ r]["const_seats"]["min"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["min"],
+                "ts": simulation.list_data[ r]["total_seats"]["min"],
+                "ss": simulation.list_data[ r]["seat_shares"]["min"],
+                "id": simulation.list_data[ r]["ideal_seats"]["min"],
+            },
+            "max": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["max"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["max"],
+                "cs": simulation.list_data[ r]["const_seats"]["max"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["max"],
+                "ts": simulation.list_data[ r]["total_seats"]["max"],
+                "ss": simulation.list_data[ r]["seat_shares"]["max"],
+                "id": simulation.list_data[ r]["ideal_seats"]["max"],
             },
         }
 
