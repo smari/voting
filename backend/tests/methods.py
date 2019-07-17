@@ -274,11 +274,11 @@ class TestAdjustmentMethods(TestCase):
         self.rules["adj_alloc_divider"] = "sainte-lague"
         election = Election(self.rules, self.votes)
         results = election.run()
-        self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
+        self.assertEqual(results, [[0,3,3,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
                                    [1,4,3,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
-                                   [1,2,4,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_norwegian_law_6c(self):
         self.rules_6c["adjustment_method"] = "norwegian-law"
@@ -287,14 +287,18 @@ class TestAdjustmentMethods(TestCase):
         self.rules_6c["adj_alloc_divider"] = "sainte-lague"
         election = Election(self.rules_6c, self.votes)
         results = election.run()
-        self.assertEqual(results, [[1,3,2,0,0,0,0,0,0,0,0,1,0,1,0],
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
                                    [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
                                    [1,4,3,0,0,0,0,0,0,0,0,1,0,1,0],
-                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,5,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,4,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_norwegian_law_small(self):
         #Arrange
+        constituencies = [
+            {"name": "I",  "num_const_seats": 0, "num_adj_seats": 1},
+            {"name": "II", "num_const_seats": 1, "num_adj_seats": 0},
+        ]
         row_sums =        [1,
                            1]
         col_sums =  [0, 2]
@@ -309,6 +313,7 @@ class TestAdjustmentMethods(TestCase):
         results, _ = norwegian_apportionment(
             m_votes=votes,
             orig_votes=votes,
+            v_const_seats=[con["num_const_seats"] for con in constituencies],
             v_desired_row_sums=row_sums,
             v_desired_col_sums=col_sums,
             m_prior_allocations=priors,

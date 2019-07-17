@@ -121,6 +121,7 @@ class Election:
             print(" + Apportion adjustment seats")
         method = ADJUSTMENT_METHODS[self.rules["adjustment_method"]]
         self.gen = self.rules.get_generator("adj_alloc_divider")
+        consts = self.rules["constituencies"]
 
         self.solvable = solution_exists(
             votes=self.m_votes_eliminated,
@@ -138,6 +139,7 @@ class Election:
                 self.gen,
                 threshold=self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes,
+                v_const_seats=[con["num_const_seats"] for con in consts],
                 last=self.last)
         except ZeroDivisionError:
             self.results = self.m_const_seats_alloc

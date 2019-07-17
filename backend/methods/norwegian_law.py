@@ -3,8 +3,8 @@ from copy import deepcopy
 from apportion import apportion1d, threshold_elimination_constituencies
 
 def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
-                            m_prior_allocations, divisor_gen, threshold=None,
-                            orig_votes=None, **kwargs):
+                            m_prior_allocations, divisor_gen, v_const_seats,
+                            threshold=None, orig_votes=None, **kwargs):
     """Apportion based on Norwegian law."""
 
     m_allocations = deepcopy(m_prior_allocations)
@@ -25,7 +25,7 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
                 for k in range(m_allocations[c][p]+1):
                     x = next(div)
                 if m_votes[c][p] != 0:
-                    seat_factor = max(1, v_desired_row_sums[c]-1)
+                    seat_factor = max(1, v_const_seats[c])
                     a = float(orig_votes[c][p])*seat_factor/s/x
                 else:
                     a = 0
