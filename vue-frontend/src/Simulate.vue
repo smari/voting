@@ -219,7 +219,7 @@ export default {
     },
 
     get_xlsx_url: function() {
-      return "/api/simulate/getxlsx/?sid=" + this.sid;
+      return "/api/simulate/getxlsx/?sid=" + this.sid + "&time=" + new Date();
     }
   },
 }
