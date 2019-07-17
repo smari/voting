@@ -220,24 +220,24 @@ def simulation_to_xlsx(simulation, filename):
 
     categories = [
         {"abbr": "base", "cell_format": fmt["base"],
-         "heading": "Reference data"                     },
+         "heading": "Reference data"},
         {"abbr": "avg",  "cell_format": fmt["sim"],
-         "heading": "Averages from simulation"           },
-        {"abbr": "std",  "cell_format": fmt["sim"],
-         "heading": "Standard deviations from simulation"},
-        {"abbr": "min",  "cell_format": fmt["sim"],
-         "heading": "Minimum value from simulation"},
+         "heading": "Averages"},
         {"abbr": "max",  "cell_format": fmt["sim"],
-         "heading": "Maximum value from simulation"},
+         "heading": "Maximum values"},
+        {"abbr": "min",  "cell_format": fmt["sim"],
+         "heading": "Minimum values"},
+        {"abbr": "std",  "cell_format": fmt["sim"],
+         "heading": "Standard deviations"},
     ]
     tables = [
         {"abbr": "v",  "heading": "Votes"             },
         {"abbr": "vs", "heading": "Vote shares"       },
+        {"abbr": "id", "heading": "Ideal seat shares" },
         {"abbr": "cs", "heading": "Constituency seats"},
         {"abbr": "as", "heading": "Adjustment seats"  },
         {"abbr": "ts", "heading": "Total seats"       },
         {"abbr": "ss", "heading": "Seat shares"       },
-        {"abbr": "id", "heading": "Ideal seat shares" },
     ]
     base_const_names = [const["name"] for const in simulation.constituencies]\
                         + ["Total"]
