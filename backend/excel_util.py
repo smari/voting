@@ -50,10 +50,10 @@ def prepare_formats(workbook):
 
     return formats
 
-def write_matrix(worksheet, startrow, startcol, matrix, cformat):
+def write_matrix(worksheet, startrow, startcol, matrix, cformat, display_zeroes=False):
     for c in range(len(matrix)):
         for p in range(len(matrix[c])):
-            if matrix[c][p] != 0:
+            if matrix[c][p] != 0 or display_zeroes:
                 try:
                     worksheet.write(startrow+c, startcol+p, matrix[c][p],
                                     cformat[c])
@@ -196,6 +196,27 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write_row(row+1, col+1, xheaders, fmt["cell"])
         worksheet.write_column(row+2, col, yheaders, fmt["cell"])
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
+
+    def present_measures(worksheet, row, col,
+        xheaders, dev_headers, norm_headers,
+        deviation_measures, normalized_measures):
+        worksheet.write(row, col, "Quality measures", fmt["h"])
+        row += 1
+        worksheet.write_row(row, col+2, xheaders, fmt["basic_h"])
+        row += 1
+        worksheet.write(row, col+1,
+            "Deviation in number of seats allocated by the tested method from:",
+            fmt["basic_h"])
+        row += 1
+        worksheet.write_column(row, col, dev_headers, fmt["basic_h"])
+        write_matrix(worksheet, row, col+2, deviation_measures, fmt["cell"], True)
+        row += len(dev_headers)+1
+        worksheet.write(row, col+1,
+            "Quality indices (generally 0 to 1, the lower the better):",
+            fmt["basic_h"])
+        row += 1
+        worksheet.write_column(row, col, norm_headers, fmt["basic_h"])
+        write_matrix(worksheet, row, col+2, normalized_measures, fmt["cell"], True)
 
     categories = [
         {"abbr": "base", "cell_format": fmt["base"],
@@ -365,20 +386,20 @@ def simulation_to_xlsx(simulation, filename):
         DEVIATION_MEASURES = results["deviation_measures"]
         STANDARDIZED_MEASURES = results["standardized_measures"]
         MEASURES = results["measures"]
-        mkeys = DEVIATION_MEASURES + STANDARDIZED_MEASURES
-        measure_names = [MEASURES[key] for key in mkeys]
-        aggregates = ["avg", "std"]
+        aggregates = ["avg", "min", "max", "std"]
         aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
-        measure_table = [
-            [simulation.data[r][measure][aggr] for aggr in aggregates]
-            for measure in mkeys
-        ]
-        draw_block(worksheet, row=toprow, col=9,
-            heading="Summary measures",
+        present_measures(worksheet, row=toprow, col=9,
             xheaders=aggregate_names,
-            yheaders=measure_names,
-            matrix=measure_table,
-            cformat=fmt["sim"]
+            dev_headers=[MEASURES[key] for key in DEVIATION_MEASURES],
+            norm_headers=[MEASURES[key] for key in STANDARDIZED_MEASURES],
+            deviation_measures=[
+                [simulation.data[r][measure][aggr] for aggr in aggregates]
+                for measure in DEVIATION_MEASURES
+            ],
+            normalized_measures=[
+                [simulation.data[r][measure][aggr] for aggr in aggregates]
+                for measure in STANDARDIZED_MEASURES
+            ]
         )
 
     workbook.close()

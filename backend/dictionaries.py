@@ -119,12 +119,12 @@ VOTE_MEASURES = {
     "sim_shares": "shares in simulations",
 }
 AGGREGATES = {
-    "cnt": "number of elements",
-    "max": "highest value",
-    "min": "lowest value",
-    "sum": "sum of elements",
-    "sqs": "sum of squares",
-    "avg": "average",
-    "var": "variance",
-    "std": "standard deviation"
+    "cnt": "Number of elements",
+    "max": "Max",
+    "min": "Min",
+    "sum": "Sum of elements",
+    "sqs": "Sum of squares",
+    "avg": "Average",
+    "var": "Variance",
+    "std": "Std. dev"
 }
