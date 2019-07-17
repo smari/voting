@@ -252,8 +252,6 @@ class Simulation:
         for c in range(1+self.num_constituencies):
             var_beta_distr.append([])
             for p in range(1+self.num_parties):
-                for measure in VOTE_MEASURES.keys():
-                    self.analyze_list(-1, measure, c, p)
                 var_beta_distr[c].append(1/sqrt(self.stbl_param)
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
@@ -424,6 +422,10 @@ class Simulation:
                     for measure in LIST_MEASURES.keys():
                         self.analyze_list(ruleset, measure, c, p)
         self.analyze_measure(-1, "time")
+        for c in range(1+self.num_constituencies):
+            for p in range(1+self.num_parties):
+                for measure in VOTE_MEASURES.keys():
+                    self.analyze_list(-1, measure, c, p)
 
     def simulate(self):
         """Simulate many elections."""
