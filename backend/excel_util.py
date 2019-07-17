@@ -33,6 +33,12 @@ def prepare_formats(workbook):
     formats["basic_h"].set_bold()
     formats["basic_h"].set_font_size(12)
 
+    formats["inter_h"] = workbook.add_format()
+    formats["inter_h"].set_align('right')
+    formats["inter_h"].set_bold()
+    formats["inter_h"].set_italic()
+    formats["inter_h"].set_font_size(13)
+
     #simulations
     formats["r"] = workbook.add_format()
     formats["r"].set_rotation(90)
@@ -206,14 +212,14 @@ def simulation_to_xlsx(simulation, filename):
         row += 1
         worksheet.write(row, col+1,
             "Deviation in number of seats allocated by the tested method from:",
-            fmt["basic_h"])
+            fmt["inter_h"])
         row += 1
         worksheet.write_column(row, col, dev_headers, fmt["basic_h"])
         write_matrix(worksheet, row, col+2, deviation_measures, fmt["cell"], True)
         row += len(dev_headers)+1
         worksheet.write(row, col+1,
             "Quality indices (generally 0 to 1, the lower the better):",
-            fmt["basic_h"])
+            fmt["inter_h"])
         row += 1
         worksheet.write_column(row, col, norm_headers, fmt["basic_h"])
         write_matrix(worksheet, row, col+2, normalized_measures, fmt["cell"], True)
