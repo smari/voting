@@ -355,16 +355,16 @@ def simulation_to_xlsx(simulation, filename):
             bottomrow = max(row, bottomrow)
             c1 = c2 + group["right_span"]
 
-        draw_block(worksheet, row=toprow, col=c1,
-            heading="Desired number of seats",
-            xheaders=["cons", "adj", "total"],
+        draw_block(worksheet, row=toprow, col=c1+1,
+            heading="Required number of seats",
+            xheaders=["Const.", "Adj.", "Total"],
             yheaders=const_names,
             matrix=add_totals([
                 [const["num_const_seats"],const["num_adj_seats"]]
                 for const in simulation.e_rules[r]["constituencies"]])
         )
         bottomrow = max(2+len(const_names), bottomrow)
-        toprow += bottomrow+2
+        toprow = bottomrow+2
 
         #Election tables
         for category in categories:
