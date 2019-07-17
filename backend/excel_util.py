@@ -264,7 +264,7 @@ def simulation_to_xlsx(simulation, filename):
                 "as": simulation.base_allocations[r]["xtd_adj_seats"],
                 "ts": simulation.base_allocations[r]["xtd_total_seats"],
                 "ss": simulation.base_allocations[r]["xtd_seat_shares"],
-                "id": simulation.base_allocations[r]["xtd_bi_seat_shares"],
+                "id": simulation.base_allocations[r]["xtd_ideal_seats"],
             },
             "avg": {
                 "v" : simulation.list_data[-1]["sim_votes"  ]["avg"],

@@ -225,14 +225,14 @@ class Simulation:
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
-            bi_seat_shares = self.calculate_bi_seat_shares(election)
-            xtd_bi_seat_shares = add_totals(bi_seat_shares)
+            ideal_seats = self.calculate_ideal_seats(election)
+            xtd_ideal_seats = add_totals(ideal_seats)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
                 "xtd_total_seats": xtd_total_seats,
                 "xtd_seat_shares": xtd_seat_shares,
-                "xtd_bi_seat_shares": xtd_bi_seat_shares,
+                "xtd_ideal_seats": xtd_ideal_seats,
                 "step_info": election.adj_seats_info,
             })
 
@@ -280,14 +280,14 @@ class Simulation:
     def collect_list_measures(self, ruleset, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
         total_seats_alloc = add_totals(election.results)
-        ideal_seat_shares = add_totals(self.calculate_bi_seat_shares(election))
+        ideal_seats = add_totals(self.calculate_ideal_seats(election))
         for c in range(1+election.num_constituencies):
             for p in range(1+self.num_parties):
                 cs  = const_seats_alloc[c][p]
                 ts  = total_seats_alloc[c][p]
                 adj = ts - cs
                 sh  = float(ts)/total_seats_alloc[c][-1]
-                ids = ideal_seat_shares[c][p]
+                ids = ideal_seats[c][p]
                 self.aggregate_list(ruleset, "const_seats", c, p, cs)
                 self.aggregate_list(ruleset, "total_seats", c, p, ts)
                 self.aggregate_list(ruleset, "adj_seats",   c, p, adj)
@@ -320,14 +320,14 @@ class Simulation:
         self.deviation(ruleset, "one_const", [election.v_votes], [v_results])
 
     def other_measures(self, ruleset, election):
-        bi_seat_shares = self.calculate_bi_seat_shares(election)
+        ideal_seats = self.calculate_ideal_seats(election)
         scale = 1.0/sum([
-            1.0/s for c in bi_seat_shares for s in c if s!=0
+            1.0/s for c in ideal_seats for s in c if s!=0
         ])
-        self.loosemore_hanby(ruleset, election, bi_seat_shares)
-        self.sainte_lague(ruleset, election, bi_seat_shares, scale)
-        self.dhondt_min(ruleset, election, bi_seat_shares)
-        self.dhondt_sum(ruleset, election, bi_seat_shares, scale)
+        self.loosemore_hanby(ruleset, election, ideal_seats)
+        self.sainte_lague(ruleset, election, ideal_seats, scale)
+        self.dhondt_min(ruleset, election, ideal_seats)
+        self.dhondt_sum(ruleset, election, ideal_seats, scale)
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
@@ -336,9 +336,9 @@ class Simulation:
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
-    def calculate_bi_seat_shares(self, election):
+    def calculate_ideal_seats(self, election):
         scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
-        bi_seat_shares = scale_matrix(election.m_votes, scalar)
+        ideal_seats = scale_matrix(election.m_votes, scalar)
         assert election.solvable
         rein = 0
         error = 1
@@ -347,66 +347,66 @@ class Simulation:
                 error = 0
                 if self.sim_rules["row_constraints"]:
                     for c in range(election.num_constituencies):
-                        s = sum(bi_seat_shares[c])
+                        s = sum(ideal_seats[c])
                         if s != 0:
                             mult = float(election.v_desired_row_sums[c])/s
                             error += abs(1-mult)
                             mult += rein*(1-mult)
                             for p in range(self.num_parties):
-                                bi_seat_shares[c][p] *= mult
+                                ideal_seats[c][p] *= mult
                 if self.sim_rules["col_constraints"]:
                     for p in range(self.num_parties):
-                        s = sum([c[p] for c in bi_seat_shares])
+                        s = sum([c[p] for c in ideal_seats])
                         if s != 0:
                             mult = float(election.v_desired_col_sums[p])/s
                             error += abs(1-mult)
                             mult += rein*(1-mult)
                             for c in range(election.num_constituencies):
-                                bi_seat_shares[c][p] *= mult
+                                ideal_seats[c][p] *= mult
 
         try:
-            assert [sum(x) for x in zip(*bi_seat_shares)] == election.v_desired_col_sums
-            assert [sum(x) for x in bi_seat_shares] == election.v_desired_row_sums
+            assert [sum(x) for x in zip(*ideal_seats)] == election.v_desired_col_sums
+            assert [sum(x) for x in ideal_seats] == election.v_desired_row_sums
         except AssertionError:
             pass
 
-        return bi_seat_shares
+        return ideal_seats
 
-    def loosemore_hanby(self, ruleset, election, bi_seat_shares):
+    def loosemore_hanby(self, ruleset, election, ideal_seats):
         scale = 1.0/election.total_seats
         lh = sum([
-            abs(bi_seat_shares[c][p]-election.results[c][p])
+            abs(ideal_seats[c][p]-election.results[c][p])
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
         ])
         lh *= scale
         self.aggregate_measure(ruleset, "loosemore_hanby", lh)
 
-    def sainte_lague(self, ruleset, election, bi_seat_shares, scale):
+    def sainte_lague(self, ruleset, election, ideal_seats, scale):
         stl = sum([
-            (bi_seat_shares[c][p]-election.results[c][p])**2/bi_seat_shares[c][p]
+            (ideal_seats[c][p]-election.results[c][p])**2/ideal_seats[c][p]
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
-            if bi_seat_shares[c][p] != 0
+            if ideal_seats[c][p] != 0
         ])
         stl *= scale
         self.aggregate_measure(ruleset, "sainte_lague", stl)
 
-    def dhondt_min(self, ruleset, election, bi_seat_shares):
+    def dhondt_min(self, ruleset, election, ideal_seats):
         dh_min = min([
-            bi_seat_shares[c][p]/float(election.results[c][p])
+            ideal_seats[c][p]/float(election.results[c][p])
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
             if election.results[c][p] != 0
         ])
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
-    def dhondt_sum(self, ruleset, election, bi_seat_shares, scale):
+    def dhondt_sum(self, ruleset, election, ideal_seats, scale):
         dh_sum = sum([
-            max(0, bi_seat_shares[c][p]-election.results[c][p])/bi_seat_shares[c][p]
+            max(0, ideal_seats[c][p]-election.results[c][p])/ideal_seats[c][p]
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
-            if bi_seat_shares[c][p] != 0
+            if ideal_seats[c][p] != 0
         ])
         dh_sum *= scale
         self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
