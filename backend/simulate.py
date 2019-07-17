@@ -368,9 +368,6 @@ class Simulation:
 
         try:
             assert [sum(x) for x in zip(*bi_seat_shares)] == election.v_desired_col_sums
-        except AssertionError:
-            pass
-        try:
             assert [sum(x) for x in bi_seat_shares] == election.v_desired_row_sums
         except AssertionError:
             pass
