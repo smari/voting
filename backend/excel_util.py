@@ -302,29 +302,31 @@ def simulation_to_xlsx(simulation, filename):
         row_constraints = simulation.sim_rules["row_constraints"] and simulation.num_parties > 1
         col_constraints = simulation.sim_rules["col_constraints"] and simulation.num_constituencies > 1
         info_groups = [
-            {"left_span": 3, "right_span": 5, "info": [
+            {"left_span": 2, "right_span": 3, "info": [
                 {"label": date_label,
                     "data": datetime.now()},
                 {"label": "Reference votes:",
                     "data": simulation.vote_table["name"]},
                 {"label": "Electoral system:",
                     "data": simulation.e_rules[r]["name"]},
-                {"label": "Adjustment method:",
-                    "data": AMN[simulation.e_rules[r]["adjustment_method"]]},
             ]},
             {"left_span": 5, "right_span": 3, "info": [
+                {"label": "Threshold for constituency seats:",
+                    "data": simulation.e_rules[r]["constituency_threshold"]},
                 {"label": "Rule for allocating constituency seats:",
                     "data": DRN[simulation.e_rules[r]["primary_divider"]]},
+                {"label": "Threshold for adjustment seats:",
+                    "data": simulation.e_rules[r]["adjustment_threshold"]},
                 {"label": "Rule for dividing adjustment seats:",
                     "data": DRN[simulation.e_rules[r]["adj_determine_divider"]]},
+                {"label": "Method for allocating adjustment seats:",
+                    "data": AMN[simulation.e_rules[r]["adjustment_method"]]},
                 {"label": "Rule for allocating adjustment seats:",
                     "data": DRN[simulation.e_rules[r]["adj_alloc_divider"]]},
-                {"label": "Threshold for dividing adjustment seats:",
-                    "data": simulation.e_rules[r]["adjustment_threshold"]},
             ]},
             {"left_span": 5, "right_span": 3, "info": [
-                {"label": "Number of simulations:",
-                    "data": simulation.num_total_simulations},
+                {"label": "Number of simulations run:",
+                    "data": simulation.iteration},
                 {"label": "Generating method:",
                     "data": GMN[simulation.variate]},
                 {"label": "Stability parameter:",
