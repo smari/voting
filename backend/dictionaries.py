@@ -97,10 +97,10 @@ DEVIATION_MEASURES = [
 ]
 STANDARDIZED_MEASURES = [
     "entropy_ratio",
-    "loosemore_hanby",
     "sainte_lague",
-    "dhondt_min",
     "dhondt_sum",
+    "loosemore_hanby",
+    "dhondt_min",
 ]
 LIST_MEASURES = {
     "const_seats":   "constituency seats",
