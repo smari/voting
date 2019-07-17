@@ -5,7 +5,8 @@
         <b-col>
           <b-form-group
             label="Number of simulations"
-            description="How many simulations should be run? Select 0 to use only reference data instead of any simulated data."
+            description="How many simulations should be run?
+            Select 0 to use only reference data instead of any simulated data."
           >
             <b-form-input
               type="number"
@@ -16,7 +17,8 @@
         <b-col>
           <b-form-group
             label="Generating method"
-            description="Which method should be used to generate random votes (based on the supplied vote table)?"
+            description="Which method should be used to generate random votes
+            (based on the supplied vote table)?"
           >
             <b-form-select
               v-model="rules.gen_method"
@@ -27,7 +29,12 @@
         <b-col>
           <b-form-group
             label="Stability parameter"
-            description="To influence the standard deviation of the distribution, please provide a number greater than 1 (does not need to be an integer, and values close to 1 are allowed, such as 1.0001). This number represents stability, in some sense. Higher values result in lower standard deviation, and vice versa."
+            description="To influence the standard deviation
+            of the distribution, please provide a number greater than 1
+            (does not need to be an integer,
+            and values close to 1 are allowed, such as 1.0001).
+            This number represents stability, in some sense.
+            Higher values result in lower standard deviation, and vice versa."
           >
             <b-input-group>
               <b-form-input
@@ -41,7 +48,12 @@
         <b-col>
           <b-form-group
             label="Ideal seat share scaling"
-            description="Ideal seat shares are used for comparison purposes. Scaling by constituencies adjusts the shares so that they sum up to the correct number of seats for each constituency, and similarly for parties. If neither is selected, the vote table is just scaled as a whole (see the Instructions page for more details)."
+            description="Ideal seat shares are used for comparison purposes.
+            Scaling by constituencies adjusts the shares so that
+            they sum up to the correct number of seats for each constituency,
+            and similarly for parties. If neither is selected,
+            the vote table is just scaled as a whole
+            (see the Instructions page for more details)."
           >
             <b-form-checkbox
               v-model="rules.row_constraints"
