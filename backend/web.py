@@ -376,12 +376,12 @@ def get_xlsx():
     tmpfilename = tempfile.mktemp(prefix='votesim-%s-' % request.args["sid"][:6])
     simulation, thread, expiry = SIMULATIONS[request.args["sid"]]
     simulation.to_xlsx(tmpfilename)
-    print("%s" % (tmpfilename))
+    date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
     return send_from_directory(
         directory=os.path.dirname(tmpfilename),
         filename=os.path.basename(tmpfilename),
         attachment_filename=
-            f"simulation {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx",
+            f"simulation {date}.xlsx",
         as_attachment=True
     )
 
