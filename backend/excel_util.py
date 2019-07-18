@@ -220,7 +220,7 @@ def simulation_to_xlsx(simulation, filename):
             deviation_measures["headers"], fmt["basic_h"])
         write_matrix(worksheet, row, col+2,
             deviation_measures["matrix"], fmt["cell"], True)
-        row += len(deviation_measures["headers"])+1
+        row += len(deviation_measures["headers"])
         worksheet.write(row, col+1,
             "Quality indices (the higher the better)", fmt["inter_h"])
         row += 1
@@ -228,16 +228,16 @@ def simulation_to_xlsx(simulation, filename):
             normalized_measures["headers"], fmt["basic_h"])
         write_matrix(worksheet, row, col+2,
             normalized_measures["matrix"], fmt["cell"], True)
-        row += len(normalized_measures["headers"])+1
+        row += len(normalized_measures["headers"])
         worksheet.write(row, col+1,
-            "Comparison to ideal seat shares (the lower the better):",
+            "Comparison to ideal seat shares (the lower the better)",
             fmt["inter_h"])
         row += 1
         worksheet.write_column(row, col,
             ideal_comparison_measures["headers"], fmt["basic_h"])
         write_matrix(worksheet, row, col+2,
             ideal_comparison_measures["matrix"], fmt["cell"], True)
-        row += len(ideal_comparison_measures["headers"])+1
+        row += len(ideal_comparison_measures["headers"])
 
     categories = [
         {"abbr": "base", "cell_format": fmt["base"],
