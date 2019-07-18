@@ -320,10 +320,10 @@ class Simulation:
 
     def other_measures(self, ruleset, election):
         ideal_seats = self.calculate_ideal_seats(election)
-        self.loosemore_hanby(ruleset, election, ideal_seats)
-        self.sainte_lague(ruleset, election, ideal_seats)
-        self.dhondt_min(ruleset, election, ideal_seats)
-        self.dhondt_sum(ruleset, election, ideal_seats)
+        self.sum_abs(ruleset, election, ideal_seats)
+        self.sum_pos(ruleset, election, ideal_seats)
+        self.sum_sq(ruleset, election, ideal_seats)
+        self.min_seat_value(ruleset, election, ideal_seats)
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
@@ -368,7 +368,8 @@ class Simulation:
 
         return ideal_seats
 
-    def loosemore_hanby(self, ruleset, election, ideal_seats):
+    #Loosemore-Hanby
+    def sum_abs(self, ruleset, election, ideal_seats):
         lh = sum([
             abs(ideal_seats[c][p]-election.results[c][p])
             for p in range(self.num_parties)
@@ -377,7 +378,7 @@ class Simulation:
         self.aggregate_measure(ruleset, "sum_abs", lh)
 
     #Minimized by Sainte Lague
-    def sainte_lague(self, ruleset, election, ideal_seats):
+    def sum_sq(self, ruleset, election, ideal_seats):
         stl = sum([
             (ideal_seats[c][p]-election.results[c][p])**2/ideal_seats[c][p]
             for p in range(self.num_parties)
@@ -387,7 +388,7 @@ class Simulation:
         self.aggregate_measure(ruleset, "sum_sq", stl)
 
     #Maximized by d'Hondt
-    def dhondt_min(self, ruleset, election, ideal_seats):
+    def min_seat_value(self, ruleset, election, ideal_seats):
         dh_min = min([
             ideal_seats[c][p]/float(election.results[c][p])
             for p in range(self.num_parties)
@@ -397,7 +398,7 @@ class Simulation:
         self.aggregate_measure(ruleset, "min_seat_value", dh_min)
 
     #Minimized by d'Hondt
-    def dhondt_sum(self, ruleset, election, ideal_seats):
+    def sum_pos(self, ruleset, election, ideal_seats):
         dh_sum = sum([
             max(0, ideal_seats[c][p]-election.results[c][p])/ideal_seats[c][p]
             for p in range(self.num_parties)
