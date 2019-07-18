@@ -8,9 +8,8 @@ from copy import copy, deepcopy
 from table_util import matrix_subtraction, scale_matrix, add_totals, find_xtd_shares
 from excel_util import simulation_to_xlsx
 from rules import Rules
-from dictionaries import GENERATING_METHODS
-from dictionaries import MEASURES, DEVIATION_MEASURES, STANDARDIZED_MEASURES, \
-    LIST_MEASURES, VOTE_MEASURES, AGGREGATES
+import dictionaries as dicts
+from dictionaries import MEASURES, LIST_MEASURES, VOTE_MEASURES, AGGREGATES
 import voting
 from electionHandler import ElectionHandler
 
@@ -241,7 +240,7 @@ class Simulation:
         Generate votes similar to given votes using the given
         generating method.
         """
-        gen = GENERATING_METHODS[self.variate]
+        gen = dicts.GENERATING_METHODS[self.variate]
         while True:
             votes = gen(self.base_votes, self.stbl_param)
             yield votes
@@ -450,11 +449,11 @@ class Simulation:
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": MEASURES,
-            "deviation_measures": DEVIATION_MEASURES,
-            "standardized_measures": STANDARDIZED_MEASURES,
-            "list_measures": LIST_MEASURES,
-            "vote_measures": VOTE_MEASURES,
-            "aggregates": AGGREGATES,
+            "deviation_measures": dicts.DEVIATION_MEASURES,
+            "standardized_measures": dicts.STANDARDIZED_MEASURES,
+            "list_measures": dicts.LIST_MEASURES,
+            "vote_measures": dicts.VOTE_MEASURES,
+            "aggregates": dicts.AGGREGATES,
             "data": [
                 {
                     "name": self.e_rules[ruleset]["name"],
