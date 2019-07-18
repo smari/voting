@@ -79,7 +79,7 @@
           <ElectionSettings
             :rulesidx="rulesidx"
             :rules="rules"
-            @update-rules="updateElectionRules">
+            @update-rules="updateElectionRulesAndActivate">
           </ElectionSettings>
         </b-tab>
         <template slot="tabs">
@@ -175,6 +175,10 @@ export default {
     updateElectionRules: function(rules, idx) {
       this.$set(this.election_rules, idx, rules);
       //this works too: this.election_rules.splice(idx, 1, rules);
+    },
+    updateElectionRulesAndActivate: function(rules, idx) {
+      this.updateElectionRules(rules, idx);
+      this.activeTabIndex = idx;
     },
     updateSimulationRules: function(rules) {
       this.simulation_rules = rules;
