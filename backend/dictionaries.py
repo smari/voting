@@ -81,7 +81,7 @@ MEASURES = {
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
-    "entropy_ratio":   "Relative entropy deviation from optimal solution",
+    "entropy_ratio":   "Entropy relative to optimal value",
     "loosemore_hanby": "Proportionality index according to Loosemore-Hanby",
     "sainte_lague":    "Scaled sum of squared deviation of list seats from ideal seat shares (Sainte-Lague)",
     "dhondt_min":      "Mininum seat value used (d'Hondt)",

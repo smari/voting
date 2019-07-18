@@ -306,8 +306,8 @@ class Simulation:
         opt_election = voting.Election(opt_rules, election.m_votes)
         opt_results = opt_election.run()
         entropy = election.entropy()
-        entropy_deviation_ratio = 1 - exp(entropy - opt_election.entropy())
-        self.aggregate_measure(ruleset, "entropy_ratio", entropy_deviation_ratio)
+        entropy_ratio = exp(entropy - opt_election.entropy())
+        self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
         self.aggregate_measure(ruleset, "entropy", entropy)
         return opt_results
 
