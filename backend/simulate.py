@@ -321,13 +321,10 @@ class Simulation:
 
     def other_measures(self, ruleset, election):
         ideal_seats = self.calculate_ideal_seats(election)
-        scale = 1.0/sum([
-            1.0/s for c in ideal_seats for s in c if s!=0
-        ])
         self.loosemore_hanby(ruleset, election, ideal_seats)
-        self.sainte_lague(ruleset, election, ideal_seats, scale)
+        self.sainte_lague(ruleset, election, ideal_seats)
         self.dhondt_min(ruleset, election, ideal_seats)
-        self.dhondt_sum(ruleset, election, ideal_seats, scale)
+        self.dhondt_sum(ruleset, election, ideal_seats)
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
@@ -373,23 +370,20 @@ class Simulation:
         return ideal_seats
 
     def loosemore_hanby(self, ruleset, election, ideal_seats):
-        scale = 1.0/election.total_seats
         lh = sum([
             abs(ideal_seats[c][p]-election.results[c][p])
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
         ])
-        lh *= scale
         self.aggregate_measure(ruleset, "loosemore_hanby", lh)
 
-    def sainte_lague(self, ruleset, election, ideal_seats, scale):
+    def sainte_lague(self, ruleset, election, ideal_seats):
         stl = sum([
             (ideal_seats[c][p]-election.results[c][p])**2/ideal_seats[c][p]
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
             if ideal_seats[c][p] != 0
         ])
-        stl *= scale
         self.aggregate_measure(ruleset, "sainte_lague", stl)
 
     def dhondt_min(self, ruleset, election, ideal_seats):
@@ -401,14 +395,13 @@ class Simulation:
         ])
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
-    def dhondt_sum(self, ruleset, election, ideal_seats, scale):
+    def dhondt_sum(self, ruleset, election, ideal_seats):
         dh_sum = sum([
             max(0, ideal_seats[c][p]-election.results[c][p])/ideal_seats[c][p]
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
             if ideal_seats[c][p] != 0
         ])
-        dh_sum *= scale
         self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
 
     def analysis(self):
