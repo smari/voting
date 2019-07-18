@@ -305,9 +305,9 @@ class Simulation:
         opt_election = voting.Election(opt_rules, election.m_votes)
         opt_results = opt_election.run()
         entropy = election.entropy()
+        self.aggregate_measure(ruleset, "entropy", entropy)
         entropy_ratio = exp(entropy - opt_election.entropy())
         self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
-        self.aggregate_measure(ruleset, "entropy", entropy)
         return opt_results
 
     def deviation_measures(self, ruleset, election, opt_results):
@@ -374,7 +374,7 @@ class Simulation:
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
         ])
-        self.aggregate_measure(ruleset, "loosemore_hanby", lh)
+        self.aggregate_measure(ruleset, "sum_abs", lh)
 
     #Minimized by Sainte Lague
     def sainte_lague(self, ruleset, election, ideal_seats):
@@ -384,7 +384,7 @@ class Simulation:
             for c in range(election.num_constituencies)
             if ideal_seats[c][p] != 0
         ])
-        self.aggregate_measure(ruleset, "sainte_lague", stl)
+        self.aggregate_measure(ruleset, "sum_sq", stl)
 
     #Maximized by d'Hondt
     def dhondt_min(self, ruleset, election, ideal_seats):
@@ -394,7 +394,7 @@ class Simulation:
             for c in range(election.num_constituencies)
             if election.results[c][p] != 0
         ])
-        self.aggregate_measure(ruleset, "dhondt_min", dh_min)
+        self.aggregate_measure(ruleset, "min_seat_value", dh_min)
 
     #Minimized by d'Hondt
     def dhondt_sum(self, ruleset, election, ideal_seats):
@@ -404,7 +404,7 @@ class Simulation:
             for c in range(election.num_constituencies)
             if ideal_seats[c][p] != 0
         ])
-        self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
+        self.aggregate_measure(ruleset, "sum_pos", dh_sum)
 
     def analysis(self):
         """Calculate averages and variances of various quality measures."""
