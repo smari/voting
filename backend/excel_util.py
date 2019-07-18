@@ -203,26 +203,41 @@ def simulation_to_xlsx(simulation, filename):
         worksheet.write_column(row+2, col, yheaders, fmt["cell"])
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
-    def present_measures(worksheet, row, col,
-        xheaders, dev_headers, norm_headers,
-        deviation_measures, normalized_measures):
+    def present_measures(worksheet, row, col, xheaders,
+        deviation_measures, ideal_comparison_measures, normalized_measures
+    ):
         worksheet.write(row, col, "Quality measures", fmt["h"])
         row += 1
         worksheet.write_row(row, col+2, xheaders, fmt["basic_h"])
         row += 1
         worksheet.write(row, col+1,
-            "Deviation in number of seats allocated by the tested method from:",
-            fmt["inter_h"])
+            "Comparison to other seat allocations", fmt["inter_h"])
         row += 1
-        worksheet.write_column(row, col, dev_headers, fmt["basic_h"])
-        write_matrix(worksheet, row, col+2, deviation_measures, fmt["cell"], True)
-        row += len(dev_headers)+1
+        worksheet.write(row, col,
+            "Sum of absolute differences of tested method and:", fmt["inter_h"])
+        row += 1
+        worksheet.write_column(row, col,
+            deviation_measures["headers"], fmt["basic_h"])
+        write_matrix(worksheet, row, col+2,
+            deviation_measures["matrix"], fmt["cell"], True)
+        row += len(deviation_measures["headers"])+1
         worksheet.write(row, col+1,
-            "Quality indices (generally 0 to 1, the lower the better):",
+            "Quality indices (the higher the better)", fmt["inter_h"])
+        row += 1
+        worksheet.write_column(row, col,
+            normalized_measures["headers"], fmt["basic_h"])
+        write_matrix(worksheet, row, col+2,
+            normalized_measures["matrix"], fmt["cell"], True)
+        row += len(normalized_measures["headers"])+1
+        worksheet.write(row, col+1,
+            "Comparison to ideal seat shares (the lower the better):",
             fmt["inter_h"])
         row += 1
-        worksheet.write_column(row, col, norm_headers, fmt["basic_h"])
-        write_matrix(worksheet, row, col+2, normalized_measures, fmt["cell"], True)
+        worksheet.write_column(row, col,
+            ideal_comparison_measures["headers"], fmt["basic_h"])
+        write_matrix(worksheet, row, col+2,
+            ideal_comparison_measures["matrix"], fmt["cell"], True)
+        row += len(ideal_comparison_measures["headers"])+1
 
     categories = [
         {"abbr": "base", "cell_format": fmt["base"],
@@ -393,21 +408,33 @@ def simulation_to_xlsx(simulation, filename):
         results = simulation.get_results_dict()
         DEVIATION_MEASURES = results["deviation_measures"]
         STANDARDIZED_MEASURES = results["standardized_measures"]
+        IDEAL_COMPARISON_MEASURES = results["ideal_comparison_measures"]
         MEASURES = results["measures"]
         aggregates = ["avg", "min", "max", "std"]
         aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
         present_measures(worksheet, row=toprow, col=9,
             xheaders=aggregate_names,
-            dev_headers=[MEASURES[key] for key in DEVIATION_MEASURES],
-            norm_headers=[MEASURES[key] for key in STANDARDIZED_MEASURES],
-            deviation_measures=[
-                [simulation.data[r][measure][aggr] for aggr in aggregates]
-                for measure in DEVIATION_MEASURES
-            ],
-            normalized_measures=[
-                [simulation.data[r][measure][aggr] for aggr in aggregates]
-                for measure in STANDARDIZED_MEASURES
-            ]
+            deviation_measures={
+                "headers": [MEASURES[key] for key in DEVIATION_MEASURES],
+                "matrix": [
+                    [simulation.data[r][measure][aggr] for aggr in aggregates]
+                    for measure in DEVIATION_MEASURES
+                ]
+            },
+            ideal_comparison_measures={
+                "headers": [MEASURES[key] for key in IDEAL_COMPARISON_MEASURES],
+                "matrix": [
+                    [simulation.data[r][measure][aggr] for aggr in aggregates]
+                    for measure in IDEAL_COMPARISON_MEASURES
+                ]
+            },
+            normalized_measures={
+                "headers": [MEASURES[key] for key in STANDARDIZED_MEASURES],
+                "matrix": [
+                    [simulation.data[r][measure][aggr] for aggr in aggregates]
+                    for measure in STANDARDIZED_MEASURES
+                ]
+            }
         )
 
     workbook.close()

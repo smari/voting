@@ -82,10 +82,10 @@ MEASURES = {
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
     "entropy_ratio":   "Entropy relative to optimal value",
-    "loosemore_hanby": "Sum of absolute deviations from ideal seat shares",
-    "sainte_lague":    "Sum of squared relative deviations from ideal seat shares",
-    "dhondt_min":      "Mininum seat value used (d'Hondt)",
-    "dhondt_sum":      "Sum of positive relative deviations from ideal seat shares",
+    "dhondt_min":      "Mininum seat value used (based on ideal seat shares)",
+    "loosemore_hanby": "Sum of absolute differences",
+    "dhondt_sum":      "Sum of relative positive differences",
+    "sainte_lague":    "Sum of relative squared differences",
 }
 DEVIATION_MEASURES = [
     "dev_opt",
@@ -97,10 +97,12 @@ DEVIATION_MEASURES = [
 ]
 STANDARDIZED_MEASURES = [
     "entropy_ratio",
-    "sainte_lague",
-    "dhondt_sum",
-    "loosemore_hanby",
     "dhondt_min",
+]
+IDEAL_COMPARISON_MEASURES = [
+    "loosemore_hanby",
+    "dhondt_sum",
+    "sainte_lague",
 ]
 LIST_MEASURES = {
     "const_seats":   "constituency seats",

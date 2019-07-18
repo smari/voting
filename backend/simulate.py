@@ -376,6 +376,7 @@ class Simulation:
         ])
         self.aggregate_measure(ruleset, "loosemore_hanby", lh)
 
+    #Minimized by Sainte Lague
     def sainte_lague(self, ruleset, election, ideal_seats):
         stl = sum([
             (ideal_seats[c][p]-election.results[c][p])**2/ideal_seats[c][p]
@@ -385,6 +386,7 @@ class Simulation:
         ])
         self.aggregate_measure(ruleset, "sainte_lague", stl)
 
+    #Maximized by d'Hondt
     def dhondt_min(self, ruleset, election, ideal_seats):
         dh_min = min([
             ideal_seats[c][p]/float(election.results[c][p])
@@ -394,6 +396,7 @@ class Simulation:
         ])
         self.aggregate_measure(ruleset, "dhondt_min", dh_min)
 
+    #Minimized by d'Hondt
     def dhondt_sum(self, ruleset, election, ideal_seats):
         dh_sum = sum([
             max(0, ideal_seats[c][p]-election.results[c][p])/ideal_seats[c][p]
@@ -450,6 +453,7 @@ class Simulation:
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": MEASURES,
             "deviation_measures": dicts.DEVIATION_MEASURES,
+            "ideal_comparison_measures": dicts.IDEAL_COMPARISON_MEASURES,
             "standardized_measures": dicts.STANDARDIZED_MEASURES,
             "list_measures": dicts.LIST_MEASURES,
             "vote_measures": dicts.VOTE_MEASURES,
