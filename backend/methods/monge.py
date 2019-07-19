@@ -244,16 +244,16 @@ def print_seats(rules, adj_seats_info):
         reason = allocation["reason"]
         c_idx  = allocation["constituency"]
         p_idx  = allocation["party"]
-        const_name = rules["constituency_names"][c_idx]
-        party_name = rules["parties"           ][p_idx]
+        const_name = rules["constituencies"][c_idx]["name"]
+        party_name = rules["parties"       ][p_idx]
         if "min_det" in allocation:
             ref_c_idx = allocation["reference_constituency"]
             ref_p_idx = allocation["reference_party"]
             ad = allocation["ad"]
             bc = allocation["bc"]
             comparison = {
-                "const_name": rules["constituency_names"][ref_c_idx],
-                "party_name": rules["parties"           ][ref_p_idx],
+                "const_name": rules["constituencies"][ref_c_idx]["name"],
+                "party_name": rules["parties"       ][ref_p_idx],
                 "det": allocation["min_det"],
                 "ratio": ad/float(bc) if bc != 0 else None,
             }
