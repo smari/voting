@@ -218,8 +218,7 @@ class Simulation:
 
     def run_initial_elections(self):
         self.base_allocations = []
-        for r in range(self.num_rulesets):
-            election = self.e_handler.elections[r]
+        for election in self.e_handler.elections:
             xtd_total_seats = add_totals(election.results)
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
