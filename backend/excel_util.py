@@ -33,6 +33,10 @@ def prepare_formats(workbook):
     formats["basic_h"].set_bold()
     formats["basic_h"].set_font_size(12)
 
+    formats["step_h"] = workbook.add_format()
+    formats["step_h"].set_bold()
+    formats["step_h"].set_text_wrap()
+
     formats["inter_h"] = workbook.add_format()
     formats["inter_h"].set_align('right')
     formats["inter_h"].set_bold()
@@ -206,7 +210,7 @@ def elections_to_xlsx(elections, filename):
                 "Step-by-step demonstration", fmt["h"]
             )
             toprow += 1
-            worksheet.write_row(toprow, startcol, h, fmt["cell"])
+            worksheet.write_row(toprow, startcol, h, fmt["step_h"])
             toprow += 1
             for i in range(len(data)):
                 worksheet.write_row(toprow, startcol, data[i], fmt["cell"])
