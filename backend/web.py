@@ -80,12 +80,12 @@ def handle_election():
     data = check_input(data, ["vote_table", "rules"])
 
     handler = ElectionHandler(data["vote_table"], data["rules"])
-    return handler.elections
+    return handler
 
 @app.route('/api/election/', methods=["POST"])
 def get_election_results():
     try:
-        result = handle_election()
+        result = handle_election().elections
     except (KeyError, TypeError, ValueError) as e:
         message = e.args[0]
         print(message)
@@ -99,13 +99,12 @@ def get_election_excel():
     did = get_new_download_id()
 
     try:
-        result = handle_election()
+        handler = handle_election()
     except (KeyError, TypeError, ValueError) as e:
         return jsonify({"error": e.args[0]})
 
-    election = result[0]
     tmpfilename = tempfile.mktemp(prefix='election-')
-    election.to_xlsx(tmpfilename)
+    handler.to_xlsx(tmpfilename)
     date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
     attachment_filename=f"election {date}.xlsx"
     DOWNLOADS[did] = tmpfilename, attachment_filename

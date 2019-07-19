@@ -68,7 +68,174 @@ def write_matrix(worksheet, startrow, startcol, matrix, cformat, display_zeroes=
                                     cformat)
 
 def elections_to_xlsx(elections, filename):
-    raise NotImplementedError
+    """Write detailed information about an election with a single vote table
+    but multiple electoral systems, to an xlsx file.
+    """
+    workbook = xlsxwriter.Workbook(filename)
+    fmt = prepare_formats(workbook)
+
+    def draw_block(worksheet, row, col,
+        heading, xheaders, yheaders,
+        matrix,
+        topleft="Constituency",
+        cformat=fmt["cell"]
+    ):
+        if heading.endswith("shares"):
+            cformat = fmt["share"]
+        worksheet.merge_range(
+            row, col, row, col+len(xheaders), heading, fmt["h"])
+        worksheet.write(row+1, col, topleft, fmt["cell"])
+        worksheet.write_row(row+1, col+1, xheaders, fmt["cell"])
+        worksheet.write_column(row+2, col, yheaders, fmt["cell"])
+        write_matrix(worksheet, row+2, col+1, matrix, cformat)
+
+    for r in range(len(elections)):
+        election = elections[r]
+        rules = election.rules
+        sheet_name = f'{r+1}-{rules["name"]}'
+        worksheet = workbook.add_worksheet(sheet_name[:31])
+        worksheet.set_column('B:B', 20)
+        const_names = [
+            const["name"] for const in rules["constituencies"]
+        ] + ["Total"]
+        parties = rules["parties"] + ["Total"]
+        xtd_votes = add_totals(election.m_votes)
+        xtd_shares = find_xtd_shares(xtd_votes)
+        xtd_const_seats = add_totals(election.m_const_seats_alloc)
+        xtd_total_seats = add_totals(election.results)
+        xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
+        xtd_seat_shares = find_xtd_shares(xtd_total_seats)
+        threshold = 0.01*election.rules["adjustment_threshold"]
+        xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
+        xtd_final_shares = find_xtd_shares([xtd_final_votes])[0]
+
+        date_label = "Date:"
+        info_groups = [
+            {"left_span": 2, "right_span": 3, "info": [
+                {"label": date_label,
+                    "data": datetime.now()},
+                {"label": "Vote table:",
+                    "data": election.name},
+                {"label": "Electoral system:",
+                    "data": rules["name"]},
+            ]},
+            {"left_span": 5, "right_span": 3, "info": [
+                {"label": "Threshold for constituency seats:",
+                    "data": rules["constituency_threshold"]},
+                {"label": "Rule for allocating constituency seats:",
+                    "data": DRN[rules["primary_divider"]]},
+                {"label": "Threshold for adjustment seats:",
+                    "data": rules["adjustment_threshold"]},
+                {"label": "Rule for dividing adjustment seats:",
+                    "data": DRN[rules["adj_determine_divider"]]},
+                {"label": "Method for allocating adjustment seats:",
+                    "data": AMN[rules["adjustment_method"]]},
+                {"label": "Rule for allocating adjustment seats:",
+                    "data": DRN[rules["adj_alloc_divider"]]},
+            ]},
+        ]
+
+        toprow = 0
+        startcol = 1
+        bottomrow = toprow
+        c1=startcol
+        #Basic info
+        for group in info_groups:
+            row = toprow
+            c2 = c1 + group["left_span"]
+            for info in group["info"]:
+                worksheet.merge_range(row,c1,row,c2-1,info["label"],fmt["basic_h"])
+                if info["label"] == date_label:
+                    worksheet.merge_range(row,c2,row,c2+1,info["data"],fmt["time"])
+                else:
+                    worksheet.write(row,c2,info["data"],fmt["basic"])
+                row += 1
+            bottomrow = max(row, bottomrow)
+            c1 = c2 + group["right_span"]
+
+        draw_block(worksheet, row=toprow, col=c1+1,
+            heading="Required number of seats",
+            xheaders=["Const.", "Adj.", "Total"],
+            yheaders=const_names,
+            matrix=add_totals([
+                [const["num_const_seats"],const["num_adj_seats"]]
+                for const in rules["constituencies"]
+            ])
+        )
+        bottomrow = max(2+len(const_names), bottomrow)
+        toprow = bottomrow+2
+
+        col = startcol
+        draw_block(worksheet, row=toprow, col=col,
+            heading="Votes", xheaders=parties, yheaders=const_names,
+            matrix=xtd_votes
+        )
+        col += len(parties)+2
+        draw_block(worksheet, row=toprow, col=col,
+            heading="Vote shares", xheaders=parties, yheaders=const_names,
+            matrix=xtd_shares
+        )
+        toprow += len(const_names)+3
+        col = startcol
+        draw_block(worksheet, row=toprow, col=col,
+            heading="Constituency seats", xheaders=parties, yheaders=const_names,
+            matrix=xtd_const_seats
+        )
+        toprow += len(const_names)+3
+
+        row_headers = ['Total votes', 'Vote shares', 'Threshold',
+                       'Votes above threshold',
+                       'Vote shares above threshold', 'Constituency seats']
+        matrix = [xtd_votes[-1],   xtd_shares[-1],   [threshold],
+                  xtd_final_votes, xtd_final_shares, xtd_const_seats[-1]]
+        formats = [fmt["cell"], fmt["share"], fmt["share"],
+                   fmt["cell"], fmt["share"], fmt["cell"]]
+        draw_block(worksheet, row=toprow, col=startcol,
+            heading="Adjustment seat apportionment", topleft="Party",
+            xheaders=parties, yheaders=row_headers,
+            matrix=matrix, cformat=formats
+        )
+        toprow += len(row_headers)+3
+
+        method = ADJUSTMENT_METHODS[rules["adjustment_method"]]
+        try:
+            h, data = method.print_seats(rules, election.adj_seats_info)
+            worksheet.merge_range(
+                toprow, startcol,
+                toprow, startcol+len(parties),
+                "Step-by-step demonstration", fmt["h"]
+            )
+            toprow += 1
+            worksheet.write_row(toprow, startcol, h, fmt["cell"])
+            toprow += 1
+            for i in range(len(data)):
+                worksheet.write_row(toprow, startcol, data[i], fmt["cell"])
+                toprow += 1
+        except AttributeError:
+            pass
+
+        col = startcol
+        draw_block(worksheet, row=toprow, col=col,
+            heading="Adjustment seats", xheaders=parties, yheaders=const_names,
+            matrix=xtd_adj_seats
+        )
+        toprow += len(const_names)+3
+        draw_block(worksheet, row=toprow, col=col,
+            heading="Total seats", xheaders=parties, yheaders=const_names,
+            matrix=xtd_total_seats
+        )
+        col += len(parties)+2
+        draw_block(worksheet, row=toprow, col=col,
+            heading="Seat shares", xheaders=parties, yheaders=const_names,
+            matrix=xtd_seat_shares
+        )
+        toprow += len(const_names)+3
+        col = startcol
+
+        worksheet.write(toprow, startcol, 'Entropy:', fmt["h"])
+        worksheet.write(toprow, startcol+1, election.entropy(), fmt["cell"])
+
+    workbook.close()
 
 def election_to_xlsx(election, filename):
     """Write detailed information about a single election to an xlsx file."""
@@ -382,7 +549,8 @@ def simulation_to_xlsx(simulation, filename):
             yheaders=const_names,
             matrix=add_totals([
                 [const["num_const_seats"],const["num_adj_seats"]]
-                for const in simulation.e_rules[r]["constituencies"]])
+                for const in simulation.e_rules[r]["constituencies"]
+            ])
         )
         bottomrow = max(2+len(const_names), bottomrow)
         toprow = bottomrow+2

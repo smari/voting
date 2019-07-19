@@ -110,7 +110,7 @@ export default {
     get_xlsx: function() {
       this.$http.post('/api/election/getxlsx/', {
         vote_table: this.vote_table,
-        rules: [this.election_rules[this.activeTabIndex]],
+        rules: this.election_rules,
       }).then(response => {
         let link = document.createElement('a')
         link.href = '/api/downloads/get?id=' + response.data.download_id
