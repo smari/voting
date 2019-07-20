@@ -88,6 +88,22 @@ th.topleft {
   margin-bottom: 1em;
 }
 
+.demomatrix tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.demomatrix th {
+  font-weight:    700;
+}
+
+.demomatrix td, .demomatrix th {
+  border:         1px solid #ccc;
+}
+
+.demomatrix {
+  margin-bottom: 1em;
+}
+
 .constname {
   border:         0;
   outline:        0;
