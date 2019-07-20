@@ -37,7 +37,7 @@ def monge(
         #allocate seat based on best Monge ratio
         allocations[best["constituency"]][best["party"]] += 1
         allocation_sequence.append(best)
-    return allocations, allocation_sequence
+    return allocations, (allocation_sequence, print_seats)
 
 def find_trivial_seats(allocations, p_goals, c_goals):
     num_constituencies = len(allocations)

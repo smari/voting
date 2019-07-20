@@ -2,7 +2,6 @@
 import xlsxwriter
 from datetime import datetime
 
-from util import ADJUSTMENT_METHODS
 from table_util import matrix_subtraction, add_totals, find_xtd_shares
 from dictionaries import ADJUSTMENT_METHOD_NAMES as AMN, \
                          DIVIDER_RULE_NAMES as DRN, \
@@ -201,22 +200,20 @@ def elections_to_xlsx(elections, filename):
         )
         toprow += len(row_headers)+3
 
-        method = ADJUSTMENT_METHODS[rules["adjustment_method"]]
-        try:
-            h, data = method.print_seats(rules, election.adj_seats_info)
-            worksheet.merge_range(
-                toprow, startcol,
-                toprow, startcol+len(parties),
-                "Step-by-step demonstration", fmt["h"]
-            )
+        h = election.demonstration_table["headers"]
+        data = election.demonstration_table["steps"]
+        worksheet.merge_range(
+            toprow, startcol,
+            toprow, startcol+len(parties),
+            "Step-by-step demonstration", fmt["h"]
+        )
+        toprow += 1
+        worksheet.write_row(toprow, startcol, h, fmt["step_h"])
+        toprow += 1
+        for i in range(len(data)):
+            worksheet.write_row(toprow, startcol, data[i], fmt["cell"])
             toprow += 1
-            worksheet.write_row(toprow, startcol, h, fmt["step_h"])
-            toprow += 1
-            for i in range(len(data)):
-                worksheet.write_row(toprow, startcol, data[i], fmt["cell"])
-                toprow += 1
-        except AttributeError:
-            pass
+        toprow += 1
 
         col = startcol
         draw_block(worksheet, row=toprow, col=col,

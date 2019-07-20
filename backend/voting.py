@@ -33,6 +33,7 @@ class Election:
         return {
             "rules": self.rules,
             "seat_allocations": add_totals(self.results),
+            "step_by_step_demonstration": self.demonstration_table
         }
 
     def run(self):
@@ -142,11 +143,18 @@ class Election:
                 last=self.last)
         except ZeroDivisionError:
             self.results = self.m_const_seats_alloc
-            self.adj_seats_info = []
+            self.adj_seats_info = None
 
         v_results = [sum(x) for x in zip(*self.results)]
         devs = [abs(a-b) for a, b in zip(self.v_desired_col_sums, v_results)]
         self.adj_dev = sum(devs)
+
+        if self.adj_seats_info is not None:
+            allocation_sequence, present = self.adj_seats_info
+            headers, steps = present(self.rules, allocation_sequence)
+            self.demonstration_table = {"headers": headers, "steps": steps}
+        else:
+            self.demonstration_table = {"headers": ["Not available"], "steps": []}
 
         if self.rules["show_entropy"]:
             print("\nEntropy: %s" % self.entropy())

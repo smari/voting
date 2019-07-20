@@ -83,9 +83,9 @@ def icelandic_apportionment(m_votes, v_total_seats, v_party_seats,
             v_last_alloc = alloc
             seats_info.append((const[0], d[2], idx,
                                 v_proportions[const[0]]))
-        else: 
+        else:
             invalid.append(idx)
-    return m_allocations, seats_info
+    return m_allocations, (seats_info, print_seats)
 
 
 def print_seats(rules, adj_seats_info):
