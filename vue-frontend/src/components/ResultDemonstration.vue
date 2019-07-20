@@ -1,7 +1,7 @@
 <template>
-  <b-container fluid>
+  <b-container fluid v-if="table.steps.length > 0">
     <h3>Step-by-step demonstration of adjustment seat allocations</h3>
-    <table class="demomatrix" v-if="table.steps.length > 0">
+    <table class="demomatrix">
       <tr>
         <th v-for="header in table.headers">
           {{ header }}
