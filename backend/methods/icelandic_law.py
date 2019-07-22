@@ -3,7 +3,7 @@ from copy import deepcopy
 from apportion import apportion1d
 import random
 
-def icelandic_apportionment(m_votes, v_total_seats, v_party_seats,
+def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
                             m_prior_allocations, divisor_gen, threshold=None,
                             orig_votes=None, **kwargs):
     """
@@ -18,7 +18,7 @@ def icelandic_apportionment(m_votes, v_total_seats, v_party_seats,
     v_seats = [sum(x) for x in zip(*m_prior_allocations)]
     v_votes = [sum(x) for x in zip(*m_votes)]
     num_allocated = sum(v_seats)
-    total_seats = sum(v_total_seats)
+    total_seats = sum(v_desired_row_sums)
 
     # 2.2.
     #   (Taka skal saman skrá um þau tvö sæti hvers framboðslista sem næst
@@ -58,7 +58,7 @@ def icelandic_apportionment(m_votes, v_total_seats, v_party_seats,
             #   (Þegar lokið hefur verið að úthluta jöfnunarsætum í hverju
             #   kjördæmi skv. 2. mgr. 8. gr. skulu hlutfallstölur allra
             #   lista í því kjördæmi felldar niður.)
-            if sum(m_allocations[const]) == v_total_seats[const]:
+            if sum(m_allocations[const]) == v_desired_row_sums[const]:
                 v_proportions[const] = 0
 
         # 2.3.

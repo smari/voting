@@ -22,7 +22,7 @@ def entropy(alloc, votes, divisor_gen, c_num, p_num):
 	return e
 
 
-def opt_entropy(m_votes, v_const_seats, v_party_seats,
+def opt_entropy(m_votes, v_desired_row_sums, v_desired_col_sums,
                 m_prior_allocations, divisor_gen, threshold, **kwargs):
 
 	alloc = []
@@ -31,7 +31,7 @@ def opt_entropy(m_votes, v_const_seats, v_party_seats,
 	votes = []
 	for const in m_votes:
 		votes.extend(copy(const))
-	seats = copy(v_const_seats)
+	seats = copy(v_desired_row_sums)
 
 	c = len(m_votes)
 	p = len(m_votes[0])

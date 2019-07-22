@@ -132,11 +132,11 @@ class Election:
         #Some methods return a solution violating the constraints if necessary
         try:
             self.results, self.adj_seats_info = method(
-                self.m_votes_eliminated,
-                self.v_desired_row_sums,
-                self.v_desired_col_sums,
-                self.m_const_seats_alloc,
-                self.gen,
+                m_votes=self.m_votes_eliminated,
+                v_desired_row_sums=self.v_desired_row_sums,
+                v_desired_col_sums=self.v_desired_col_sums,
+                m_prior_allocations=self.m_const_seats_alloc,
+                divisor_gen=self.gen,
                 threshold=self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes,
                 v_const_seats=[con["num_const_seats"] for con in consts],

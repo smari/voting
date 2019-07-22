@@ -1,21 +1,21 @@
 from apportion import apportion1d
 import heapq
 
-def kristinn_lund(m_votes, v_const_seats, v_party_seats, m_prior_allocations,
+def kristinn_lund(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocations,
 					divisor_gen, threshold=None, orig_votes=None, **kwargs):
 
 	v_prior_allocations = [sum([c[p] for c in m_prior_allocations])
-							for p in range(len(v_party_seats))]
+							for p in range(len(v_desired_col_sums))]
 	# The number of adjustment seats each party should receive:
-	correct_adj_seats = [v_party_seats[p]-v_prior_allocations[p]
-							for p in range(len(v_party_seats))]
+	correct_adj_seats = [v_desired_col_sums[p]-v_prior_allocations[p]
+							for p in range(len(v_desired_col_sums))]
 
 	# Allocate adjustment seats as if they were constituency seats
 	m_adj_seats = []
 	for c in range(len(m_prior_allocations)):
 		votes = [m_votes[c][p] if correct_adj_seats[p] > 0 else 0
 					for p in range(len(m_votes[c]))]
-		alloc, div = apportion1d(votes, v_const_seats[c],
+		alloc, div = apportion1d(votes, v_desired_row_sums[c],
 						m_prior_allocations[c], divisor_gen)
 		adj_seats = [alloc[p]-m_prior_allocations[c][p]
 						for p in range(len(alloc))]

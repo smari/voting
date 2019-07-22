@@ -2,7 +2,7 @@ from apportion import apportion1d
 from copy import deepcopy
 
 
-def var_alt_scal(m_votes, v_total_seats, v_party_seats,
+def var_alt_scal(m_votes, v_desired_row_sums, v_desired_col_sums,
                         m_prior_allocations, divisor_gen, threshold,
                         **kwargs):
     """
@@ -11,8 +11,8 @@ def var_alt_scal(m_votes, v_total_seats, v_party_seats,
     Inputs:
         - m_votes: A matrix of votes (rows: constituencies, columns:
             parties)
-        - v_const_seats: A vector of total seats in each constituency
-        - v_party_seats: A vector of seats allocated to parties
+        - v_desired_row_sums: A vector of total seats in each constituency
+        - v_desired_col_sums: A vector of seats allocated to parties
         - m_prior_allocations: A matrix of where parties have previously
             gotten seats
         - divisor_gen: A generator function generating divisors, e.g. d'Hondt
@@ -21,7 +21,7 @@ def var_alt_scal(m_votes, v_total_seats, v_party_seats,
     m_allocations = deepcopy(m_prior_allocations)
 
     def const_step(v_votes, const_id, const_multipliers, party_multipliers):
-        num_total_seats = v_total_seats[const_id]
+        num_total_seats = v_desired_row_sums[const_id]
         cm = const_multiplier = const_multipliers[const_id]
         # See IV.3.5 in paper:
         v_scaled_votes = [a/(b*cm) if b*cm != 0 else 0
@@ -40,9 +40,9 @@ def var_alt_scal(m_votes, v_total_seats, v_party_seats,
         return const_multiplier, alloc
 
     def party_step(v_votes, party_id, const_multipliers, party_multipliers):
-        num_total_seats = v_party_seats[party_id]
+        num_total_seats = v_desired_col_sums[party_id]
         pm = party_multiplier = party_multipliers[party_id]
-        
+
         v_scaled_votes = [a/(b*pm) if b != 0 else 0
                           for a, b in zip(v_votes, const_multipliers)]
 
@@ -98,7 +98,7 @@ def var_alt_scal(m_votes, v_total_seats, v_party_seats,
     #  final apportionment:
     results = []
     for c in range(num_constituencies):
-        num_total_seats = v_total_seats[c]
+        num_total_seats = v_desired_row_sums[c]
         cm = const_multipliers[c]
         v_scaled_votes = [a/(b*cm) if b*cm != 0 else 0
                           for a, b in zip(m_votes[c], party_multipliers)]

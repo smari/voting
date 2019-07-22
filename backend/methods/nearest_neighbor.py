@@ -2,7 +2,7 @@
 from copy import deepcopy, copy
 from apportion import apportion1d, threshold_elimination_constituencies
 
-def nearest_neighbor(m_votes, v_total_seats, v_party_seats,
+def nearest_neighbor(m_votes, v_desired_row_sums, v_desired_col_sums,
                         m_prior_allocations, divisor_gen, threshold=None,
                         **kwargs):
 
@@ -11,15 +11,15 @@ def nearest_neighbor(m_votes, v_total_seats, v_party_seats,
 
     m_allocations = deepcopy(m_prior_allocations)
     num_allocated = sum([sum(x) for x in m_allocations])
-    num_total_seats = sum(v_total_seats)
+    num_total_seats = sum(v_desired_row_sums)
     for n in range(num_total_seats-num_allocated):
         m_votes = threshold_elimination_constituencies(m_votes, 0.0,
-                    v_party_seats, m_allocations)
+                    v_desired_col_sums, m_allocations)
         neighbor_ratio = []
         first_in = []
         next_used = []
         for c in range(len(m_votes)):
-            seats_left = v_total_seats[c] - sum(m_allocations[c])
+            seats_left = v_desired_row_sums[c] - sum(m_allocations[c])
             if not seats_left:
                 neighbor_ratio.append(10000000)
                 first_in.append(0)

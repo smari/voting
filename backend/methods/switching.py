@@ -1,20 +1,20 @@
 from apportion import apportion1d
 import heapq
 
-def switching(m_votes, v_total_seats, v_party_seats, m_prior_allocations,
+def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocations,
 				divisor_gen, threshold=None, orig_votes=None, **kwargs):
 
 	v_prior_allocations = [sum(x) for x in zip(*m_prior_allocations)]
 	# The number of adjustment seats each party should receive:
-	correct_adj_seats = [v_party_seats[p]-v_prior_allocations[p]
-							for p in range(len(v_party_seats))]
+	correct_adj_seats = [v_desired_col_sums[p]-v_prior_allocations[p]
+							for p in range(len(v_desired_col_sums))]
 
 	# Allocate adjustment seats as if they were constituency seats
 	m_adj_seats = []
 	for c in range(len(m_prior_allocations)):
 		votes = [m_votes[c][p] if correct_adj_seats[p] > 0 else 0
 					for p in range(len(m_votes[c]))]
-		alloc, div = apportion1d(votes, v_total_seats[c],
+		alloc, div = apportion1d(votes, v_desired_row_sums[c],
 						m_prior_allocations[c], divisor_gen)
 		adj_seats = [alloc[p]-m_prior_allocations[c][p]
 						for p in range(len(alloc))]
