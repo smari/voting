@@ -10,6 +10,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
     m_allocations = deepcopy(m_prior_allocations)
     num_allocated = sum([sum(x) for x in m_allocations])
     num_total_seats = sum(v_desired_row_sums)
+    allocation_sequence = []
     for n in range(num_total_seats-num_allocated):
         m_votes = threshold_elimination_constituencies(m_votes, 0.0,
                     v_desired_col_sums, m_allocations)
@@ -50,5 +51,24 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
         greatest = max(superiority)
         idx = superiority.index(greatest)
         m_allocations[idx][first_in[idx]] += 1
+        allocation_sequence.append({
+            "constituency": idx, "party": first_in[idx],
+        })
 
-    return m_allocations, None
+    return m_allocations, (allocation_sequence, present_allocation_sequence)
+
+
+def present_allocation_sequence(rules, allocation_sequence):
+    headers = ["Adjustment seat number", "Constituency", "Party",]
+    data = []
+    seat_number = 0
+
+    for allocation in allocation_sequence:
+        seat_number += 1
+        data.append([
+            seat_number,
+            rules["constituencies"][allocation["constituency"]]["name"],
+            rules["parties"][allocation["party"]],
+        ])
+
+    return headers, data

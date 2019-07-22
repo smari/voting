@@ -11,6 +11,7 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
 
     num_allocated = sum([sum(c) for c in m_allocations])
     total_seats = sum(v_desired_row_sums)
+    allocation_sequence = []
 
     for n in range(total_seats-num_allocated):
         m_votes = threshold_elimination_constituencies(m_votes, 0.0,
@@ -41,6 +42,25 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
         party = m_seat_props[const].index(maximum)
 
         m_allocations[const][party] += 1
+        allocation_sequence.append({
+            "constituency": const, "party": party,
+        })
 
 
-    return m_allocations, None
+    return m_allocations, (allocation_sequence, present_allocation_sequence)
+
+
+def present_allocation_sequence(rules, allocation_sequence):
+    headers = ["Adjustment seat number", "Constituency", "Party",]
+    data = []
+    seat_number = 0
+
+    for allocation in allocation_sequence:
+        seat_number += 1
+        data.append([
+            seat_number,
+            rules["constituencies"][allocation["constituency"]]["name"],
+            rules["parties"][allocation["party"]],
+        ])
+
+    return headers, data
