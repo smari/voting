@@ -88,16 +88,20 @@ def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
     return m_allocations, (seats_info, print_seats)
 
 
-def print_seats(rules, adj_seats_info):
+def print_seats(rules, allocation_sequence):
     # Return data to print breakdown of adjustment seat apportionment
     header = ["Adjustment seat number", "Constituency", "Party",
                 "Country number", "List share"]
     data = []
-    for i in range(len(adj_seats_info)):
-        data.append([i+1,
-                    rules["constituencies"][adj_seats_info[i][0]]["name"],
-                    rules["parties"][adj_seats_info[i][1]],
-                    adj_seats_info[i][2],
-                    "{:.3%}".format(adj_seats_info[i][3])])
+    seat_number = 0
+    for allocation in allocation_sequence:
+        seat_number += 1
+        data.append([
+            seat_number,
+            rules["constituencies"][allocation[0]]["name"],
+            rules["parties"][allocation[1]],
+            allocation[2],
+            "{:.3%}".format(allocation[3])
+        ])
 
     return header, data
