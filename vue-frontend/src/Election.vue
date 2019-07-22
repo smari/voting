@@ -2,7 +2,7 @@
 <div>
   <h2>Results</h2>
   <b-button size="lg" @click="get_xlsx">Download XLSX file</b-button>
-  <b-container v-if="results[activeTabIndex] !== undefined">
+  <b-container fluid style="margin-top:5px" v-if="results[activeTabIndex] !== undefined">
     <b-row>
       <ResultMatrix
         :parties="vote_table.parties"
@@ -17,6 +17,11 @@
         :seats="results[activeTabIndex].seat_allocations">
       </ResultChart>
     </b-row>
+    <b-row>
+      <ResultDemonstration
+        :table="results[activeTabIndex].step_by_step_demonstration">
+      </ResultDemonstration>
+    </b-row>
   </b-container>
 
 </div>
@@ -25,6 +30,7 @@
 <script>
 import ResultMatrix from './components/ResultMatrix.vue'
 import ResultChart from './components/ResultChart.vue'
+import ResultDemonstration from './components/ResultDemonstration.vue'
 
 export default {
   props: {
@@ -35,7 +41,8 @@ export default {
   },
   components: {
     ResultMatrix,
-    ResultChart
+    ResultChart,
+    ResultDemonstration,
   },
 
   data: function() {
@@ -110,7 +117,7 @@ export default {
     get_xlsx: function() {
       this.$http.post('/api/election/getxlsx/', {
         vote_table: this.vote_table,
-        rules: [this.election_rules[this.activeTabIndex]],
+        rules: this.election_rules,
       }).then(response => {
         let link = document.createElement('a')
         link.href = '/api/downloads/get?id=' + response.data.download_id

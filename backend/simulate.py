@@ -5,12 +5,11 @@ from datetime import datetime, timedelta
 from math import sqrt, exp
 from copy import copy, deepcopy
 
-from table_util import matrix_subtraction, add_totals, find_xtd_shares
+from table_util import matrix_subtraction, scale_matrix, add_totals, find_xtd_shares
 from excel_util import simulation_to_xlsx
 from rules import Rules
-from dictionaries import GENERATING_METHODS
-from dictionaries import MEASURES, DEVIATION_MEASURES, STANDARDIZED_MEASURES, \
-    LIST_MEASURES, VOTE_MEASURES, AGGREGATES
+import dictionaries as dicts
+from dictionaries import MEASURES, LIST_MEASURES, VOTE_MEASURES, AGGREGATES
 import voting
 from electionHandler import ElectionHandler
 
@@ -91,14 +90,22 @@ class SimulationRules(Rules):
     def __init__(self):
         super(SimulationRules, self).__init__()
         # Simulation rules
+        self.value_rules = {
+            #Fair share constraints:
+            "row_constraints": {True, False},
+            "col_constraints": {True, False},
+        }
         self["simulate"] = False
         self["simulation_count"] = 1000
         self["gen_method"] = "beta"
+        self["distribution_parameter"] = 100
+        self["row_constraints"] = True
+        self["col_constraints"] = True
 
 
 class Simulation:
     """Simulate a set of elections."""
-    def __init__(self, sim_rules, e_rules, vote_table, stbl_param=100):
+    def __init__(self, sim_rules, e_rules, vote_table):
         self.e_handler = ElectionHandler(vote_table, e_rules)
         self.e_rules = [el.rules for el in self.e_handler.elections]
         self.num_rulesets = len(self.e_rules)
@@ -113,7 +120,7 @@ class Simulation:
         self.sim_rules = sim_rules
         self.num_total_simulations = self.sim_rules["simulation_count"]
         self.variate = self.sim_rules["gen_method"]
-        self.stbl_param = stbl_param
+        self.stbl_param = self.sim_rules["distribution_parameter"]
         self.iteration = 0
         self.terminate = False
         self.iteration_time = timedelta(0)
@@ -169,16 +176,16 @@ class Simulation:
         t = float(self.list_data[ruleset][measure]["sqs"][const][party])
         avg = s/n                 if n>0 else 0
         var = (t - s*avg) / (n-1) if n>1 else 0
-        if -0.0000001 < var and var < 0:
+        if var < 0:
+            if var < -0.0000001:
+                logging.warning(f'Negative variance encountered: {var}. '
+                    f'Measure: {measure}, const: {const}, party: {party}')
+            if var < -0.01:
+                message = "Variance very negative. What's going on here?"
+                logging.error(message)
+                raise ValueError(message)
             var = 0
-
-        # TODO: remove when resolved.
-        try:
-            std = sqrt(var)
-        except ValueError:
-            logging.error(f'Error calculating square root of: {var}')
-            raise
-
+        std = sqrt(var)
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
@@ -211,24 +218,19 @@ class Simulation:
 
     def run_initial_elections(self):
         self.base_allocations = []
-        for r in range(self.num_rulesets):
-            election = self.e_handler.elections[r]
+        for election in self.e_handler.elections:
             xtd_total_seats = add_totals(election.results)
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
             xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
-
-            opt_rules = election.rules.generate_opt_ruleset()
-            opt_election = voting.Election(opt_rules, election.m_votes)
-            opt_results = opt_election.run()
-            bi_seat_shares = self.calculate_bi_seat_shares(r, election, opt_results)
-            xtd_bi_seat_shares = add_totals(bi_seat_shares)
+            ideal_seats = self.calculate_ideal_seats(election)
+            xtd_ideal_seats = add_totals(ideal_seats)
             self.base_allocations.append({
                 "xtd_const_seats": xtd_const_seats,
                 "xtd_adj_seats": xtd_adj_seats,
                 "xtd_total_seats": xtd_total_seats,
                 "xtd_seat_shares": xtd_seat_shares,
-                "xtd_bi_seat_shares": xtd_bi_seat_shares,
+                "xtd_ideal_seats": xtd_ideal_seats,
                 "step_info": election.adj_seats_info,
             })
 
@@ -237,7 +239,7 @@ class Simulation:
         Generate votes similar to given votes using the given
         generating method.
         """
-        gen = GENERATING_METHODS[self.variate]
+        gen = dicts.GENERATING_METHODS[self.variate]
         while True:
             votes = gen(self.base_votes, self.stbl_param)
             yield votes
@@ -248,8 +250,6 @@ class Simulation:
         for c in range(1+self.num_constituencies):
             var_beta_distr.append([])
             for p in range(1+self.num_parties):
-                for measure in VOTE_MEASURES.keys():
-                    self.analyze_list(-1, measure, c, p)
                 var_beta_distr[c].append(1/sqrt(self.stbl_param)
                                         *self.xtd_vote_shares[c][p]
                                         *(self.xtd_vote_shares[c][p]-1))
@@ -268,8 +268,8 @@ class Simulation:
                 self.aggregate_list(-1, "sim_shares", c, p, xtd_shares[c][p])
 
     def collect_measures(self, votes):
-        self.collect_votes(votes)
         self.e_handler.set_votes(votes)
+        self.collect_votes(votes)
         for ruleset in range(self.num_rulesets):
             election = self.e_handler.elections[ruleset]
             self.collect_list_measures(ruleset, election)
@@ -278,32 +278,35 @@ class Simulation:
     def collect_list_measures(self, ruleset, election):
         const_seats_alloc = add_totals(election.m_const_seats_alloc)
         total_seats_alloc = add_totals(election.results)
+        ideal_seats = add_totals(self.calculate_ideal_seats(election))
         for c in range(1+election.num_constituencies):
             for p in range(1+self.num_parties):
                 cs  = const_seats_alloc[c][p]
                 ts  = total_seats_alloc[c][p]
                 adj = ts - cs
                 sh  = float(ts)/total_seats_alloc[c][-1]
+                ids = ideal_seats[c][p]
                 self.aggregate_list(ruleset, "const_seats", c, p, cs)
                 self.aggregate_list(ruleset, "total_seats", c, p, ts)
-                self.aggregate_list(ruleset, "adj_seats", c, p, adj)
+                self.aggregate_list(ruleset, "adj_seats",   c, p, adj)
                 self.aggregate_list(ruleset, "seat_shares", c, p, sh)
+                self.aggregate_list(ruleset, "ideal_seats", c, p, ids)
 
     def collect_general_measures(self, ruleset, election):
         """Various tests to determine the quality of the given method."""
         self.aggregate_measure(ruleset, "adj_dev", election.adj_dev)
         opt_results = self.entropy(ruleset, election)
         self.deviation_measures(ruleset, election, opt_results)
-        self.other_measures(ruleset, election, opt_results)
+        self.other_measures(ruleset, election)
 
     def entropy(self, ruleset, election):
         opt_rules = election.rules.generate_opt_ruleset()
         opt_election = voting.Election(opt_rules, election.m_votes)
         opt_results = opt_election.run()
         entropy = election.entropy()
-        entropy_deviation_ratio = 1 - exp(entropy - opt_election.entropy())
-        self.aggregate_measure(ruleset, "entropy_ratio", entropy_deviation_ratio)
         self.aggregate_measure(ruleset, "entropy", entropy)
+        entropy_ratio = exp(entropy - opt_election.entropy())
+        self.aggregate_measure(ruleset, "entropy_ratio", entropy_ratio)
         return opt_results
 
     def deviation_measures(self, ruleset, election, opt_results):
@@ -314,15 +317,12 @@ class Simulation:
         v_results = [sum(x) for x in zip(*election.results)]
         self.deviation(ruleset, "one_const", [election.v_votes], [v_results])
 
-    def other_measures(self, ruleset, election, opt_results):
-        bi_seat_shares = self.calculate_bi_seat_shares(ruleset, election, opt_results)
-        scale = 1.0/sum([
-            1.0/s for c in bi_seat_shares for s in c if s!=0
-        ])
-        self.loosemore_hanby(ruleset, election, bi_seat_shares)
-        self.sainte_lague(ruleset, election, bi_seat_shares, scale)
-        self.dhondt_min(ruleset, election, bi_seat_shares)
-        self.dhondt_sum(ruleset, election, bi_seat_shares, scale)
+    def other_measures(self, ruleset, election):
+        ideal_seats = self.calculate_ideal_seats(election)
+        self.sum_abs(ruleset, election, ideal_seats)
+        self.sum_pos(ruleset, election, ideal_seats)
+        self.sum_sq(ruleset, election, ideal_seats)
+        self.min_seat_value(ruleset, election, ideal_seats)
 
     def deviation(self, ruleset, option, votes, reference_results, results=None):
         if results == None:
@@ -331,79 +331,80 @@ class Simulation:
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
 
-    def calculate_bi_seat_shares(self, ruleset, election, opt_results):
-        bi_seat_shares = deepcopy(election.m_votes)
-        seats_party_opt = [sum(x) for x in zip(*opt_results)]
+    def calculate_ideal_seats(self, election):
+        scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
+        ideal_seats = scale_matrix(election.m_votes, scalar)
+        assert election.solvable
         rein = 0
         error = 1
-        while round(error, 5) != 0.0:
-            error = 0
-            for c in range(election.num_constituencies):
-                s = sum(bi_seat_shares[c])
-                if s != 0:
-                    mult = float(election.v_total_seats[c])/s
-                    error += abs(1-mult)
-                    for p in range(self.num_parties):
-                        bi_seat_shares[c][p] *= rein + mult*(1-rein)
-            for p in range(self.num_parties):
-                s = sum([c[p] for c in bi_seat_shares])
-                if s != 0:
-                    mult = float(seats_party_opt[p])/s
-                    error += abs(1-mult)
+        if self.num_parties > 1 and election.num_constituencies > 1:
+            while round(error, 5) != 0.0:
+                error = 0
+                if self.sim_rules["row_constraints"]:
                     for c in range(election.num_constituencies):
-                        bi_seat_shares[c][p] *= rein + mult*(1-rein)
+                        s = sum(ideal_seats[c])
+                        if s != 0:
+                            mult = float(election.v_desired_row_sums[c])/s
+                            error += abs(1-mult)
+                            mult += rein*(1-mult)
+                            for p in range(self.num_parties):
+                                ideal_seats[c][p] *= mult
+                if self.sim_rules["col_constraints"]:
+                    for p in range(self.num_parties):
+                        s = sum([c[p] for c in ideal_seats])
+                        if s != 0:
+                            mult = float(election.v_desired_col_sums[p])/s
+                            error += abs(1-mult)
+                            mult += rein*(1-mult)
+                            for c in range(election.num_constituencies):
+                                ideal_seats[c][p] *= mult
 
         try:
-            assert(all([sum([c[p] for c in bi_seat_shares]) == seats_party_opt[p]
-                        for p in range(self.num_parties)]))
-        except AssertionError:
-            pass
-        try:
-            assert(all([sum(bi_seat_shares[c]) == election.v_total_seats[c]
-                        for c in range(election.num_constituencies)]))
+            assert [sum(x) for x in zip(*ideal_seats)] == election.v_desired_col_sums
+            assert [sum(x) for x in ideal_seats] == election.v_desired_row_sums
         except AssertionError:
             pass
 
-        return bi_seat_shares
+        return ideal_seats
 
-    def loosemore_hanby(self, ruleset, election, bi_seat_shares):
-        scale = 1.0/election.total_seats
+    #Loosemore-Hanby
+    def sum_abs(self, ruleset, election, ideal_seats):
         lh = sum([
-            abs(bi_seat_shares[c][p]-election.results[c][p])
+            abs(ideal_seats[c][p]-election.results[c][p])
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
         ])
-        lh *= scale
-        self.aggregate_measure(ruleset, "loosemore_hanby", lh)
+        self.aggregate_measure(ruleset, "sum_abs", lh)
 
-    def sainte_lague(self, ruleset, election, bi_seat_shares, scale):
+    #Minimized by Sainte Lague
+    def sum_sq(self, ruleset, election, ideal_seats):
         stl = sum([
-            (bi_seat_shares[c][p]-election.results[c][p])**2/bi_seat_shares[c][p]
+            (ideal_seats[c][p]-election.results[c][p])**2/ideal_seats[c][p]
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
-            if bi_seat_shares[c][p] != 0
+            if ideal_seats[c][p] != 0
         ])
-        stl *= scale
-        self.aggregate_measure(ruleset, "sainte_lague", stl)
+        self.aggregate_measure(ruleset, "sum_sq", stl)
 
-    def dhondt_min(self, ruleset, election, bi_seat_shares):
+    #Maximized by d'Hondt
+    def min_seat_value(self, ruleset, election, ideal_seats):
         dh_min = min([
-            bi_seat_shares[c][p]/float(election.results[c][p])
+            ideal_seats[c][p]/float(election.results[c][p])
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
             if election.results[c][p] != 0
         ])
-        self.aggregate_measure(ruleset, "dhondt_min", dh_min)
+        self.aggregate_measure(ruleset, "min_seat_value", dh_min)
 
-    def dhondt_sum(self, ruleset, election, bi_seat_shares, scale):
+    #Minimized by d'Hondt
+    def sum_pos(self, ruleset, election, ideal_seats):
         dh_sum = sum([
-            max(0, bi_seat_shares[c][p]-election.results[c][p])/bi_seat_shares[c][p]
+            max(0, ideal_seats[c][p]-election.results[c][p])/ideal_seats[c][p]
             for p in range(self.num_parties)
             for c in range(election.num_constituencies)
-            if bi_seat_shares[c][p] != 0
+            if ideal_seats[c][p] != 0
         ])
-        dh_sum *= scale
-        self.aggregate_measure(ruleset, "dhondt_sum", dh_sum)
+        self.aggregate_measure(ruleset, "sum_pos", dh_sum)
 
     def analysis(self):
         """Calculate averages and variances of various quality measures."""
@@ -416,19 +417,28 @@ class Simulation:
                     for measure in LIST_MEASURES.keys():
                         self.analyze_list(ruleset, measure, c, p)
         self.analyze_measure(-1, "time")
+        for c in range(1+self.num_constituencies):
+            for p in range(1+self.num_parties):
+                for measure in VOTE_MEASURES.keys():
+                    self.analyze_list(-1, measure, c, p)
 
     def simulate(self):
         """Simulate many elections."""
         gen = self.gen_votes()
         if self.num_total_simulations == 0:
             self.collect_measures(self.base_votes)
+        self.iterations_with_no_solution = 0
         for i in range(self.num_total_simulations):
             round_start = datetime.now()
             if self.terminate:
                 break
             self.iteration = i + 1
             votes = next(gen)
-            self.collect_measures(votes)
+            try:
+                self.collect_measures(votes)
+            except ValueError:
+                self.iterations_with_no_solution += 1
+                continue
             round_end = datetime.now()
             self.iteration_time = round_end - round_start
             self.aggregate_measure(-1, "time", self.iteration_time.total_seconds())
@@ -442,11 +452,12 @@ class Simulation:
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": MEASURES,
-            "deviation_measures": DEVIATION_MEASURES,
-            "standardized_measures": STANDARDIZED_MEASURES,
-            "list_measures": LIST_MEASURES,
-            "vote_measures": VOTE_MEASURES,
-            "aggregates": AGGREGATES,
+            "deviation_measures": dicts.DEVIATION_MEASURES,
+            "ideal_comparison_measures": dicts.IDEAL_COMPARISON_MEASURES,
+            "standardized_measures": dicts.STANDARDIZED_MEASURES,
+            "list_measures": dicts.LIST_MEASURES,
+            "vote_measures": dicts.VOTE_MEASURES,
+            "aggregates": dicts.AGGREGATES,
             "data": [
                 {
                     "name": self.e_rules[ruleset]["name"],

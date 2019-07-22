@@ -32,6 +32,8 @@ class ElectionHandler:
         self.xtd_votes = add_totals(self.votes)
 
         self._setup_elections()
+        self.run_elections()
+        self.check_solvability()
 
     def _setup_elections(self):
         self.elections = []
@@ -41,7 +43,7 @@ class ElectionHandler:
             rules["parties"] = self.parties
             votes = self.votes
             option = electoral_system["seat_spec_option"]
-            if option == "defer":
+            if option == "refer":
                 rules["constituencies"] = self.constituencies
             elif option == "all_const":
                 rules["constituencies"] = self.constituencies
@@ -66,11 +68,22 @@ class ElectionHandler:
                     rules["constituencies"].append(match)
             election = Election(rules, votes, self.name)
             self.elections.append(election)
-        self.run_elections()
 
     def run_elections(self):
         for election in self.elections:
             election.run()
+
+    def check_solvability(self):
+        unsolvable = []
+        for r in range(len(self.elections)):
+            if not self.elections[r].solvable:
+                unsolvable.append(str(r+1))
+        if unsolvable:
+            problematic = ", ".join(unsolvable)
+            systems = "systems" if len(unsolvable)>1 else "system"
+            raise ValueError(
+                "The given vote table admits no solution "
+                f"for electoral {systems} nr. {problematic}")
 
     def to_xlsx(self, filename):
         elections_to_xlsx(self.elections, filename)

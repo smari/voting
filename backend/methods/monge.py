@@ -1,29 +1,41 @@
 from copy import deepcopy
 
 def monge(
-    votes,             #2d - votes for each list
-    c_goals,           #1d - total number of seats in each constituency
-    p_goals,           #1d - total number of seats for each party
-    prior_allocations, #2d - seats already allocated to lists
-    divisor_gen,       #divisor sequence formula
+    m_votes,             #2d - votes for each list
+    v_desired_row_sums,  #1d - total number of seats in each constituency
+    v_desired_col_sums,  #1d - total number of seats for each party
+    m_prior_allocations, #2d - seats already allocated to lists
+    divisor_gen,         #divisor sequence formula
     threshold=None,
     orig_votes=None,
     **kwargs
 ):
-    """Apportion by Monge algorithm"""
-    allocations = deepcopy(prior_allocations)
+    """
+    # Apportion by Monge algorithm
+
+    Inputs:
+        - m_votes: A 2d matrix of votes (rows: constituencies, columns:
+            parties)
+        - v_desired_row_sums: A 1d vector of total seats in each constituency
+        - v_desired_col_sums: A 1d vector of seats allocated to parties
+        - m_prior_allocations: A 2d matrix of where parties have previously
+            gotten seats
+        - divisor_gen: A generator function generating divisors, e.g. d'Hondt
+        - threshold: A cutoff threshold for participation, between 0 and 100.
+    """
+    allocations = deepcopy(m_prior_allocations)
     allocation_sequence = []
-    total_seats = sum(c_goals)
-    assert(sum(p_goals) == total_seats)
+    total_seats = sum(v_desired_row_sums)
+    assert(sum(v_desired_col_sums) == total_seats)
     while sum([sum(x) for x in allocations]) < total_seats:
-        trivial_lists = find_trivial_seats(allocations, p_goals, c_goals)
+        trivial_lists = find_trivial_seats(allocations, v_desired_col_sums, v_desired_row_sums)
         for l in trivial_lists:
             allocations[l["constituency"]][l["party"]] += l["seats"]
             allocation_sequence.append(l)
         if sum([sum(x) for x in allocations]) >= total_seats:
             break
         best = find_best_Monge_list(
-            votes, allocations, c_goals, p_goals, divisor_gen
+            m_votes, allocations, v_desired_row_sums, v_desired_col_sums, divisor_gen
         )
         if best == None:
             # if we did not find any list now to allocate to,
@@ -37,7 +49,7 @@ def monge(
         #allocate seat based on best Monge ratio
         allocations[best["constituency"]][best["party"]] += 1
         allocation_sequence.append(best)
-    return allocations, allocation_sequence
+    return allocations, (allocation_sequence, print_seats)
 
 def find_trivial_seats(allocations, p_goals, c_goals):
     num_constituencies = len(allocations)
@@ -244,16 +256,16 @@ def print_seats(rules, adj_seats_info):
         reason = allocation["reason"]
         c_idx  = allocation["constituency"]
         p_idx  = allocation["party"]
-        const_name = rules["constituency_names"][c_idx]
-        party_name = rules["parties"           ][p_idx]
+        const_name = rules["constituencies"][c_idx]["name"]
+        party_name = rules["parties"       ][p_idx]
         if "min_det" in allocation:
             ref_c_idx = allocation["reference_constituency"]
             ref_p_idx = allocation["reference_party"]
             ad = allocation["ad"]
             bc = allocation["bc"]
             comparison = {
-                "const_name": rules["constituency_names"][ref_c_idx],
-                "party_name": rules["parties"           ][ref_p_idx],
+                "const_name": rules["constituencies"][ref_c_idx]["name"],
+                "party_name": rules["parties"       ][ref_p_idx],
                 "det": allocation["min_det"],
                 "ratio": ad/float(bc) if bc != 0 else None,
             }

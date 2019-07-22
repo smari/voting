@@ -2,8 +2,10 @@
   <div>
     <h2>Simulation settings</h2>
     <SimulationSettings
-      @update-rules="updateSimulationRules"
-      @update-parameter="updateDistributionParameter">
+      :num_parties="vote_table.parties.length"
+      :num_constituencies="vote_table.constituencies.length"
+      :rules="simulation_rules"
+      @update-rules="updateSimulationRules">
     </SimulationSettings>
 
     <div style="text-align: center; margin-bottom: 0.7em;">
@@ -57,8 +59,8 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'const-seats-' + idx"
-        :constituencies="election_rules[idx].constituencies"
-        :parties="vote_table.parties"
+        :constituencies="results.e_rules[idx].constituencies"
+        :parties="results.parties"
         :values="ruleset.list_measures.const_seats.avg"
         :stddev="ruleset.list_measures.const_seats.std"
         :title="ruleset.name"
@@ -69,8 +71,8 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'adj-seats-' + idx"
-        :constituencies="election_rules[idx].constituencies"
-        :parties="vote_table.parties"
+        :constituencies="results.e_rules[idx].constituencies"
+        :parties="results.parties"
         :values="ruleset.list_measures.adj_seats.avg"
         :stddev="ruleset.list_measures.adj_seats.std"
         :title="ruleset.name"
@@ -81,8 +83,8 @@
       <ResultMatrix
         v-for="(ruleset, idx) in results.data"
         :key="'total-seats-' + idx"
-        :constituencies="election_rules[idx].constituencies"
-        :parties="vote_table.parties"
+        :constituencies="results.e_rules[idx].constituencies"
+        :parties="results.parties"
         :values="ruleset.list_measures.total_seats.avg"
         :stddev="ruleset.list_measures.total_seats.std"
         :title="ruleset.name"
@@ -94,6 +96,7 @@
         :measures="results.measures"
         :deviation_measures="results.deviation_measures"
         :standardized_measures="results.standardized_measures"
+        :ideal_comparison_measures="results.ideal_comparison_measures"
         :methods="results.methods"
         :data="results.data"
         :testnames="results.testnames">
@@ -111,6 +114,7 @@ export default {
   props: {
     "vote_table": { default: {} },
     "election_rules": { default: [{}] },
+    "simulation_rules": { default: {} },
     "server": { default: {} },
   },
   components: {
@@ -121,24 +125,16 @@ export default {
 
   data: function() {
     return {
-      distribution_parameter: 0,
-      simulation_rules: {
-        simulation_count: 0,
-        gen_method: "",
-      },
       simulation_done: true,
       current_iteration: 0,
       iteration_time: 0,
       inflight: 0,
-      results: { measures: [], methods: [], data: [] },
+      results: { measures: [], methods: [], data: [], parties: [], e_rules: [] },
     }
   },
   methods: {
     updateSimulationRules: function(rules) {
-      this.simulation_rules = rules;
-    },
-    updateDistributionParameter: function(parameter) {
-      this.distribution_parameter = parameter
+      this.$emit('update-rules', rules);
     },
     stop_simulation: function() {
       this.$http.post('/api/simulate/stop/',
@@ -182,6 +178,8 @@ export default {
             this.current_iteration = response.body.iteration;
             this.iteration_time = response.body.iteration_time;
             this.results = response.body.results;
+            this.results.parties = response.body.parties;
+            this.results.e_rules = response.body.e_rules;
             console.log(this.results);
             this.server.waitingForData = false;
             if (this.simulation_done) {
@@ -203,7 +201,6 @@ export default {
           vote_table: this.vote_table,
           election_rules: this.election_rules,
           simulation_rules: this.simulation_rules,
-          stbl_param: this.distribution_parameter
         }).then(response => {
           if (response.body.error) {
             this.server.errormsg = response.body.error;
@@ -223,7 +220,7 @@ export default {
     },
 
     get_xlsx_url: function() {
-      return "/api/simulate/getxlsx/?sid=" + this.sid;
+      return "/api/simulate/getxlsx/?sid=" + this.sid + "&time=" + new Date();
     }
   },
 }

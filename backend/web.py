@@ -19,7 +19,7 @@ from electionRules import ElectionRules
 from electionHandler import ElectionHandler
 import util
 from excel_util import save_votes_to_xlsx
-from input_util import check_input, check_vote_table, check_rules
+from input_util import check_input, check_vote_table, check_rules, check_simulation_rules
 import voting
 import simulate as sim
 
@@ -80,15 +80,14 @@ def handle_election():
     data = check_input(data, ["vote_table", "rules"])
 
     handler = ElectionHandler(data["vote_table"], data["rules"])
-    return handler.elections
+    return handler
 
 @app.route('/api/election/', methods=["POST"])
 def get_election_results():
     try:
-        result = handle_election()
-    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
-        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
-            else e.args[0]
+        result = handle_election().elections
+    except (KeyError, TypeError, ValueError) as e:
+        message = e.args[0]
         print(message)
         return jsonify({"error": message})
 
@@ -100,26 +99,23 @@ def get_election_excel():
     did = get_new_download_id()
 
     try:
-        result = handle_election()
-    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
-        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
-            else e.args[0]
-        return jsonify({"error": message})
+        handler = handle_election()
+    except (KeyError, TypeError, ValueError) as e:
+        return jsonify({"error": e.args[0]})
 
-    election = result[0]
     tmpfilename = tempfile.mktemp(prefix='election-')
-    election.to_xlsx(tmpfilename)
+    handler.to_xlsx(tmpfilename)
     date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
     attachment_filename=f"election {date}.xlsx"
     DOWNLOADS[did] = tmpfilename, attachment_filename
     return jsonify({"download_id": did})
 
-@app.route('/api/esettings/save/', methods=['POST'])
-def save_e_settings():
+@app.route('/api/settings/save/', methods=['POST'])
+def save_settings():
     global DOWNLOADS
 
     try:
-        result = prepare_to_save_e_settings()
+        result = prepare_to_save_settings()
     except (KeyError, TypeError, ValueError) as e:
         message = e.args[0]
         print(message)
@@ -129,9 +125,9 @@ def save_e_settings():
     DOWNLOADS[did] = result
     return jsonify({"download_id": did})
 
-def prepare_to_save_e_settings():
+def prepare_to_save_settings():
     data = request.get_json(force=True)
-    check_input(data, ["e_settings"])
+    check_input(data, ["e_settings", "sim_settings"])
 
     settings = data["e_settings"]
     if type(settings) != list: settings = [settings]
@@ -146,15 +142,20 @@ def prepare_to_save_e_settings():
     ]
 
     names = []
-    file_content = []
+    electoral_system_list = []
     for setting in settings:
         names.append(setting["name"])
-        #file_content.append({key: setting[key] for key in keys})
+        #electoral_system_list.append({key: setting[key] for key in keys})
         item = {key: setting[key] for key in keys}
         item["constituency_allocation_rule"] = setting["primary_divider"]
         item["adjustment_division_rule"]     = setting["adj_determine_divider"]
         item["adjustment_allocation_rule"]   = setting["adj_alloc_divider"]
-        file_content.append(item)
+        electoral_system_list.append(item)
+
+    file_content = {
+        "e_settings": electoral_system_list,
+        "sim_settings": check_simulation_rules(data["sim_settings"]),
+    }
 
     tmpfilename = tempfile.mktemp(prefix='e_settings-')
     with open(tmpfilename, 'w', encoding='utf-8') as jsonfile:
@@ -164,23 +165,32 @@ def prepare_to_save_e_settings():
     attachment_filename=f"{filename} {date}.json"
     return tmpfilename, attachment_filename
 
-@app.route('/api/esettings/upload/', methods=['POST'])
-def upload_e_settings():
+@app.route('/api/settings/upload/', methods=['POST'])
+def upload_settings():
     if 'file' not in request.files:
         return jsonify({'error': 'must upload a file.'})
     f = request.files['file']
     file_content = json.load(f.stream)
-    if type(file_content) != list: file_content = [file_content]
+    if type(file_content) == dict and "e_settings" in file_content:
+        electoral_system_list = file_content["e_settings"]
+        assert "sim_settings" in file_content
+        sim_settings = check_simulation_rules(file_content["sim_settings"])
+    else:
+        electoral_system_list = file_content
+        sim_settings = None
+    assert type(electoral_system_list) == list
 
     keys = ["name", "seat_spec_option", "constituencies",
             "constituency_threshold", "constituency_allocation_rule",
             "adjustment_threshold", "adjustment_division_rule",
             "adjustment_method", "adjustment_allocation_rule"]
     settings = []
-    for item in file_content:
+    for item in electoral_system_list:
         for info in keys:
             if info not in item:
                 raise KeyError(f"{info} is missing from a setting in file.")
+        if item["seat_spec_option"] == "defer":
+            item["seat_spec_option"] = "refer"
         setting = ElectionRules()
         setting.update(item)
         setting["primary_divider"] = item["constituency_allocation_rule"]
@@ -189,7 +199,7 @@ def upload_e_settings():
         settings.append(setting)
 
     settings = check_rules(settings)
-    return jsonify(settings)
+    return jsonify({"e_settings": settings, "sim_settings": sim_settings})
 
 @app.route('/api/votes/save/', methods=['POST'])
 def save_votes():
@@ -297,9 +307,8 @@ def start_simulation():
 
     try:
         simulation = set_up_simulation()
-    except (KeyError, TypeError, ValueError, ZeroDivisionError) as e:
-        message = "Need to have more votes." if isinstance(e, ZeroDivisionError)\
-            else e.args[0]
+    except (KeyError, TypeError, ValueError) as e:
+        message = e.args[0]
         print(message)
         return jsonify({"started": False, "error": message})
 
@@ -331,7 +340,9 @@ def check_simulation():
             "iteration": simulation.iteration,
             "iteration_time": simulation.iteration_time.seconds + (simulation.iteration_time.microseconds/1000000.0),
             "target": simulation.sim_rules["simulation_count"],
-            "results": simulation.get_results_dict()
+            "results": simulation.get_results_dict(),
+            "parties": simulation.parties,
+            "e_rules": simulation.e_rules,
         })
 
 @app.route('/api/simulate/stop/', methods=['GET', 'POST'])
@@ -366,12 +377,12 @@ def get_xlsx():
     tmpfilename = tempfile.mktemp(prefix='votesim-%s-' % request.args["sid"][:6])
     simulation, thread, expiry = SIMULATIONS[request.args["sid"]]
     simulation.to_xlsx(tmpfilename)
-    print("%s" % (tmpfilename))
+    date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
     return send_from_directory(
         directory=os.path.dirname(tmpfilename),
         filename=os.path.basename(tmpfilename),
         attachment_filename=
-            f"simulation {datetime.now().strftime('%Y.%m.%d %H.%M.%S')}.xlsx",
+            f"simulation {date}.xlsx",
         as_attachment=True
     )
 
@@ -389,16 +400,9 @@ def set_up_simulation():
         rulesets.append(election_rules)
 
     simulation_rules = sim.SimulationRules()
-    simulation_rules.update(data["simulation_rules"])
+    simulation_rules.update(check_simulation_rules(data["simulation_rules"]))
 
-    stability_parameter = 100
-    if "stbl_param" in data:
-        stability_parameter = data["stbl_param"]
-        if stability_parameter <= 1:
-            raise ValueError("Stability parameter must be greater than 1.")
-
-    simulation = sim.Simulation(
-        simulation_rules, rulesets, vote_table, stability_parameter)
+    simulation = sim.Simulation(simulation_rules, rulesets, vote_table)
     return simulation
 
 

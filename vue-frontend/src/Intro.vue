@@ -3,7 +3,7 @@
   <h1>Voting system simulator</h1>
 
   <span>
-    Version: 1.1.3 Time of release: 2019.07.03-21:30 (GMT)
+    Version: 1.1.17 Time of release: 2019.07.20-14:19 (GMT)
   </span>
 
   <p>
@@ -73,7 +73,7 @@
     supplying the vote counts to base the calculations on.
     You can save your specified vote table to a file
     to reuse at a later time,
-    so you won't have to pick this in every time.
+    so you won't have to fill this in every time.
   </p>
   <p>
     Alternatively, you can upload a file
@@ -118,6 +118,30 @@
     The results are displayed in the form of
     several different <b><a href="#/qualitymeasures">quality measures</a></b>,
     each with their own interpretation.
+  </p>
+  <p>
+    Some of the quality measures require comparing
+    the final seat allocation to an 'ideal seat share' matrix,
+    where the entries are not rounded to integer values.
+    For that purpose, the votes are scaled
+    such that the shares sum up to the proper total number of seats,
+    and optionally, for each constituency or each party or both
+    (using the specified number of seats for constituencies,
+    and the required total number of seats for each party,
+    as determined by the chosen rule for dividing adjustment seats).
+    By default, both constraints are applied,
+    in which case the shares will be scaled alternatively by rows and columns
+    until they converge to a matrix fulfilling both constraints.
+    This corresponds to the optimal biproportional seat allocation
+    as found by the Alternating Scaling method
+    (for the allocation of the adjustment seats).
+    However, the user might be interested in other variations as well,
+    for example scaling only by constituencies.
+    And in the one-dimensional case,
+    for example where there is only one constituency,
+    it would not even make sense to scale in both dimensions,
+    because that would force the shares themselves to be integer-valued,
+    simply copying the sum constraints, and thus saying nothing of interest.
   </p>
   <p>
     The <b>vote table</b> you supply will be used

@@ -5,7 +5,7 @@
       size="lg"
       id="modaluploadesettings"
       title="Upload JSON file"
-      @ok="uploadSettings"
+      @ok="uploadSettingsAndAppend"
     >
       <p>
         The file provided must be a JSON file
@@ -14,6 +14,7 @@
         will be added to those you have already specified.
       </p>
       <b-form-file
+        ref="appendFromFile"
         v-model="uploadfile"
         :state="Boolean(uploadfile)"
         placeholder="Choose a file..."
@@ -32,6 +33,7 @@
         will replace those you have already specified.
       </p>
       <b-form-file
+        ref="replaceFromFile"
         v-model="uploadfile"
         :state="Boolean(uploadfile)"
         placeholder="Choose a file..."
@@ -77,7 +79,7 @@
           <ElectionSettings
             :rulesidx="rulesidx"
             :rules="rules"
-            @update-rules="updateElectionRules">
+            @update-rules="updateElectionRulesAndActivate">
           </ElectionSettings>
         </b-tab>
         <template slot="tabs">
@@ -114,7 +116,9 @@
         <Simulate
           :server="server"
           :vote_table="vote_table"
-          :election_rules="election_rules">
+          :election_rules="election_rules"
+          :simulation_rules="simulation_rules"
+          @update-rules="updateSimulationRules">
         </Simulate>
       </b-tab>
     </b-tabs>
@@ -151,6 +155,11 @@ export default {
       election_rules: [{}],
       activeTabIndex: 0,
       uploadfile: null,
+      simulation_rules: {
+        simulation_count: 0,
+        gen_method: "",
+        distribution_parameter: 0,
+      },
     }
   },
   methods: {
@@ -167,9 +176,17 @@ export default {
       this.$set(this.election_rules, idx, rules);
       //this works too: this.election_rules.splice(idx, 1, rules);
     },
+    updateElectionRulesAndActivate: function(rules, idx) {
+      this.updateElectionRules(rules, idx);
+      this.activeTabIndex = idx;
+    },
+    updateSimulationRules: function(rules) {
+      this.simulation_rules = rules;
+    },
     saveSettings: function() {
-      this.$http.post('/api/esettings/save/', {
-        e_settings: this.election_rules
+      this.$http.post('/api/settings/save/', {
+        e_settings: this.election_rules,
+        sim_settings: this.simulation_rules,
       }).then(response => {
         if (response.body.error) {
           this.server.errormsg = response.body.error;
@@ -183,28 +200,31 @@ export default {
         console.log("Error:", response);
       })
     },
-    uploadSettings: function(evt) {
-      if (!this.uploadfile) {
-        evt.preventDefault();
-      }
-      var formData = new FormData();
-      formData.append('file', this.uploadfile, this.uploadfile.name);
-      this.$http.post('/api/esettings/upload/', formData).then(response => {
-        for (const setting of response.data){
-          this.election_rules.push(setting);
-        }
-      });
+    uploadSettingsAndAppend: function(evt) {
+      var replace = false;
+      this.uploadSettings(evt, replace);
+      this.$refs['appendFromFile'].reset();
     },
     uploadSettingsAndReplace: function(evt) {
+      var replace = true;
+      this.uploadSettings(evt, replace);
+      this.$refs['replaceFromFile'].reset();
+    },
+    uploadSettings: function(evt, replace) {
       if (!this.uploadfile) {
         evt.preventDefault();
       }
       var formData = new FormData();
       formData.append('file', this.uploadfile, this.uploadfile.name);
-      this.$http.post('/api/esettings/upload/', formData).then(response => {
-        this.election_rules = []
-        for (const setting of response.data){
+      this.$http.post('/api/settings/upload/', formData).then(response => {
+        if (replace){
+          this.election_rules = [];
+        }
+        for (const setting of response.data.e_settings){
           this.election_rules.push(setting);
+        }
+        if (response.data.sim_settings){
+          this.simulation_rules = response.data.sim_settings;
         }
       });
     },

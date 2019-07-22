@@ -10,12 +10,6 @@ import configparser
 import codecs
 from distutils.util import strtobool
 
-from methods import var_alt_scal, alternating_scaling, icelandic_law
-from methods import monge, nearest_neighbor, relative_superiority
-from methods import norwegian_law, norwegian_icelandic
-from methods import opt_entropy, switching
-from methods import pure_vote_ratios
-
 #??????
 def random_id(length=8):
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
@@ -223,14 +217,10 @@ def print_steps_election(election):
               "Vote shares above threshold", "Constituency seats"]
     print_table(data, header[1:], labels, out)
 
-    method = ADJUSTMENT_METHODS[rules["adjustment_method"]]
-    try:
-        h, data = method.print_seats(rules, election.adj_seats_info)
-        print("")
-        print(tabulate(data, h, out))
-        print("")
-    except AttributeError:
-        pass
+    table = election.demonstration_table
+    print("")
+    print(tabulate(table["steps"], table["headers"], out))
+    print("")
 
     xtd_total_seats = add_totals(election.results)
     print("\nAdjustment seats")
@@ -350,17 +340,3 @@ def print_simulation(simulation):
 
         #print("\nVotes added to change results")
         #print_table(simulation.votes_to_change, h[:-1], const_names[:-1], out)
-
-ADJUSTMENT_METHODS = {
-    "alternating-scaling" : alternating_scaling,
-    "relative-superiority": relative_superiority,
-    "nearest-neighbor"    : nearest_neighbor,
-    "monge"               : monge,
-    "icelandic-law"       : icelandic_law,
-    "norwegian-law"       : norwegian_law,
-    "norwegian-icelandic" : norwegian_icelandic,
-    "opt-entropy"         : opt_entropy,
-    "switching"           : switching,
-    "var-alt-scal"        : var_alt_scal,
-    "pure-vote-ratios"    : pure_vote_ratios,
-}

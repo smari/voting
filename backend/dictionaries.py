@@ -66,7 +66,7 @@ GENERATING_METHOD_NAMES = {
 }
 
 SEAT_SPECIFICATION_OPTIONS = {
-    "defer":     "Defer to vote table",
+    "refer":     "Refer to vote table",
     "all_const": "Make all seats constituency seats",
     "all_adj":   "Make all seats adjustment seats",
     "one_const": "Combine all constituencies into one",
@@ -81,11 +81,11 @@ MEASURES = {
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
-    "entropy_ratio":   "Relative entropy deviation from optimal solution",
-    "loosemore_hanby": "Proportionality index according to Loosemore-Hanby (adjusted to biproportionality)",
-    "sainte_lague":    "Scaled sum of squared deviation of list seats from biproportional seat shares (Sainte-Lague)",
-    "dhondt_min":      "Mininum seat value used (d'Hondt)",
-    "dhondt_sum":      "Scaled sum of positive deviation of list seats from biproportional seat shares (d'Hondt)",
+    "entropy_ratio":   "Entropy relative to optimal value",
+    "min_seat_value":  "Mininum seat value used (based on ideal seat shares)",
+    "sum_abs":         "Sum of absolute differences",
+    "sum_pos":         "Sum of relative positive differences",
+    "sum_sq":          "Sum of relative squared differences",
 }
 DEVIATION_MEASURES = [
     "dev_opt",
@@ -97,16 +97,19 @@ DEVIATION_MEASURES = [
 ]
 STANDARDIZED_MEASURES = [
     "entropy_ratio",
-    "loosemore_hanby",
-    "sainte_lague",
-    "dhondt_min",
-    "dhondt_sum",
+    "min_seat_value",
+]
+IDEAL_COMPARISON_MEASURES = [
+    "sum_abs",
+    "sum_pos",
+    "sum_sq",
 ]
 LIST_MEASURES = {
     "const_seats":   "constituency seats",
     "adj_seats":     "adjustment seats",
     "total_seats":   "constituency and adjustment seats combined",
-    "seat_shares":   "total seats scaled to a total of 1 for each constituency",
+    "seat_shares":   "total seats normalized within each constituency",
+    "ideal_seats":   "ideal seat shares",
     # "dev_opt":       "deviation from optimal solution",
     # "dev_law":       "deviation from official law method",
     # "dev_ind_const": "deviation from Independent Constituencies",
@@ -118,12 +121,12 @@ VOTE_MEASURES = {
     "sim_shares": "shares in simulations",
 }
 AGGREGATES = {
-    "cnt": "number of elements",
-    "max": "highest value",
-    "min": "lowest value",
-    "sum": "sum of elements",
-    "sqs": "sum of squares",
-    "avg": "average",
-    "var": "variance",
-    "std": "standard deviation"
+    "cnt": "Number of elements",
+    "max": "Max",
+    "min": "Min",
+    "sum": "Sum of elements",
+    "sqs": "Sum of squares",
+    "avg": "Average",
+    "var": "Variance",
+    "std": "Std. dev"
 }

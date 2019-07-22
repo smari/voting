@@ -2,7 +2,7 @@ from apportion import apportion1d
 from copy import deepcopy
 
 
-def alternating_scaling(m_votes, v_total_seats, v_party_seats,
+def alternating_scaling(m_votes, v_desired_row_sums, v_desired_col_sums,
                         m_prior_allocations, divisor_gen, threshold,
                         **kwargs):
     """
@@ -11,8 +11,8 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
     Inputs:
         - m_votes: A matrix of votes (rows: constituencies, columns:
             parties)
-        - v_total_seats: A vector of total seats in each constituency
-        - v_party_seats: A vector of seats allocated to parties
+        - v_desired_row_sums: A vector of total seats in each constituency
+        - v_desired_col_sums: A vector of seats allocated to parties
         - m_prior_allocations: A matrix of where parties have previously
             gotten seats
         - divisor_gen: A generator function generating divisors, e.g. d'Hondt
@@ -21,7 +21,7 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
     m_allocations = deepcopy(m_prior_allocations)
 
     def const_step(v_votes, const_id, const_multipliers, party_multipliers):
-        num_total_seats = v_total_seats[const_id]
+        num_total_seats = v_desired_row_sums[const_id]
         cm = const_multiplier = const_multipliers[const_id]
         # See IV.3.5 in paper:
         v_scaled_votes = [a/(b*cm) if b*cm != 0 else 0
@@ -40,7 +40,7 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
         return const_multiplier
 
     def party_step(v_votes, party_id, const_multipliers, party_multipliers):
-        num_total_seats = v_party_seats[party_id]
+        num_total_seats = v_desired_col_sums[party_id]
         pm = party_multiplier = party_multipliers[party_id]
 
         v_scaled_votes = [a/(b*pm) if b*pm != 0 else 0
@@ -67,36 +67,35 @@ def alternating_scaling(m_votes, v_total_seats, v_party_seats,
         # Constituency step:
         c_muls = []
         for c in range(num_constituencies):
-            mul=1
-            if (sum(m_allocations[c]) < v_total_seats[c]):
-                mul = const_step(m_votes[c], c, const_multipliers,
-                                    party_multipliers)
+            mul = const_step(m_votes[c], c, const_multipliers,
+                                party_multipliers)
             const_multipliers[c] *= mul
             c_muls.append(mul)
-        const_done = all([round(x, 5) == 1.0 for x in c_muls])
+        const_done = all([round(x, 5) == 1.0 or x == 500000 for x in c_muls])
 
         # Party step:
         p_muls = []
         for p in range(num_parties):
-            mul=1
-            if (sum([c[p] for c in m_allocations]) < v_party_seats[p]):
-                vp = [v[p] for v in m_votes]
-                mul = party_step(vp, p, const_multipliers, party_multipliers)
+            vp = [v[p] for v in m_votes]
+            mul = party_step(vp, p, const_multipliers, party_multipliers)
             party_multipliers[p] *= mul
             p_muls.append(mul)
-        party_done = all([round(x, 5) == 1.0 for x in p_muls])
+        party_done = all([round(x, 5) == 1.0 or x == 500000 for x in p_muls])
 
         step += 1
 
         if const_done and party_done:
             break
 
+    if not (const_done and party_done):
+        raise RuntimeError("AS does not seem to be converging.")
+
 
     # Finally, use party_multipliers and const_multipliers to arrive at
     #  final apportionment:
     results = []
     for c in range(num_constituencies):
-        num_total_seats = v_total_seats[c]
+        num_total_seats = v_desired_row_sums[c]
         cm = const_multipliers[c]
         v_scaled_votes = [a/(b*cm) if b*cm != 0 else None
                           for a, b in zip(m_votes[c], party_multipliers)]

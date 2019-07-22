@@ -8,8 +8,8 @@ h2 {
   display: block;
   overflow-x: auto;
   white-space: nowrap;
-  min-width: 300px;
-  min-height: 300px;
+  min-width: 100px;
+  min-height: 100px;
   margin-top: 0.7em;
 }
 
@@ -85,6 +85,22 @@ th.topleft {
 }
 
 .resultmatrix {
+  margin-bottom: 1em;
+}
+
+.demomatrix tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.demomatrix th {
+  font-weight:    700;
+}
+
+.demomatrix td, .demomatrix th {
+  border:         1px solid #ccc;
+}
+
+.demomatrix {
   margin-bottom: 1em;
 }
 

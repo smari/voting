@@ -20,3 +20,17 @@ class TestElection(unittest.TestCase):
         print(res)
         self.assertEqual(res["rules"], rules)
         self.assertEqual(res["seat_allocations"], add_totals([[2, 1], [3, 2]]))
+
+    def test_invalid(self):
+        rules = ElectionRules()
+        rules["parties"] = ["A", "B"]
+        rules["adjustment_method"] = "icelandic-law"
+        rules["adjustment_threshold"] = 5
+        rules["constituencies"] = [
+            {"name": "I",  "num_const_seats": 0, "num_adj_seats": 1},
+            {"name": "II", "num_const_seats": 0, "num_adj_seats": 1}
+        ]
+        votes = [[1, 0],[0, 100]]
+        election = Election(rules, votes)
+        with self.assertRaises(ValueError):
+            election.run()
