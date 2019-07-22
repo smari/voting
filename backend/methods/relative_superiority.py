@@ -53,13 +53,16 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
         m_allocations[idx][first_in[idx]] += 1
         allocation_sequence.append({
             "constituency": idx, "party": first_in[idx],
+            "reason": "Greatest relative superiority",
+            "max": greatest,
         })
 
     return m_allocations, (allocation_sequence, present_allocation_sequence)
 
 
 def present_allocation_sequence(rules, allocation_sequence):
-    headers = ["Adjustment seat number", "Constituency", "Party",]
+    headers = ["Adjustment seat number", "Constituency", "Party",
+        "Reason", "Superiority"]
     data = []
     seat_number = 0
 
@@ -69,6 +72,8 @@ def present_allocation_sequence(rules, allocation_sequence):
             seat_number,
             rules["constituencies"][allocation["constituency"]]["name"],
             rules["parties"][allocation["party"]],
+            allocation["reason"],
+            allocation["max"],
         ])
 
     return headers, data

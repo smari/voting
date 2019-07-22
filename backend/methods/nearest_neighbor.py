@@ -49,13 +49,16 @@ def nearest_neighbor(m_votes, v_desired_row_sums, v_desired_col_sums,
         last[idx] = next_used[idx]
         allocation_sequence.append({
             "constituency": idx, "party": first_in[idx],
+            "reason": "Least neighbor ratio",
+            "min": least,
         })
 
     return m_allocations, (allocation_sequence, present_allocation_sequence)
 
 
 def present_allocation_sequence(rules, allocation_sequence):
-    headers = ["Adjustment seat number", "Constituency", "Party",]
+    headers = ["Adjustment seat number", "Constituency", "Party",
+        "Reason", "Neighbor ratio"]
     data = []
     seat_number = 0
 
@@ -65,6 +68,8 @@ def present_allocation_sequence(rules, allocation_sequence):
             seat_number,
             rules["constituencies"][allocation["constituency"]]["name"],
             rules["parties"][allocation["party"]],
+            allocation["reason"],
+            allocation["min"],
         ])
 
     return headers, data
