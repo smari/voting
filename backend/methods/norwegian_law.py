@@ -44,6 +44,8 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
         m_allocations[const][party] += 1
         allocation_sequence.append({
             "constituency": const, "party": party,
+            "reason": "Highest divided votes",
+            "max": maximum,
         })
 
 
@@ -51,7 +53,8 @@ def norwegian_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
 
 
 def present_allocation_sequence(rules, allocation_sequence):
-    headers = ["Adjustment seat number", "Constituency", "Party",]
+    headers = ["Adjustment seat number", "Constituency", "Party",
+        "Reason", "Divided votes used"]
     data = []
     seat_number = 0
 
@@ -61,6 +64,8 @@ def present_allocation_sequence(rules, allocation_sequence):
             seat_number,
             rules["constituencies"][allocation["constituency"]]["name"],
             rules["parties"][allocation["party"]],
+            allocation["reason"],
+            allocation["max"],
         ])
 
     return headers, data
