@@ -239,7 +239,9 @@ def print_seats(rules, adj_seats_info):
     # Return data to print breakdown of adjustment seat apportionment
     header = ["Adjustment seat number", "Constituency", "Party", "Reason",
         "Closest comparison constituency", "Closest comparison party",
-        "Monge ratio", "Determinant", "ad", "bc", "a", "d", "b", "c",]
+        "Monge ratio",
+        # "Determinant", "ad", "bc", "a", "d", "b", "c",
+    ]
 
     allocation_sequence = []
     seat_number = 0
@@ -290,12 +292,12 @@ def print_seats(rules, adj_seats_info):
                 comparison["const_name"],
                 comparison["party_name"],
                 comparison["ratio"],
-                comparison["det"],
-                comparison["ad"],
-                comparison["bc"],
-                comparison["a"],
-                comparison["d"],
-                comparison["b"],
-                comparison["c"],
+                # comparison["det"],
+                # comparison["ad"],
+                # comparison["bc"],
+                # comparison["a"],
+                # comparison["d"],
+                # comparison["b"],
+                # comparison["c"],
             ])
     return header, allocation_sequence
