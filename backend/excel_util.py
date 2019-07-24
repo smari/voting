@@ -307,6 +307,10 @@ def simulation_to_xlsx(simulation, filename):
          "heading": "Minimum values"},
         {"abbr": "std",  "cell_format": fmt["sim"],
          "heading": "Standard deviations"},
+        {"abbr": "skw",  "cell_format": fmt["sim"],
+         "heading": "Skewness"},
+        {"abbr": "kur",  "cell_format": fmt["sim"],
+         "heading": "Kurtosis"},
     ]
     tables = [
         {"abbr": "v",  "heading": "Votes"             },
@@ -373,6 +377,24 @@ def simulation_to_xlsx(simulation, filename):
                 "ts": simulation.list_data[ r]["total_seats"]["max"],
                 "ss": simulation.list_data[ r]["seat_shares"]["max"],
                 "id": simulation.list_data[ r]["ideal_seats"]["max"],
+            },
+            "skw": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["skw"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["skw"],
+                "cs": simulation.list_data[ r]["const_seats"]["skw"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["skw"],
+                "ts": simulation.list_data[ r]["total_seats"]["skw"],
+                "ss": simulation.list_data[ r]["seat_shares"]["skw"],
+                "id": simulation.list_data[ r]["ideal_seats"]["skw"],
+            },
+            "kur": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["kur"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["kur"],
+                "cs": simulation.list_data[ r]["const_seats"]["kur"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["kur"],
+                "ts": simulation.list_data[ r]["total_seats"]["kur"],
+                "ss": simulation.list_data[ r]["seat_shares"]["kur"],
+                "id": simulation.list_data[ r]["ideal_seats"]["kur"],
             },
         }
 
@@ -468,7 +490,7 @@ def simulation_to_xlsx(simulation, filename):
         STANDARDIZED_MEASURES = results["standardized_measures"]
         IDEAL_COMPARISON_MEASURES = results["ideal_comparison_measures"]
         MEASURES = results["measures"]
-        aggregates = ["avg", "min", "max", "std"]
+        aggregates = ["avg", "min", "max", "std", "skw", "kur"]
         aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
         present_measures(worksheet, row=toprow, col=9,
             xheaders=aggregate_names,
