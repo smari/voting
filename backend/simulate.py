@@ -161,6 +161,8 @@ class Simulation:
         self.list_data[ruleset][measure]["cnt"][const][party] += 1
         self.list_data[ruleset][measure]["sum"][const][party] += value
         self.list_data[ruleset][measure]["sm2"][const][party] += value**2
+        self.list_data[ruleset][measure]["sm3"][const][party] += value**3
+        self.list_data[ruleset][measure]["sm4"][const][party] += value**4
         if (self.list_data[ruleset][measure]["cnt"][const][party] > 1):
             if (value > self.list_data[ruleset][measure]["max"][const][party]):
                 self.list_data[ruleset][measure]["max"][const][party] = value
@@ -174,6 +176,8 @@ class Simulation:
         n = float(self.list_data[ruleset][measure]["cnt"][const][party])
         s = float(self.list_data[ruleset][measure]["sum"][const][party])
         t = float(self.list_data[ruleset][measure]["sm2"][const][party])
+        q = float(self.list_data[ruleset][measure]["sm3"][const][party])
+        r = float(self.list_data[ruleset][measure]["sm4"][const][party])
         avg = s/n                 if n>0 else 0
         var = (t - s*avg) / (n-1) if n>1 else 0
         if var < 0:
@@ -194,6 +198,8 @@ class Simulation:
         self.data[ruleset][measure]["cnt"] += 1
         self.data[ruleset][measure]["sum"] += value
         self.data[ruleset][measure]["sm2"] += value**2
+        self.data[ruleset][measure]["sm3"] += value**3
+        self.data[ruleset][measure]["sm4"] += value**4
         if (self.data[ruleset][measure]["cnt"] > 1):
             if (value > self.data[ruleset][measure]["max"]):
                 self.data[ruleset][measure]["max"] = value
@@ -207,6 +213,8 @@ class Simulation:
         n = float(self.data[ruleset][measure]["cnt"])
         s = float(self.data[ruleset][measure]["sum"])
         t = float(self.data[ruleset][measure]["sm2"])
+        q = float(self.data[ruleset][measure]["sm2"])
+        r = float(self.data[ruleset][measure]["sm2"])
         avg = s/n                 if n>0 else 0
         var = (t - s*avg) / (n-1) if n>1 else 0
         if -0.0000001 < var and var < 0:

@@ -126,6 +126,8 @@ AGGREGATES = {
     "min": "Min",
     "sum": "Sum of elements",
     "sm2": "Sum of squares",
+    "sm3": "Sum of cubes",
+    "sm4": "Sum of fourth powers",
     "avg": "Average",
     "var": "Variance",
     "std": "Std. dev"
