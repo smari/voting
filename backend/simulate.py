@@ -179,7 +179,10 @@ class Simulation:
         q = float(self.list_data[ruleset][measure]["sm3"][const][party])
         r = float(self.list_data[ruleset][measure]["sm4"][const][party])
         avg = s/n       if n>0 else 0
-        d = t - s*avg
+        m = avg
+        d =               t      -   s*m    # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =       q   - 3*t*m    + 2*s*m**2 # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - 4*q*m + 6*t*m**2 - 3*s*m**3 # = \sum_{i=1}^{n}(x_i-avg)^4
         var = d / (n-1) if n>1 else 0
         if var < 0:
             if var < -0.0000001:
@@ -191,9 +194,8 @@ class Simulation:
                 raise ValueError(message)
             var = 0
         std = sqrt(var)
-        m = avg
-        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)    if d!=0 else 0
-        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2 if d!=0 else 0
+        skewness = h*sqrt(n/d**3) if d!=0 else 0
+        kurtosis = c*n/d**2       if d!=0 else 0
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
@@ -222,14 +224,16 @@ class Simulation:
         q = float(self.data[ruleset][measure]["sm2"])
         r = float(self.data[ruleset][measure]["sm2"])
         avg = s/n       if n>0 else 0
-        d = t - s*avg
+        m = avg
+        d =               t      -   s*m    # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =       q   - 3*t*m    + 2*s*m**2 # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - 4*q*m + 6*t*m**2 - 3*s*m**3 # = \sum_{i=1}^{n}(x_i-avg)^4
         var = d / (n-1) if n>1 else 0
         if -0.0000001 < var and var < 0:
             var = 0
         std = sqrt(var)
-        m = avg
-        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)    if d!=0 else 0
-        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2 if d!=0 else 0
+        skewness = h*sqrt(n/d**3) if d!=0 else 0
+        kurtosis = c*n/d**2       if d!=0 else 0
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
         self.data[ruleset][measure]["std"] = std
