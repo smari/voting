@@ -7,14 +7,21 @@
     <tr class="methods">
       <th class="small-12 medium-1 topleft">
       </th>
-      <th colspan="4" v-for="(ruleset, idx) in data" class="small-12 medium-1 column methodname">
+      <th colspan="4"
+        v-for="(ruleset, idx) in data"
+        class="small-12 medium-1 column methodname"
+      >
         <div>{{ ruleset.name }}</div>
       </th>
     </tr>
     <tr>
       <th class="small-12 medium-1 column measurename">Adjustment method</th>
-      <td colspan="4" class="small-12 medium-2 column methoddata"
-        v-for="(ruleset, idx) in data">{{ruleset.method}}</td>
+      <td colspan="4"
+        class="small-12 medium-2 column methoddata"
+        v-for="(ruleset, idx) in data"
+      >
+        {{ruleset.method}}
+      </td>
     </tr>
     <tr>
       <th class="small-12 medium-1 topleft"></th>
