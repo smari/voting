@@ -57,7 +57,7 @@ def nearest_neighbor(m_votes, v_desired_row_sums, v_desired_col_sums,
 
 
 def present_allocation_sequence(rules, allocation_sequence):
-    headers = ["Adjustment seat number", "Constituency", "Party",
+    headers = ["Adj. seat #", "Constituency", "Party",
         "Reason", "Neighbor ratio"]
     data = []
     seat_number = 0

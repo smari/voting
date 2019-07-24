@@ -237,7 +237,7 @@ def seats_still_available(C, P, c_goals, p_goals, allocations):
 
 def print_seats(rules, adj_seats_info):
     # Return data to print breakdown of adjustment seat apportionment
-    header = ["Adjustment seat number", "Constituency", "Party", "Reason",
+    header = ["Adj. seat #", "Constituency", "Party", "Reason",
         "Closest comparison constituency", "Closest comparison party",
         "Monge ratio",
         # "Determinant", "ad", "bc", "a", "d", "b", "c",
