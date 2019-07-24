@@ -38,6 +38,6 @@ class TestEntropy(unittest.TestCase):
         self.assertNotEqual(ss_entropy, sd_entropy)
         self.assertNotEqual(ds_entropy, sd_entropy)
         self.assertEqual(round(dd_entropy, 2), 42.95)
-        self.assertEqual(round(ds_entropy, 2), 41.22)
-        self.assertEqual(round(ss_entropy, 2), 41.22)
+        self.assertEqual(round(ds_entropy, 2), 46.77)
+        self.assertEqual(round(ss_entropy, 2), 46.77)
         self.assertEqual(round(sd_entropy, 2), 42.95)

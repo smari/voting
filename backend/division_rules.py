@@ -10,10 +10,10 @@ def dhondt_gen():
 
 def sainte_lague_gen():
     """Generate a Sainte-Lague divider sequence: 1, 3, 5..."""
-    n = 1.0
+    n = 0.5
     while True:
         yield n
-        n += 2.0
+        n += 1.0
 
 def nordic_sainte_lague_gen():
     """Generate a Nordic Sainte-Lague divide sequence: 1.4, 3, 5..."""
