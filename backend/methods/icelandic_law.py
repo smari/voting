@@ -105,7 +105,7 @@ def print_seats(rules, allocation_sequence):
             rules["constituencies"][allocation["constituency"]]["name"],
             rules["parties"][allocation["party"]],
             allocation["reason"],
-            allocation["country_num"],
+            round(allocation["country_num"], 1),
             "{:.3%}".format(allocation["list_share"])
         ])
 
