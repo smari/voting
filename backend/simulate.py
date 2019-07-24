@@ -180,9 +180,9 @@ class Simulation:
         r = float(self.list_data[ruleset][measure]["sm4"][const][party])
         avg = s/n       if n>0 else 0
         m = avg
-        d =               t      -   s*m    # = \sum_{i=1}^{n}(x_i-avg)^2
-        h =       q   - 3*t*m    + 2*s*m**2 # = \sum_{i=1}^{n}(x_i-avg)^3
-        c = r - 4*q*m + 6*t*m**2 - 3*s*m**3 # = \sum_{i=1}^{n}(x_i-avg)^4
+        d =                   t -   m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =          q - m*(3*t - 2*m*s)  # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - m*(4*q - m*(6*t - 3*m*s)) # = \sum_{i=1}^{n}(x_i-avg)^4
         var = d / (n-1) if n>1 else 0
         if var < 0:
             if var < -0.0000001:
@@ -225,9 +225,9 @@ class Simulation:
         r = float(self.data[ruleset][measure]["sm2"])
         avg = s/n       if n>0 else 0
         m = avg
-        d =               t      -   s*m    # = \sum_{i=1}^{n}(x_i-avg)^2
-        h =       q   - 3*t*m    + 2*s*m**2 # = \sum_{i=1}^{n}(x_i-avg)^3
-        c = r - 4*q*m + 6*t*m**2 - 3*s*m**3 # = \sum_{i=1}^{n}(x_i-avg)^4
+        d =                   t -   m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =          q - m*(3*t - 2*m*s)  # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - m*(4*q - m*(6*t - 3*m*s)) # = \sum_{i=1}^{n}(x_i-avg)^4
         var = d / (n-1) if n>1 else 0
         if -0.0000001 < var and var < 0:
             var = 0
