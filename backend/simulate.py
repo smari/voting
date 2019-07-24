@@ -178,8 +178,9 @@ class Simulation:
         t = float(self.list_data[ruleset][measure]["sm2"][const][party])
         q = float(self.list_data[ruleset][measure]["sm3"][const][party])
         r = float(self.list_data[ruleset][measure]["sm4"][const][party])
-        avg = s/n                 if n>0 else 0
-        var = (t - s*avg) / (n-1) if n>1 else 0
+        avg = s/n       if n>0 else 0
+        d = t - s*avg
+        var = d / (n-1) if n>1 else 0
         if var < 0:
             if var < -0.0000001:
                 logging.warning(f'Negative variance encountered: {var}. '
@@ -191,7 +192,6 @@ class Simulation:
             var = 0
         std = sqrt(var)
         m = avg
-        d = t-m*s
         skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)
         kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2
         self.list_data[ruleset][measure]["avg"][const][party] = avg
@@ -221,13 +221,13 @@ class Simulation:
         t = float(self.data[ruleset][measure]["sm2"])
         q = float(self.data[ruleset][measure]["sm2"])
         r = float(self.data[ruleset][measure]["sm2"])
-        avg = s/n                 if n>0 else 0
-        var = (t - s*avg) / (n-1) if n>1 else 0
+        avg = s/n       if n>0 else 0
+        d = t - s*avg
+        var = d / (n-1) if n>1 else 0
         if -0.0000001 < var and var < 0:
             var = 0
         std = sqrt(var)
         m = avg
-        d = t-m*s
         skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)
         kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2
         self.data[ruleset][measure]["avg"] = avg
