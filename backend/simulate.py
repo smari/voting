@@ -190,9 +190,15 @@ class Simulation:
                 raise ValueError(message)
             var = 0
         std = sqrt(var)
+        m = avg
+        d = t-m*s
+        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)
+        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
+        self.list_data[ruleset][measure]["skw"][const][party] = skewness
+        self.list_data[ruleset][measure]["kur"][const][party] = kurtosis
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["cnt"] += 1
@@ -220,9 +226,15 @@ class Simulation:
         if -0.0000001 < var and var < 0:
             var = 0
         std = sqrt(var)
+        m = avg
+        d = t-m*s
+        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)
+        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
         self.data[ruleset][measure]["std"] = std
+        self.data[ruleset][measure]["skw"] = skewness
+        self.data[ruleset][measure]["kur"] = kurtosis
 
     def run_initial_elections(self):
         self.base_allocations = []
