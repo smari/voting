@@ -180,9 +180,9 @@ class Simulation:
         r = float(self.list_data[ruleset][measure]["sm4"][const][party])
         avg = s/n       if n>0 else 0
         m = avg
-        d =                   t -   m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
-        h =          q - m*(3*t - 2*m*s)  # = \sum_{i=1}^{n}(x_i-avg)^3
-        c = r - m*(4*q - m*(6*t - 3*m*s)) # = \sum_{i=1}^{n}(x_i-avg)^4
+        d =                   t - m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =          q -   m*(t + 2*d)  # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - m*(4*q - 3*m*(t +   d)) # = \sum_{i=1}^{n}(x_i-avg)^4
         var = d / (n-1) if n>1 else 0
         if var < 0:
             if var < -0.0000001:
@@ -194,8 +194,8 @@ class Simulation:
                 raise ValueError(message)
             var = 0
         std = sqrt(var)
-        skewness = h*sqrt(n/d**3) if d!=0 else 0
-        kurtosis = c*n/d**2       if d!=0 else 0
+        skewness = h*sqrt(n/d)/d if d!=0 else 0
+        kurtosis = c*n/d**2      if d!=0 else 0
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
@@ -225,15 +225,15 @@ class Simulation:
         r = float(self.data[ruleset][measure]["sm2"])
         avg = s/n       if n>0 else 0
         m = avg
-        d =                   t -   m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
-        h =          q - m*(3*t - 2*m*s)  # = \sum_{i=1}^{n}(x_i-avg)^3
-        c = r - m*(4*q - m*(6*t - 3*m*s)) # = \sum_{i=1}^{n}(x_i-avg)^4
+        d =                   t - m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =          q -   m*(t + 2*d)  # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - m*(4*q - 3*m*(t +   d)) # = \sum_{i=1}^{n}(x_i-avg)^4
         var = d / (n-1) if n>1 else 0
         if -0.0000001 < var and var < 0:
             var = 0
         std = sqrt(var)
-        skewness = h*sqrt(n/d**3) if d!=0 else 0
-        kurtosis = c*n/d**2       if d!=0 else 0
+        skewness = h*sqrt(n/d)/d if d!=0 else 0
+        kurtosis = c*n/d**2      if d!=0 else 0
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
         self.data[ruleset][measure]["std"] = std
