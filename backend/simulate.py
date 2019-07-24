@@ -192,8 +192,8 @@ class Simulation:
             var = 0
         std = sqrt(var)
         m = avg
-        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)
-        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2
+        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)    if d!=0 else 0
+        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2 if d!=0 else 0
         self.list_data[ruleset][measure]["avg"][const][party] = avg
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
@@ -228,8 +228,8 @@ class Simulation:
             var = 0
         std = sqrt(var)
         m = avg
-        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)
-        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2
+        skewness = (q-3*m*t+2*m**2*s)*sqrt(n/d**3)    if d!=0 else 0
+        kurtosis = (r-4*m*q+6*m**2*t-3*m**3*s)*n/d**2 if d!=0 else 0
         self.data[ruleset][measure]["avg"] = avg
         self.data[ruleset][measure]["var"] = var
         self.data[ruleset][measure]["std"] = std
