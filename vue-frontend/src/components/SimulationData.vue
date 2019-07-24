@@ -27,9 +27,9 @@
       <th class="small-12 medium-1 topleft"></th>
       <template v-for="(ruleset, ridx) in data">
         <th class="small-12 medium-2 column methodname">Average</th>
-        <th class="small-12 medium-2 column methodname">Std. deviation</th>
         <th class="small-12 medium-2 column methodname">Min</th>
         <th class="small-12 medium-2 column methodname">Max</th>
+        <th class="small-12 medium-2 column methodname">Std. deviation</th>
       </template>
     </tr>
     <tr>
@@ -51,13 +51,13 @@
           {{ data[ridx]["measures"][midx]["avg"].toFixed(4) }}
         </td>
         <td class="small-12 medium-2 column methoddata">
-          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
-        </td>
-        <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["min"].toFixed(4) }}
         </td>
         <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["max"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
         </td>
       </template>
     </tr>
@@ -75,13 +75,13 @@
           {{ data[ridx]["measures"][midx]["avg"].toFixed(4) }}
         </td>
         <td class="small-12 medium-2 column methoddata">
-          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
-        </td>
-        <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["min"].toFixed(4) }}
         </td>
         <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["max"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
         </td>
       </template>
     </tr>
@@ -99,13 +99,13 @@
           {{ data[ridx]["measures"][midx]["avg"].toFixed(4) }}
         </td>
         <td class="small-12 medium-2 column methoddata">
-          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
-        </td>
-        <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["min"].toFixed(4) }}
         </td>
         <td class="small-12 medium-2 column methoddata">
           {{ data[ridx]["measures"][midx]["max"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
         </td>
       </template>
     </tr>
