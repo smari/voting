@@ -182,16 +182,16 @@ class Simulation:
         d =                   t - m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
         h =          q -   m*(t + 2*d)  # = \sum_{i=1}^{n}(x_i-avg)^3
         c = r - m*(4*q - 3*m*(t +   d)) # = \sum_{i=1}^{n}(x_i-avg)^4
-        var = d / (n-1) if n>1 else 0
-        if var < 0:
-            if var < -0.0000001:
-                logging.warning(f'Negative variance encountered: {var}. '
+        if d < 0:
+            if d < -0.0000001:
+                logging.warning(f'Negative d encountered: {d}. '
                     f'Measure: {measure}, const: {const}, party: {party}')
-            if var < -0.01:
+            if d < -0.01:
                 message = "Variance very negative. What's going on here?"
                 logging.error(message)
                 raise ValueError(message)
-            var = 0
+            d = 0
+        var = d / (n-1) if n>1 else 0
         std = sqrt(var)
         skewness = h*sqrt(n/d)/d if d!=0 else 0
         kurtosis = c*n/d**2      if d!=0 else 0
