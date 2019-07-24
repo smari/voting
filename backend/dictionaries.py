@@ -125,7 +125,7 @@ AGGREGATES = {
     "max": "Max",
     "min": "Min",
     "sum": "Sum of elements",
-    "sqs": "Sum of squares",
+    "sm2": "Sum of squares",
     "avg": "Average",
     "var": "Variance",
     "std": "Std. dev"
