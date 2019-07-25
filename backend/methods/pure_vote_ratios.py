@@ -41,7 +41,7 @@ def pure_vote_ratios_apportionment(m_votes, v_desired_row_sums, v_desired_col_su
         allocation_sequence.append({
             "constituency": c, "party": p,
             "reason": "Highest divided votes",
-            "max": maximum,
+            "max_list_share": maximum,
         })
 
 
@@ -50,7 +50,7 @@ def pure_vote_ratios_apportionment(m_votes, v_desired_row_sums, v_desired_col_su
 
 def present_allocation_sequence(rules, allocation_sequence):
     headers = ["Adj. seat #", "Constituency", "Party",
-        "Reason", "Divided votes used"]
+        "Reason", "List share"]
     data = []
     seat_number = 0
 
@@ -61,7 +61,7 @@ def present_allocation_sequence(rules, allocation_sequence):
             rules["constituencies"][allocation["constituency"]]["name"],
             rules["parties"][allocation["party"]],
             allocation["reason"],
-            round(allocation["max"], 4),
+            "{:.3%}".format(allocation["max_list_share"])
         ])
 
     return headers, data
