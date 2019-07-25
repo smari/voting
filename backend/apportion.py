@@ -2,7 +2,7 @@ from copy import copy
 from table_util import find_shares_1d
 
 def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
-                threshold=0, invalid=[]):
+                threshold=0, full=[]):
     """
     Perform a one-dimensional apportionment of seats.
     Inputs:
@@ -10,7 +10,7 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
         - num_total_seats: Total number of seats to allocate.
         - prior_allocations: Prior allocations to each party.
         - divisor_gen: A divisor generator function, e.g. Sainte-Lague.
-        - invalid: A list of parties that cannot be allocated more seats.
+        - full: A list of parties that cannot be allocated more seats.
             (Added for Icelandic law adjustment seat apportionment.)
     Outputs:
         - allocations vector
@@ -32,7 +32,7 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
     min_used = 1000000
     while num_allocated < num_total_seats:
         divided_votes = [float(v_votes[i])/divisors[i]
-                         if i not in invalid else 0
+                         if i not in full else 0
                          for i in range(N)]
         maxvote = max(divided_votes)
         if maxvote == 0:
