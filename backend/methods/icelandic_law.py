@@ -1,7 +1,8 @@
 #coding:utf-8
 from copy import deepcopy
-from apportion import apportion1d
 import random
+
+from apportion import apportion1d
 
 def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
                             m_prior_allocations, divisor_gen, threshold=None,
