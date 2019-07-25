@@ -269,7 +269,7 @@ def print_seats(rules, adj_seats_info):
                 "const_name": rules["constituencies"][ref_c_idx]["name"],
                 "party_name": rules["parties"       ][ref_p_idx],
                 "det": allocation["min_det"],
-                "ratio": ad/float(bc) if bc != 0 else None,
+                "ratio": round(ad/float(bc), 4) if bc != 0 else None,
             }
             for v in ["a", "b", "c", "d", "ad", "bc"]:
                 comparison[v] = allocation[v]
