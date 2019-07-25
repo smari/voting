@@ -33,9 +33,13 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
             first_in.append(next_in)
 
             # Calculate continuation:
-            _, div_after = apportion1d(m_votes[c],
+            new_votes = copy(m_votes[c])
+            new_votes[next_in] = alloc_next[2]
+            v_prov_allocations = copy(m_allocations[c])
+            v_prov_allocations[next_in] += 1
+            _, div_after = apportion1d(new_votes,
                                         v_desired_row_sums[c]+1,
-                                        m_allocations[c],
+                                        v_prov_allocations,
                                         divisor_gen)
 
             # Calculate relative superiority
