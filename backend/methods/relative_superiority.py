@@ -34,7 +34,8 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
 
             available_parties = [p for p in hungry_parties if m_votes[c][p]>0]
             if len(available_parties) == 0:
-                raise RuntimeError(f"Constituency {c} has not been filled, "
+                raise RuntimeError(f"After allocating {n} adjustment seats, "
+                    f"constituency {c} has not been filled, "
                     "but all parties running in this constituency "
                     "(and above threshold) have already been satisfied.")
             elif len(available_parties) == 1:
