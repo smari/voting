@@ -6,7 +6,12 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                          m_prior_allocations, divisor_gen, threshold=None,
                          **kwargs):
     """Apportion by Þorkell Helgason's Relative Superiority method"""
-
+    num_constituencies = len(v_desired_row_sums)
+    num_parties        = len(v_desired_col_sums)
+    assert len(m_votes) == num_constituencies
+    assert all(len(row) == num_parties for row in m_votes)
+    assert len(m_prior_allocations) == num_constituencies
+    assert all(len(row) == num_parties for row in m_prior_allocations)
     m_allocations = deepcopy(m_prior_allocations)
     num_allocated = sum([sum(x) for x in m_allocations])
     num_total_seats = sum(v_desired_row_sums)
