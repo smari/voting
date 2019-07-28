@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from math import sqrt, exp
 from copy import copy, deepcopy
 
-from table_util import matrix_subtraction, scale_matrix, add_totals, find_xtd_shares
+from table_util import m_subtract, scale_matrix, add_totals, find_xtd_shares
 from excel_util import simulation_to_xlsx
 from rules import Rules
 import dictionaries as dicts
@@ -250,7 +250,7 @@ class Simulation:
         for election in self.e_handler.elections:
             xtd_total_seats = add_totals(election.results)
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
-            xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
+            xtd_adj_seats = m_subtract(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
             ideal_seats = self.calculate_ideal_seats(election)
             xtd_ideal_seats = add_totals(ideal_seats)

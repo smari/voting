@@ -2,7 +2,7 @@
 import xlsxwriter
 from datetime import datetime
 
-from table_util import matrix_subtraction, add_totals, find_xtd_shares
+from table_util import m_subtract, add_totals, find_xtd_shares
 from dictionaries import ADJUSTMENT_METHOD_NAMES as AMN, \
                          DIVIDER_RULE_NAMES as DRN, \
                          GENERATING_METHOD_NAMES as GMN
@@ -111,7 +111,7 @@ def elections_to_xlsx(elections, filename):
         xtd_shares = find_xtd_shares(xtd_votes)
         xtd_const_seats = add_totals(election.m_const_seats_alloc)
         xtd_total_seats = add_totals(election.results)
-        xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
+        xtd_adj_seats = m_subtract(xtd_total_seats, xtd_const_seats)
         xtd_seat_shares = find_xtd_shares(xtd_total_seats)
         threshold = 0.01*election.rules["adjustment_threshold"]
         xtd_final_votes = add_totals([election.v_votes_eliminated])[0]

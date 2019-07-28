@@ -8,7 +8,7 @@ def v_subtract(u, v):
     assert len(v) == n
     return [u[i] - v[i] for i in range(n)]
 
-def matrix_subtraction(A, B):
+def m_subtract(A, B):
     m = len(A)
     assert(len(B) == m)
     if m == 0:
