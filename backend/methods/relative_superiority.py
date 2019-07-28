@@ -1,6 +1,7 @@
 #coding:utf-8
 from copy import deepcopy, copy
 from apportion import apportion1d, threshold_elimination_constituencies
+from table_util import vector_subtraction
 
 def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                          m_prior_allocations, divisor_gen, threshold=None,
@@ -19,6 +20,9 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
     for n in range(num_total_seats-num_allocated):
         m_votes = threshold_elimination_constituencies(m_votes, 0.0,
                     v_desired_col_sums, m_allocations)
+        v_col_sums = [sum(col) for col in zip(*m_allocations)]
+        v_col_slacks = vector_subtraction(v_desired_col_sums, v_col_sums)
+        hungry_parties = [p for p in range(num_parties) if v_col_slacks[p]>0]
         superiority = []
         first_in = []
         for c in range(len(m_votes)):
@@ -26,6 +30,18 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
             if not seats_left:
                 superiority.append(0)
                 first_in.append(0)
+                continue
+
+            available_parties = [p for p in hungry_parties if m_votes[c][p]>0]
+            if len(available_parties) == 0:
+                raise RuntimeError(f"Constituency {c} has not been filled, "
+                    "but all parties running in this constituency "
+                    "(and above threshold) have already been satisfied.")
+            elif len(available_parties) == 1:
+                party = available_parties[0]
+                # If the next party is last possible, it must get the seat
+                superiority.append(1000000)
+                first_in.append(party)
                 continue
 
             # Find the party next in line in the constituency:
@@ -47,11 +63,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                                         full=[next_in])
 
             # Calculate relative superiority
-            try:
-                rs = float(div_next[2])/div_after[2]
-            except ZeroDivisionError:
-                # If the next party is last possible, it must get the seat
-                rs = 1000000
+            rs = float(div_next[2])/div_after[2]
             superiority.append(rs)
 
         # Allocate seat in constituency where the calculated

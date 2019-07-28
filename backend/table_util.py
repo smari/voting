@@ -3,6 +3,11 @@ from math import log
 from copy import deepcopy
 
 
+def vector_subtraction(u, v):
+    n = len(u)
+    assert len(v) == n
+    return [u[i] - v[i] for i in range(n)]
+
 def matrix_subtraction(A, B):
     m = len(A)
     assert(len(B) == m)
