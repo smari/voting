@@ -88,12 +88,14 @@ def present_allocation_sequence(rules, allocation_sequence):
 
     for allocation in allocation_sequence:
         seat_number += 1
+        superiority = round(allocation["superiority"], 3) \
+            if allocation["superiority"]!=1000000 else "N/A"
         data.append([
             seat_number,
             rules["constituencies"][allocation["constituency"]]["name"],
             rules["parties"][allocation["party"]],
             allocation["reason"],
-            round(allocation["superiority"], 3),
+            superiority,
         ])
 
     return headers, data

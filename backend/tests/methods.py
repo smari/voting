@@ -268,7 +268,7 @@ class TestAdjustmentMethods(TestCase):
         self.assertEqual(1.739, steps[5][4])
         self.assertEqual(1.346, steps[6][4])
         self.assertEqual(1.084, steps[7][4])
-        self.assertEqual(1000000, steps[8][4])
+        self.assertEqual("N/A", steps[8][4])
     def test_relative_superiority_6c(self):
         self.rules_6c["adjustment_method"] = "relative-superiority"
         election = Election(self.rules_6c, self.votes)
