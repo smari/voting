@@ -49,8 +49,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
             next_alloc_num = sum(m_allocations[c]) + 1
             alloc_next, div_next = apportion1d(m_votes[c], next_alloc_num,
                                    m_allocations[c], divisor_gen)
-            diff = [alloc_next[p]-m_allocations[c][p]
-                    for p in range(len(m_votes[c]))]
+            diff = v_subtract(alloc_next, m_allocations[c])
             next_in = diff.index(1)
             first_in.append(next_in)
 
