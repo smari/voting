@@ -47,18 +47,24 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
 
             # Find the party next in line in the constituency:
             next_alloc_num = sum(m_allocations[c]) + 1
-            alloc_next, div_next = apportion1d(m_votes[c], next_alloc_num,
-                                   m_allocations[c], divisor_gen)
+            alloc_next, div_next = apportion1d(
+                v_votes=m_votes[c],
+                num_total_seats=next_alloc_num,
+                prior_allocations=m_allocations[c],
+                divisor_gen=divisor_gen
+            )
             diff = v_subtract(alloc_next, m_allocations[c])
             next_in = diff.index(1)
             first_in.append(next_in)
 
             # Calculate continuation:
-            _, div_after = apportion1d(m_votes[c],
-                                        v_desired_row_sums[c],
-                                        m_allocations[c],
-                                        divisor_gen,
-                                        full=[next_in])
+            _, div_after = apportion1d(
+                v_votes=m_votes[c],
+                num_total_seats=v_desired_row_sums[c],
+                prior_allocations=m_allocations[c],
+                divisor_gen=divisor_gen,
+                full=[next_in]
+            )
 
             # Calculate relative superiority
             rs = float(div_next[2])/div_after[2]
