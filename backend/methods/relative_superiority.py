@@ -1,7 +1,7 @@
 #coding:utf-8
 from copy import deepcopy, copy
 from apportion import apportion1d, threshold_elimination_constituencies
-from table_util import vector_subtraction
+from table_util import v_subtract
 
 def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                          m_prior_allocations, divisor_gen, threshold=None,
@@ -21,7 +21,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
         m_votes = threshold_elimination_constituencies(m_votes, 0.0,
                     v_desired_col_sums, m_allocations)
         v_col_sums = [sum(col) for col in zip(*m_allocations)]
-        v_col_slacks = vector_subtraction(v_desired_col_sums, v_col_sums)
+        v_col_slacks = v_subtract(v_desired_col_sums, v_col_sums)
         hungry_parties = [p for p in range(num_parties) if v_col_slacks[p]>0]
         superiority = []
         first_in = []

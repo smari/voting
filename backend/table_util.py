@@ -3,7 +3,7 @@ from math import log
 from copy import deepcopy
 
 
-def vector_subtraction(u, v):
+def v_subtract(u, v):
     n = len(u)
     assert len(v) == n
     return [u[i] - v[i] for i in range(n)]
