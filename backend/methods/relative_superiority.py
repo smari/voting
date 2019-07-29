@@ -18,8 +18,6 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
     num_total_seats = sum(v_desired_row_sums)
     allocation_sequence = []
     for n in range(num_total_seats-num_allocated):
-        m_votes = threshold_elimination_constituencies(m_votes, 0.0,
-                    v_desired_col_sums, m_allocations)
         v_col_sums = [sum(col) for col in zip(*m_allocations)]
         v_col_slacks = v_subtract(v_desired_col_sums, v_col_sums)
         hungry_parties = [p for p in range(num_parties) if v_col_slacks[p]>0]
@@ -45,7 +43,8 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                 v_votes=m_votes[c],
                 num_total_seats=next_alloc_num,
                 prior_allocations=m_allocations[c],
-                divisor_gen=divisor_gen
+                divisor_gen=divisor_gen,
+                v_max_left=v_col_slacks
             )
             diff = v_subtract(alloc_next, m_allocations[c])
             next_in = diff.index(1)
