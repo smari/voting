@@ -63,7 +63,8 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                 num_total_seats=v_desired_row_sums[c],
                 prior_allocations=m_allocations[c],
                 divisor_gen=divisor_gen,
-                invalid=[next_in]
+                invalid=[next_in],
+                v_max_left=v_col_slacks
             )
 
             # Calculate relative superiority
