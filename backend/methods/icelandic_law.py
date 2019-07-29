@@ -32,12 +32,12 @@ def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
     # 2.7.
     #   (Beita skal ákvæðum 3. tölul. svo oft sem þarf þar til lokið er
     #   úthlutun allra jöfnunarsæta, sbr. 2. mgr. 8. gr.)
-    full = []
+    invalid = []
     v_last_alloc = deepcopy(v_seats)
     seats_info = []
     while num_allocated < total_seats:
         alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc,
-                                divisor_gen, full=full)
+                                divisor_gen, invalid=invalid)
         # 2.6.
         #   (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #   skal jafnframt fella niður allar landstölur þeirra.)
@@ -89,7 +89,7 @@ def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
                 "list_share": v_proportions[const[0]],
             })
         else:
-            full.append(idx)
+            invalid.append(idx)
     return m_allocations, (seats_info, print_seats)
 
 

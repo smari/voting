@@ -12,7 +12,7 @@ class TestElection(unittest.TestCase):
                 num_total_seats=1,
                 prior_allocations=[0,0],
                 divisor_gen=division_rules.dhondt_gen,
-                full=[1]
+                invalid=[1]
             )
 
     def test_valid(self):
