@@ -38,12 +38,6 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                     f"constituency {c} has not been filled, "
                     "but all parties running in this constituency "
                     "(and above threshold) have already been satisfied.")
-            elif len(available_parties) == 1:
-                party = available_parties[0]
-                # If the next party is last possible, it must get the seat
-                superiority.append(1000000)
-                first_in.append(party)
-                continue
 
             # Find the party next in line in the constituency:
             next_alloc_num = sum(m_allocations[c]) + 1
