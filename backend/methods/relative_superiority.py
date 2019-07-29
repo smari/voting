@@ -58,13 +58,14 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
             first_in.append(next_in)
 
             # Calculate continuation:
+            v_slacks = copy(v_col_slacks)
+            v_slacks[next_in] = 0
             _, div_after = apportion1d(
                 v_votes=m_votes[c],
                 num_total_seats=v_desired_row_sums[c],
                 prior_allocations=m_allocations[c],
                 divisor_gen=divisor_gen,
-                invalid=[next_in],
-                v_max_left=v_col_slacks
+                v_max_left=v_slacks
             )
 
             # Calculate relative superiority
