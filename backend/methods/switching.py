@@ -29,6 +29,7 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
     #  "sensitivity", until all parties have the correct number of seats
     #  or no more swaps can be made:
 
+    switches = []
     done = False
     while not done:
         v_adj_seats = [sum(x) for x in zip(*m_adj_seats)]
@@ -59,6 +60,11 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
             i, j, k = heapq.heappop(sensitivity)[1]
             m_adj_seats[i][j] -= 1
             m_adj_seats[i][k] += 1
+            switches.append({
+                "constituency": i,
+                "from": j,
+                "to": k
+            })
 
     m_allocations = [[m_prior_allocations[c][p]+m_adj_seats[c][p]
                         for p in range(len(m_adj_seats[c]))]
