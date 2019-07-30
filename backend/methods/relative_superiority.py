@@ -51,7 +51,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
             first_in.append(next_in)
 
             # Calculate continuation:
-            v_slacks = copy(v_col_slacks)
+            v_slacks = [v_col_slacks[p] if m_votes[c][p]>0 else 0 for p in range(num_parties)]
             v_slacks[next_in] = 0
             if sum(v_slacks) < seats_left:
                 # top list must get a seat, else it's impossible to man all seats in this constituency
