@@ -72,4 +72,23 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
                         for c in range(len(m_adj_seats))]
 
 
-    return m_allocations, None
+    return m_allocations, (switches, present_switching_sequence)
+
+
+
+def present_switching_sequence(rules, steps):
+    headers = ["Switch #", "Constituency", "From", "To", "Proportion"]
+    data = []
+    switch_number = 0
+
+    for steps in steps:
+        switch_number += 1
+        data.append([
+            switch_number,
+            rules["constituencies"][steps["constituency"]]["name"],
+            rules["parties"][steps["from"]],
+            rules["parties"][steps["to"]],
+            "{:.1%}".format(steps["sensitivity"]),
+        ])
+
+    return headers, data
