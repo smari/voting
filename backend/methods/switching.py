@@ -57,13 +57,14 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
         if not done:
             # Find the constituency and pair of parties with the lowest
             #  sensitivity, and transfer a seat:
-            i, j, k = heapq.heappop(sensitivity)[1]
+            s, (i, j, k) = heapq.heappop(sensitivity)
             m_adj_seats[i][j] -= 1
             m_adj_seats[i][k] += 1
             switches.append({
                 "constituency": i,
                 "from": j,
-                "to": k
+                "to": k,
+                "sensitivity": s,
             })
 
     m_allocations = [[m_prior_allocations[c][p]+m_adj_seats[c][p]
