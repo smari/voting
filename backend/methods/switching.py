@@ -15,8 +15,12 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
     for c in range(len(m_prior_allocations)):
         votes = [m_votes[c][p] if correct_adj_seats[p] > 0 else 0
                     for p in range(len(m_votes[c]))]
-        alloc, div = apportion1d(votes, v_desired_row_sums[c],
-                        m_prior_allocations[c], divisor_gen)
+        alloc, div = apportion1d(
+            v_votes=votes,
+            num_total_seats=v_desired_row_sums[c],
+            prior_allocations=m_prior_allocations[c],
+            divisor_gen=divisor_gen
+        )
         adj_seats = v_subtract(alloc, m_prior_allocations[c])
         m_adj_seats.append(adj_seats)
 
