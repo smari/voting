@@ -21,13 +21,14 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
         v_col_sums = [sum(col) for col in zip(*m_allocations)]
         v_col_slacks = v_subtract(v_desired_col_sums, v_col_sums)
         hungry_parties = [p for p in range(num_parties) if v_col_slacks[p]>0]
+        v_row_sums = [sum(row) for row in m_allocations]
+        v_row_slacks = v_subtract(v_desired_row_sums, v_row_sums)
+        unfilled_const = [c for c in range(num_constituencies) if v_row_slacks[c]>0]
         necessary = []
         available = []
         violating = []
-        for c in range(num_constituencies):
-            seats_left = v_desired_row_sums[c] - sum(m_allocations[c])
-            if not seats_left:
-                continue
+        for c in unfilled_const:
+            seats_left = v_row_slacks[c]
 
             running_lists = [p for p in range(num_parties) if m_votes[c][p]>0]
             if len(running_lists) == 0:
