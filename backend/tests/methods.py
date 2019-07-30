@@ -247,6 +247,28 @@ class TestAdjustmentMethods(TestCase):
                                    [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1],
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_relative_superiority_simple(self):
+        self.rules["adjustment_method"] = "relative-superiority-simple"
+        election = Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [0,4,4,0,0,0,0,0,0,0,0,2,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,1,0,2,1]])
+        steps_table = election.demonstration_table
+        steps = steps_table["steps"]
+        self.assertEqual(9, len(steps))
+        self.assertEqual(1.228, steps[0][4])
+        self.assertEqual(1.385, steps[1][4])
+        self.assertEqual(1.227, steps[2][4])
+        self.assertEqual(1.15,  steps[3][4])
+        self.assertEqual(1.135, steps[4][4])
+        self.assertEqual(1.084, steps[5][4])
+        self.assertEqual(1.078, steps[6][4])
+        self.assertEqual("N/A", steps[7][4])
+        self.assertEqual("N/A", steps[8][4])
     def test_relative_superiority(self):
         self.rules["adjustment_method"] = "relative-superiority"
         election = Election(self.rules, self.votes)
