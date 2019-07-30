@@ -30,12 +30,19 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                 first_in.append(0)
                 continue
 
-            available_parties = [p for p in hungry_parties if m_votes[c][p]>0]
-            if len(available_parties) == 0:
+            running_lists = [p for p in range(num_parties) if m_votes[c][p]>0]
+            if len(running_lists) == 0:
                 raise RuntimeError(f"After allocating {n} adjustment seats, "
                     f"constituency {c} has not been filled, "
-                    "but all parties running in this constituency "
-                    "(and above threshold) have already been satisfied.")
+                    "but there are no parties with any votes "
+                    "in this constituency (after threshold elimination).")
+            hungry_lists = set(running_lists).intersection(hungry_parties)
+            if len(hungry_lists) == 0:
+                # All parties running in this constituency (and above threshold)
+                #  have already been satisfied
+                v_slacks = []
+            else:
+                v_slacks = v_col_slacks
 
             # Find the party next in line in the constituency:
             next_alloc_num = sum(m_allocations[c]) + 1
@@ -44,7 +51,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                 num_total_seats=next_alloc_num,
                 prior_allocations=m_allocations[c],
                 divisor_gen=divisor_gen,
-                v_max_left=v_col_slacks
+                v_max_left=v_slacks
             )
             diff = v_subtract(alloc_next, m_allocations[c])
             next_in = diff.index(1)
