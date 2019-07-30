@@ -43,10 +43,9 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                 v_slacks = v_col_slacks
 
             # Find the party next in line in the constituency:
-            next_alloc_num = sum(m_allocations[c]) + 1
             alloc_next, div_next = apportion1d(
                 v_votes=m_votes[c],
-                num_total_seats=next_alloc_num,
+                num_total_seats=v_row_sums[c] + 1,
                 prior_allocations=m_allocations[c],
                 divisor_gen=divisor_gen,
                 v_max_left=v_slacks
