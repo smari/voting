@@ -28,8 +28,6 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
         available = []
         violating = []
         for c in unfilled_const:
-            seats_left = v_row_slacks[c]
-
             running_lists = [p for p in range(num_parties) if m_votes[c][p]>0]
             if len(running_lists) == 0:
                 raise RuntimeError(f"After allocating {n} adjustment seats, "
@@ -66,7 +64,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
             # Calculate continuation:
             v_slacks = [v_col_slacks[p] if m_votes[c][p]>0 else 0 for p in range(num_parties)]
             v_slacks[next_in] = 0
-            if sum(v_slacks) < seats_left:
+            if sum(v_slacks) < v_row_slacks[c]:
                 # top list must get a seat, else it's impossible to man all seats in this constituency
                 necessary.append({
                     "constituency": c,
