@@ -32,6 +32,7 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
 
     v_adj_seats = [sum(x) for x in zip(*m_adj_seats)]
     initial_allocation = [{
+        "party": p,
         "goal": v_desired_col_sums[p],
         "actual": v_prior_allocations[p] + v_adj_seats[p],
     } for p in range(num_parties)]
@@ -95,13 +96,31 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
 
 
 def present_switching_sequence(rules, steps):
-    headers = ["Switch #", "Constituency", "From", "To", "Proportion"]
+    headers = [
+        "Party", "Supposed to have", "Initial allocation", "Off by",
+        "Switch #", "Constituency", "From", "To", "Proportion"]
     data = []
+    for party in steps["initial_allocation"]:
+        data.append([
+            rules["parties"][party["party"]],
+            party["goal"],
+            party["actual"],
+            party["actual"] - party["goal"],
+            "",
+            "",
+            "",
+            "",
+            "",
+        ])
 
     switch_number = 0
     for switch in steps["switches"]:
         switch_number += 1
         data.append([
+            "",
+            "",
+            "",
+            "",
             switch_number,
             rules["constituencies"][switch["constituency"]]["name"],
             rules["parties"][switch["from"]],
