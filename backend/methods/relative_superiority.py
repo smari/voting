@@ -21,13 +21,12 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
         v_col_sums = [sum(col) for col in zip(*m_allocations)]
         v_col_slacks = v_subtract(v_desired_col_sums, v_col_sums)
         hungry_parties = [p for p in range(num_parties) if v_col_slacks[p]>0]
-        superiority = []
-        first_in = []
-        for c in range(len(m_votes)):
+        necessary = []
+        available = []
+        violating = []
+        for c in range(num_constituencies):
             seats_left = v_desired_row_sums[c] - sum(m_allocations[c])
             if not seats_left:
-                superiority.append(0)
-                first_in.append(0)
                 continue
 
             running_lists = [p for p in range(num_parties) if m_votes[c][p]>0]
@@ -55,15 +54,24 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
             )
             diff = v_subtract(alloc_next, m_allocations[c])
             next_in = diff.index(1)
-            first_in.append(next_in)
+            if len(hungry_lists) == 0:
+                violating.append({
+                    "constituency": c,
+                    "party": next_in,
+                    "divided_votes": div_next[2],
+                })
+                continue
 
             # Calculate continuation:
             v_slacks = [v_col_slacks[p] if m_votes[c][p]>0 else 0 for p in range(num_parties)]
             v_slacks[next_in] = 0
             if sum(v_slacks) < seats_left:
                 # top list must get a seat, else it's impossible to man all seats in this constituency
-                superiority.append(1000000)
-                first_in.append(next_in)
+                necessary.append({
+                    "constituency": c,
+                    "party": next_in,
+                    "divided_votes": div_next[2],
+                })
                 continue
             _, div_after = apportion1d(
                 v_votes=m_votes[c],
@@ -75,18 +83,42 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
 
             # Calculate relative superiority
             rs = float(div_next[2])/div_after[2]
-            superiority.append(rs)
+            available.append({
+                "constituency": c,
+                "party": next_in,
+                "divided_votes": div_next[2],
+                "superiority": rs,
+            })
 
-        # Allocate seat in constituency where the calculated
-        #  relative superiority is highest:
-        greatest = max(superiority)
-        idx = superiority.index(greatest)
-        m_allocations[idx][first_in[idx]] += 1
-        allocation_sequence.append({
-            "constituency": idx, "party": first_in[idx],
-            "reason": "Greatest relative superiority",
-            "superiority": greatest,
-        })
+        greatest = 0
+        first = None
+        if necessary:
+            # Allocate necessary seats first
+            for item in necessary:
+                if item["divided_votes"] > greatest:
+                    greatest = item["divided_votes"]
+                    first = item
+            first["reason"] = "Can't fill this constituency without this list"
+        elif available:
+            # Allocate seat in constituency where the calculated
+            #  relative superiority is highest:
+            for item in available:
+                if item["superiority"] > greatest:
+                    greatest = item["superiority"]
+                    first = item
+            first["reason"] = "Greatest relative superiority"
+        else:
+            assert violating
+            # Allocate violating seats last
+            for item in violating:
+                if item["divided_votes"] > greatest:
+                    greatest = item["divided_votes"]
+                    first = item
+            first["reason"] = "Must violate party sums to fill this constituency"
+        const = first["constituency"]
+        party = first["party"]
+        m_allocations[const][party] += 1
+        allocation_sequence.append(first)
 
     return m_allocations, (allocation_sequence, present_allocation_sequence)
 
@@ -100,7 +132,7 @@ def present_allocation_sequence(rules, allocation_sequence):
     for allocation in allocation_sequence:
         seat_number += 1
         superiority = round(allocation["superiority"], 3) \
-            if allocation["superiority"]!=1000000 else "N/A"
+            if "superiority" in allocation else "N/A"
         data.append([
             seat_number,
             rules["constituencies"][allocation["constituency"]]["name"],
