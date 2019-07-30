@@ -30,6 +30,12 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
         adj_seats = v_subtract(alloc, m_prior_allocations[c])
         m_adj_seats.append(adj_seats)
 
+    v_adj_seats = [sum(x) for x in zip(*m_adj_seats)]
+    initial_allocation = [{
+        "goal": v_desired_col_sums[p],
+        "actual": v_prior_allocations[p] + v_adj_seats[p],
+    } for p in range(num_parties)]
+
     # Transfer adjustment seats within constituencies from parties that have
     #  too many seats to parties that have too few seats, prioritized by
     #  "sensitivity", until all parties have the correct number of seats
@@ -70,31 +76,37 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
                 "constituency": i,
                 "from": j,
                 "to": k,
+                # "reason": "",
                 "sensitivity": s,
             })
+
+    steps = {
+        "initial_allocation": initial_allocation,
+        "switches": switches,
+    }
 
     m_allocations = [[m_prior_allocations[c][p]+m_adj_seats[c][p]
                         for p in range(len(m_adj_seats[c]))]
                         for c in range(len(m_adj_seats))]
 
 
-    return m_allocations, (switches, present_switching_sequence)
+    return m_allocations, (steps, present_switching_sequence)
 
 
 
 def present_switching_sequence(rules, steps):
     headers = ["Switch #", "Constituency", "From", "To", "Proportion"]
     data = []
-    switch_number = 0
 
-    for steps in steps:
+    switch_number = 0
+    for switch in steps["switches"]:
         switch_number += 1
         data.append([
             switch_number,
-            rules["constituencies"][steps["constituency"]]["name"],
-            rules["parties"][steps["from"]],
-            rules["parties"][steps["to"]],
-            "{:.1%}".format(steps["sensitivity"]),
+            rules["constituencies"][switch["constituency"]]["name"],
+            rules["parties"][switch["from"]],
+            rules["parties"][switch["to"]],
+            "{:.1%}".format(switch["sensitivity"]),
         ])
 
     return headers, data
