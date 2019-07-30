@@ -1,13 +1,14 @@
-from apportion import apportion1d
 import heapq
+
+from apportion import apportion1d
+from table_util import v_subtract
 
 def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocations,
                 divisor_gen, threshold=None, orig_votes=None, **kwargs):
 
     v_prior_allocations = [sum(x) for x in zip(*m_prior_allocations)]
     # The number of adjustment seats each party should receive:
-    correct_adj_seats = [v_desired_col_sums[p]-v_prior_allocations[p]
-                            for p in range(len(v_desired_col_sums))]
+    correct_adj_seats = v_subtract(v_desired_col_sums, v_prior_allocations)
 
     # Allocate adjustment seats as if they were constituency seats
     m_adj_seats = []
@@ -16,8 +17,7 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
                     for p in range(len(m_votes[c]))]
         alloc, div = apportion1d(votes, v_desired_row_sums[c],
                         m_prior_allocations[c], divisor_gen)
-        adj_seats = [alloc[p]-m_prior_allocations[c][p]
-                        for p in range(len(alloc))]
+        adj_seats = v_subtract(alloc, m_prior_allocations[c])
         m_adj_seats.append(adj_seats)
 
     # Transfer adjustment seats within constituencies from parties that have
@@ -28,8 +28,7 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
     done = False
     while not done:
         v_adj_seats = [sum(x) for x in zip(*m_adj_seats)]
-        diff_party = [v_adj_seats[p]-correct_adj_seats[p]
-                        for p in range(len(v_adj_seats))]
+        diff_party = v_subtract(v_adj_seats, correct_adj_seats)
 
         over = [i for i in range(len(diff_party)) if diff_party[i] > 0]
         under = [i for i in range(len(diff_party)) if diff_party[i] < 0]
