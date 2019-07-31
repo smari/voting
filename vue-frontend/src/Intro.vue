@@ -3,7 +3,7 @@
   <h1>Voting system simulator</h1>
 
   <span>
-    Version: 1.1.21 Time of release: 2019.07.30-15:01 (GMT)
+    Version: 1.1.22 Time of release: 2019.07.31-11:27 (GMT)
   </span>
 
   <p>

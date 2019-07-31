@@ -210,7 +210,7 @@ def elections_to_xlsx(elections, filename):
         worksheet.merge_range(
             toprow, startcol,
             toprow, startcol+len(parties),
-            "Allocation of adjustment seats step-by-step", fmt["h"]
+            "Allocation of adjustment seats, step-by-step", fmt["h"]
         )
         toprow += 1
         worksheet.write_row(toprow, startcol, h, fmt["step_h"])
