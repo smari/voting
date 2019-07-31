@@ -98,7 +98,7 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
 def present_switching_sequence(rules, steps):
     headers = [
         "Party", "To be achieved", "All as const.", "Off by",
-        "Number", "Constituency", "From", "To", "Ratio"]
+        "Switching", "Nr.", "Constituency", "From", "To", "Ratio"]
     data = []
     for party in steps["initial_allocation"]:
         data.append([
@@ -106,6 +106,7 @@ def present_switching_sequence(rules, steps):
             party["goal"],
             party["actual"],
             party["actual"] - party["goal"],
+            "",
             "",
             "",
             "",
@@ -121,13 +122,14 @@ def present_switching_sequence(rules, steps):
         to_party   = rules["parties"][switch["to"]]
         ratio      = round(switch["sensitivity"], 3)
         if switch_number < len(steps["initial_allocation"]):
-            data[switch_number-1][4] = switch_number
-            data[switch_number-1][5] = const_name
-            data[switch_number-1][6] = from_party
-            data[switch_number-1][7] = to_party
-            data[switch_number-1][8] = ratio
+            data[switch_number-1][5] = switch_number
+            data[switch_number-1][6] = const_name
+            data[switch_number-1][7] = from_party
+            data[switch_number-1][8] = to_party
+            data[switch_number-1][9] = ratio
         else:
             data.append([
+                "",
                 "",
                 "",
                 "",
