@@ -220,8 +220,8 @@ class Simulation:
         n = float(self.data[ruleset][measure]["cnt"])
         s = float(self.data[ruleset][measure]["sum"])
         t = float(self.data[ruleset][measure]["sm2"])
-        q = float(self.data[ruleset][measure]["sm2"])
-        r = float(self.data[ruleset][measure]["sm2"])
+        q = float(self.data[ruleset][measure]["sm3"])
+        r = float(self.data[ruleset][measure]["sm4"])
         m = s/n if n>0 else 0 #average
         d =                   t - m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
         h =          q -   m*(t + 2*d)  # = \sum_{i=1}^{n}(x_i-avg)^3
