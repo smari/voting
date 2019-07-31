@@ -116,16 +116,27 @@ def present_switching_sequence(rules, steps):
     switch_number = 0
     for switch in steps["switches"]:
         switch_number += 1
-        data.append([
-            "",
-            "",
-            "",
-            "",
-            switch_number,
-            rules["constituencies"][switch["constituency"]]["name"],
-            rules["parties"][switch["from"]],
-            rules["parties"][switch["to"]],
-            round(switch["sensitivity"], 3),
-        ])
+        const_name = rules["constituencies"][switch["constituency"]]["name"]
+        from_party = rules["parties"][switch["from"]]
+        to_party   = rules["parties"][switch["to"]]
+        ratio      = round(switch["sensitivity"], 3)
+        if switch_number < len(steps["initial_allocation"]):
+            data[switch_number-1][4] = switch_number
+            data[switch_number-1][5] = const_name
+            data[switch_number-1][6] = from_party
+            data[switch_number-1][7] = to_party
+            data[switch_number-1][8] = ratio
+        else:
+            data.append([
+                "",
+                "",
+                "",
+                "",
+                switch_number,
+                const_name,
+                from_party,
+                to_party,
+                ratio,
+            ])
 
     return headers, data
