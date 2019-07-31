@@ -194,7 +194,8 @@ class TestAdjustmentMethods(TestCase):
                                    [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
         steps_table = election.demonstration_table
         steps = steps_table["steps"]
-        self.assertEqual(election.num_parties+4, len(steps))
+        self.assertEqual(len(steps), max(election.num_parties,4))
+        self.assertEqual(len(steps), 15)
         self.assertEqual(["A", 6, 3,-3], steps[ 0][:4])
         self.assertEqual(["B",19,19, 0], steps[ 1][:4])
         self.assertEqual(["D",19,22, 3], steps[ 2][:4])
@@ -210,10 +211,10 @@ class TestAdjustmentMethods(TestCase):
         self.assertEqual(["T", 0, 0, 0], steps[12][:4])
         self.assertEqual(["V", 7, 8, 1], steps[13][:4])
         self.assertEqual(["Þ", 3, 2,-1], steps[14][:4])
-        self.assertEqual([1,"Suðvestur",      "D","Þ","102.4%"], steps[15][4:])
-        self.assertEqual([2,"Norðaustur",     "D","A","115.5%"], steps[16][4:])
-        self.assertEqual([3,"Reykjavík suður","D","A","124.9%"], steps[17][4:])
-        self.assertEqual([4,"Suður",          "V","A","131.5%"], steps[18][4:])
+        self.assertEqual([1,"Suðvestur",      "D","Þ",1.024], steps[0][5:])
+        self.assertEqual([2,"Norðaustur",     "D","A",1.155], steps[1][5:])
+        self.assertEqual([3,"Reykjavík suður","D","A",1.249], steps[2][5:])
+        self.assertEqual([4,"Suður",          "V","A",1.315], steps[3][5:])
     def test_switching_6c(self):
         self.rules_6c["adjustment_method"] = "switching"
         election = Election(self.rules_6c, self.votes)
