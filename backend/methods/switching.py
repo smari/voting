@@ -97,8 +97,8 @@ def switching(m_votes, v_desired_row_sums, v_desired_col_sums, m_prior_allocatio
 
 def present_switching_sequence(rules, steps):
     headers = [
-        "Party", "Supposed to have", "Initial allocation", "Off by",
-        "Switch #", "Constituency", "From", "To", "Proportion"]
+        "Party", "To be achieved", "All as const.", "Off by",
+        "Number", "Constituency", "From", "To", "Ratio"]
     data = []
     for party in steps["initial_allocation"]:
         data.append([
@@ -125,7 +125,7 @@ def present_switching_sequence(rules, steps):
             rules["constituencies"][switch["constituency"]]["name"],
             rules["parties"][switch["from"]],
             rules["parties"][switch["to"]],
-            "{:.1%}".format(switch["sensitivity"]),
+            round(switch["sensitivity"], 3),
         ])
 
     return headers, data
