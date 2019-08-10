@@ -3,7 +3,12 @@ from math import log
 from copy import deepcopy
 
 
-def matrix_subtraction(A, B):
+def v_subtract(u, v):
+    n = len(u)
+    assert len(v) == n
+    return [u[i] - v[i] for i in range(n)]
+
+def m_subtract(A, B):
     m = len(A)
     assert(len(B) == m)
     if m == 0:

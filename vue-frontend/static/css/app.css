@@ -98,6 +98,9 @@ th.topleft {
 
 .demomatrix td, .demomatrix th {
   border:         1px solid #ccc;
+  text-align:     center;
+  padding-left:   10px;
+  padding-right:  10px;
 }
 
 .demomatrix {

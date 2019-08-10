@@ -237,9 +237,11 @@ def seats_still_available(C, P, c_goals, p_goals, allocations):
 
 def print_seats(rules, adj_seats_info):
     # Return data to print breakdown of adjustment seat apportionment
-    header = ["Adjustment seat number", "Constituency", "Party", "Reason",
+    header = ["Adj. seat #", "Constituency", "Party", "Reason",
         "Closest comparison constituency", "Closest comparison party",
-        "Monge ratio", "Determinant", "ad", "bc", "a", "d", "b", "c",]
+        "Monge ratio",
+        # "Determinant", "ad", "bc", "a", "d", "b", "c",
+    ]
 
     allocation_sequence = []
     seat_number = 0
@@ -267,7 +269,7 @@ def print_seats(rules, adj_seats_info):
                 "const_name": rules["constituencies"][ref_c_idx]["name"],
                 "party_name": rules["parties"       ][ref_p_idx],
                 "det": allocation["min_det"],
-                "ratio": ad/float(bc) if bc != 0 else None,
+                "ratio": round(ad/float(bc), 4) if bc != 0 else None,
             }
             for v in ["a", "b", "c", "d", "ad", "bc"]:
                 comparison[v] = allocation[v]
@@ -290,12 +292,12 @@ def print_seats(rules, adj_seats_info):
                 comparison["const_name"],
                 comparison["party_name"],
                 comparison["ratio"],
-                comparison["det"],
-                comparison["ad"],
-                comparison["bc"],
-                comparison["a"],
-                comparison["d"],
-                comparison["b"],
-                comparison["c"],
+                # comparison["det"],
+                # comparison["ad"],
+                # comparison["bc"],
+                # comparison["a"],
+                # comparison["d"],
+                # comparison["b"],
+                # comparison["c"],
             ])
     return header, allocation_sequence

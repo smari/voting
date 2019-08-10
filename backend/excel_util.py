@@ -2,7 +2,7 @@
 import xlsxwriter
 from datetime import datetime
 
-from table_util import matrix_subtraction, add_totals, find_xtd_shares
+from table_util import m_subtract, add_totals, find_xtd_shares
 from dictionaries import ADJUSTMENT_METHOD_NAMES as AMN, \
                          DIVIDER_RULE_NAMES as DRN, \
                          GENERATING_METHOD_NAMES as GMN
@@ -35,6 +35,11 @@ def prepare_formats(workbook):
     formats["step_h"] = workbook.add_format()
     formats["step_h"].set_bold()
     formats["step_h"].set_text_wrap()
+    formats["step_h"].set_align('center')
+
+    formats["step"] = workbook.add_format()
+    formats["step"].set_text_wrap()
+    formats["step"].set_align('center')
 
     formats["inter_h"] = workbook.add_format()
     formats["inter_h"].set_align('right')
@@ -106,7 +111,7 @@ def elections_to_xlsx(elections, filename):
         xtd_shares = find_xtd_shares(xtd_votes)
         xtd_const_seats = add_totals(election.m_const_seats_alloc)
         xtd_total_seats = add_totals(election.results)
-        xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
+        xtd_adj_seats = m_subtract(xtd_total_seats, xtd_const_seats)
         xtd_seat_shares = find_xtd_shares(xtd_total_seats)
         threshold = 0.01*election.rules["adjustment_threshold"]
         xtd_final_votes = add_totals([election.v_votes_eliminated])[0]
@@ -205,13 +210,13 @@ def elections_to_xlsx(elections, filename):
         worksheet.merge_range(
             toprow, startcol,
             toprow, startcol+len(parties),
-            "Step-by-step demonstration", fmt["h"]
+            "Allocation of adjustment seats step-by-step", fmt["h"]
         )
         toprow += 1
         worksheet.write_row(toprow, startcol, h, fmt["step_h"])
         toprow += 1
         for i in range(len(data)):
-            worksheet.write_row(toprow, startcol, data[i], fmt["cell"])
+            worksheet.write_row(toprow, startcol, data[i], fmt["step"])
             toprow += 1
         toprow += 1
 
@@ -307,6 +312,10 @@ def simulation_to_xlsx(simulation, filename):
          "heading": "Minimum values"},
         {"abbr": "std",  "cell_format": fmt["sim"],
          "heading": "Standard deviations"},
+        {"abbr": "skw",  "cell_format": fmt["sim"],
+         "heading": "Skewness"},
+        {"abbr": "kur",  "cell_format": fmt["sim"],
+         "heading": "Kurtosis"},
     ]
     tables = [
         {"abbr": "v",  "heading": "Votes"             },
@@ -373,6 +382,24 @@ def simulation_to_xlsx(simulation, filename):
                 "ts": simulation.list_data[ r]["total_seats"]["max"],
                 "ss": simulation.list_data[ r]["seat_shares"]["max"],
                 "id": simulation.list_data[ r]["ideal_seats"]["max"],
+            },
+            "skw": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["skw"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["skw"],
+                "cs": simulation.list_data[ r]["const_seats"]["skw"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["skw"],
+                "ts": simulation.list_data[ r]["total_seats"]["skw"],
+                "ss": simulation.list_data[ r]["seat_shares"]["skw"],
+                "id": simulation.list_data[ r]["ideal_seats"]["skw"],
+            },
+            "kur": {
+                "v" : simulation.list_data[-1]["sim_votes"  ]["kur"],
+                "vs": simulation.list_data[-1]["sim_shares" ]["kur"],
+                "cs": simulation.list_data[ r]["const_seats"]["kur"],
+                "as": simulation.list_data[ r]["adj_seats"  ]["kur"],
+                "ts": simulation.list_data[ r]["total_seats"]["kur"],
+                "ss": simulation.list_data[ r]["seat_shares"]["kur"],
+                "id": simulation.list_data[ r]["ideal_seats"]["kur"],
             },
         }
 
@@ -468,7 +495,7 @@ def simulation_to_xlsx(simulation, filename):
         STANDARDIZED_MEASURES = results["standardized_measures"]
         IDEAL_COMPARISON_MEASURES = results["ideal_comparison_measures"]
         MEASURES = results["measures"]
-        aggregates = ["avg", "min", "max", "std"]
+        aggregates = ["avg", "min", "max", "std", "skw", "kur"]
         aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
         present_measures(worksheet, row=toprow, col=9,
             xheaders=aggregate_names,

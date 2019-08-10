@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from math import sqrt, exp
 from copy import copy, deepcopy
 
-from table_util import matrix_subtraction, scale_matrix, add_totals, find_xtd_shares
+from table_util import m_subtract, scale_matrix, add_totals, find_xtd_shares
 from excel_util import simulation_to_xlsx
 from rules import Rules
 import dictionaries as dicts
@@ -160,7 +160,9 @@ class Simulation:
     def aggregate_list(self, ruleset, measure, const, party, value):
         self.list_data[ruleset][measure]["cnt"][const][party] += 1
         self.list_data[ruleset][measure]["sum"][const][party] += value
-        self.list_data[ruleset][measure]["sqs"][const][party] += value**2
+        self.list_data[ruleset][measure]["sm2"][const][party] += value**2
+        self.list_data[ruleset][measure]["sm3"][const][party] += value**3
+        self.list_data[ruleset][measure]["sm4"][const][party] += value**4
         if (self.list_data[ruleset][measure]["cnt"][const][party] > 1):
             if (value > self.list_data[ruleset][measure]["max"][const][party]):
                 self.list_data[ruleset][measure]["max"][const][party] = value
@@ -173,27 +175,38 @@ class Simulation:
     def analyze_list(self, ruleset, measure, const, party):
         n = float(self.list_data[ruleset][measure]["cnt"][const][party])
         s = float(self.list_data[ruleset][measure]["sum"][const][party])
-        t = float(self.list_data[ruleset][measure]["sqs"][const][party])
-        avg = s/n                 if n>0 else 0
-        var = (t - s*avg) / (n-1) if n>1 else 0
-        if var < 0:
-            if var < -0.0000001:
-                logging.warning(f'Negative variance encountered: {var}. '
+        t = float(self.list_data[ruleset][measure]["sm2"][const][party])
+        q = float(self.list_data[ruleset][measure]["sm3"][const][party])
+        r = float(self.list_data[ruleset][measure]["sm4"][const][party])
+        m = s/n if n>0 else 0 #average
+        d =                   t - m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =          q -   m*(t + 2*d)  # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - m*(4*q - 3*m*(t +   d)) # = \sum_{i=1}^{n}(x_i-avg)^4
+        if d < 0:
+            if d < -0.0000001:
+                logging.warning(f'Negative d encountered: {d}. '
                     f'Measure: {measure}, const: {const}, party: {party}')
-            if var < -0.01:
+            if d < -0.01:
                 message = "Variance very negative. What's going on here?"
                 logging.error(message)
                 raise ValueError(message)
-            var = 0
+            d = 0
+        var = d / (n-1) if n>1 else 0
         std = sqrt(var)
-        self.list_data[ruleset][measure]["avg"][const][party] = avg
+        skewness = h*sqrt(n/d)/d if d!=0 else 0
+        kurtosis = c*n/d**2      if d!=0 else 0
+        self.list_data[ruleset][measure]["avg"][const][party] = m
         self.list_data[ruleset][measure]["var"][const][party] = var
         self.list_data[ruleset][measure]["std"][const][party] = std
+        self.list_data[ruleset][measure]["skw"][const][party] = skewness
+        self.list_data[ruleset][measure]["kur"][const][party] = kurtosis
 
     def aggregate_measure(self, ruleset, measure, value):
         self.data[ruleset][measure]["cnt"] += 1
         self.data[ruleset][measure]["sum"] += value
-        self.data[ruleset][measure]["sqs"] += value**2
+        self.data[ruleset][measure]["sm2"] += value**2
+        self.data[ruleset][measure]["sm3"] += value**3
+        self.data[ruleset][measure]["sm4"] += value**4
         if (self.data[ruleset][measure]["cnt"] > 1):
             if (value > self.data[ruleset][measure]["max"]):
                 self.data[ruleset][measure]["max"] = value
@@ -206,22 +219,38 @@ class Simulation:
     def analyze_measure(self, ruleset, measure):
         n = float(self.data[ruleset][measure]["cnt"])
         s = float(self.data[ruleset][measure]["sum"])
-        t = float(self.data[ruleset][measure]["sqs"])
-        avg = s/n                 if n>0 else 0
-        var = (t - s*avg) / (n-1) if n>1 else 0
-        if -0.0000001 < var and var < 0:
-            var = 0
+        t = float(self.data[ruleset][measure]["sm2"])
+        q = float(self.data[ruleset][measure]["sm3"])
+        r = float(self.data[ruleset][measure]["sm4"])
+        m = s/n if n>0 else 0 #average
+        d =                   t - m*s   # = \sum_{i=1}^{n}(x_i-avg)^2
+        h =          q -   m*(t + 2*d)  # = \sum_{i=1}^{n}(x_i-avg)^3
+        c = r - m*(4*q - 3*m*(t +   d)) # = \sum_{i=1}^{n}(x_i-avg)^4
+        if d < 0:
+            if d < -0.0000001:
+                logging.warning(f'Negative d encountered: {d}. '
+                    f'Measure: {measure}, const: {const}, party: {party}')
+            if d < -0.01:
+                message = "Variance very negative. What's going on here?"
+                logging.error(message)
+                raise ValueError(message)
+            d = 0
+        var = d / (n-1) if n>1 else 0
         std = sqrt(var)
-        self.data[ruleset][measure]["avg"] = avg
+        skewness = h*sqrt(n/d)/d if d!=0 else 0
+        kurtosis = c*n/d**2      if d!=0 else 0
+        self.data[ruleset][measure]["avg"] = m
         self.data[ruleset][measure]["var"] = var
         self.data[ruleset][measure]["std"] = std
+        self.data[ruleset][measure]["skw"] = skewness
+        self.data[ruleset][measure]["kur"] = kurtosis
 
     def run_initial_elections(self):
         self.base_allocations = []
         for election in self.e_handler.elections:
             xtd_total_seats = add_totals(election.results)
             xtd_const_seats = add_totals(election.m_const_seats_alloc)
-            xtd_adj_seats = matrix_subtraction(xtd_total_seats, xtd_const_seats)
+            xtd_adj_seats = m_subtract(xtd_total_seats, xtd_const_seats)
             xtd_seat_shares = find_xtd_shares(xtd_total_seats)
             ideal_seats = self.calculate_ideal_seats(election)
             xtd_ideal_seats = add_totals(ideal_seats)

@@ -3,7 +3,7 @@ from copy import deepcopy, copy
 from apportion import apportion1d, threshold_elimination_constituencies
 from table_util import v_subtract
 
-def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
+def relative_superiority_simple(m_votes, v_desired_row_sums, v_desired_col_sums,
     m_prior_allocations, divisor_gen, threshold=None, **kwargs):
     """Apportion by Þorkell Helgason's Relative Superiority method"""
     num_constituencies = len(v_desired_row_sums)
@@ -72,7 +72,7 @@ def relative_superiority(m_votes, v_desired_row_sums, v_desired_col_sums,
                 continue
             _, div_after = apportion1d(
                 v_votes=m_votes[c],
-                num_total_seats=v_desired_row_sums[c],
+                num_total_seats=v_row_sums[c] + 1,
                 prior_allocations=m_allocations[c],
                 divisor_gen=divisor_gen,
                 v_max_left=v_slacks

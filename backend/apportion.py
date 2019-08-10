@@ -2,7 +2,7 @@ from copy import copy
 from table_util import find_shares_1d
 
 def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
-                threshold=0, invalid=[]):
+                threshold=0, invalid=[], v_max_left=[]):
     """
     Perform a one-dimensional apportionment of seats.
     Inputs:
@@ -27,12 +27,16 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
         divisors.append(x)
 
     allocations = copy(prior_allocations)
+    if v_max_left == []:
+        v_max_left = [num_total_seats]*len(v_votes)
+    else:
+        v_max_left = copy(v_max_left)
 
     num_allocated = sum(prior_allocations)
     min_used = 1000000
     while num_allocated < num_total_seats:
         divided_votes = [float(v_votes[i])/divisors[i]
-                         if i not in invalid else 0
+                         if v_max_left[i]>0 and i not in invalid else 0
                          for i in range(N)]
         maxvote = max(divided_votes)
         if maxvote == 0:
@@ -42,6 +46,7 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
         divisors[maxparty] = next(divisor_gens[maxparty])
         allocations[maxparty] += 1
         num_allocated += 1
+        v_max_left[maxparty] -= 1
 
     return allocations, (divisors, divisor_gens, min_used)
 

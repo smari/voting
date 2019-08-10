@@ -8,6 +8,7 @@ from methods.icelandic_law import icelandic_apportionment
 from methods.monge import monge
 from methods.nearest_neighbor import nearest_neighbor
 from methods.relative_superiority import relative_superiority
+from methods.relative_superiority_simple import relative_superiority_simple
 from methods.norwegian_law import norwegian_apportionment
 from methods.norwegian_icelandic import norw_ice_apportionment
 from methods.pure_vote_ratios import pure_vote_ratios_apportionment
@@ -37,6 +38,7 @@ ADJUSTMENT_METHODS = {
     "var-alt-scal": var_alt_scal,
     "alternating-scaling": alternating_scaling,
     "relative-superiority": relative_superiority,
+    "relative-superiority-simple": relative_superiority_simple,
     "nearest-neighbor": nearest_neighbor,
     "monge": monge,
     "icelandic-law": icelandic_apportionment,
@@ -49,6 +51,7 @@ ADJUSTMENT_METHODS = {
 ADJUSTMENT_METHOD_NAMES = {
     "alternating-scaling": "Optimal method (Alternating-Scaling)",
     "relative-superiority": "Relative Superiority Method",
+    "relative-superiority-simple": "Relative Superiority Method - Simple version",
     "nearest-neighbor": "Nearest Neighbor Method",
     "monge": "Monge algorithm",
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
@@ -125,8 +128,12 @@ AGGREGATES = {
     "max": "Max",
     "min": "Min",
     "sum": "Sum of elements",
-    "sqs": "Sum of squares",
+    "sm2": "Sum of squares",
+    "sm3": "Sum of cubes",
+    "sm4": "Sum of fourth powers",
     "avg": "Average",
     "var": "Variance",
-    "std": "Std. dev"
+    "std": "Std. dev",
+    "skw": "Skewness",
+    "kur": "Kurtosis",
 }

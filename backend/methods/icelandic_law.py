@@ -1,7 +1,8 @@
 #coding:utf-8
 from copy import deepcopy
-from apportion import apportion1d
 import random
+
+from apportion import apportion1d
 
 def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
                             m_prior_allocations, divisor_gen, threshold=None,
@@ -81,23 +82,32 @@ def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
             m_allocations[const[0]][idx] += 1
             num_allocated += 1
             v_last_alloc = alloc
-            seats_info.append((const[0], idx, d[2],
-                                v_proportions[const[0]]))
+            seats_info.append({
+                "constituency": const[0], "party": idx,
+                "reason": "Highest list share",
+                "country_num": d[2],
+                "list_share": v_proportions[const[0]],
+            })
         else:
             invalid.append(idx)
     return m_allocations, (seats_info, print_seats)
 
 
-def print_seats(rules, adj_seats_info):
+def print_seats(rules, allocation_sequence):
     # Return data to print breakdown of adjustment seat apportionment
-    header = ["Adjustment seat number", "Constituency", "Party",
-                "Country number", "List share"]
+    header = ["Adj. seat #", "Constituency", "Party",
+        "Reason", "Country number", "List share"]
     data = []
-    for i in range(len(adj_seats_info)):
-        data.append([i+1,
-                    rules["constituencies"][adj_seats_info[i][0]]["name"],
-                    rules["parties"][adj_seats_info[i][1]],
-                    adj_seats_info[i][2],
-                    "{:.3%}".format(adj_seats_info[i][3])])
+    seat_number = 0
+    for allocation in allocation_sequence:
+        seat_number += 1
+        data.append([
+            seat_number,
+            rules["constituencies"][allocation["constituency"]]["name"],
+            rules["parties"][allocation["party"]],
+            allocation["reason"],
+            round(allocation["country_num"], 1),
+            "{:.3%}".format(allocation["list_share"])
+        ])
 
     return header, data
