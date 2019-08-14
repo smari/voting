@@ -31,3 +31,27 @@ class TestElection(unittest.TestCase):
 
         #Assert
         self.assertEqual(expected, results)
+
+    def test_quota(self):
+        #Arrange
+        votes     = [135,129, 36]
+        expected3 = [  1,  1,  1]
+        expected4 = [  2,  2,  0]
+
+        #Act
+        results3, _, _ = apportion.apportion1d_by_quota(
+            num_total_seats=3,
+            v_votes=votes,
+            quota_rule=division_rules.hare,
+            prior_allocations=[],
+        )
+        results4, _, _ = apportion.apportion1d_by_quota(
+            num_total_seats=4,
+            v_votes=votes,
+            quota_rule=division_rules.hare,
+            prior_allocations=[],
+        )
+
+        #Assert
+        self.assertEqual(expected3, results3)
+        self.assertEqual(expected4, results4)

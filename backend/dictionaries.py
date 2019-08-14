@@ -1,6 +1,7 @@
 
 from division_rules import dhondt_gen, sainte_lague_gen, \
     nordic_sainte_lague_gen, imperiali_gen, danish_gen, huntington_hill_gen
+from division_rules import droop, hare
 
 from methods.var_alt_scal import var_alt_scal
 from methods.alternating_scaling import alternating_scaling
@@ -32,6 +33,20 @@ DIVIDER_RULE_NAMES = {
     #"imperiali": "Imperiali method",
     "danish": "Danish method",
     "huntington-hill": "Huntington-Hill method",
+}
+QUOTA_RULES = {
+    "droop": droop,
+    "hare": hare,
+}
+RULE_NAMES = {
+    "dhondt": "D'Hondt's method",
+    "sainte-lague": "Sainte-Laguë method",
+    "nordic": "Nordic Sainte-Laguë variant",
+    #"imperiali": "Imperiali method",
+    "danish": "Danish method",
+    "huntington-hill": "Huntington-Hill method",
+    "droop": "Droop quota",
+    "hare": "Hare quota",
 }
 
 ADJUSTMENT_METHODS = {
