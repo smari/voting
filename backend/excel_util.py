@@ -4,7 +4,7 @@ from datetime import datetime
 
 from table_util import m_subtract, add_totals, find_xtd_shares
 from dictionaries import ADJUSTMENT_METHOD_NAMES as AMN, \
-                         DIVIDER_RULE_NAMES as DRN, \
+                         RULE_NAMES as DRN, \
                          GENERATING_METHOD_NAMES as GMN
 
 def prepare_formats(workbook):
