@@ -79,6 +79,9 @@ def apportion1d_by_quota(
     total_votes = sum(active_votes)
     quota = quota_rule(total_votes, num_total_seats)
 
+    for n in range(N):
+        active_votes[n] -= quota*allocations[n]
+
     allocation_sequence = []
     while num_allocated < num_total_seats:
         highest = active_votes.index(max(active_votes))
