@@ -106,14 +106,16 @@ MEASURES = {
     "sum_pos":         "Sum of relative positive differences",
     "sum_sq":          "Sum of relative squared differences",
 }
-DEVIATION_MEASURES = [
+LIST_DEVIATION_MEASURES = [
     "dev_opt",
     "dev_law",
-    "adj_dev",
-    "dev_ind_const_totals",
-    "dev_ind_const",
     "dev_all_adj",
+    "dev_ind_const",
     # "dev_one_const", #skipped, because already measured by all_adj (party sums)
+]
+TOTALS_DEVIATION_MEASURES = [
+    "dev_ind_const_totals",
+    "adj_dev",
 ]
 STANDARDIZED_MEASURES = [
     "entropy_ratio",

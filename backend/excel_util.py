@@ -266,7 +266,8 @@ def simulation_to_xlsx(simulation, filename):
         write_matrix(worksheet, row+2, col+1, matrix, cformat)
 
     def present_measures(worksheet, row, col, xheaders,
-        deviation_measures, ideal_comparison_measures, normalized_measures
+        list_deviation_measures, totals_deviation_measures,
+        ideal_comparison_measures, normalized_measures
     ):
         worksheet.write(row, col, "Quality measures", fmt["h"])
         row += 1
@@ -276,13 +277,23 @@ def simulation_to_xlsx(simulation, filename):
             "Comparison to other seat allocations", fmt["inter_h"])
         row += 1
         worksheet.write(row, col,
-            "Sum of absolute differences of tested method and:", fmt["inter_h"])
+            "Sum of absolute differences of lists for tested method and:",
+            fmt["inter_h"])
         row += 1
         worksheet.write_column(row, col,
-            deviation_measures["headers"], fmt["basic_h"])
+            list_deviation_measures["headers"], fmt["basic_h"])
         write_matrix(worksheet, row, col+2,
-            deviation_measures["matrix"], fmt["cell"], True)
-        row += len(deviation_measures["headers"])
+            list_deviation_measures["matrix"], fmt["cell"], True)
+        row += len(list_deviation_measures["headers"])
+        worksheet.write(row, col,
+            "Sum of absolute differences of national totals for tested method and:",
+            fmt["inter_h"])
+        row += 1
+        worksheet.write_column(row, col,
+            totals_deviation_measures["headers"], fmt["basic_h"])
+        write_matrix(worksheet, row, col+2,
+            totals_deviation_measures["matrix"], fmt["cell"], True)
+        row += len(totals_deviation_measures["headers"])
         worksheet.write(row, col+1,
             "Quality indices (the higher the better)", fmt["inter_h"])
         row += 1
@@ -491,7 +502,8 @@ def simulation_to_xlsx(simulation, filename):
 
         #Measures
         results = simulation.get_results_dict()
-        DEVIATION_MEASURES = results["deviation_measures"]
+        LIST_DEVIATION_MEASURES = results["list_deviation_measures"]
+        TOTALS_DEVIATION_MEASURES = results["totals_deviation_measures"]
         STANDARDIZED_MEASURES = results["standardized_measures"]
         IDEAL_COMPARISON_MEASURES = results["ideal_comparison_measures"]
         MEASURES = results["measures"]
@@ -499,11 +511,18 @@ def simulation_to_xlsx(simulation, filename):
         aggregate_names = [results["aggregates"][aggr] for aggr in aggregates]
         present_measures(worksheet, row=toprow, col=9,
             xheaders=aggregate_names,
-            deviation_measures={
-                "headers": [MEASURES[key] for key in DEVIATION_MEASURES],
+            list_deviation_measures={
+                "headers": [MEASURES[key] for key in LIST_DEVIATION_MEASURES],
                 "matrix": [
                     [simulation.data[r][measure][aggr] for aggr in aggregates]
-                    for measure in DEVIATION_MEASURES
+                    for measure in LIST_DEVIATION_MEASURES
+                ]
+            },
+            totals_deviation_measures={
+                "headers": [MEASURES[key] for key in TOTALS_DEVIATION_MEASURES],
+                "matrix": [
+                    [simulation.data[r][measure][aggr] for aggr in aggregates]
+                    for measure in TOTALS_DEVIATION_MEASURES
                 ]
             },
             ideal_comparison_measures={
