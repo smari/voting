@@ -96,6 +96,7 @@ MEASURES = {
     "dev_law":         "Allocation by Icelandic Law",
     "adj_dev":         "Adjustment seats apportioned nationally",
     "dev_ind_const":   "Allocation as if all seats were constituency seats",
+    "dev_ind_const_totals": "Allocation nationally as if all seats were constituency seats",
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
@@ -109,6 +110,7 @@ DEVIATION_MEASURES = [
     "dev_opt",
     "dev_law",
     "adj_dev",
+    "dev_ind_const_totals",
     "dev_ind_const",
     "dev_all_adj",
     # "dev_one_const", #skipped, because already measured by all_adj (party sums)
