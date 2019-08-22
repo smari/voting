@@ -93,11 +93,16 @@ SEAT_SPECIFICATION_OPTIONS = {
 
 MEASURES = {
     "dev_opt":         "Allocation by the optimal method",
+    "dev_opt_totals":  "Allocation by the optimal method",
     "dev_law":         "Allocation by Icelandic Law",
+    "dev_law_totals":  "Allocation by Icelandic Law",
     "adj_dev":         "Adjustment seats apportioned nationally",
     "dev_ind_const":   "Allocation as if all seats were constituency seats",
-    "dev_ind_const_totals": "Allocation nationally as if all seats were constituency seats",
+    "dev_ind_const_totals":
+                       "Allocation as if all seats were constituency seats",
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
+    "dev_all_adj_totals":
+                       "Allocation as if all seats were adjustment seats",
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
     "entropy_ratio":   "Entropy relative to optimal value",
@@ -114,6 +119,9 @@ LIST_DEVIATION_MEASURES = [
     # "dev_one_const", #skipped, because already measured by all_adj (party sums)
 ]
 TOTALS_DEVIATION_MEASURES = [
+    "dev_opt_totals",
+    "dev_law_totals",
+    "dev_all_adj_totals",
     "dev_ind_const_totals",
     "adj_dev",
 ]

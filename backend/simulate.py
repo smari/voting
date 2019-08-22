@@ -359,11 +359,11 @@ class Simulation:
             results = voting.Election(rules, votes).run()
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
-        if option == "ind_const":
+        if option != "one_const":
             ref_totals = [sum(x) for x in zip(*reference_results)]
             comp_totals = [sum(x) for x in zip(*results)]
             deviation = dev([ref_totals], [comp_totals])
-            self.aggregate_measure(ruleset, "dev_ind_const_totals", deviation)
+            self.aggregate_measure(ruleset, f"dev_{option}_totals", deviation)
 
     def calculate_ideal_seats(self, election):
         scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
