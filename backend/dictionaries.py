@@ -96,13 +96,13 @@ MEASURES = {
     "dev_opt_totals":  "Allocation by the optimal method",
     "dev_law":         "Allocation by Icelandic Law",
     "dev_law_totals":  "Allocation by Icelandic Law",
-    "adj_dev":         "Adjustment seats apportioned nationally",
-    "dev_ind_const":   "Allocation as if all seats were constituency seats",
-    "dev_ind_const_totals":
-                       "Allocation as if all seats were constituency seats",
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
     "dev_all_adj_totals":
                        "Allocation as if all seats were adjustment seats",
+    "dev_ind_const":   "Allocation as if all seats were constituency seats",
+    "dev_ind_const_totals":
+                       "Allocation as if all seats were constituency seats",
+    "adj_dev":         "Adjustment seats apportioned nationally",
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
     "entropy_ratio":   "Entropy relative to optimal value",
