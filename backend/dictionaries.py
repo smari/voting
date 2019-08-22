@@ -102,7 +102,7 @@ MEASURES = {
     "dev_ind_const":   "Allocation as if all seats were constituency seats",
     "dev_ind_const_totals":
                        "Allocation as if all seats were constituency seats",
-    "adj_dev":         "Adjustment seats apportioned nationally",
+    "adj_dev":         "Desired apportionment of adjustment seats",
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
     "entropy_ratio":   "Entropy relative to optimal value",
