@@ -119,8 +119,8 @@ LIST_DEVIATION_MEASURES = [
     # "dev_one_const", #skipped, because already measured by all_adj (party sums)
 ]
 TOTALS_DEVIATION_MEASURES = [
-    "dev_opt_totals",
-    "dev_law_totals",
+    #"dev_opt_totals",
+    #"dev_law_totals",
     "dev_all_adj_totals",
     "dev_ind_const_totals",
     "adj_dev",
