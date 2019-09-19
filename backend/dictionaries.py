@@ -6,6 +6,7 @@ from division_rules import droop, hare
 from methods.var_alt_scal import var_alt_scal
 from methods.alternating_scaling import alternating_scaling
 from methods.icelandic_law import icelandic_apportionment
+from methods.icelandic_law_based_on_shares import icelandic_share_apportionment
 from methods.monge import monge
 from methods.nearest_neighbor import nearest_neighbor
 from methods.relative_superiority import relative_superiority
@@ -57,6 +58,7 @@ ADJUSTMENT_METHODS = {
     "nearest-neighbor": nearest_neighbor,
     "monge": monge,
     "icelandic-law": icelandic_apportionment,
+    "ice-shares": icelandic_share_apportionment,
     "norwegian-law": norwegian_apportionment,
     "norwegian-icelandic": norw_ice_apportionment,
     "opt-entropy": opt_entropy,
@@ -70,6 +72,7 @@ ADJUSTMENT_METHOD_NAMES = {
     "nearest-neighbor": "Nearest Neighbor Method",
     "monge": "Monge algorithm",
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
+    "ice-shares": "Icelandic law modified to use seat shares",
     "norwegian-law": "Norwegian law",
     "norwegian-icelandic": "Norwegian-Icelandic variant",
     "switching": "Switching Method",
