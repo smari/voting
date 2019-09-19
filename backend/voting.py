@@ -160,7 +160,7 @@ class Election:
                 orig_votes=self.m_votes,
                 v_const_seats=[con["num_const_seats"] for con in consts],
                 last=self.last)
-        except ZeroDivisionError:
+        except (ZeroDivisionError, RuntimeError):
             self.results = self.m_const_seats_alloc
             self.adj_seats_info = None
 
