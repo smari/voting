@@ -27,6 +27,6 @@ def solution_exists(votes, row_constraints, col_constraints, prior_allocations):
         threshold=0)
     for c in range(num_constituencies):
         for p in range(num_parties):
-            if result[c][p]>0 and votes[c][p]==0:
+            if result[c][p]>prior_allocations[c][p] and votes[c][p]==0:
                 return False
     return True
