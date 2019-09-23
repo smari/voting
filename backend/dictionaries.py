@@ -1,10 +1,12 @@
 
 from division_rules import dhondt_gen, sainte_lague_gen, \
     nordic_sainte_lague_gen, imperiali_gen, danish_gen, huntington_hill_gen
+from division_rules import droop, hare
 
 from methods.var_alt_scal import var_alt_scal
 from methods.alternating_scaling import alternating_scaling
 from methods.icelandic_law import icelandic_apportionment
+from methods.icelandic_law_based_on_shares import icelandic_share_apportionment
 from methods.monge import monge
 from methods.nearest_neighbor import nearest_neighbor
 from methods.relative_superiority import relative_superiority
@@ -33,6 +35,20 @@ DIVIDER_RULE_NAMES = {
     "danish": "Danish method",
     "huntington-hill": "Huntington-Hill method",
 }
+QUOTA_RULES = {
+    "droop": droop,
+    "hare": hare,
+}
+RULE_NAMES = {
+    "dhondt": "D'Hondt's method",
+    "sainte-lague": "Sainte-Laguë method",
+    "nordic": "Nordic Sainte-Laguë variant",
+    #"imperiali": "Imperiali method",
+    "danish": "Danish method",
+    "huntington-hill": "Huntington-Hill method",
+    "droop": "Droop quota",
+    "hare": "Hare quota",
+}
 
 ADJUSTMENT_METHODS = {
     "var-alt-scal": var_alt_scal,
@@ -42,6 +58,7 @@ ADJUSTMENT_METHODS = {
     "nearest-neighbor": nearest_neighbor,
     "monge": monge,
     "icelandic-law": icelandic_apportionment,
+    "ice-shares": icelandic_share_apportionment,
     "norwegian-law": norwegian_apportionment,
     "norwegian-icelandic": norw_ice_apportionment,
     "opt-entropy": opt_entropy,
@@ -55,6 +72,7 @@ ADJUSTMENT_METHOD_NAMES = {
     "nearest-neighbor": "Nearest Neighbor Method",
     "monge": "Monge algorithm",
     "icelandic-law": "Icelandic law 24/2000 (Kosningar til Alþingis)",
+    "ice-shares": "Icelandic law modified to use seat shares",
     "norwegian-law": "Norwegian law",
     "norwegian-icelandic": "Norwegian-Icelandic variant",
     "switching": "Switching Method",
@@ -78,10 +96,16 @@ SEAT_SPECIFICATION_OPTIONS = {
 
 MEASURES = {
     "dev_opt":         "Allocation by the optimal method",
+    "dev_opt_totals":  "Allocation by the optimal method",
     "dev_law":         "Allocation by Icelandic Law",
-    "adj_dev":         "Adjustment seats apportioned nationally",
-    "dev_ind_const":   "Allocation as if all seats were constituency seats",
+    "dev_law_totals":  "Allocation by Icelandic Law",
     "dev_all_adj":     "Allocation as if all seats were adjustment seats",
+    "dev_all_adj_totals":
+                       "Allocation as if all seats were adjustment seats",
+    "dev_ind_const":   "Allocation as if all seats were constituency seats",
+    "dev_ind_const_totals":
+                       "Allocation as if all seats were constituency seats",
+    "adj_dev":         "Desired apportionment of adjustment seats",
     "dev_one_const":   "Allocation as if all constituencies were combined into one",
     "entropy":         "Entropy (product of all seat values used)",
     "entropy_ratio":   "Entropy relative to optimal value",
@@ -90,13 +114,19 @@ MEASURES = {
     "sum_pos":         "Sum of relative positive differences",
     "sum_sq":          "Sum of relative squared differences",
 }
-DEVIATION_MEASURES = [
+LIST_DEVIATION_MEASURES = [
     "dev_opt",
     "dev_law",
-    "adj_dev",
-    "dev_ind_const",
     "dev_all_adj",
+    "dev_ind_const",
     # "dev_one_const", #skipped, because already measured by all_adj (party sums)
+]
+TOTALS_DEVIATION_MEASURES = [
+    #"dev_opt_totals",
+    #"dev_law_totals",
+    "dev_all_adj_totals",
+    "dev_ind_const_totals",
+    "adj_dev",
 ]
 STANDARDIZED_MEASURES = [
     "entropy_ratio",

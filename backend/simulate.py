@@ -359,6 +359,11 @@ class Simulation:
             results = voting.Election(rules, votes).run()
         deviation = dev(reference_results, results)
         self.aggregate_measure(ruleset, "dev_"+option, deviation)
+        if option != "one_const":
+            ref_totals = [sum(x) for x in zip(*reference_results)]
+            comp_totals = [sum(x) for x in zip(*results)]
+            deviation = dev([ref_totals], [comp_totals])
+            self.aggregate_measure(ruleset, f"dev_{option}_totals", deviation)
 
     def calculate_ideal_seats(self, election):
         scalar = float(election.total_seats) / sum(sum(x) for x in election.m_votes)
@@ -481,7 +486,8 @@ class Simulation:
             "testnames": [rules["name"] for rules in self.e_rules],
             "methods": [rules["adjustment_method"] for rules in self.e_rules],
             "measures": MEASURES,
-            "deviation_measures": dicts.DEVIATION_MEASURES,
+            "list_deviation_measures": dicts.LIST_DEVIATION_MEASURES,
+            "totals_deviation_measures": dicts.TOTALS_DEVIATION_MEASURES,
             "ideal_comparison_measures": dicts.IDEAL_COMPARISON_MEASURES,
             "standardized_measures": dicts.STANDARDIZED_MEASURES,
             "list_measures": dicts.LIST_MEASURES,

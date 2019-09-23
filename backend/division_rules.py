@@ -44,3 +44,11 @@ def huntington_hill_gen():
     while True:
         n += 1
         yield math.sqrt(n*(n+1))
+
+# Quota rules:
+
+def droop(total_votes, total_seats):
+    return total_votes/(total_seats+1)
+
+def hare(total_votes, total_seats):
+    return total_votes/total_seats

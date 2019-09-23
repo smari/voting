@@ -20,7 +20,7 @@
           >
             <b-form-select class="mb-3"
               v-model="rules.primary_divider"
-              :options="capabilities.divider_rules"/>
+              :options="capabilities.rules"/>
           </b-form-group>
           <b-form-group
             label="Threshold"
@@ -42,7 +42,7 @@
           >
             <b-form-select class="mb-3"
               v-model="rules.adj_determine_divider"
-              :options="capabilities.divider_rules"/>
+              :options="capabilities.rules"/>
           </b-form-group>
           <b-form-group
             label="Threshold"

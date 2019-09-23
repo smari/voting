@@ -41,10 +41,40 @@
     </tr>
     <tr>
       <th class="small-12 medium-1 column measurename">
-        <div>Sum of absolute differences of tested method and:</div>
+        <div>Sum of absolute differences of lists for tested method and:</div>
       </th>
     </tr>
-    <tr v-for="midx in deviation_measures">
+    <tr v-for="midx in list_deviation_measures">
+      <td class="small-12 medium-1 column measurename">
+          {{ measures[midx] }}
+      </td>
+      <template v-for="(ruleset, ridx) in data">
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["avg"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["min"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["max"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["std"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["skw"].toFixed(4) }}
+        </td>
+        <td class="small-12 medium-2 column methoddata">
+          {{ data[ridx]["measures"][midx]["kur"].toFixed(4) }}
+        </td>
+      </template>
+    </tr>
+    <tr>
+      <th class="small-12 medium-1 column measurename">
+        <div>Sum of absolute differences of national totals for tested method and:</div>
+      </th>
+    </tr>
+    <tr v-for="midx in totals_deviation_measures">
       <td class="small-12 medium-1 column measurename">
           {{ measures[midx] }}
       </td>
@@ -137,7 +167,8 @@ export default {
   props: [
     "testnames",
     "measures",
-    "deviation_measures",
+    "list_deviation_measures",
+    "totals_deviation_measures",
     "standardized_measures",
     "ideal_comparison_measures",
     "methods",

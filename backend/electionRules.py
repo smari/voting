@@ -4,7 +4,7 @@ from copy import copy, deepcopy
 
 from rules import Rules
 from util import load_constituencies
-from dictionaries import DIVIDER_RULES, ADJUSTMENT_METHODS
+from dictionaries import DIVIDER_RULES, QUOTA_RULES, RULE_NAMES, ADJUSTMENT_METHODS
 from dictionaries import SEAT_SPECIFICATION_OPTIONS
 
 class ElectionRules(Rules):
@@ -13,8 +13,8 @@ class ElectionRules(Rules):
     def __init__(self):
         super(ElectionRules, self).__init__()
         self.value_rules = {
-            "primary_divider": DIVIDER_RULES.keys(),
-            "adj_determine_divider": DIVIDER_RULES.keys(),
+            "primary_divider": RULE_NAMES.keys(),
+            "adj_determine_divider": RULE_NAMES.keys(),
             "adj_alloc_divider": DIVIDER_RULES.keys(),
             "adjustment_method": ADJUSTMENT_METHODS.keys(),
             "seat_spec_option": SEAT_SPECIFICATION_OPTIONS.keys(),
@@ -56,6 +56,8 @@ class ElectionRules(Rules):
         method = self[div]
         if method in DIVIDER_RULES.keys():
             return DIVIDER_RULES[method]
+        elif method in QUOTA_RULES.keys():
+            return QUOTA_RULES[method]
         else:
             raise ValueError("%s is not a known divider" % div)
 

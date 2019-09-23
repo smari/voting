@@ -94,7 +94,8 @@
       <h3>Quality measures</h3>
       <SimulationData
         :measures="results.measures"
-        :deviation_measures="results.deviation_measures"
+        :list_deviation_measures="results.list_deviation_measures"
+        :totals_deviation_measures="results.totals_deviation_measures"
         :standardized_measures="results.standardized_measures"
         :ideal_comparison_measures="results.ideal_comparison_measures"
         :methods="results.methods"

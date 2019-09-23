@@ -442,6 +442,7 @@ def get_capabilities_dict():
         "election_rules": ElectionRules(),
         "simulation_rules": sim.SimulationRules(),
         "capabilities": {
+            "rules": dictionaries.RULE_NAMES,
             "divider_rules": dictionaries.DIVIDER_RULE_NAMES,
             "adjustment_methods": dictionaries.ADJUSTMENT_METHOD_NAMES,
             "generating_methods": dictionaries.GENERATING_METHOD_NAMES,
