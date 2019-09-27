@@ -10,6 +10,7 @@ def icelandic_share_apportionment(
     v_desired_col_sums,
     m_prior_allocations,
     divisor_gen,
+    sum_divisor_gen,
     threshold=None,
     orig_votes=None,
     **kwargs
@@ -28,7 +29,7 @@ def icelandic_share_apportionment(
     seats_info = []
     while num_allocated < total_seats:
         alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc,
-                                divisor_gen, invalid=invalid)
+                                sum_divisor_gen, invalid=invalid)
 
         diff = [alloc[j]-v_last_alloc[j] for j in range(len(alloc))]
         idx = diff.index(1)
