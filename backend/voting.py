@@ -156,6 +156,7 @@ class Election:
                 v_desired_col_sums=self.v_desired_col_sums,
                 m_prior_allocations=self.m_const_seats_alloc,
                 divisor_gen=self.gen,
+                sum_divisor_gen=self.rules.get_generator("adj_determine_divider"),
                 threshold=self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes,
                 v_const_seats=[con["num_const_seats"] for con in consts],

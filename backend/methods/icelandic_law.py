@@ -4,9 +4,17 @@ import random
 
 from apportion import apportion1d
 
-def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
-                            m_prior_allocations, divisor_gen, threshold=None,
-                            orig_votes=None, **kwargs):
+def icelandic_apportionment(
+    m_votes,
+    v_desired_row_sums,
+    v_desired_col_sums,
+    m_prior_allocations,
+    divisor_gen,
+    sum_divisor_gen,
+    threshold=None,
+    orig_votes=None,
+    **kwargs
+):
     """
     Apportion based on Icelandic law nr. 24/2000.
     """
@@ -37,7 +45,7 @@ def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
     seats_info = []
     while num_allocated < total_seats:
         alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc,
-                                divisor_gen, invalid=invalid)
+                                sum_divisor_gen, invalid=invalid)
         # 2.6.
         #   (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #   skal jafnframt fella niður allar landstölur þeirra.)
