@@ -82,7 +82,7 @@
       cancel-only
     >
       <b-table hover :items="presets" :fields="presetfields">
-        <template slot="actions" slot-scope="row">
+        <template v-slot:cell(actions)="row">
           <b-button size="sm"
             @click.stop="loadPreset(row.item.id); $refs.modalpresetref.hide()"
             class="mr-1 mt-0 mb-0"

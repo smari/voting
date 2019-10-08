@@ -82,7 +82,7 @@
             @update-rules="updateElectionRulesAndActivate">
           </ElectionSettings>
         </b-tab>
-        <template slot="tabs">
+        <template v-slot:tabs-end>
           <b-button size="sm" @click="addElectionRules"><b>+</b></b-button>
         </template>
         <div slot="empty">
