@@ -2,7 +2,7 @@
 from copy import deepcopy
 import random
 
-from apportion import apportion1d
+from apportion import apportion1d, apportion1d_by_quota
 
 def icelandic_apportionment(
     m_votes,
