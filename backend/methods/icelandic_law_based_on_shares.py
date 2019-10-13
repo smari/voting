@@ -11,6 +11,8 @@ def icelandic_share_apportionment(
     m_prior_allocations,
     divisor_gen,
     sum_divisor_gen,
+    DIVIDER_RULES,
+    QUOTA_RULES,
     threshold=None,
     orig_votes=None,
     **kwargs
@@ -28,8 +30,26 @@ def icelandic_share_apportionment(
     v_last_alloc = deepcopy(v_seats)
     seats_info = []
     while num_allocated < total_seats:
-        alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc,
-                                sum_divisor_gen, invalid=invalid)
+        if sum_divisor_gen in DIVIDER_RULES.values():
+            alloc, d = apportion1d(
+                v_votes=v_votes,
+                num_total_seats=num_allocated+1,
+                prior_allocations=v_last_alloc,
+                divisor_gen=sum_divisor_gen,
+                invalid=invalid
+            )
+            country_num = d[2]
+        else:
+            quota_rule = sum_divisor_gen
+            assert quota_rule in QUOTA_RULES.values()
+            alloc, sequence, next_in = apportion1d_by_quota(
+                v_votes=v_votes,
+                num_total_seats=num_allocated+1,
+                prior_allocations=v_last_alloc,
+                quota_rule=quota_rule,
+                invalid=invalid
+            )
+            country_num = sequence[-1]["active_votes"]
 
         diff = [alloc[j]-v_last_alloc[j] for j in range(len(alloc))]
         idx = diff.index(1)
@@ -59,7 +79,7 @@ def icelandic_share_apportionment(
             seats_info.append({
                 "constituency": const[0], "party": idx,
                 "reason": "Highest list share",
-                "country_num": d[2],
+                "country_num": country_num,
                 "list_share": v_proportions[const[0]],
             })
         else:
