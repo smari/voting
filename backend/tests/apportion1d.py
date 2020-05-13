@@ -55,3 +55,62 @@ class TestElection(unittest.TestCase):
         #Assert
         self.assertEqual(expected3, results3)
         self.assertEqual(expected4, results4)
+
+    def test_seat_generator_quota(self):
+        #Arrange
+        votes = [135,129,36]
+        repetitions = 2 # Make sure the process is repeatable
+
+        #Act
+        seats, seat_gen = apportion.apportion1d_general(
+            v_votes=votes,
+            num_total_seats=3,
+            prior_allocations=[],
+            rule=division_rules.hare,
+            type_of_rule="Quota"
+        )
+        seat = [[],[]]
+        for i in range(repetitions):
+            gen = seat_gen()
+            for j in range(3):
+                seat[i].append(next(gen))
+
+        #Assert
+        self.assertEqual(seats, [1,1,1])
+        for i in range(repetitions):
+            self.assertEqual(seat[i][0], {'idx': 0, 'active_votes': 135})
+            self.assertEqual(seat[i][1], {'idx': 1, 'active_votes': 129})
+            self.assertEqual(seat[i][2], {'idx': 2, 'active_votes':  36})
+
+    def test_seat_generator_div(self):
+        #Arrange
+        votes = [135,129,36]
+        repetitions = 2 # Make sure the process is repeatable
+
+        #Act
+        seats, seat_gen = apportion.apportion1d_general(
+            v_votes=votes,
+            num_total_seats=3,
+            prior_allocations=[],
+            rule=division_rules.dhondt_gen,
+            type_of_rule="Division"
+        )
+        seat = [[],[]]
+        for i in range(repetitions):
+            gen = seat_gen()
+            for j in range(10):
+                seat[i].append(next(gen))
+
+        #Assert
+        self.assertEqual(seats, [2,1,0])
+        for i in range(repetitions):
+            self.assertEqual(seat[i][0], {'idx': 0, 'active_votes': 135})
+            self.assertEqual(seat[i][1], {'idx': 1, 'active_votes': 129})
+            self.assertEqual(seat[i][2], {'idx': 0, 'active_votes':  67.5})
+            self.assertEqual(seat[i][3], {'idx': 1, 'active_votes':  64.5})
+            self.assertEqual(seat[i][4], {'idx': 0, 'active_votes':  45})
+            self.assertEqual(seat[i][5], {'idx': 1, 'active_votes':  43})
+            self.assertEqual(seat[i][6], {'idx': 2, 'active_votes':  36})
+            self.assertEqual(seat[i][7], {'idx': 0, 'active_votes':  33.75})
+            self.assertEqual(seat[i][8], {'idx': 1, 'active_votes':  32.25})
+            self.assertEqual(seat[i][9], {'idx': 0, 'active_votes':  27})
