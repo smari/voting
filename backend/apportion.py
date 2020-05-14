@@ -136,12 +136,15 @@ def apportion1d_general(
         type_of_rule=type_of_rule
     )
 
+    last_in = None
     gen = seat_gen()
     while sum(allocations) < num_total_seats:
         seat = next(gen)
         allocations[seat["idx"]] += 1
+        last_in = seat
+    next_in_line = next(gen)
 
-    return allocations, seat_gen
+    return allocations, seat_gen, last_in, next_in_line
 
 def seat_generator(
     votes,

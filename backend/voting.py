@@ -162,7 +162,8 @@ class Election:
                 threshold=self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes,
                 v_const_seats=[con["num_const_seats"] for con in consts],
-                last=self.last)
+                last=self.last #for nearest_neighbor and relative_inferiority
+            )
         except (ZeroDivisionError, RuntimeError):
             self.results = self.m_const_seats_alloc
             self.adj_seats_info = None
