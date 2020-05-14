@@ -69,25 +69,22 @@ class Election:
         for i in range(self.num_constituencies):
             num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
+                rule_type = ""
                 if self.rules["primary_divider"] in DIVIDER_RULES.keys():
-                    alloc, seat_gen, last_in, next_in = apportion1d_general(
-                        v_votes=self.m_votes[i],
-                        num_total_seats=num_seats,
-                        prior_allocations=[],
-                        rule=self.rules.get_generator("primary_divider"),
-                        type_of_rule="Division",
-                        threshold=self.rules["constituency_threshold"])
-                    self.last.append(last_in["active_votes"])
+                    rule_type = "Division"
                 else:
                     assert self.rules["primary_divider"] in QUOTA_RULES.keys()
-                    alloc, seat_gen, last_in, next_in = apportion1d_general(
-                        v_votes=self.m_votes[i],
-                        num_total_seats=num_seats,
-                        prior_allocations=[],
-                        rule=self.rules.get_generator("primary_divider"),
-                        type_of_rule="Quota",
-                        threshold=self.rules["constituency_threshold"])
-                    self.last.append(last_in["active_votes"])
+                    rule_type = "Quota"
+                alloc, seat_gen, last_in, next_in = apportion1d_general(
+                    v_votes=self.m_votes[i],
+                    num_total_seats=num_seats,
+                    prior_allocations=[],
+                    rule=self.rules.get_generator("primary_divider"),
+                    type_of_rule=rule_type,
+                    threshold=self.rules["constituency_threshold"]
+                )
+                assert last_in #last_in is not None because num_seats > 0
+                self.last.append(last_in["active_votes"])
             else:
                 alloc = [0]*self.num_parties
                 self.last.append(0)
