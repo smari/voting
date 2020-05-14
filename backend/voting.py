@@ -6,7 +6,7 @@ from tabulate import tabulate
 
 from table_util import entropy, add_totals
 from solution_util import solution_exists
-from apportion import apportion1d, apportion1d_by_quota, \
+from apportion import apportion1d, apportion1d_by_quota, apportion1d_general, \
     threshold_elimination_totals, threshold_elimination_constituencies
 from electionRules import ElectionRules
 from dictionaries import ADJUSTMENT_METHODS, DIVIDER_RULES, QUOTA_RULES
@@ -70,22 +70,24 @@ class Election:
             num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
                 if self.rules["primary_divider"] in DIVIDER_RULES.keys():
-                    alloc, div = apportion1d(
-                        v_votes=self.m_votes[i],
-                        num_total_seats=num_seats,
-                        prior_allocations=[0]*self.num_parties,
-                        divisor_gen=self.rules.get_generator("primary_divider"),
-                        threshold=self.rules["constituency_threshold"])
-                    self.last.append(div[2])
-                else:
-                    assert self.rules["primary_divider"] in QUOTA_RULES.keys()
-                    alloc, sequence, next_in = apportion1d_by_quota(
+                    alloc, seat_gen, last_in, next_in = apportion1d_general(
                         v_votes=self.m_votes[i],
                         num_total_seats=num_seats,
                         prior_allocations=[],
-                        quota_rule=self.rules.get_generator("primary_divider"),
+                        rule=self.rules.get_generator("primary_divider"),
+                        type_of_rule="Division",
                         threshold=self.rules["constituency_threshold"])
-                    self.last.append(sequence[-1]["active_votes"])
+                    self.last.append(last_in["active_votes"])
+                else:
+                    assert self.rules["primary_divider"] in QUOTA_RULES.keys()
+                    alloc, seat_gen, last_in, next_in = apportion1d_general(
+                        v_votes=self.m_votes[i],
+                        num_total_seats=num_seats,
+                        prior_allocations=[],
+                        rule=self.rules.get_generator("primary_divider"),
+                        type_of_rule="Quota",
+                        threshold=self.rules["constituency_threshold"])
+                    self.last.append(last_in["active_votes"])
             else:
                 alloc = [0]*self.num_parties
                 self.last.append(0)
