@@ -62,7 +62,7 @@ class TestElection(unittest.TestCase):
         repetitions = 2 # Make sure the process is repeatable
 
         #Act
-        seats, seat_gen = apportion.apportion1d_general(
+        seats, seat_gen, _, _ = apportion.apportion1d_general(
             v_votes=votes,
             num_total_seats=3,
             prior_allocations=[],
@@ -88,7 +88,7 @@ class TestElection(unittest.TestCase):
         repetitions = 2 # Make sure the process is repeatable
 
         #Act
-        seats, seat_gen = apportion.apportion1d_general(
+        seats, seat_gen, _, _ = apportion.apportion1d_general(
             v_votes=votes,
             num_total_seats=3,
             prior_allocations=[],
