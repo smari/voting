@@ -25,10 +25,7 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
         divisors.append(x)
 
     allocations = copy(prior_allocations)
-    if v_max_left == []:
-        v_max_left = [num_total_seats]*len(v_votes)
-    else:
-        v_max_left = copy(v_max_left)
+    v_max_left = copy(v_max_left) if v_max_left else [num_total_seats]*N
 
     num_allocated = sum(prior_allocations)
     min_used = 1000000
