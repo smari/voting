@@ -6,7 +6,7 @@ from tabulate import tabulate
 
 from table_util import entropy, add_totals
 from solution_util import solution_exists
-from apportion import apportion1d, apportion1d_by_quota, apportion1d_general, \
+from apportion import apportion1d_general, \
     threshold_elimination_totals, threshold_elimination_constituencies
 from electionRules import ElectionRules
 from dictionaries import ADJUSTMENT_METHODS, DIVIDER_RULES, QUOTA_RULES
@@ -116,22 +116,18 @@ class Election:
         if self.rules["debug"]:
             print(" + Determine adjustment seats")
         if self.rules["adj_determine_divider"] in DIVIDER_RULES.keys():
-            self.v_desired_col_sums, seat_gen, _, _ = apportion1d_general(
-                v_votes=self.v_votes,
-                num_total_seats=self.total_seats,
-                prior_allocations=self.v_const_seats_alloc,
-                rule=self.rules.get_generator("adj_determine_divider"),
-                type_of_rule="Division",
-                threshold=self.rules["adjustment_threshold"])
+            rule_type = "Division"
         else:
             assert self.rules["adj_determine_divider"] in QUOTA_RULES.keys()
-            self.v_desired_col_sums, seat_gen, _, _ = apportion1d_general(
-                v_votes=self.v_votes,
-                num_total_seats=self.total_seats,
-                prior_allocations=self.v_const_seats_alloc,
-                rule=self.rules.get_generator("adj_determine_divider"),
-                type_of_rule="Quota",
-                threshold=self.rules["adjustment_threshold"])
+            rule_type = "Quota"
+        self.v_desired_col_sums, self.adj_seat_gen, _, _ = apportion1d_general(
+            v_votes=self.v_votes,
+            num_total_seats=self.total_seats,
+            prior_allocations=self.v_const_seats_alloc,
+            rule=self.rules.get_generator("adj_determine_divider"),
+            type_of_rule=rule_type,
+            threshold=self.rules["adjustment_threshold"]
+        )
         return self.v_desired_col_sums
 
     def run_adjustment_apportionment(self):
@@ -156,9 +152,7 @@ class Election:
                 v_desired_col_sums=self.v_desired_col_sums,
                 m_prior_allocations=self.m_const_seats_alloc,
                 divisor_gen=self.gen,
-                sum_divisor_gen=self.rules.get_generator("adj_determine_divider"),
-                DIVIDER_RULES=DIVIDER_RULES,
-                QUOTA_RULES=QUOTA_RULES,
+                adj_seat_gen=self.adj_seat_gen,
                 threshold=self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes,
                 v_const_seats=[con["num_const_seats"] for con in consts],

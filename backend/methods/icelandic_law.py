@@ -2,17 +2,13 @@
 from copy import deepcopy
 import random
 
-from apportion import apportion1d, apportion1d_by_quota
-
 def icelandic_apportionment(
     m_votes,
     v_desired_row_sums,
     v_desired_col_sums,
     m_prior_allocations,
     divisor_gen,
-    sum_divisor_gen,
-    DIVIDER_RULES,
-    QUOTA_RULES,
+    adj_seat_gen,
     threshold=None,
     orig_votes=None,
     **kwargs
@@ -43,36 +39,23 @@ def icelandic_apportionment(
     #   (Beita skal ákvæðum 3. tölul. svo oft sem þarf þar til lokið er
     #   úthlutun allra jöfnunarsæta, sbr. 2. mgr. 8. gr.)
     invalid = []
-    v_last_alloc = deepcopy(v_seats)
     seats_info = []
+    adj_seat = adj_seat_gen()
     while num_allocated < total_seats:
-        if sum_divisor_gen in DIVIDER_RULES.values():
-            alloc, d = apportion1d(
-                v_votes=v_votes,
-                num_total_seats=num_allocated+1,
-                prior_allocations=v_last_alloc,
-                divisor_gen=sum_divisor_gen,
-                invalid=invalid
-            )
-            country_num = d[2]
-        else:
-            quota_rule = sum_divisor_gen
-            assert quota_rule in QUOTA_RULES.values()
-            alloc, sequence, next_in = apportion1d_by_quota(
-                v_votes=v_votes,
-                num_total_seats=num_allocated+1,
-                prior_allocations=v_last_alloc,
-                quota_rule=quota_rule,
-                invalid=invalid
-            )
-            country_num = sequence[-1]["active_votes"]
+        #if all parties are either invalid or below threshold,
+        #then no more seats can be allocated
+        if all(p in invalid or v_votes[p] == 0 for p in range(len(v_votes))):
+            raise ValueError(f"No valid recipient of seat nr. {num_allocated+1}")
+
+        seat = next(adj_seat)
+        while seat["idx"] in invalid:
+            seat = next(adj_seat)
+        country_num = seat["active_votes"]
+        idx = seat["idx"]
 
         # 2.6.
         #   (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #   skal jafnframt fella niður allar landstölur þeirra.)
-
-        diff = [alloc[j]-v_last_alloc[j] for j in range(len(alloc))]
-        idx = diff.index(1)
 
         v_proportions = []
         for const in range(len(m_votes)):
@@ -110,7 +93,6 @@ def icelandic_apportionment(
 
             m_allocations[const[0]][idx] += 1
             num_allocated += 1
-            v_last_alloc = alloc
             seats_info.append({
                 "constituency": const[0], "party": idx,
                 "reason": "Highest list share",
