@@ -6,7 +6,7 @@ from tabulate import tabulate
 
 from table_util import entropy, add_totals
 from solution_util import solution_exists
-from apportion import apportion1d, apportion1d_by_quota, \
+from apportion import apportion1d_general, \
     threshold_elimination_totals, threshold_elimination_constituencies
 from electionRules import ElectionRules
 from dictionaries import ADJUSTMENT_METHODS, DIVIDER_RULES, QUOTA_RULES
@@ -70,22 +70,20 @@ class Election:
             num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
                 if self.rules["primary_divider"] in DIVIDER_RULES.keys():
-                    alloc, div = apportion1d(
-                        v_votes=self.m_votes[i],
-                        num_total_seats=num_seats,
-                        prior_allocations=[0]*self.num_parties,
-                        divisor_gen=self.rules.get_generator("primary_divider"),
-                        threshold=self.rules["constituency_threshold"])
-                    self.last.append(div[2])
+                    rule_type = "Division"
                 else:
                     assert self.rules["primary_divider"] in QUOTA_RULES.keys()
-                    alloc, sequence, next_in = apportion1d_by_quota(
-                        v_votes=self.m_votes[i],
-                        num_total_seats=num_seats,
-                        prior_allocations=[],
-                        quota_rule=self.rules.get_generator("primary_divider"),
-                        threshold=self.rules["constituency_threshold"])
-                    self.last.append(sequence[-1]["active_votes"])
+                    rule_type = "Quota"
+                alloc, _, last_in, _ = apportion1d_general(
+                    v_votes=self.m_votes[i],
+                    num_total_seats=num_seats,
+                    prior_allocations=[],
+                    rule=self.rules.get_generator("primary_divider"),
+                    type_of_rule=rule_type,
+                    threshold=self.rules["constituency_threshold"]
+                )
+                assert last_in #last_in is not None because num_seats > 0
+                self.last.append(last_in["active_votes"])
             else:
                 alloc = [0]*self.num_parties
                 self.last.append(0)
@@ -118,20 +116,18 @@ class Election:
         if self.rules["debug"]:
             print(" + Determine adjustment seats")
         if self.rules["adj_determine_divider"] in DIVIDER_RULES.keys():
-            self.v_desired_col_sums, _ = apportion1d(
-                v_votes=self.v_votes,
-                num_total_seats=self.total_seats,
-                prior_allocations=self.v_const_seats_alloc,
-                divisor_gen=self.rules.get_generator("adj_determine_divider"),
-                threshold=self.rules["adjustment_threshold"])
+            rule_type = "Division"
         else:
             assert self.rules["adj_determine_divider"] in QUOTA_RULES.keys()
-            self.v_desired_col_sums, _, _ = apportion1d_by_quota(
-                v_votes=self.v_votes,
-                num_total_seats=self.total_seats,
-                prior_allocations=self.v_const_seats_alloc,
-                quota_rule=self.rules.get_generator("adj_determine_divider"),
-                threshold=self.rules["adjustment_threshold"])
+            rule_type = "Quota"
+        self.v_desired_col_sums, self.adj_seat_gen, _, _ = apportion1d_general(
+            v_votes=self.v_votes,
+            num_total_seats=self.total_seats,
+            prior_allocations=self.v_const_seats_alloc,
+            rule=self.rules.get_generator("adj_determine_divider"),
+            type_of_rule=rule_type,
+            threshold=self.rules["adjustment_threshold"]
+        )
         return self.v_desired_col_sums
 
     def run_adjustment_apportionment(self):
@@ -156,10 +152,12 @@ class Election:
                 v_desired_col_sums=self.v_desired_col_sums,
                 m_prior_allocations=self.m_const_seats_alloc,
                 divisor_gen=self.gen,
+                adj_seat_gen=self.adj_seat_gen,
                 threshold=self.rules["adjustment_threshold"],
                 orig_votes=self.m_votes,
                 v_const_seats=[con["num_const_seats"] for con in consts],
-                last=self.last)
+                last=self.last #for nearest_neighbor and relative_inferiority
+            )
         except (ZeroDivisionError, RuntimeError):
             self.results = self.m_const_seats_alloc
             self.adj_seats_info = None

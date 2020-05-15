@@ -18,13 +18,16 @@ def solution_exists(votes, row_constraints, col_constraints, prior_allocations):
 
     epsilon = 0.0000001
     adjusted_votes = [[v if v>0 else epsilon for v in row] for row in votes]
-    result, _ = alternating_scaling(
-        m_votes=adjusted_votes,
-        v_desired_row_sums=row_constraints,
-        v_desired_col_sums=col_constraints,
-        m_prior_allocations=prior_allocations,
-        divisor_gen=division_rules.dhondt_gen,
-        threshold=0)
+    try:
+        result, _ = alternating_scaling(
+            m_votes=adjusted_votes,
+            v_desired_row_sums=row_constraints,
+            v_desired_col_sums=col_constraints,
+            m_prior_allocations=prior_allocations,
+            divisor_gen=division_rules.dhondt_gen,
+            threshold=0)
+    except RuntimeError:
+        return False
     for c in range(num_constituencies):
         for p in range(num_parties):
             if result[c][p]>prior_allocations[c][p] and votes[c][p]==0:

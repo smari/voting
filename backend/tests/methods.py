@@ -1,11 +1,10 @@
 from unittest import TestCase
-
 import logging
+
 import util
 import division_rules
 from electionRules import ElectionRules
 from voting import Election
-
 from methods.alternating_scaling import *
 from methods.norwegian_law import norwegian_apportionment
 from methods.norwegian_icelandic import norw_ice_apportionment
@@ -182,6 +181,86 @@ class TestAdjustmentMethods(TestCase):
                                    [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
                                    [2,1,3,0,0,0,0,0,0,0,0,2,0,2,1]])
+    def test_icelandic_law_lague(self):
+        #Arrange
+        self.rules["parties"] = ["A", "B", "C", "D", "E", "F", "G"]
+        votes = [
+            [ 4882,  2958, 4183, 2814, 1033,  729,  648],
+            [ 5577,  4016, 6132, 4776, 1266, 1011,  830],
+            [ 8383,  5327, 6424, 2785, 2039, 1407, 1687],
+            [18627, 11377, 6477, 6182, 4748, 5795, 2531],
+            [10206,  7457, 3429, 5431, 3631, 3474, 2089],
+            [ 9544,  7644, 3213, 6257, 4126, 3299, 1792],
+        ]
+        #self.rules["seat_spec_option"] = "all_adj"
+        self.rules["constituencies"] = [
+            {"name": "NV", "num_const_seats": 0, "num_adj_seats":  8},
+            {"name": "NA", "num_const_seats": 0, "num_adj_seats": 10},
+            {"name": "S",  "num_const_seats": 0, "num_adj_seats": 10},
+            {"name": "SV", "num_const_seats": 0, "num_adj_seats": 13},
+            {"name": "RS", "num_const_seats": 0, "num_adj_seats": 11},
+            {"name": "RN", "num_const_seats": 0, "num_adj_seats": 11},
+        ]
+        self.rules["adjustment_method"] = "icelandic-law"
+        self.rules["primary_divider"] = "dhondt" #Irrelevant, b/c 0 const seats
+        dd_rules = self.rules
+        dd_rules["adj_determine_divider"] = "dhondt"
+        dd_rules["adj_alloc_divider"]     = "dhondt"
+        sd_rules = ElectionRules()
+        sd_rules.update(dd_rules)
+        sd_rules["adj_determine_divider"] = "sainte-lague"
+        sd_rules["adj_alloc_divider"]     = "dhondt"
+        ss_rules = ElectionRules()
+        ss_rules.update(sd_rules)
+        ss_rules["adj_determine_divider"] = "sainte-lague"
+        ss_rules["adj_alloc_divider"]     = "sainte-lague"
+        dd_election = Election(dd_rules, votes)
+        sd_election = Election(sd_rules, votes)
+        ss_election = Election(ss_rules, votes)
+
+        #Act
+        dd_results = dd_election.run()
+        sd_results = sd_election.run()
+        ss_results = ss_election.run()
+
+        #Assert
+        self.assertEqual(dd_election.v_desired_col_sums,
+            [20, 13, 10, 10, 5, 5, 0] #based on dHondt
+        )
+        v_dd_results = [sum(x) for x in zip(*dd_results)]
+        self.assertEqual(v_dd_results,
+            [20, 13, 10, 10, 5, 5, 0] #based on dHondt
+        )
+
+        self.assertEqual(sd_election.v_desired_col_sums,
+            [19, 13, 10, 10, 6, 5, 0] #based on Sainte-Lague
+        )
+        v_sd_results = [sum(x) for x in zip(*sd_results)]
+        self.assertNotEqual(v_sd_results,
+            [20, 13, 10, 10, 5, 5, 0] #based on dHondt
+        )
+        self.assertEqual(v_sd_results,
+            [19, 13, 10, 10, 6, 5, 0] #based on Sainte-Lague
+        )
+
+        self.assertEqual(ss_election.v_desired_col_sums,
+            [19, 13, 10, 10, 6, 5, 0] #based on Sainte-Lague
+        )
+        v_ss_results = [sum(x) for x in zip(*ss_results)]
+        self.assertEqual(v_ss_results,
+            [19, 13, 10, 10, 6, 5, 0] #based on Sainte-Lague
+        )
+    def test_icelandic_law_hare(self):
+        self.rules["adjustment_method"] = "icelandic-law"
+        self.rules["adj_determine_divider"] = "hare"
+        election = Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_switching(self):
         self.rules["adjustment_method"] = "switching"
         election = Election(self.rules, self.votes)

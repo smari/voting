@@ -2,7 +2,7 @@ from copy import copy
 from table_util import find_shares_1d
 
 def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
-                threshold=0, invalid=[], v_max_left=[]):
+                threshold=0, v_max_left=[]):
     """
     Perform a one-dimensional apportionment of seats.
     Inputs:
@@ -10,8 +10,6 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
         - num_total_seats: Total number of seats to allocate.
         - prior_allocations: Prior allocations to each party.
         - divisor_gen: A divisor generator function, e.g. Sainte-Lague.
-        - invalid: A list of parties that cannot be allocated more seats.
-            (Added for Icelandic law adjustment seat apportionment.)
     Outputs:
         - allocations vector
         - a tuple containing current divisors, divisor generators, and the
@@ -27,20 +25,15 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
         divisors.append(x)
 
     allocations = copy(prior_allocations)
-    if v_max_left == []:
-        v_max_left = [num_total_seats]*len(v_votes)
-    else:
-        v_max_left = copy(v_max_left)
+    v_max_left = copy(v_max_left) if v_max_left else [num_total_seats]*N
 
     num_allocated = sum(prior_allocations)
     min_used = 1000000
     while num_allocated < num_total_seats:
         divided_votes = [float(v_votes[i])/divisors[i]
-                         if v_max_left[i]>0 and i not in invalid else 0
+                         if v_max_left[i]>0 else 0
                          for i in range(N)]
         maxvote = max(divided_votes)
-        if maxvote == 0:
-            raise ValueError(f"No valid recipient of seat nr. {num_allocated+1}")
         min_used = maxvote
         maxparty = divided_votes.index(maxvote)
         divisors[maxparty] = next(divisor_gens[maxparty])
@@ -50,56 +43,148 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
 
     return allocations, (divisors, divisor_gens, min_used)
 
-def apportion1d_by_quota(
+def apportion1d_general(
     v_votes,
     num_total_seats,
     prior_allocations,
-    quota_rule,
+    rule,
+    type_of_rule,
     threshold=0,
 ):
     """
     Perform a one-dimensional apportionment of seats,
-    with the method of largest remainders.
+    with a general method,
+    whether using largest remainders or a divisor method.
     Inputs:
         - v_votes: Vector of votes to base the apportionment on.
         - num_total_seats: Total number of seats to allocate.
         - prior_allocations: Prior allocations to each party.
-        - quota_rule: A rule for calculating quota, e.g. Droop quota.
+        - rule: A rule for selecting the next seat.
+        - type_of_rule: A string specifying rule type: "Division" or "Quota".
+        - threshold: A cutoff threshold in range [0,100].
     Outputs:
         - allocations vector
-        - sequence of seat allocations, including vote values used.
-        - party with largest remainder not resulting in seat.
+        - a generator that generates a sequence of seat allocations,
+        -  including vote values used.
+        - easy reference to the last seat to be allocated
+        - information about the first seat that was not allocated
     """
     N = len(v_votes)
     allocations = copy(prior_allocations) if prior_allocations else [0]*N
-    num_allocated = sum(allocations)
-    # v_max_left = copy(v_max_left) if v_max_left else [num_total_seats]*N
 
-    active_votes = threshold_elimination_1d(v_votes, threshold)
-    total_votes = sum(active_votes)
+    seat_gen = seat_generator(
+        votes=threshold_elimination_1d(v_votes, threshold),
+        num_total_seats=num_total_seats,
+        prior_allocations=copy(allocations),
+        rule=rule,
+        type_of_rule=type_of_rule
+    )
+
+    last_in = None
+    gen = seat_gen()
+    while sum(allocations) < num_total_seats:
+        seat = next(gen)
+        allocations[seat["idx"]] += 1
+        last_in = seat
+    next_in_line = next(gen)
+
+    return allocations, seat_gen, last_in, next_in_line
+
+def seat_generator(
+    votes,
+    num_total_seats,
+    prior_allocations,
+    rule,
+    type_of_rule
+):
+    if type_of_rule == "Division":
+        seat_gen = seat_generator_div(
+            votes=votes,
+            prior_allocations=prior_allocations,
+            divisor_gen=rule
+        )
+    else:
+        assert type_of_rule == "Quota"
+        seat_gen = seat_generator_quota(
+            votes=votes,
+            num_total_seats=num_total_seats,
+            prior_allocations=prior_allocations,
+            quota_rule=rule
+        )
+    return seat_gen
+
+def seat_generator_div(
+    votes,
+    prior_allocations,
+    divisor_gen,
+):
+    """
+    Perform a one-dimensional apportionment of seats,
+    using a divsion rule.
+    Inputs:
+        - votes: Vector of votes to base the apportionment on.
+        - prior_allocations: Prior allocations to each party.
+        - divisor_gen: A generator for a sequene of divisors to update votes.
+    Outputs:
+        - a generator that generates a sequence of seat allocations,
+        -  including vote values used.
+    """
+    N = len(votes)
+    assert N == len(prior_allocations)
+    def seat_gen():
+        divisor_gens = [divisor_gen() for x in range(N)]
+        active_votes = [0]*N
+        for i in range(N):
+            for k in range(prior_allocations[i]):
+                next(divisor_gens[i])
+            active_votes[i] = votes[i]*1.0/next(divisor_gens[i])
+        while True:
+            idx = active_votes.index(max(active_votes))
+            yield {
+                "idx": idx,
+                "active_votes": active_votes[idx],
+            }
+            active_votes[idx] = votes[idx]*1.0/next(divisor_gens[idx])
+
+    return seat_gen
+
+def seat_generator_quota(
+    votes,
+    num_total_seats,
+    prior_allocations,
+    quota_rule,
+):
+    """
+    Assist with one-dimensional apportionment of seats,
+    using a method of largest remainders.
+    Inputs:
+        - votes: Vector of votes to base the apportionment on.
+        - num_total_seats: Total number of seats to allocate.
+        - prior_allocations: Prior allocations to each party.
+        - quota_rule: A rule to find the number of votes required for a seat.
+    Outputs:
+        - a generator that generates a sequence of seat allocations,
+        -  including vote values used.
+    """
+    N = len(votes)
+    assert N == len(prior_allocations)
+
+    total_votes = sum(votes)
     quota = quota_rule(total_votes, num_total_seats)
-
     for n in range(N):
-        active_votes[n] -= quota*allocations[n]
+        votes[n] -= quota*prior_allocations[n]
 
-    allocation_sequence = []
-    while num_allocated < num_total_seats:
-        highest = active_votes.index(max(active_votes))
-        allocation_sequence.append({
-            "highest": highest,
-            "active_votes": active_votes[highest],
-        })
-        active_votes[highest] -= quota
-        allocations[highest] += 1
-        num_allocated += 1
+    def seat_gen():
+        active_votes = copy(votes)
+        while True:
+            idx = active_votes.index(max(active_votes))
+            yield {
+                "idx": idx,
+                "active_votes": active_votes[idx],
+            }
+            active_votes[idx] -= quota
 
-    highest = active_votes.index(max(active_votes))
-    next_in_line = {
-        "highest": highest,
-        "active_votes": active_votes[highest],
-    }
-
-    return allocations, allocation_sequence, next_in_line
+    return seat_gen
 
 
 def threshold_elimination_constituencies(votes, threshold, party_seats=None,

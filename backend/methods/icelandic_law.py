@@ -2,11 +2,17 @@
 from copy import deepcopy
 import random
 
-from apportion import apportion1d
-
-def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
-                            m_prior_allocations, divisor_gen, threshold=None,
-                            orig_votes=None, **kwargs):
+def icelandic_apportionment(
+    m_votes,
+    v_desired_row_sums,
+    v_desired_col_sums,
+    m_prior_allocations,
+    divisor_gen,
+    adj_seat_gen,
+    threshold=None,
+    orig_votes=None,
+    **kwargs
+):
     """
     Apportion based on Icelandic law nr. 24/2000.
     """
@@ -33,17 +39,23 @@ def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
     #   (Beita skal ákvæðum 3. tölul. svo oft sem þarf þar til lokið er
     #   úthlutun allra jöfnunarsæta, sbr. 2. mgr. 8. gr.)
     invalid = []
-    v_last_alloc = deepcopy(v_seats)
     seats_info = []
+    adj_seat = adj_seat_gen()
     while num_allocated < total_seats:
-        alloc, d = apportion1d(v_votes, num_allocated+1, v_last_alloc,
-                                divisor_gen, invalid=invalid)
+        #if all parties are either invalid or below threshold,
+        #then no more seats can be allocated
+        if all(p in invalid or v_votes[p] == 0 for p in range(len(v_votes))):
+            raise ValueError(f"No valid recipient of seat nr. {num_allocated+1}")
+
+        seat = next(adj_seat)
+        while seat["idx"] in invalid:
+            seat = next(adj_seat)
+        country_num = seat["active_votes"]
+        idx = seat["idx"]
+
         # 2.6.
         #   (Hafi allar hlutfallstölur stjórnmálasamtaka verið numdar brott
         #   skal jafnframt fella niður allar landstölur þeirra.)
-
-        diff = [alloc[j]-v_last_alloc[j] for j in range(len(alloc))]
-        idx = diff.index(1)
 
         v_proportions = []
         for const in range(len(m_votes)):
@@ -81,11 +93,10 @@ def icelandic_apportionment(m_votes, v_desired_row_sums, v_desired_col_sums,
 
             m_allocations[const[0]][idx] += 1
             num_allocated += 1
-            v_last_alloc = alloc
             seats_info.append({
                 "constituency": const[0], "party": idx,
                 "reason": "Highest list share",
-                "country_num": d[2],
+                "country_num": country_num,
                 "list_share": v_proportions[const[0]],
             })
         else:
