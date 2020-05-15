@@ -62,7 +62,7 @@ class TestElection(unittest.TestCase):
         repetitions = 2 # Make sure the process is repeatable
 
         #Act
-        seats, seat_gen, _, _ = apportion.apportion1d_general(
+        seats, seat_gen, last_in, next_in = apportion.apportion1d_general(
             v_votes=votes,
             num_total_seats=3,
             prior_allocations=[],
@@ -72,15 +72,21 @@ class TestElection(unittest.TestCase):
         seat = [[],[]]
         for i in range(repetitions):
             gen = seat_gen()
-            for j in range(3):
+            for j in range(5):
                 seat[i].append(next(gen))
 
         #Assert
         self.assertEqual(seats, [1,1,1])
+        self.assertEqual(last_in, {'idx': 2, 'active_votes': 36})
+        self.assertEqual(next_in, {'idx': 0, 'active_votes': 35})
         for i in range(repetitions):
             self.assertEqual(seat[i][0], {'idx': 0, 'active_votes': 135})
             self.assertEqual(seat[i][1], {'idx': 1, 'active_votes': 129})
             self.assertEqual(seat[i][2], {'idx': 2, 'active_votes':  36})
+            #note that the quota is based on there being only 3 seats,
+            #but if we were to continue, the sequence would go on as follows:
+            self.assertEqual(seat[i][3], {'idx': 0, 'active_votes':  35})
+            self.assertEqual(seat[i][4], {'idx': 1, 'active_votes':  29})
 
     def test_seat_generator_div(self):
         #Arrange
@@ -88,7 +94,7 @@ class TestElection(unittest.TestCase):
         repetitions = 2 # Make sure the process is repeatable
 
         #Act
-        seats, seat_gen, _, _ = apportion.apportion1d_general(
+        seats, seat_gen, last_in, next_in = apportion.apportion1d_general(
             v_votes=votes,
             num_total_seats=3,
             prior_allocations=[],
@@ -103,10 +109,13 @@ class TestElection(unittest.TestCase):
 
         #Assert
         self.assertEqual(seats, [2,1,0])
+        self.assertEqual(last_in, {'idx': 0, 'active_votes': 67.5})
+        self.assertEqual(next_in, {'idx': 1, 'active_votes': 64.5})
         for i in range(repetitions):
             self.assertEqual(seat[i][0], {'idx': 0, 'active_votes': 135})
             self.assertEqual(seat[i][1], {'idx': 1, 'active_votes': 129})
             self.assertEqual(seat[i][2], {'idx': 0, 'active_votes':  67.5})
+            #the sequence continues beyond the specified 3 seats as follows:
             self.assertEqual(seat[i][3], {'idx': 1, 'active_votes':  64.5})
             self.assertEqual(seat[i][4], {'idx': 0, 'active_votes':  45})
             self.assertEqual(seat[i][5], {'idx': 1, 'active_votes':  43})
