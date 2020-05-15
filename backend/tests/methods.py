@@ -250,6 +250,17 @@ class TestAdjustmentMethods(TestCase):
         self.assertEqual(v_ss_results,
             [19, 13, 10, 10, 6, 5, 0] #based on Sainte-Lague
         )
+    def test_icelandic_law_hare(self):
+        self.rules["adjustment_method"] = "icelandic-law"
+        self.rules["adj_determine_divider"] = "hare"
+        election = Election(self.rules, self.votes)
+        results = election.run()
+        self.assertEqual(results, [[0,4,2,0,0,0,0,0,0,0,0,1,0,1,0],
+                                   [1,4,2,0,0,0,0,0,0,0,0,1,0,2,0],
+                                   [1,4,4,0,0,0,0,0,0,0,0,1,0,0,0],
+                                   [1,3,5,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [2,2,3,0,0,0,0,0,0,0,0,2,0,1,1],
+                                   [1,2,3,0,0,0,0,0,0,0,0,2,0,2,1]])
     def test_switching(self):
         self.rules["adjustment_method"] = "switching"
         election = Election(self.rules, self.votes)
