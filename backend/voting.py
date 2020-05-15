@@ -69,13 +69,12 @@ class Election:
         for i in range(self.num_constituencies):
             num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
-                rule_type = ""
                 if self.rules["primary_divider"] in DIVIDER_RULES.keys():
                     rule_type = "Division"
                 else:
                     assert self.rules["primary_divider"] in QUOTA_RULES.keys()
                     rule_type = "Quota"
-                alloc, seat_gen, last_in, next_in = apportion1d_general(
+                alloc, _, last_in, _ = apportion1d_general(
                     v_votes=self.m_votes[i],
                     num_total_seats=num_seats,
                     prior_allocations=[],
@@ -117,19 +116,21 @@ class Election:
         if self.rules["debug"]:
             print(" + Determine adjustment seats")
         if self.rules["adj_determine_divider"] in DIVIDER_RULES.keys():
-            self.v_desired_col_sums, _ = apportion1d(
+            self.v_desired_col_sums, seat_gen, _, _ = apportion1d_general(
                 v_votes=self.v_votes,
                 num_total_seats=self.total_seats,
                 prior_allocations=self.v_const_seats_alloc,
-                divisor_gen=self.rules.get_generator("adj_determine_divider"),
+                rule=self.rules.get_generator("adj_determine_divider"),
+                type_of_rule="Division",
                 threshold=self.rules["adjustment_threshold"])
         else:
             assert self.rules["adj_determine_divider"] in QUOTA_RULES.keys()
-            self.v_desired_col_sums, _, _ = apportion1d_by_quota(
+            self.v_desired_col_sums, seat_gen, _, _ = apportion1d_general(
                 v_votes=self.v_votes,
                 num_total_seats=self.total_seats,
                 prior_allocations=self.v_const_seats_alloc,
-                quota_rule=self.rules.get_generator("adj_determine_divider"),
+                rule=self.rules.get_generator("adj_determine_divider"),
+                type_of_rule="Quota",
                 threshold=self.rules["adjustment_threshold"])
         return self.v_desired_col_sums
 
