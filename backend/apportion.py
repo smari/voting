@@ -66,6 +66,8 @@ def apportion1d_general(
         - allocations vector
         - a generator that generates a sequence of seat allocations,
         -  including vote values used.
+        - easy reference to the last seat to be allocated
+        - information about the first seat that was not allocated
     """
     N = len(v_votes)
     allocations = copy(prior_allocations) if prior_allocations else [0]*N
