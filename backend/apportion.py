@@ -34,6 +34,8 @@ def apportion1d(v_votes, num_total_seats, prior_allocations, divisor_gen,
                          if v_max_left[i]>0 else 0
                          for i in range(N)]
         maxvote = max(divided_votes)
+        if maxvote == 0:
+            raise ValueError(f"No valid recipient of seat nr. {num_allocated+1}")
         min_used = maxvote
         maxparty = divided_votes.index(maxvote)
         divisors[maxparty] = next(divisor_gens[maxparty])
