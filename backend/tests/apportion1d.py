@@ -61,24 +61,20 @@ class TestElection(unittest.TestCase):
             rule=division_rules.hare,
             type_of_rule="Quota"
         )
-        seat = [[],[]]
-        for i in range(repetitions):
-            gen = seat_gen()
-            for j in range(5):
-                seat[i].append(next(gen))
 
         #Assert
         self.assertEqual(seats, [1,1,1])
         self.assertEqual(last_in, {'idx': 2, 'active_votes': 36})
         self.assertEqual(next_in, {'idx': 0, 'active_votes': 35})
         for i in range(repetitions):
-            self.assertEqual(seat[i][0], {'idx': 0, 'active_votes': 135})
-            self.assertEqual(seat[i][1], {'idx': 1, 'active_votes': 129})
-            self.assertEqual(seat[i][2], {'idx': 2, 'active_votes':  36})
+            seat = seat_gen()
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes': 135})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes': 129})
+            self.assertEqual(next(seat), {'idx': 2, 'active_votes':  36})
             #note that the quota is based on there being only 3 seats,
             #but if we were to continue, the sequence would go on as follows:
-            self.assertEqual(seat[i][3], {'idx': 0, 'active_votes':  35})
-            self.assertEqual(seat[i][4], {'idx': 1, 'active_votes':  29})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes':  35})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes':  29})
 
     def test_seat_generator_div(self):
         #Arrange
@@ -93,28 +89,24 @@ class TestElection(unittest.TestCase):
             rule=division_rules.dhondt_gen,
             type_of_rule="Division"
         )
-        seat = [[],[]]
-        for i in range(repetitions):
-            gen = seat_gen()
-            for j in range(10):
-                seat[i].append(next(gen))
 
         #Assert
         self.assertEqual(seats, [2,1,0])
         self.assertEqual(last_in, {'idx': 0, 'active_votes': 67.5})
         self.assertEqual(next_in, {'idx': 1, 'active_votes': 64.5})
         for i in range(repetitions):
-            self.assertEqual(seat[i][0], {'idx': 0, 'active_votes': 135})
-            self.assertEqual(seat[i][1], {'idx': 1, 'active_votes': 129})
-            self.assertEqual(seat[i][2], {'idx': 0, 'active_votes':  67.5})
+            seat = seat_gen()
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes': 135})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes': 129})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes':  67.5})
             #the sequence continues beyond the specified 3 seats as follows:
-            self.assertEqual(seat[i][3], {'idx': 1, 'active_votes':  64.5})
-            self.assertEqual(seat[i][4], {'idx': 0, 'active_votes':  45})
-            self.assertEqual(seat[i][5], {'idx': 1, 'active_votes':  43})
-            self.assertEqual(seat[i][6], {'idx': 2, 'active_votes':  36})
-            self.assertEqual(seat[i][7], {'idx': 0, 'active_votes':  33.75})
-            self.assertEqual(seat[i][8], {'idx': 1, 'active_votes':  32.25})
-            self.assertEqual(seat[i][9], {'idx': 0, 'active_votes':  27})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes':  64.5})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes':  45})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes':  43})
+            self.assertEqual(next(seat), {'idx': 2, 'active_votes':  36})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes':  33.75})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes':  32.25})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes':  27})
 
     def test_seat_generator_div_with_prior(self):
         #Arrange
@@ -129,22 +121,18 @@ class TestElection(unittest.TestCase):
             rule=division_rules.dhondt_gen,
             type_of_rule="Division"
         )
-        seat = [[],[]]
-        for i in range(repetitions):
-            gen = seat_gen()
-            for j in range(7):
-                seat[i].append(next(gen))
 
         #Assert
         self.assertEqual(seats, [3,3,0])
         self.assertEqual(last_in, {'idx': 1, 'active_votes': 43})
         self.assertEqual(next_in, {'idx': 2, 'active_votes': 36})
         for i in range(repetitions):
-            self.assertEqual(seat[i][0], {'idx': 1, 'active_votes': 64.5})
-            self.assertEqual(seat[i][1], {'idx': 0, 'active_votes': 45})
-            self.assertEqual(seat[i][2], {'idx': 1, 'active_votes': 43})
+            seat = seat_gen()
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes': 64.5})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes': 45})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes': 43})
             #the sequence continues beyond the specified 3 seats as follows:
-            self.assertEqual(seat[i][3], {'idx': 2, 'active_votes': 36})
-            self.assertEqual(seat[i][4], {'idx': 0, 'active_votes': 33.75})
-            self.assertEqual(seat[i][5], {'idx': 1, 'active_votes': 32.25})
-            self.assertEqual(seat[i][6], {'idx': 0, 'active_votes': 27})
+            self.assertEqual(next(seat), {'idx': 2, 'active_votes': 36})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes': 33.75})
+            self.assertEqual(next(seat), {'idx': 1, 'active_votes': 32.25})
+            self.assertEqual(next(seat), {'idx': 0, 'active_votes': 27})
