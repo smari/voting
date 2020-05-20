@@ -127,10 +127,7 @@ to the frontend. The backend is made with Flask.
 
 The SPA's data model should be the same as the backend's script-mode input model.
 
-The SPA is built using React and Bootstrap. It contains a bit of JQuery glue
-that should go away eventually.
-
-The SPA is currently being refactored using [create-react-app](https://github.com/facebookincubator/create-react-app) which is located in the [ui](https://github.com/smari/voting/tree/master/ui) directory.
+The SPA is built using vue.js.
 
 ## Features
 
@@ -213,8 +210,8 @@ The SPA is currently being refactored using [create-react-app](https://github.co
     * [ ] Display results
        * [x] Votes
        * [ ] Vote shares
-       * [ ] Constituency seats
-       * [ ] Adjustment seats
+       * [x] Constituency seats
+       * [x] Adjustment seats
        * [x] Total seats
        * [x] Evaluation metrics
     * [ ] Visualizations
