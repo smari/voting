@@ -9,6 +9,7 @@ class FlaskTest(TestCase):
         app.config['DEBUG'] = True
         app.config['TESTING'] = True
         app.config['WTF_CSRF_METHODS'] = []
+        app.config['TRAP_BAD_REQUEST_ERRORS'] = False
         app.testing = True
         self.tc = app.test_client()
 
