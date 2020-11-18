@@ -61,6 +61,14 @@ class ElectionRules(Rules):
         else:
             raise ValueError("%s is not a known divider" % div)
 
+    def get_type(self, rule):
+        method = self[rule]
+        if method in DIVIDER_RULES.keys():
+            return "Division"
+        elif method in QUOTA_RULES.keys():
+            return "Quota"
+        else:
+            raise ValueError(f"{rule} is not a known rule")
 
 
     def generate_comparison_rules(self, option="all"):

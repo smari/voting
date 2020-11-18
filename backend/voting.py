@@ -69,17 +69,12 @@ class Election:
         for i in range(self.num_constituencies):
             num_seats = constituencies[i]["num_const_seats"]
             if num_seats != 0:
-                if self.rules["primary_divider"] in DIVIDER_RULES.keys():
-                    rule_type = "Division"
-                else:
-                    assert self.rules["primary_divider"] in QUOTA_RULES.keys()
-                    rule_type = "Quota"
                 alloc, _, last_in, _ = apportion1d_general(
                     v_votes=self.m_votes[i],
                     num_total_seats=num_seats,
                     prior_allocations=[],
                     rule=self.rules.get_generator("primary_divider"),
-                    type_of_rule=rule_type,
+                    type_of_rule=self.rules.get_type("primary_divider"),
                     threshold=self.rules["constituency_threshold"]
                 )
                 assert last_in #last_in is not None because num_seats > 0
@@ -115,17 +110,12 @@ class Election:
         """Calculate the number of adjustment seats each party gets."""
         if self.rules["debug"]:
             print(" + Determine adjustment seats")
-        if self.rules["adj_determine_divider"] in DIVIDER_RULES.keys():
-            rule_type = "Division"
-        else:
-            assert self.rules["adj_determine_divider"] in QUOTA_RULES.keys()
-            rule_type = "Quota"
         self.v_desired_col_sums, self.adj_seat_gen, _, _ = apportion1d_general(
             v_votes=self.v_votes,
             num_total_seats=self.total_seats,
             prior_allocations=self.v_const_seats_alloc,
             rule=self.rules.get_generator("adj_determine_divider"),
-            type_of_rule=rule_type,
+            type_of_rule=self.rules.get_type("adj_determine_divider"),
             threshold=self.rules["adjustment_threshold"]
         )
         return self.v_desired_col_sums
