@@ -59,13 +59,9 @@ def load_votes_from_stream(stream, filename):
         for row in csv.reader(stream, skipinitialspace=True):
             rd.append(row)
     elif filename.endswith(".xlsx"):
-        try:
-            book = openpyxl.load_workbook(stream)
-        except AttributeError as ae:
-            if str(ae) == "'SpooledTemporaryFile' object has no attribute 'seekable'":
-                if hasattr(stream, "_file"):
-                    stream.seekable = stream._file.seekable
-            book = openpyxl.load_workbook(stream)
+        if not hasattr(stream, "seekable") and hasattr(stream, "_file"):
+            stream.seekable = stream._file.seekable  # TODO: Remove this monkeypatch once this issue has been resolved.
+        book = openpyxl.load_workbook(stream)
         sheet = book.active
         for row in sheet.rows:
             rd.append([cell.value for cell in row])
