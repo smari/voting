@@ -59,6 +59,8 @@ def load_votes_from_stream(stream, filename):
         for row in csv.reader(stream, skipinitialspace=True):
             rd.append(row)
     elif filename.endswith(".xlsx"):
+        if not hasattr(stream, "seekable") and hasattr(stream, "_file"):
+            stream.seekable = stream._file.seekable  # TODO: Remove this monkeypatch once this issue has been resolved.
         book = openpyxl.load_workbook(stream)
         sheet = book.active
         for row in sheet.rows:

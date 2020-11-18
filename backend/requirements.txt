@@ -1,13 +1,13 @@
 backports.csv==1.0.5
 click==6.7
-Flask==1.0
+Flask>=1.1
 Flask-Cors==3.0.3
 itsdangerous==0.24
 MarkupSafe==1.0
-six==1.10.0
+six>=1.10.0
 tabulate==0.7.7
-Werkzeug==0.15.3
+Werkzeug>=1
 xlsxwriter
-openpyxl
+openpyxl>=3
 configparser
 numpy
