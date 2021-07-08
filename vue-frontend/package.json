@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "build": "webpack --config webpack.config.dev.js"
+    "build": "webpack --config webpack.config.dev.js",
+    "build-production": "NODE_ENV=production webpack --config webpack.config.prod.js"
   },
   "author": "",
   "license": "AGPL",
