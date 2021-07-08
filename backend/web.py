@@ -3,6 +3,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import threading
 import random
+import os
 import os.path
 import tempfile
 from datetime import datetime, timedelta
@@ -480,5 +481,9 @@ def run_script(rules):
 
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(debug=True)
+    debug = os.environ.get("FLASK_DEBUG", "") == "True"
+    host = os.environ.get("FLASK_RUN_HOST", "0.0.0.0")
+    port = os.environ.get("FLASK_RUN_PORT", "5000")
+    print(f"Running on {host}:{port}")
+    app.debug = debug
+    app.run(host=host, port=port, debug=debug)

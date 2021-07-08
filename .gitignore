@@ -10,5 +10,4 @@
 venv/
 backend/logs/*.log
 /vue-frontend/node_modules
-/vue-frontend/package-lock.json
 /vue-frontend/static/js/bundle.js
