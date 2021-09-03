@@ -3,7 +3,7 @@ click==6.7
 Flask>=1.1
 Flask-Cors==3.0.9
 itsdangerous==0.24
-MarkupSafe==1.0
+MarkupSafe==1.1.1
 six>=1.10.0
 tabulate==0.7.7
 Werkzeug>=1
